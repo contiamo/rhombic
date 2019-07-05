@@ -68,6 +68,22 @@ describe("parseSql", () => {
           Comma(",")
         )
       )`
+    },
+    {
+      title: "a VALUES statement (array)",
+      sql: "VALUES ('a', 'b')",
+      expected: `query(
+        values(
+          Values("VALUES")
+          expression(
+            LParen("(")
+            expression(String("'a'"))
+            expression(String("'b'"))
+            Comma(",")
+            RParen(")")
+          )
+        )
+      )`
     }
   ];
 

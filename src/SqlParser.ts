@@ -170,7 +170,17 @@ class SqlParser extends CstParser {
     this.OR([
       { ALT: () => this.CONSUME(Integer) },
       { ALT: () => this.CONSUME(String) },
-      { ALT: () => this.CONSUME(Null) }
+      { ALT: () => this.CONSUME(Null) },
+      {
+        ALT: () => {
+          this.CONSUME(LParen);
+          this.MANY_SEP({
+            SEP: Comma,
+            DEF: () => this.SUBRULE(this.expression)
+          });
+          this.CONSUME(RParen);
+        }
+      }
     ]);
   });
 
