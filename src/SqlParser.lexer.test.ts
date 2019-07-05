@@ -128,6 +128,18 @@ describe("Sql Lexer", () => {
         "FROM => From",
         "table2 => Identifier"
       ]
+    },
+    {
+      title: "string",
+      sql: `VALUES '1', '2', '3'`,
+      expected: [
+        "VALUES => Values",
+        "'1' => String",
+        ", => Comma",
+        "'2' => String",
+        ", => Comma",
+        "'3' => String"
+      ]
     }
   ];
 

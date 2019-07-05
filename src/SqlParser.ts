@@ -1,5 +1,5 @@
 import { createToken, Lexer, CstParser } from "chevrotain";
-import { matchFunctionName } from "./matchFunctionName";
+import { matchFunctionName } from "./utils/matchFunctionName";
 
 const Identifier = createToken({
   name: "Identifier",
@@ -61,29 +61,27 @@ const IsNotNull = createToken({
   pattern: /IS NOT NULL/i,
   longer_alt: Identifier
 });
-
+const Null = createToken({ name: "Null", pattern: /null/ });
+const Asterisk = createToken({ name: "Asterisk", pattern: /\*/ });
 const Comma = createToken({ name: "Comma", pattern: /,/ });
 const Period = createToken({ name: "Period", pattern: /\./ });
 const LSquare = createToken({ name: "LSquare", pattern: /\[/ });
 const RSquare = createToken({ name: "RSquare", pattern: /]/ });
 const LParen = createToken({ name: "LParen", pattern: /\(/ });
 const RParen = createToken({ name: "RParen", pattern: /\)/ });
-const Asterisk = createToken({ name: "Asterisk", pattern: /\*/ });
-const DoubleQuote = createToken({ name: "DoubleQuote", pattern: /"/ });
-const Quote = createToken({ name: "Quote", pattern: /'/ });
-const Percent = createToken({ name: "Percent", pattern: /%/ });
-const PlusSign = createToken({ name: "PlusSign", pattern: /\+/ });
-const MinusSign = createToken({ name: "MinusSign", pattern: /-/ });
-const Solidus = createToken({ name: "Solidus", pattern: /\// });
 const Column = createToken({ name: "Column", pattern: /:/ });
 const SemiColumn = createToken({ name: "SemiColumn", pattern: /;/ });
 
 const Operator = createToken({
   name: "Operator",
-  pattern: /(!=|<>|==|<=|>=|!<|!>|\|\||::|->>|->|~~\*|~~|!~~\*|!~~|~\*|!~\*|!~|>|<)/
+  pattern: /(!=|<>|==|<=|>=|!<|!>|\|\||::|->>|->|~~\*|~~|!~~\*|!~~|~\*|!~\*|!~|>|<|\+|-|\/|%)/
 });
 
 const Integer = createToken({ name: "Integer", pattern: /0|[1-9]\d*/ });
+const String = createToken({
+  name: "String",
+  pattern: /((`[^`]*(`))+)|((\[[^\]]*(\]))(\][^\]]*(\]))*)|(("[^"\\]*(?:\\.[^"\\]*)*("))+)|(('[^'\\]*(?:\\.[^'\\]*)*('))+)|((N'[^N'\\]*(?:\\.[^N'\\]*)*('))+)/
+});
 
 const WhiteSpace = createToken({
   name: "WhiteSpace",
@@ -104,26 +102,22 @@ const allTokens = [
   Or,
   IsNotNull,
   IsNull,
+  Null,
 
   FunctionIdentifier,
 
   // The Identifier must appear after the keywords because all keywords are valid identifiers.
   Identifier,
   Integer,
+  String,
 
-  DoubleQuote,
-  Quote,
-  Percent,
-  PlusSign,
-  MinusSign,
-  Solidus,
+  Asterisk,
   Column,
   SemiColumn,
   LSquare,
   RSquare,
   LParen,
   RParen,
-  Asterisk,
   Comma,
   Period,
   Operator
@@ -172,7 +166,13 @@ class SqlParser extends CstParser {
    *      valueExpression
    *  |   null
    */
-  public expression = this.RULE("expression", () => {});
+  public expression = this.RULE("expression", () => {
+    this.OR([
+      { ALT: () => this.CONSUME(Integer) },
+      { ALT: () => this.CONSUME(String) },
+      { ALT: () => this.CONSUME(Null) }
+    ]);
+  });
 
   /**
    * <value expression> ::=
@@ -273,7 +273,7 @@ class SqlParser extends CstParser {
     this.CONSUME(Values);
     this.MANY_SEP({
       SEP: Comma,
-      DEF: () => this.OR([{ ALT: () => this.CONSUME(Integer) }])
+      DEF: () => this.SUBRULE(this.expression)
     });
   });
 
