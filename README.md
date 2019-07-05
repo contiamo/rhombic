@@ -1,4 +1,4 @@
-![Rhombic](./docs/rhombic-logo.svg)
+<img src="./docs/rhombic-logo.svg" alt="Rhombic-logo" width="400px" />
 
 Parser and helpers around [Calcite SQL](https://calcite.apache.org/docs/reference.html)
 
