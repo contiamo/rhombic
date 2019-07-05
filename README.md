@@ -1,4 +1,4 @@
-![Rhombic](./assets/rhombic-logo.png)
+![Rhombic](./docs/rhombic-logo.png)
 
 ---
 
@@ -36,5 +36,7 @@ https://www.esci.umn.edu/courses/1001/minerals/calcite.shtml
 ## Resources
 
 [Calcite SQL Reference](https://calcite.apache.org/docs/reference.html)
+
+[Calcite grammar](https://github.com/apache/calcite/blob/master/core/src/main/codegen/templates/Parser.jj)
 
 [SQL 2003-2 BNF](https://github.com/ronsavage/SQL/blob/master/sql-2003-2.bnf)
