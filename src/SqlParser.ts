@@ -78,15 +78,10 @@ const Solidus = createToken({ name: "Solidus", pattern: /\// });
 const Column = createToken({ name: "Column", pattern: /:/ });
 const SemiColumn = createToken({ name: "SemiColumn", pattern: /;/ });
 
-const Equals = createToken({ name: "Equals", pattern: /=/ });
-const GreaterThan = createToken({ name: "GreaterThan", pattern: />/ });
-const LessThan = createToken({ name: "LessThan", pattern: /</ });
-const GreaterEqualThan = createToken({
-  name: "GreaterEqualThan",
-  pattern: />=/
+const Operator = createToken({
+  name: "Operator",
+  pattern: /(!=|<>|==|<=|>=|!<|!>|\|\||::|->>|->|~~\*|~~|!~~\*|!~~|~\*|!~\*|!~|>|<)/
 });
-const LessEqualThan = createToken({ name: "LessEqualThan", pattern: /<=/ });
-const DifferentThan = createToken({ name: "DifferentThan", pattern: /<>/ });
 
 const Integer = createToken({ name: "Integer", pattern: /0|[1-9]\d*/ });
 
@@ -124,19 +119,14 @@ const allTokens = [
   Solidus,
   Column,
   SemiColumn,
-  Equals,
-  DifferentThan,
-  GreaterEqualThan,
-  GreaterThan,
-  LessEqualThan,
-  LessThan,
   LSquare,
   RSquare,
   LParen,
   RParen,
   Asterisk,
   Comma,
-  Period
+  Period,
+  Operator
 ];
 
 // reuse the same lexer instance

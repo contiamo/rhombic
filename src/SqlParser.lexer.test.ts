@@ -91,7 +91,7 @@ describe("Sql Lexer", () => {
         "table2 => Identifier",
         "WHERE => Where",
         "column1 => Identifier",
-        "> => GreaterThan",
+        "> => Operator",
         "42 => Integer"
       ]
     },
@@ -105,11 +105,11 @@ describe("Sql Lexer", () => {
         "table2 => Identifier",
         "WHERE => Where",
         "a => Identifier",
-        "<= => LessEqualThan",
+        "<= => Operator",
         "30 => Integer",
         "AND => And",
         "b => Identifier",
-        ">= => GreaterEqualThan",
+        ">= => Operator",
         "10 => Integer",
         "OR => Or",
         "c => Identifier",
