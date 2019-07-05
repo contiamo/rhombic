@@ -2,17 +2,35 @@
  * Script to generate railroad diagrams from the grammar.
  *
  * Command:
- *  `yarn gen:diagrams`
+ *  `yarn gen-diagrams`
  *
  * Result:
  *  `docs/diagrams.html`
  */
 import { writeFileSync } from "fs";
+import program from "commander";
+import chalk from "chalk";
+import chokidar from "chokidar";
 import { join } from "path";
-import { parser } from "./SqlParser";
 import { createSyntaxDiagramsCode } from "chevrotain";
 
-const grammar = parser.getSerializedGastProductions();
-const html = createSyntaxDiagramsCode(grammar);
+import { parser } from "./SqlParser";
 
-writeFileSync(join(__dirname, "../docs/diagrams.html"), html);
+program
+  .version(require("../package.json").version)
+  .option("-w, --watch", "Watch the filesystem for rebuild")
+  .parse(process.argv);
+
+function generateDiagrams() {
+  const grammar = parser.getSerializedGastProductions();
+  const html = createSyntaxDiagramsCode(grammar);
+
+  writeFileSync(join(__dirname, "../docs/diagrams.html"), html);
+  console.log(chalk.green("✔") + " diagrams generated!");
+}
+
+generateDiagrams();
+
+if (program.watch) {
+  chokidar.watch([`src/SqlParser.ts`]).on("change", generateDiagrams);
+}
