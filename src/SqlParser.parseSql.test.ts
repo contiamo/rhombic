@@ -84,6 +84,177 @@ describe("parseSql", () => {
           )
         )
       )`
+    },
+    {
+      title: "SELECT without FROM",
+      sql: "SELECT 'hello'",
+      expected: `
+      query(
+        select(
+          Select("SELECT")
+          projectItems(
+            projectItem(
+              expression(String("'hello'"))
+            )
+          )
+        )
+      )`
+    },
+    {
+      title: "simple SELECT * statement",
+      sql: "SELECT * FROM my_db",
+      expected: `
+      query(
+        select(
+          Select("SELECT")
+          projectItems(
+            Asterisk("*")
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier("my_db")
+              )
+            )
+          )
+        )
+      )`
+    },
+    {
+      title: "simple SELECT * statement (complex table name)",
+      sql: "SELECT * FROM my_catalog.my_schema.my_table",
+      expected: `
+      query(
+        select(
+          Select("SELECT")
+          projectItems(
+            Asterisk("*")
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier("my_catalog", "my_schema", "my_table")
+                Period(".", ".")
+              )
+            )
+          )
+        )
+      )`
+    },
+    {
+      title: "SELECT one column statement",
+      sql: "SELECT column01 FROM my_db",
+      expected: `
+      query(
+        select(
+          Select("SELECT")
+          projectItems(
+            projectItem(
+              expression(
+                Identifier("column01")
+              )
+            )
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier("my_db")
+              )
+            )
+          )
+        )
+      )`
+    },
+    {
+      title: "SELECT multiple columns statement",
+      sql: "SELECT column01, column02, column03 FROM my_db",
+      expected: `
+      query(
+        select(
+          Select("SELECT")
+          projectItems(
+            projectItem(
+              expression(
+                Identifier("column01")
+              )
+            )
+            projectItem(
+              expression(
+                Identifier("column02")
+              )
+            )
+            projectItem(
+              expression(
+                Identifier("column03")
+              )
+            )
+            Comma(",", ",")
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier("my_db")
+              )
+            )
+          )
+        )
+      )`
+    },
+    {
+      title: "SELECT ALL",
+      sql: "SELECT ALL column01 FROM my_db",
+      expected: `
+      query(
+        select(
+          Select("SELECT")
+          All("ALL")
+          projectItems(
+            projectItem(
+              expression(
+                Identifier("column01")
+              )
+            )
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier("my_db")
+              )
+            )
+          )
+        )
+      )`
+    },
+    {
+      title: "SELECT DISTINCT",
+      sql: "SELECT DISTINCT column01 FROM my_db",
+      expected: `
+      query(
+        select(
+          Select("SELECT")
+          Distinct("DISTINCT")
+          projectItems(
+            projectItem(
+              expression(
+                Identifier("column01")
+              )
+            )
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier("my_db")
+              )
+            )
+          )
+        )
+      )`
     }
   ];
 

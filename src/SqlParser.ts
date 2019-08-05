@@ -38,6 +38,24 @@ const Values = createToken({
   longer_alt: Identifier
 });
 
+const All = createToken({
+  name: "All",
+  pattern: /ALL/i,
+  longer_alt: Identifier
+});
+
+const Distinct = createToken({
+  name: "Distinct",
+  pattern: /DISTINCT/i,
+  longer_alt: Identifier
+});
+
+const Stream = createToken({
+  name: "Stream",
+  pattern: /STREAM/i,
+  longer_alt: Identifier
+});
+
 const And = createToken({
   name: "And",
   pattern: /AND/i,
@@ -47,6 +65,12 @@ const And = createToken({
 const Or = createToken({
   name: "Or",
   pattern: /OR/i,
+  longer_alt: Identifier
+});
+
+const As = createToken({
+  name: "As",
+  pattern: /AS/i,
   longer_alt: Identifier
 });
 
@@ -103,6 +127,10 @@ const allTokens = [
   IsNotNull,
   IsNull,
   Null,
+  As,
+  Distinct,
+  All,
+  Stream,
 
   FunctionIdentifier,
 
@@ -158,7 +186,10 @@ class SqlParser extends CstParser {
    *      [ FETCH { FIRST | NEXT } [ count ] { ROW | ROWS } ONLY ]
    */
   public query = this.RULE("query", () => {
-    this.OR([{ ALT: () => this.SUBRULE(this.values) }]);
+    this.OR([
+      { ALT: () => this.SUBRULE(this.values) },
+      { ALT: () => this.SUBRULE(this.select) }
+    ]);
   });
 
   /**
@@ -180,7 +211,8 @@ class SqlParser extends CstParser {
           });
           this.CONSUME(RParen);
         }
-      }
+      },
+      { ALT: () => this.CONSUME(Identifier) }
     ]);
   });
 
@@ -215,22 +247,73 @@ class SqlParser extends CstParser {
    *      [ GROUP BY { groupItem [, groupItem ]* } ]
    *      [ HAVING booleanExpression ]
    *      [ WINDOW windowName AS windowSpec [, windowName AS windowSpec ]* ]
+   *
+   *
    */
-  public select = this.RULE("select", () => {});
+  public select = this.RULE("select", () => {
+    this.CONSUME(Select);
+    this.OPTION(() => this.CONSUME(Stream));
+    this.OPTION1(() => {
+      this.OR([
+        { ALT: () => this.CONSUME(All) },
+        { ALT: () => this.CONSUME(Distinct) }
+      ]);
+    });
+    this.SUBRULE(this.projectItems);
+
+    // Everything is wrap into `OPTION` to deal with selectWithoutFrom case
+    this.OPTION3(() => {
+      this.CONSUME(From);
+      this.SUBRULE(this.tableExpression);
+    });
+  });
 
   /**
-   * selectWithoutFrom:
-   *      SELECT [ ALL | DISTINCT ]
-   *          { * | projectItem [, projectItem ]* }
+   * projectItems:
+   *     * | projectItem [, projectItem ]*
    */
-  public selectWithoutFrom = this.RULE("selectWithoutFrom", () => {});
+  public projectItems = this.RULE("projectItems", () => {
+    this.OR([
+      { ALT: () => this.CONSUME(Asterisk) },
+      {
+        ALT: () => {
+          this.SUBRULE(this.projectItem);
+          this.OPTION(() => {
+            this.MANY(() => {
+              this.CONSUME(Comma);
+              this.SUBRULE1(this.projectItem);
+            });
+          });
+        }
+      }
+    ]);
+  });
 
   /**
    * projectItem:
    *      expression [ [ AS ] columnAlias ]
    *  |   tableAlias . *
    */
-  public projectItem = this.RULE("projectItem", () => {});
+  public projectItem = this.RULE("projectItem", () => {
+    this.OR([
+      {
+        ALT: () => {
+          this.SUBRULE(this.expression);
+          this.OPTION(() => {
+            this.CONSUME(As);
+            this.CONSUME(Identifier);
+          });
+        }
+      }
+      // {
+      //   ALT: () => {
+      //     this.CONSUME1(Identifier);
+      //     this.CONSUME(Period);
+      //     this.CONSUME(Asterisk);
+      //   }
+      // }
+    ]);
+  });
 
   /**
    * tableExpression:
@@ -239,7 +322,18 @@ class SqlParser extends CstParser {
    *  |   tableExpression CROSS JOIN tableExpression
    *  |   tableExpression [ CROSS | OUTER ] APPLY tableExpression
    */
-  public tableExpression = this.RULE("tableExpression", () => {});
+  public tableExpression = this.RULE("tableExpression", () => {
+    this.OR([
+      {
+        ALT: () => {
+          this.MANY_SEP({
+            SEP: Comma,
+            DEF: () => this.SUBRULE(this.tableReference)
+          });
+        }
+      }
+    ]);
+  });
 
   /**
    * joinCondition:
@@ -256,7 +350,9 @@ class SqlParser extends CstParser {
    *      [ [ AS ] alias [ '(' columnAlias [, columnAlias ]* ')' ] ]
    *
    */
-  public tableReference = this.RULE("tableReference", () => {});
+  public tableReference = this.RULE("tableReference", () => {
+    this.SUBRULE(this.tablePrimary);
+  });
 
   /**
    * tablePrimary:
@@ -267,7 +363,25 @@ class SqlParser extends CstParser {
    *  |   UNNEST '(' expression ')' [ WITH ORDINALITY ]
    *  |   [ LATERAL ] TABLE '(' [ SPECIFIC ] functionName '(' expression [, expression ]* ')' ')'
    */
-  public tablePrimary = this.RULE("tablePrimary", () => {});
+  public tablePrimary = this.RULE("tablePrimary", () => {
+    this.OR([
+      {
+        ALT: () => {
+          // CatalogName
+          this.OPTION(() => {
+            this.CONSUME1(Identifier);
+            this.CONSUME(Period);
+          });
+          // schemaName
+          this.OPTION1(() => {
+            this.CONSUME3(Identifier);
+            this.CONSUME2(Period);
+          });
+          this.CONSUME4(Identifier);
+        }
+      }
+    ]);
+  });
 
   /**
    * columnDecl:
