@@ -276,10 +276,11 @@ describe("parseSql", () => {
 
       // Advanced debug
       if (debug) {
-        require("fs").writeFileSync(
-          "debug.json",
-          JSON.stringify(result.cst, null, 2)
-        );
+        const previous = require("fs").readFileSync("debug.json", "utf-8");
+        const next = JSON.stringify(result.cst, null, 2);
+        if (previous !== next) {
+          require("fs").writeFileSync("debug.json", next);
+        }
       }
 
       expect(prettifyCst(result.cst.children)).toEqual(
