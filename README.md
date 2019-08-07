@@ -13,12 +13,20 @@ npm install rhombic
 ```ts
 import rhombic from "rhombic";
 
-const query = rhombic
-  .parse("SELECT * FROM abc;")
-  .addJoin({ type: "INNER", on: "foodmart.city = abc.city", table: "foodmart" })
-  .toString();
+try {
+  const query = rhombic
+    .parse("SELECT * FROM abc;")
+    .addJoin({
+      type: "INNER",
+      on: "foodmart.city = abc.city",
+      table: "foodmart"
+    })
+    .toString();
 
-console.log(query); // SELECT * FROM abc INNER JOIN foodmart ON foodmart.city = abc.city;
+  console.log(query); // SELECT * FROM abc INNER JOIN foodmart ON foodmart.city = abc.city;
+} catch (e) {
+  // Parsing errors
+}
 ```
 
 ## What's inside?
