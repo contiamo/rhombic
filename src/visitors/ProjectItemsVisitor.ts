@@ -1,0 +1,23 @@
+import { parser } from "../SqlParser";
+import { ProjectItemContext } from "../Context";
+import { IToken } from "chevrotain";
+
+const Visitor = parser.getBaseCstVisitorConstructorWithDefaults();
+
+/**
+ * Visitor to extract `projectItem` list
+ */
+export class ProjectItemsVisitor extends Visitor {
+  public output: IToken[] = [];
+
+  constructor() {
+    super();
+    this.validateVisitor();
+  }
+
+  projectItem(ctx: ProjectItemContext) {
+    ctx.expression.forEach(i => {
+      Object.values(i.children).forEach(j => this.output.push(...j));
+    });
+  }
+}

@@ -26,4 +26,54 @@ describe("rhombic", () => {
       expect(hasFrom).toBe(false);
     });
   });
+
+  describe("addProjectItem", () => {
+    it("should add `column02` to the project items", () => {
+      const query = rhombic
+        .parse("SELECT column01 FROM my_table")
+        .addProjectItem("column02")
+        .toString();
+
+      expect(query).toEqual("SELECT column01, column02 FROM my_table");
+    });
+    it("should add `column03` to the project items", () => {
+      const query = rhombic
+        .parse("SELECT column01, column02 FROM my_table")
+        .addProjectItem("column03")
+        .toString();
+
+      expect(query).toEqual(
+        "SELECT column01, column02, column03 FROM my_table"
+      );
+    });
+    it("should add `column03` to the project items (integer)", () => {
+      const query = rhombic
+        .parse("SELECT 2, 3 FROM my_table")
+        .addProjectItem("column03")
+        .toString();
+
+      expect(query).toEqual("SELECT 2, 3, column03 FROM my_table");
+    });
+    it("should deal with a multiline statement", () => {
+      const query = rhombic
+        .parse(
+          `
+        SELECT
+          column01,
+          column02
+        FROM my_table`
+        )
+        .addProjectItem("column03")
+        .toString();
+
+      expect(query).toEqual(
+        `
+        SELECT
+          column01,
+          column02,
+          column03
+        FROM my_table`
+      );
+    });
+  });
 });
