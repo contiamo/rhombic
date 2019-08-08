@@ -25,5 +25,9 @@ export class ProjectItemsVisitor extends Visitor {
     if (ctx.Asterisk) {
       this.output.push(...ctx.Asterisk);
     }
+
+    if (ctx.Identifier) {
+      this.output.push(...ctx.Identifier);
+    }
   }
 }

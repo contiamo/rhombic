@@ -300,11 +300,12 @@ class SqlParser extends CstParser {
         }
       },
       { ALT: () => this.CONSUME(Asterisk) }
+      // Need to learn how to backtrack to resolve ambiguous alternatives with the first rule
       // {
       //   ALT: () => {
       //     this.CONSUME1(Identifier);
       //     this.CONSUME(Period);
-      //     this.CONSUME(Asterisk);
+      //     this.CONSUME1(Asterisk);
       //   }
       // }
     ]);

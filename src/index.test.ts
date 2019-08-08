@@ -62,6 +62,14 @@ describe("rhombic", () => {
 
       expect(query).toEqual("SELECT *, column03 FROM my_table");
     });
+    it("should deal with alias", () => {
+      const query = rhombic
+        .parse("SELECT column01 AS toto FROM my_table")
+        .addProjectItem("column03")
+        .toString();
+
+      expect(query).toEqual("SELECT column01 AS toto, column03 FROM my_table");
+    });
     it("should deal with a multiline statement", () => {
       const query = rhombic
         .parse(
