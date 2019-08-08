@@ -241,7 +241,7 @@ class SqlParser extends CstParser {
   /**
    * select:
    *      SELECT [ STREAM ] [ ALL | DISTINCT ]
-   *          { * | projectItem [, projectItem ]* }
+   *          { projectItem [, projectItem ]* }
    *      FROM tableExpression
    *      [ WHERE booleanExpression ]
    *      [ GROUP BY { groupItem [, groupItem ]* } ]
@@ -270,29 +270,23 @@ class SqlParser extends CstParser {
 
   /**
    * projectItems:
-   *     * | projectItem [, projectItem ]*
+   *     projectItem [, projectItem ]*
    */
   public projectItems = this.RULE("projectItems", () => {
-    this.OR([
-      { ALT: () => this.CONSUME(Asterisk) },
-      {
-        ALT: () => {
-          this.SUBRULE(this.projectItem);
-          this.OPTION(() => {
-            this.MANY(() => {
-              this.CONSUME(Comma);
-              this.SUBRULE1(this.projectItem);
-            });
-          });
-        }
-      }
-    ]);
+    this.SUBRULE(this.projectItem);
+    this.OPTION(() => {
+      this.MANY(() => {
+        this.CONSUME(Comma);
+        this.SUBRULE1(this.projectItem);
+      });
+    });
   });
 
   /**
    * projectItem:
    *      expression [ [ AS ] columnAlias ]
    *  |   tableAlias . *
+   *  |   *
    */
   public projectItem = this.RULE("projectItem", () => {
     this.OR([
@@ -304,7 +298,8 @@ class SqlParser extends CstParser {
             this.CONSUME(Identifier);
           });
         }
-      }
+      },
+      { ALT: () => this.CONSUME(Asterisk) }
       // {
       //   ALT: () => {
       //     this.CONSUME1(Identifier);

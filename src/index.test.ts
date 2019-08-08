@@ -54,6 +54,14 @@ describe("rhombic", () => {
 
       expect(query).toEqual("SELECT 2, 3, column03 FROM my_table");
     });
+    it("should add `column03` to the project items (asterisk)", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_table")
+        .addProjectItem("column03")
+        .toString();
+
+      expect(query).toEqual("SELECT *, column03 FROM my_table");
+    });
     it("should deal with a multiline statement", () => {
       const query = rhombic
         .parse(

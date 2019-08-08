@@ -16,8 +16,14 @@ export class ProjectItemsVisitor extends Visitor {
   }
 
   projectItem(ctx: ProjectItemContext) {
-    ctx.expression.forEach(i => {
-      Object.values(i.children).forEach(j => this.output.push(...j));
-    });
+    if (ctx.expression) {
+      ctx.expression.forEach(i => {
+        Object.values(i.children).forEach(j => this.output.push(...j));
+      });
+    }
+
+    if (ctx.Asterisk) {
+      this.output.push(...ctx.Asterisk);
+    }
   }
 }

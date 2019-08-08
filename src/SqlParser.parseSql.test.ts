@@ -108,7 +108,9 @@ describe("parseSql", () => {
         select(
           Select("SELECT")
           projectItems(
-            Asterisk("*")
+            projectItem(
+              Asterisk("*")
+            )
           )
           From("FROM")
           tableExpression(
@@ -129,7 +131,9 @@ describe("parseSql", () => {
         select(
           Select("SELECT")
           projectItems(
-            Asterisk("*")
+            projectItem(
+              Asterisk("*")
+            )
           )
           From("FROM")
           tableExpression(

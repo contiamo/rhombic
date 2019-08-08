@@ -49,7 +49,6 @@ export interface SelectContext {
 }
 
 export interface ProjectItemsContext {
-  Asterisk?: IToken[];
   projectItem: Array<{
     name: "projectItem";
     children: ProjectItemContext;
@@ -57,12 +56,14 @@ export interface ProjectItemsContext {
 }
 
 export interface ProjectItemContext {
+  // TODO: Fixme, expression should be optionnal
   expression: Array<{
     name: "expression";
     children: ExpressionContext;
   }>;
   As?: IToken[];
   Identifier?: IToken[];
+  Asterisk?: IToken[];
 }
 
 export interface TableExpressionContext {}
