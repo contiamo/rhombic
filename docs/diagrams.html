@@ -49,7 +49,7 @@
       type: "Rule",
       name: "query",
       orgText:
-        "function () {\r\n            _this.OR([{ ALT: function () { return _this.SUBRULE(_this.values); } }]);\r\n        }",
+        "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.SUBRULE(_this.values); } },\r\n                { ALT: function () { return _this.SUBRULE(_this.select); } }\r\n            ]);\r\n        }",
       definition: [
         {
           type: "Alternation",
@@ -64,6 +64,16 @@
                   idx: 0
                 }
               ]
+            },
+            {
+              type: "Flat",
+              definition: [
+                {
+                  type: "NonTerminal",
+                  name: "select",
+                  idx: 0
+                }
+              ]
             }
           ]
         }
@@ -72,8 +82,102 @@
     {
       type: "Rule",
       name: "expression",
-      orgText: "function () { }",
-      definition: []
+      orgText:
+        "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.CONSUME(Integer); } },\r\n                { ALT: function () { return _this.CONSUME(String); } },\r\n                { ALT: function () { return _this.CONSUME(Null); } },\r\n                {\r\n                    ALT: function () {\r\n                        _this.CONSUME(LParen);\r\n                        _this.MANY_SEP({\r\n                            SEP: Comma,\r\n                            DEF: function () { return _this.SUBRULE(_this.expression); }\r\n                        });\r\n                        _this.CONSUME(RParen);\r\n                    }\r\n                },\r\n                { ALT: function () { return _this.CONSUME(Identifier); } }\r\n            ]);\r\n        }",
+      definition: [
+        {
+          type: "Alternation",
+          idx: 0,
+          definition: [
+            {
+              type: "Flat",
+              definition: [
+                {
+                  type: "Terminal",
+                  name: "Integer",
+                  label: "Integer",
+                  idx: 0,
+                  pattern: "0|[1-9]\\d*"
+                }
+              ]
+            },
+            {
+              type: "Flat",
+              definition: [
+                {
+                  type: "Terminal",
+                  name: "String",
+                  label: "String",
+                  idx: 0,
+                  pattern:
+                    "((`[^`]*(`))+)|((\\[[^\\]]*(\\]))(\\][^\\]]*(\\]))*)|((\"[^\"\\\\]*(?:\\\\.[^\"\\\\]*)*(\"))+)|(('[^'\\\\]*(?:\\\\.[^'\\\\]*)*('))+)|((N'[^N'\\\\]*(?:\\\\.[^N'\\\\]*)*('))+)"
+                }
+              ]
+            },
+            {
+              type: "Flat",
+              definition: [
+                {
+                  type: "Terminal",
+                  name: "Null",
+                  label: "Null",
+                  idx: 0,
+                  pattern: "null"
+                }
+              ]
+            },
+            {
+              type: "Flat",
+              definition: [
+                {
+                  type: "Terminal",
+                  name: "LParen",
+                  label: "LParen",
+                  idx: 0,
+                  pattern: "\\("
+                },
+                {
+                  type: "RepetitionWithSeparator",
+                  idx: 0,
+                  separator: {
+                    type: "Terminal",
+                    name: "Comma",
+                    label: "Comma",
+                    idx: 1,
+                    pattern: ","
+                  },
+                  definition: [
+                    {
+                      type: "NonTerminal",
+                      name: "expression",
+                      idx: 0
+                    }
+                  ]
+                },
+                {
+                  type: "Terminal",
+                  name: "RParen",
+                  label: "RParen",
+                  idx: 0,
+                  pattern: "\\)"
+                }
+              ]
+            },
+            {
+              type: "Flat",
+              definition: [
+                {
+                  type: "Terminal",
+                  name: "Identifier",
+                  label: "Identifier",
+                  idx: 0,
+                  pattern: '[a-zA-Z]\\w*|"[\\w "{2}]*"'
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       type: "Rule",
@@ -90,26 +194,219 @@
     {
       type: "Rule",
       name: "select",
-      orgText: "function () { }",
-      definition: []
+      orgText:
+        "function () {\r\n            _this.CONSUME(Select);\r\n            _this.OPTION(function () { return _this.CONSUME(Stream); });\r\n            _this.OPTION1(function () {\r\n                _this.OR([\r\n                    { ALT: function () { return _this.CONSUME(All); } },\r\n                    { ALT: function () { return _this.CONSUME(Distinct); } }\r\n                ]);\r\n            });\r\n            _this.SUBRULE(_this.projectItems);\r\n            // Everything is wrap into `OPTION` to deal with selectWithoutFrom case\r\n            _this.OPTION3(function () {\r\n                _this.CONSUME(From);\r\n                _this.SUBRULE(_this.tableExpression);\r\n            });\r\n        }",
+      definition: [
+        {
+          type: "Terminal",
+          name: "Select",
+          label: "Select",
+          idx: 0,
+          pattern: "SELECT"
+        },
+        {
+          type: "Option",
+          idx: 0,
+          definition: [
+            {
+              type: "Terminal",
+              name: "Stream",
+              label: "Stream",
+              idx: 0,
+              pattern: "STREAM"
+            }
+          ]
+        },
+        {
+          type: "Option",
+          idx: 1,
+          definition: [
+            {
+              type: "Alternation",
+              idx: 0,
+              definition: [
+                {
+                  type: "Flat",
+                  definition: [
+                    {
+                      type: "Terminal",
+                      name: "All",
+                      label: "All",
+                      idx: 0,
+                      pattern: "ALL"
+                    }
+                  ]
+                },
+                {
+                  type: "Flat",
+                  definition: [
+                    {
+                      type: "Terminal",
+                      name: "Distinct",
+                      label: "Distinct",
+                      idx: 0,
+                      pattern: "DISTINCT"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          type: "NonTerminal",
+          name: "projectItems",
+          idx: 0
+        },
+        {
+          type: "Option",
+          idx: 3,
+          definition: [
+            {
+              type: "Terminal",
+              name: "From",
+              label: "From",
+              idx: 0,
+              pattern: "FROM"
+            },
+            {
+              type: "NonTerminal",
+              name: "tableExpression",
+              idx: 0
+            }
+          ]
+        }
+      ]
     },
     {
       type: "Rule",
-      name: "selectWithoutFrom",
-      orgText: "function () { }",
-      definition: []
+      name: "projectItems",
+      orgText:
+        "function () {\r\n            _this.SUBRULE(_this.projectItem);\r\n            _this.OPTION(function () {\r\n                _this.MANY(function () {\r\n                    _this.CONSUME(Comma);\r\n                    _this.SUBRULE1(_this.projectItem);\r\n                });\r\n            });\r\n        }",
+      definition: [
+        {
+          type: "NonTerminal",
+          name: "projectItem",
+          idx: 0
+        },
+        {
+          type: "Option",
+          idx: 0,
+          definition: [
+            {
+              type: "Repetition",
+              idx: 0,
+              definition: [
+                {
+                  type: "Terminal",
+                  name: "Comma",
+                  label: "Comma",
+                  idx: 0,
+                  pattern: ","
+                },
+                {
+                  type: "NonTerminal",
+                  name: "projectItem",
+                  idx: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       type: "Rule",
       name: "projectItem",
-      orgText: "function () { }",
-      definition: []
+      orgText:
+        "function () {\r\n            _this.OR([\r\n                {\r\n                    ALT: function () {\r\n                        _this.SUBRULE(_this.expression);\r\n                        _this.OPTION(function () {\r\n                            _this.CONSUME(As);\r\n                            _this.CONSUME(Identifier);\r\n                        });\r\n                    }\r\n                },\r\n                { ALT: function () { return _this.CONSUME(Asterisk); } }\r\n                // Need to learn how to backtrack to resolve ambiguous alternatives with the first rule\r\n                // {\r\n                //   ALT: () => {\r\n                //     this.CONSUME1(Identifier);\r\n                //     this.CONSUME(Period);\r\n                //     this.CONSUME1(Asterisk);\r\n                //   }\r\n                // }\r\n            ]);\r\n        }",
+      definition: [
+        {
+          type: "Alternation",
+          idx: 0,
+          definition: [
+            {
+              type: "Flat",
+              definition: [
+                {
+                  type: "NonTerminal",
+                  name: "expression",
+                  idx: 0
+                },
+                {
+                  type: "Option",
+                  idx: 0,
+                  definition: [
+                    {
+                      type: "Terminal",
+                      name: "As",
+                      label: "As",
+                      idx: 0,
+                      pattern: "AS"
+                    },
+                    {
+                      type: "Terminal",
+                      name: "Identifier",
+                      label: "Identifier",
+                      idx: 0,
+                      pattern: '[a-zA-Z]\\w*|"[\\w "{2}]*"'
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              type: "Flat",
+              definition: [
+                {
+                  type: "Terminal",
+                  name: "Asterisk",
+                  label: "Asterisk",
+                  idx: 0,
+                  pattern: "\\*"
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       type: "Rule",
       name: "tableExpression",
-      orgText: "function () { }",
-      definition: []
+      orgText:
+        "function () {\r\n            _this.OR([\r\n                {\r\n                    ALT: function () {\r\n                        _this.MANY_SEP({\r\n                            SEP: Comma,\r\n                            DEF: function () { return _this.SUBRULE(_this.tableReference); }\r\n                        });\r\n                    }\r\n                }\r\n            ]);\r\n        }",
+      definition: [
+        {
+          type: "Alternation",
+          idx: 0,
+          definition: [
+            {
+              type: "Flat",
+              definition: [
+                {
+                  type: "RepetitionWithSeparator",
+                  idx: 0,
+                  separator: {
+                    type: "Terminal",
+                    name: "Comma",
+                    label: "Comma",
+                    idx: 1,
+                    pattern: ","
+                  },
+                  definition: [
+                    {
+                      type: "NonTerminal",
+                      name: "tableReference",
+                      idx: 0
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       type: "Rule",
@@ -120,14 +417,81 @@
     {
       type: "Rule",
       name: "tableReference",
-      orgText: "function () { }",
-      definition: []
+      orgText:
+        "function () {\r\n            _this.SUBRULE(_this.tablePrimary);\r\n        }",
+      definition: [
+        {
+          type: "NonTerminal",
+          name: "tablePrimary",
+          idx: 0
+        }
+      ]
     },
     {
       type: "Rule",
       name: "tablePrimary",
-      orgText: "function () { }",
-      definition: []
+      orgText:
+        "function () {\r\n            _this.OR([\r\n                {\r\n                    ALT: function () {\r\n                        // CatalogName\r\n                        _this.OPTION(function () {\r\n                            _this.CONSUME1(Identifier);\r\n                            _this.CONSUME(Period);\r\n                        });\r\n                        // schemaName\r\n                        _this.OPTION1(function () {\r\n                            _this.CONSUME3(Identifier);\r\n                            _this.CONSUME2(Period);\r\n                        });\r\n                        _this.CONSUME4(Identifier);\r\n                    }\r\n                }\r\n            ]);\r\n        }",
+      definition: [
+        {
+          type: "Alternation",
+          idx: 0,
+          definition: [
+            {
+              type: "Flat",
+              definition: [
+                {
+                  type: "Option",
+                  idx: 0,
+                  definition: [
+                    {
+                      type: "Terminal",
+                      name: "Identifier",
+                      label: "Identifier",
+                      idx: 1,
+                      pattern: '[a-zA-Z]\\w*|"[\\w "{2}]*"'
+                    },
+                    {
+                      type: "Terminal",
+                      name: "Period",
+                      label: "Period",
+                      idx: 0,
+                      pattern: "\\."
+                    }
+                  ]
+                },
+                {
+                  type: "Option",
+                  idx: 1,
+                  definition: [
+                    {
+                      type: "Terminal",
+                      name: "Identifier",
+                      label: "Identifier",
+                      idx: 3,
+                      pattern: '[a-zA-Z]\\w*|"[\\w "{2}]*"'
+                    },
+                    {
+                      type: "Terminal",
+                      name: "Period",
+                      label: "Period",
+                      idx: 2,
+                      pattern: "\\."
+                    }
+                  ]
+                },
+                {
+                  type: "Terminal",
+                  name: "Identifier",
+                  label: "Identifier",
+                  idx: 4,
+                  pattern: '[a-zA-Z]\\w*|"[\\w "{2}]*"'
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       type: "Rule",
@@ -139,7 +503,7 @@
       type: "Rule",
       name: "values",
       orgText:
-        "function () {\r\n            _this.CONSUME(Values);\r\n            _this.MANY_SEP({\r\n                SEP: Comma,\r\n                DEF: function () { return _this.OR([{ ALT: function () { return _this.CONSUME(Integer); } }]); }\r\n            });\r\n        }",
+        "function () {\r\n            _this.CONSUME(Values);\r\n            _this.MANY_SEP({\r\n                SEP: Comma,\r\n                DEF: function () { return _this.SUBRULE(_this.expression); }\r\n            });\r\n        }",
       definition: [
         {
           type: "Terminal",
@@ -160,22 +524,9 @@
           },
           definition: [
             {
-              type: "Alternation",
-              idx: 0,
-              definition: [
-                {
-                  type: "Flat",
-                  definition: [
-                    {
-                      type: "Terminal",
-                      name: "Integer",
-                      label: "Integer",
-                      idx: 0,
-                      pattern: "0|[1-9]\\d*"
-                    }
-                  ]
-                }
-              ]
+              type: "NonTerminal",
+              name: "expression",
+              idx: 0
             }
           ]
         }
