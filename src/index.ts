@@ -2,6 +2,7 @@ import { parseSql } from "./SqlParser";
 import { HasFromVisitor } from "./visitors/HasFromVisitor";
 import { ProjectItemsVisitor } from "./visitors/ProjectItemsVisitor";
 import { insertText } from "./utils/insertText";
+import { CstNode } from "chevrotain";
 
 const rhombic = {
   /**
@@ -14,12 +15,39 @@ const rhombic = {
   }
 };
 
+// Note: Because we have a recursion, we can't rely on typescript inference
+// `addProjectItem` will return `any` without this type definition
+
+export interface ParsedSql {
+  /**
+   * Return the sql as a raw string.
+   */
+  toString(): string;
+
+  /**
+   * Concrete Syntax Tree
+   */
+  cst: CstNode;
+
+  /**
+   * Returns `true` if the statement has a `FROM`
+   */
+  hasFrom(): boolean;
+
+  /**
+   * Add a projectItem to the query.
+   *
+   * @param projectItem
+   */
+  addProjectItem(projectItem: string): ParsedSql;
+}
+
 /**
  * Parsed sql statement, with all utilities methods assigned.
  *
  * @param sql
  */
-const parsedSql = (sql: string) => {
+const parsedSql = (sql: string): ParsedSql => {
   const { cst, lexErrors, parseErrors } = parseSql(sql);
 
   if (lexErrors.length) {
@@ -35,32 +63,18 @@ const parsedSql = (sql: string) => {
   }
 
   return {
-    /**
-     * Return the sql as a raw string.
-     */
     toString() {
       return sql;
     },
 
-    /**
-     * Concrete Syntax Tree
-     */
     cst,
 
-    /**
-     * Returns `true` if the statement has a `FROM`
-     */
     hasFrom() {
       const visitor = new HasFromVisitor();
       visitor.visit(cst);
       return visitor.hasFrom;
     },
 
-    /**
-     * Add a projectItem to the query.
-     *
-     * @param projectItem
-     */
     addProjectItem(projectItem: string) {
       const visitor = new ProjectItemsVisitor();
       visitor.visit(cst);

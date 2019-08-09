@@ -12,8 +12,8 @@
     "start": "jest --watch",
     "test": "jest",
     "build": "tsc",
-    "gen-diagrams": "ts-node src/generateDiagrams.ts",
-    "gen-types": "ts-node src/generateContextTypes.ts",
+    "gen-diagrams": "ts-node src/scripts/generateDiagrams.ts",
+    "gen-types": "ts-node src/scripts/generateContextTypes.ts",
     "prepare": "npm run build"
   },
   "keywords": [

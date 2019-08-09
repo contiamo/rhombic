@@ -14,10 +14,10 @@ import chokidar from "chokidar";
 import { join } from "path";
 import { createSyntaxDiagramsCode } from "chevrotain";
 
-import { parser } from "./SqlParser";
+import { parser } from "../SqlParser";
 
 program
-  .version(require("../package.json").version)
+  .version(require("../../package.json").version)
   .option("-w, --watch", "Watch the filesystem for rebuild")
   .parse(process.argv);
 
@@ -25,7 +25,7 @@ function generateDiagrams() {
   const grammar = parser.getSerializedGastProductions();
   const html = createSyntaxDiagramsCode(grammar);
 
-  writeFileSync(join(__dirname, "../docs/diagrams.html"), html);
+  writeFileSync(join(__dirname, "../../docs/diagrams.html"), html);
   console.log(chalk.green("✔") + " diagrams generated!");
 }
 

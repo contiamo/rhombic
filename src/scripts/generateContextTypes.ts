@@ -5,7 +5,7 @@
  *  `yarn gen-types`
  *
  * Result:
- *  `src/Context.d.ts`
+ *  `src/Context.ts`
  */
 import { writeFileSync } from "fs";
 import program from "commander";
@@ -15,10 +15,10 @@ import { join } from "path";
 import { pascal } from "case";
 import isEmpty from "lodash/isEmpty";
 
-import { parser } from "./SqlParser";
+import { parser } from "../SqlParser";
 
 program
-  .version(require("../package.json").version)
+  .version(require("../../package.json").version)
   .option("-w, --watch", "Watch the filesystem for rebuild")
   .parse(process.argv);
 
@@ -39,7 +39,7 @@ import { IToken } from "chevrotain";
       types += "\n}\n";
     }
   });
-  writeFileSync(join(__dirname, "Context.d.ts"), types);
+  writeFileSync(join(__dirname, "../Context.ts"), types);
   console.log(chalk.green("✔") + " context types generated!");
 }
 
