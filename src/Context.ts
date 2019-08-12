@@ -56,7 +56,6 @@ export interface ProjectItemsContext {
 }
 
 export interface ProjectItemContext {
-  // TODO: Fixme, expression should be optionnal
   expression: Array<{
     name: "expression";
     children: ExpressionContext;

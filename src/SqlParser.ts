@@ -1,4 +1,4 @@
-import { createToken, Lexer, CstParser } from "chevrotain";
+import { createToken, Lexer, CstParser, IParserConfig } from "chevrotain";
 import { matchFunctionName } from "./utils/matchFunctionName";
 
 const Identifier = createToken({
@@ -155,8 +155,8 @@ const allTokens = [
 export const SqlLexer = new Lexer(allTokens);
 
 class SqlParser extends CstParser {
-  constructor() {
-    super(allTokens);
+  constructor(serializedGrammar: IParserConfig["serializedGrammar"]) {
+    super(allTokens, { serializedGrammar });
     this.performSelfAnalysis();
   }
 
@@ -430,8 +430,20 @@ class SqlParser extends CstParser {
   public windowSpec = this.RULE("windowSpec", () => {});
 }
 
+// Retrieve the serialized grammar in production (avoid minification issues)
+let serializedGrammar: IParserConfig["serializedGrammar"];
+if (process.env.NODE_ENV === "production") {
+  try {
+    serializedGrammar = require("./serializedGrammar").serializedGrammar;
+  } catch (err) {
+    throw new Error("The serialized grammar can't be loaded!");
+  }
+} else {
+  console.log(`You running rhombic in ${process.env.NODE_ENV}`);
+}
+
 // reuse the same parser instance.
-export const parser = new SqlParser();
+export const parser = new SqlParser(serializedGrammar);
 
 export function parseSql(statement: string) {
   const lexResult = SqlLexer.tokenize(statement);
