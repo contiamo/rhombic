@@ -175,7 +175,7 @@ export const serializedGrammar = [
     type: "Rule",
     name: "select",
     orgText:
-      "function () {\r\n            _this.CONSUME(Select);\r\n            _this.OPTION(function () { return _this.CONSUME(Stream); });\r\n            _this.OPTION1(function () {\r\n                _this.OR([\r\n                    { ALT: function () { return _this.CONSUME(All); } },\r\n                    { ALT: function () { return _this.CONSUME(Distinct); } }\r\n                ]);\r\n            });\r\n            _this.SUBRULE(_this.projectItems);\r\n            // Everything is wrap into `OPTION` to deal with selectWithoutFrom case\r\n            _this.OPTION3(function () {\r\n                _this.CONSUME(From);\r\n                _this.SUBRULE(_this.tableExpression);\r\n            });\r\n        }",
+      "function () {\r\n            _this.CONSUME(Select);\r\n            _this.OPTION(function () { return _this.CONSUME(Stream); });\r\n            _this.OPTION1(function () {\r\n                _this.OR([\r\n                    { ALT: function () { return _this.CONSUME(All); } },\r\n                    { ALT: function () { return _this.CONSUME(Distinct); } }\r\n                ]);\r\n            });\r\n            _this.SUBRULE(_this.projectionItems);\r\n            // Everything is wrap into `OPTION` to deal with selectWithoutFrom case\r\n            _this.OPTION3(function () {\r\n                _this.CONSUME(From);\r\n                _this.SUBRULE(_this.tableExpression);\r\n            });\r\n        }",
     definition: [
       {
         type: "Terminal",
@@ -235,7 +235,7 @@ export const serializedGrammar = [
       },
       {
         type: "NonTerminal",
-        name: "projectItems",
+        name: "projectionItems",
         idx: 0
       },
       {
@@ -260,13 +260,13 @@ export const serializedGrammar = [
   },
   {
     type: "Rule",
-    name: "projectItems",
+    name: "projectionItems",
     orgText:
-      "function () {\r\n            _this.SUBRULE(_this.projectItem);\r\n            _this.OPTION(function () {\r\n                _this.MANY(function () {\r\n                    _this.CONSUME(Comma);\r\n                    _this.SUBRULE1(_this.projectItem);\r\n                });\r\n            });\r\n        }",
+      "function () {\r\n            _this.SUBRULE(_this.projectionItem);\r\n            _this.OPTION(function () {\r\n                _this.MANY(function () {\r\n                    _this.CONSUME(Comma);\r\n                    _this.SUBRULE1(_this.projectionItem);\r\n                });\r\n            });\r\n        }",
     definition: [
       {
         type: "NonTerminal",
-        name: "projectItem",
+        name: "projectionItem",
         idx: 0
       },
       {
@@ -286,7 +286,7 @@ export const serializedGrammar = [
               },
               {
                 type: "NonTerminal",
-                name: "projectItem",
+                name: "projectionItem",
                 idx: 1
               }
             ]
@@ -297,7 +297,7 @@ export const serializedGrammar = [
   },
   {
     type: "Rule",
-    name: "projectItem",
+    name: "projectionItem",
     orgText:
       "function () {\r\n            _this.OR([\r\n                {\r\n                    ALT: function () {\r\n                        _this.SUBRULE(_this.expression);\r\n                        _this.OPTION(function () {\r\n                            _this.CONSUME(As);\r\n                            _this.CONSUME(Identifier);\r\n                        });\r\n                    }\r\n                },\r\n                { ALT: function () { return _this.CONSUME(Asterisk); } }\r\n                // Need to learn how to backtrack to resolve ambiguous alternatives with the first rule\r\n                // {\r\n                //   ALT: () => {\r\n                //     this.CONSUME1(Identifier);\r\n                //     this.CONSUME(Period);\r\n                //     this.CONSUME1(Asterisk);\r\n                //   }\r\n                // }\r\n            ]);\r\n        }",
     definition: [

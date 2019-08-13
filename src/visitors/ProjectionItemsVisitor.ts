@@ -1,13 +1,13 @@
 import { parser } from "../SqlParser";
-import { ProjectItemContext } from "../Context";
+import { ProjectionItemContext } from "../Context";
 import { IToken } from "chevrotain";
 
 const Visitor = parser.getBaseCstVisitorConstructorWithDefaults();
 
 /**
- * Visitor to extract `projectItem` list
+ * Visitor to extract `projectionItem` list
  */
-export class ProjectItemsVisitor extends Visitor {
+export class ProjectionItemsVisitor extends Visitor {
   public output: IToken[] = [];
 
   constructor() {
@@ -15,7 +15,7 @@ export class ProjectItemsVisitor extends Visitor {
     this.validateVisitor();
   }
 
-  projectItem(ctx: ProjectItemContext) {
+  projectionItem(ctx: ProjectionItemContext) {
     if (ctx.expression) {
       ctx.expression.forEach(i => {
         Object.values(i.children).forEach(j => this.output.push(...j));

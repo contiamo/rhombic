@@ -37,9 +37,9 @@ export interface SelectContext {
   Stream?: IToken[];
   All?: IToken[];
   Distinct?: IToken[];
-  projectItems: Array<{
-    name: "projectItems";
-    children: ProjectItemsContext;
+  projectionItems: Array<{
+    name: "projectionItems";
+    children: ProjectionItemsContext;
   }>;
   From?: IToken[];
   tableExpression: Array<{
@@ -48,14 +48,14 @@ export interface SelectContext {
   }>;
 }
 
-export interface ProjectItemsContext {
-  projectItem: Array<{
-    name: "projectItem";
-    children: ProjectItemContext;
+export interface ProjectionItemsContext {
+  projectionItem: Array<{
+    name: "projectionItem";
+    children: ProjectionItemContext;
   }>;
 }
 
-export interface ProjectItemContext {
+export interface ProjectionItemContext {
   expression: Array<{
     name: "expression";
     children: ExpressionContext;

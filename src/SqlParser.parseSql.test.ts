@@ -92,8 +92,8 @@ describe("parseSql", () => {
       query(
         select(
           Select("SELECT")
-          projectItems(
-            projectItem(
+          projectionItems(
+            projectionItem(
               expression(String("'hello'"))
             )
           )
@@ -107,8 +107,8 @@ describe("parseSql", () => {
       query(
         select(
           Select("SELECT")
-          projectItems(
-            projectItem(
+          projectionItems(
+            projectionItem(
               Asterisk("*")
             )
           )
@@ -130,8 +130,8 @@ describe("parseSql", () => {
       query(
         select(
           Select("SELECT")
-          projectItems(
-            projectItem(
+          projectionItems(
+            projectionItem(
               Asterisk("*")
             )
           )
@@ -154,8 +154,8 @@ describe("parseSql", () => {
       query(
         select(
           Select("SELECT")
-          projectItems(
-            projectItem(
+          projectionItems(
+            projectionItem(
               expression(
                 Identifier("column01")
               )
@@ -179,18 +179,18 @@ describe("parseSql", () => {
       query(
         select(
           Select("SELECT")
-          projectItems(
-            projectItem(
+          projectionItems(
+            projectionItem(
               expression(
                 Identifier("column01")
               )
             )
-            projectItem(
+            projectionItem(
               expression(
                 Identifier("column02")
               )
             )
-            projectItem(
+            projectionItem(
               expression(
                 Identifier("column03")
               )
@@ -216,8 +216,8 @@ describe("parseSql", () => {
         select(
           Select("SELECT")
           All("ALL")
-          projectItems(
-            projectItem(
+          projectionItems(
+            projectionItem(
               expression(
                 Identifier("column01")
               )
@@ -242,8 +242,8 @@ describe("parseSql", () => {
         select(
           Select("SELECT")
           Distinct("DISTINCT")
-          projectItems(
-            projectItem(
+          projectionItems(
+            projectionItem(
               expression(
                 Identifier("column01")
               )

@@ -77,11 +77,11 @@ describe("rhombic", () => {
     });
   });
 
-  describe("addProjectItem", () => {
+  describe("addProjectionItem", () => {
     it("should add `column02` to the project items", () => {
       const query = rhombic
         .parse("SELECT column01 FROM my_table")
-        .addProjectItem("column02")
+        .addProjectionItem("column02")
         .toString();
 
       expect(query).toEqual("SELECT column01, column02 FROM my_table");
@@ -89,7 +89,7 @@ describe("rhombic", () => {
     it("should add `column03` to the project items", () => {
       const query = rhombic
         .parse("SELECT column01, column02 FROM my_table")
-        .addProjectItem("column03")
+        .addProjectionItem("column03")
         .toString();
 
       expect(query).toEqual(
@@ -99,7 +99,7 @@ describe("rhombic", () => {
     it("should add `column03` to the project items (integer)", () => {
       const query = rhombic
         .parse("SELECT 2, 3 FROM my_table")
-        .addProjectItem("column03")
+        .addProjectionItem("column03")
         .toString();
 
       expect(query).toEqual("SELECT 2, 3, column03 FROM my_table");
@@ -107,7 +107,7 @@ describe("rhombic", () => {
     it("should add `column03` to the project items (asterisk)", () => {
       const query = rhombic
         .parse("SELECT * FROM my_table")
-        .addProjectItem("column03")
+        .addProjectionItem("column03")
         .toString();
 
       expect(query).toEqual("SELECT column03 FROM my_table");
@@ -115,7 +115,7 @@ describe("rhombic", () => {
     it("should add `column03` to the project items (asterisk without autoRemove)", () => {
       const query = rhombic
         .parse("SELECT * FROM my_table")
-        .addProjectItem("column03", { autoRemoveAsterisk: false })
+        .addProjectionItem("column03", { autoRemoveAsterisk: false })
         .toString();
 
       expect(query).toEqual("SELECT *, column03 FROM my_table");
@@ -129,7 +129,7 @@ describe("rhombic", () => {
         FROM
           my_table`
         )
-        .addProjectItem("column03")
+        .addProjectionItem("column03")
         .toString();
 
       expect(query).toEqual(`
@@ -148,7 +148,7 @@ describe("rhombic", () => {
         FROM
           my_table`
         )
-        .addProjectItem("column03")
+        .addProjectionItem("column03")
         .toString();
 
       expect(query).toEqual(`
@@ -161,7 +161,7 @@ describe("rhombic", () => {
     it("should deal with alias", () => {
       const query = rhombic
         .parse("SELECT column01 AS toto FROM my_table")
-        .addProjectItem("column03")
+        .addProjectionItem("column03")
         .toString();
 
       expect(query).toEqual("SELECT column01 AS toto, column03 FROM my_table");
@@ -175,7 +175,7 @@ describe("rhombic", () => {
           column02
         FROM my_table`
         )
-        .addProjectItem("column03")
+        .addProjectionItem("column03")
         .toString();
 
       expect(query).toEqual(

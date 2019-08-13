@@ -241,7 +241,7 @@ class SqlParser extends CstParser {
   /**
    * select:
    *      SELECT [ STREAM ] [ ALL | DISTINCT ]
-   *          { projectItem [, projectItem ]* }
+   *          { projectionItem [, projectionItem ]* }
    *      FROM tableExpression
    *      [ WHERE booleanExpression ]
    *      [ GROUP BY { groupItem [, groupItem ]* } ]
@@ -259,7 +259,7 @@ class SqlParser extends CstParser {
         { ALT: () => this.CONSUME(Distinct) }
       ]);
     });
-    this.SUBRULE(this.projectItems);
+    this.SUBRULE(this.projectionItems);
 
     // Everything is wrap into `OPTION` to deal with selectWithoutFrom case
     this.OPTION3(() => {
@@ -269,26 +269,26 @@ class SqlParser extends CstParser {
   });
 
   /**
-   * projectItems:
-   *     projectItem [, projectItem ]*
+   * projectionItems:
+   *     projectionItem [, projectionItem ]*
    */
-  public projectItems = this.RULE("projectItems", () => {
-    this.SUBRULE(this.projectItem);
+  public projectionItems = this.RULE("projectionItems", () => {
+    this.SUBRULE(this.projectionItem);
     this.OPTION(() => {
       this.MANY(() => {
         this.CONSUME(Comma);
-        this.SUBRULE1(this.projectItem);
+        this.SUBRULE1(this.projectionItem);
       });
     });
   });
 
   /**
-   * projectItem:
+   * projectionItem:
    *      expression [ [ AS ] columnAlias ]
    *  |   tableAlias . *
    *  |   *
    */
-  public projectItem = this.RULE("projectItem", () => {
+  public projectionItem = this.RULE("projectionItem", () => {
     this.OR([
       {
         ALT: () => {

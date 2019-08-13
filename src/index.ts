@@ -1,6 +1,6 @@
 import { parseSql } from "./SqlParser";
 import { HasFromVisitor } from "./visitors/HasFromVisitor";
-import { ProjectItemsVisitor } from "./visitors/ProjectItemsVisitor";
+import { ProjectionItemsVisitor } from "./visitors/ProjectionItemsVisitor";
 import { insertText } from "./utils/insertText";
 import { CstNode } from "chevrotain";
 import { HasTablePrimary } from "./visitors/HasTablePrimaryVisitor";
@@ -17,7 +17,7 @@ const rhombic = {
 };
 
 // Note: Because we have a recursion, we can't rely on typescript inference
-// `addProjectItem` will return `any` without this type definition
+// `addProjectionItem` will return `any` without this type definition
 
 export interface ParsedSql {
   /**
@@ -43,14 +43,14 @@ export interface ParsedSql {
   hasTablePrimary(name: string): boolean;
 
   /**
-   * Add a projectItem to the query.
+   * Add a projectionItem to the query.
    *
-   * @param projectItem
+   * @param projectionItem
    * @param options
    * @param options.autoRemoveAsterisk remove `*` from the original query (default: `true`)
    */
-  addProjectItem(
-    projectItem: string,
+  addProjectionItem(
+    projectionItem: string,
     options?: { autoRemoveAsterisk: boolean }
   ): ParsedSql;
 }
@@ -94,23 +94,24 @@ const parsedSql = (sql: string): ParsedSql => {
       return visitor.hasTablePrimary;
     },
 
-    addProjectItem(projectItem, options = { autoRemoveAsterisk: true }) {
-      const visitor = new ProjectItemsVisitor();
+    addProjectionItem(projectionItem, options = { autoRemoveAsterisk: true }) {
+      const visitor = new ProjectionItemsVisitor();
       visitor.visit(cst);
-      const lastProjectItem = visitor.output[visitor.output.length - 1];
+      const lastProjectionItem = visitor.output[visitor.output.length - 1];
       const asteriskNode = visitor.output.find(node => node.image === "*");
 
       if (visitor.output.length > 1) {
-        const previousProjectItem = visitor.output[visitor.output.length - 2];
+        const previousProjectionItem =
+          visitor.output[visitor.output.length - 2];
         const isMultiline =
-          previousProjectItem.endLine !== lastProjectItem.endLine;
+          previousProjectionItem.endLine !== lastProjectionItem.endLine;
 
         if (isMultiline) {
-          const spaces = " ".repeat((lastProjectItem.startColumn || 1) - 1);
+          const spaces = " ".repeat((lastProjectionItem.startColumn || 1) - 1);
 
-          let nextSql = insertText(sql, `,\n${spaces}${projectItem}`, {
-            line: (lastProjectItem.endLine || 1) - 1,
-            column: lastProjectItem.endColumn || 0
+          let nextSql = insertText(sql, `,\n${spaces}${projectionItem}`, {
+            line: (lastProjectionItem.endLine || 1) - 1,
+            column: lastProjectionItem.endColumn || 0
           });
 
           if (options.autoRemoveAsterisk && asteriskNode) {
@@ -121,9 +122,9 @@ const parsedSql = (sql: string): ParsedSql => {
       }
 
       // one line case insertion
-      let nextSql = insertText(sql, `, ${projectItem}`, {
-        line: (lastProjectItem.endLine || 1) - 1,
-        column: lastProjectItem.endColumn || 0
+      let nextSql = insertText(sql, `, ${projectionItem}`, {
+        line: (lastProjectionItem.endLine || 1) - 1,
+        column: lastProjectionItem.endColumn || 0
       });
 
       if (options.autoRemoveAsterisk && asteriskNode) {
