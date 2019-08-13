@@ -205,5 +205,13 @@ describe("rhombic", () => {
 
       expect(query).toEqual('SELECT column01 AS toto, "day" FROM my_table');
     });
+    it("should override only one option", () => {
+      const query = rhombic
+        .parse("SELECT *, column01 AS toto FROM my_table")
+        .addProjectionItem("day", { removeAsterisk: false })
+        .toString();
+
+      expect(query).toEqual('SELECT *, column01 AS toto, "day" FROM my_table');
+    });
   });
 });

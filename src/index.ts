@@ -96,10 +96,14 @@ const parsedSql = (sql: string): ParsedSql => {
       return visitor.hasTablePrimary;
     },
 
-    addProjectionItem(
-      projectionItem,
-      options = { removeAsterisk: true, escapeReservedKeywords: true }
-    ) {
+    addProjectionItem(projectionItem, options) {
+      // Default options
+      options = {
+        removeAsterisk: true,
+        escapeReservedKeywords: true,
+        ...options
+      };
+
       const visitor = new ProjectionItemsVisitor();
       visitor.visit(cst);
       const lastProjectionItem = visitor.output[visitor.output.length - 1];
