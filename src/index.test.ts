@@ -115,7 +115,7 @@ describe("rhombic", () => {
     it("should add `column03` to the project items (asterisk without autoRemove)", () => {
       const query = rhombic
         .parse("SELECT * FROM my_table")
-        .addProjectionItem("column03", { autoRemoveAsterisk: false })
+        .addProjectionItem("column03", { removeAsterisk: false })
         .toString();
 
       expect(query).toEqual("SELECT *, column03 FROM my_table");
@@ -186,6 +186,24 @@ describe("rhombic", () => {
           column03
         FROM my_table`
       );
+    });
+    it("should deal with inserted quoted value", () => {
+      const query = rhombic
+        .parse("SELECT column01 AS toto FROM my_table")
+        .addProjectionItem('"column03"')
+        .toString();
+
+      expect(query).toEqual(
+        'SELECT column01 AS toto, "column03" FROM my_table'
+      );
+    });
+    it("should escape reserved keyword", () => {
+      const query = rhombic
+        .parse("SELECT column01 AS toto FROM my_table")
+        .addProjectionItem("day")
+        .toString();
+
+      expect(query).toEqual('SELECT column01 AS toto, "day" FROM my_table');
     });
   });
 });

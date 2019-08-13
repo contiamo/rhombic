@@ -4,6 +4,7 @@ import { ProjectionItemsVisitor } from "./visitors/ProjectionItemsVisitor";
 import { insertText } from "./utils/insertText";
 import { CstNode } from "chevrotain";
 import { HasTablePrimary } from "./visitors/HasTablePrimaryVisitor";
+import { reserved } from "./reserved";
 
 const rhombic = {
   /**
@@ -47,11 +48,12 @@ export interface ParsedSql {
    *
    * @param projectionItem
    * @param options
-   * @param options.autoRemoveAsterisk remove `*` from the original query (default: `true`)
+   * @param options.removeAsterisk remove `*` from the original query (default: `true`)
+   * @param options.escapeReservedKeywords Escape reserved keywords (default: `true`)
    */
   addProjectionItem(
     projectionItem: string,
-    options?: { autoRemoveAsterisk: boolean }
+    options?: { removeAsterisk?: boolean; escapeReservedKeywords?: boolean }
   ): ParsedSql;
 }
 
@@ -94,12 +96,25 @@ const parsedSql = (sql: string): ParsedSql => {
       return visitor.hasTablePrimary;
     },
 
-    addProjectionItem(projectionItem, options = { autoRemoveAsterisk: true }) {
+    addProjectionItem(
+      projectionItem,
+      options = { removeAsterisk: true, escapeReservedKeywords: true }
+    ) {
       const visitor = new ProjectionItemsVisitor();
       visitor.visit(cst);
       const lastProjectionItem = visitor.output[visitor.output.length - 1];
+
       const asteriskNode = visitor.output.find(node => node.image === "*");
 
+      // escape reserved keywords
+      if (
+        options.escapeReservedKeywords &&
+        reserved.includes(projectionItem.toUpperCase())
+      ) {
+        projectionItem = `"${projectionItem}"`;
+      }
+
+      // multiline query
       if (visitor.output.length > 1) {
         const previousProjectionItem =
           visitor.output[visitor.output.length - 2];
@@ -114,7 +129,7 @@ const parsedSql = (sql: string): ParsedSql => {
             column: lastProjectionItem.endColumn || 0
           });
 
-          if (options.autoRemoveAsterisk && asteriskNode) {
+          if (options.removeAsterisk && asteriskNode) {
             nextSql = nextSql.replace("*,\n" + spaces, "");
           }
           return parsedSql(nextSql);
@@ -127,7 +142,7 @@ const parsedSql = (sql: string): ParsedSql => {
         column: lastProjectionItem.endColumn || 0
       });
 
-      if (options.autoRemoveAsterisk && asteriskNode) {
+      if (options.removeAsterisk && asteriskNode) {
         nextSql = nextSql.replace("*, ", "");
       }
 
