@@ -110,7 +110,53 @@ describe("rhombic", () => {
         .addProjectItem("column03")
         .toString();
 
+      expect(query).toEqual("SELECT column03 FROM my_table");
+    });
+    it("should add `column03` to the project items (asterisk without autoRemove)", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_table")
+        .addProjectItem("column03", { autoRemoveAsterisk: false })
+        .toString();
+
       expect(query).toEqual("SELECT *, column03 FROM my_table");
+    });
+    it("should remove the asterisk in a multiline statement", () => {
+      const query = rhombic
+        .parse(
+          `
+        SELECT
+          *
+        FROM
+          my_table`
+        )
+        .addProjectItem("column03")
+        .toString();
+
+      expect(query).toEqual(`
+        SELECT
+          column03
+        FROM
+          my_table`);
+    });
+    it("should remove the asterisk in a multiline statement (with already one column)", () => {
+      const query = rhombic
+        .parse(
+          `
+        SELECT
+          *,
+          column01
+        FROM
+          my_table`
+        )
+        .addProjectItem("column03")
+        .toString();
+
+      expect(query).toEqual(`
+        SELECT
+          column01,
+          column03
+        FROM
+          my_table`);
     });
     it("should deal with alias", () => {
       const query = rhombic

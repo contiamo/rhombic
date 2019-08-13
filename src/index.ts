@@ -46,8 +46,13 @@ export interface ParsedSql {
    * Add a projectItem to the query.
    *
    * @param projectItem
+   * @param options
+   * @param options.autoRemoveAsterisk remove `*` from the original query (default: `true`)
    */
-  addProjectItem(projectItem: string): ParsedSql;
+  addProjectItem(
+    projectItem: string,
+    options?: { autoRemoveAsterisk: boolean }
+  ): ParsedSql;
 }
 
 /**
@@ -89,10 +94,11 @@ const parsedSql = (sql: string): ParsedSql => {
       return visitor.hasTablePrimary;
     },
 
-    addProjectItem(projectItem: string) {
+    addProjectItem(projectItem, options = { autoRemoveAsterisk: true }) {
       const visitor = new ProjectItemsVisitor();
       visitor.visit(cst);
       const lastProjectItem = visitor.output[visitor.output.length - 1];
+      const asteriskNode = visitor.output.find(node => node.image === "*");
 
       if (visitor.output.length > 1) {
         const previousProjectItem = visitor.output[visitor.output.length - 2];
@@ -100,28 +106,31 @@ const parsedSql = (sql: string): ParsedSql => {
           previousProjectItem.endLine !== lastProjectItem.endLine;
 
         if (isMultiline) {
-          return parsedSql(
-            insertText(
-              sql,
-              `,\n${" ".repeat(
-                (lastProjectItem.startColumn || 1) - 1
-              )}${projectItem}`,
-              {
-                line: (lastProjectItem.endLine || 1) - 1,
-                column: lastProjectItem.endColumn || 0
-              }
-            )
-          );
+          const spaces = " ".repeat((lastProjectItem.startColumn || 1) - 1);
+
+          let nextSql = insertText(sql, `,\n${spaces}${projectItem}`, {
+            line: (lastProjectItem.endLine || 1) - 1,
+            column: lastProjectItem.endColumn || 0
+          });
+
+          if (options.autoRemoveAsterisk && asteriskNode) {
+            nextSql = nextSql.replace("*,\n" + spaces, "");
+          }
+          return parsedSql(nextSql);
         }
       }
 
       // one line case insertion
-      return parsedSql(
-        insertText(sql, `, ${projectItem}`, {
-          line: (lastProjectItem.endLine || 1) - 1,
-          column: lastProjectItem.endColumn || 0
-        })
-      );
+      let nextSql = insertText(sql, `, ${projectItem}`, {
+        line: (lastProjectItem.endLine || 1) - 1,
+        column: lastProjectItem.endColumn || 0
+      });
+
+      if (options.autoRemoveAsterisk && asteriskNode) {
+        nextSql = nextSql.replace("*, ", "");
+      }
+
+      return parsedSql(nextSql);
     }
   };
 };
