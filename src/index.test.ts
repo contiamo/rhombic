@@ -27,6 +27,56 @@ describe("rhombic", () => {
     });
   });
 
+  describe("hasTablePrimary", () => {
+    it("should return true if the table is part of the query", () => {
+      const hasTablePrimary = rhombic
+        .parse("SELECT * FROM plop")
+        .hasTablePrimary("plop");
+
+      expect(hasTablePrimary).toBe(true);
+    });
+
+    it("should return false if the table is not part of the query", () => {
+      const hasTablePrimary = rhombic
+        .parse("SELECT * FROM plop")
+        .hasTablePrimary("nope");
+
+      expect(hasTablePrimary).toBe(false);
+    });
+
+    it("should deal with two level table name", () => {
+      const hasTablePrimary = rhombic
+        .parse("SELECT * FROM schemaName.tableName")
+        .hasTablePrimary("schemaName.tableName");
+
+      expect(hasTablePrimary).toBe(true);
+    });
+
+    it("should deal with two level table name (escaped)", () => {
+      const hasTablePrimary = rhombic
+        .parse('SELECT * FROM "schemaName"."tableName"')
+        .hasTablePrimary("schemaName.tableName");
+
+      expect(hasTablePrimary).toBe(true);
+    });
+
+    it("should deal with two level table name (escaped bis)", () => {
+      const hasTablePrimary = rhombic
+        .parse('SELECT * FROM "schemaName"."tableName"')
+        .hasTablePrimary('"schemaName".tableName');
+
+      expect(hasTablePrimary).toBe(true);
+    });
+
+    it("should deal with case sensitivity", () => {
+      const hasTablePrimary = rhombic
+        .parse("SELECT * FROM foo.BAR")
+        .hasTablePrimary("foo.bar");
+
+      expect(hasTablePrimary).toBe(false);
+    });
+  });
+
   describe("addProjectItem", () => {
     it("should add `column02` to the project items", () => {
       const query = rhombic

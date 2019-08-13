@@ -3,6 +3,7 @@ import { HasFromVisitor } from "./visitors/HasFromVisitor";
 import { ProjectItemsVisitor } from "./visitors/ProjectItemsVisitor";
 import { insertText } from "./utils/insertText";
 import { CstNode } from "chevrotain";
+import { HasTablePrimary } from "./visitors/HasTablePrimaryVisitor";
 
 const rhombic = {
   /**
@@ -25,14 +26,21 @@ export interface ParsedSql {
   toString(): string;
 
   /**
-   * Concrete Syntax Tree
+   * Concrete Syntax Tree.
    */
   cst: CstNode;
 
   /**
-   * Returns `true` if the statement has a `FROM`
+   * Returns `true` if the statement has a `FROM`.
    */
   hasFrom(): boolean;
+
+  /**
+   * Returns `true` if the `tablePrimary` is part of the query.
+   *
+   * @param name
+   */
+  hasTablePrimary(name: string): boolean;
 
   /**
    * Add a projectItem to the query.
@@ -73,6 +81,12 @@ const parsedSql = (sql: string): ParsedSql => {
       const visitor = new HasFromVisitor();
       visitor.visit(cst);
       return visitor.hasFrom;
+    },
+
+    hasTablePrimary(name) {
+      const visitor = new HasTablePrimary(name);
+      visitor.visit(cst);
+      return visitor.hasTablePrimary;
     },
 
     addProjectItem(projectItem: string) {
