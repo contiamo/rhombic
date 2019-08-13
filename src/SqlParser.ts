@@ -438,8 +438,6 @@ if (process.env.NODE_ENV === "production") {
   } catch (err) {
     throw new Error("The serialized grammar can't be loaded!");
   }
-} else {
-  console.log(`You running rhombic in ${process.env.NODE_ENV}`);
 }
 
 // reuse the same parser instance.
