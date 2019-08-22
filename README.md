@@ -16,14 +16,10 @@ import rhombic from "rhombic";
 try {
   const query = rhombic
     .parse("SELECT * FROM abc;")
-    .addJoin({
-      type: "INNER",
-      on: "foodmart.city = abc.city",
-      table: "foodmart"
-    })
+    .addProjectionItem("city")
     .toString();
 
-  console.log(query); // SELECT * FROM abc INNER JOIN foodmart ON foodmart.city = abc.city;
+  console.log(query); // SELECT city FROM abc;
 } catch (e) {
   // Parsing errors
 }
