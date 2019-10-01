@@ -17,7 +17,7 @@ export class ProjectionItemsVisitor extends Visitor {
     children: IToken[];
   }> = [];
 
-  public hasAsterisk = false;
+  public asteriskCount = 0;
 
   constructor() {
     super();
@@ -54,7 +54,7 @@ export class ProjectionItemsVisitor extends Visitor {
         endColumn = Math.max(endColumn, token.endColumn || -Infinity);
       });
       children.push(...ctx.Asterisk);
-      this.hasAsterisk = true;
+      this.asteriskCount++;
       isAsterisk = true;
     }
 

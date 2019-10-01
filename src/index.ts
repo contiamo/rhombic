@@ -124,7 +124,7 @@ const parsedSql = (sql: string): ParsedSql => {
       visitor.visit(cst);
       const lastProjectionItem = visitor.output[visitor.output.length - 1];
 
-      const hasAsterisk = visitor.hasAsterisk;
+      const hasAsterisk = visitor.asteriskCount;
 
       // escape reserved keywords
       if (
@@ -173,19 +173,19 @@ const parsedSql = (sql: string): ParsedSql => {
       const visitor = new ProjectionItemsVisitor();
       visitor.visit(cst);
       const projectionItems = visitor.output;
-      const hasAsterisk = visitor.hasAsterisk;
 
-      if (hasAsterisk) {
+      if (visitor.asteriskCount > 0) {
         // Expand asterisk
+        const nonAsteriskItemsCount = projectionItems.filter(i => !i.isAsterisk)
+          .length;
+        const projectionItemsBehindAsterisk =
+          (columns.length - nonAsteriskItemsCount) / visitor.asteriskCount;
         const asteriskIndex = projectionItems.findIndex(t => t.isAsterisk) || 0;
-        const projectionItemsAfterAsterisk = projectionItems.slice(
-          asteriskIndex + 1
-        ).length;
 
         const nextSql = replaceText(
           sql,
           columns
-            .slice(asteriskIndex, columns.length - projectionItemsAfterAsterisk)
+            .slice(asteriskIndex, asteriskIndex + projectionItemsBehindAsterisk)
             .map((c, i) => (i + asteriskIndex === index ? value : c))
             .join(", "),
           getLocation(projectionItems[asteriskIndex])

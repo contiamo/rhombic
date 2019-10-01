@@ -273,5 +273,34 @@ describe("rhombic", () => {
         "SELECT column01 AS my_column01, column02 AS my_column02, column03, column04 FROM my_table"
       );
     });
+
+    it("should deal with multiple stars query", () => {
+      const query = rhombic
+        .parse("SELECT column01 AS my_column01, *, column04, * FROM my_table")
+        .updateProjectionItem({
+          columns: [
+            "my_column01",
+            // *
+            "column01",
+            "column02",
+            "column03",
+            "column04",
+            // column 04
+            "column040",
+            // *
+            "column010",
+            "column020",
+            "column030",
+            "column041"
+          ],
+          index: 3,
+          value: "column03 AS oh_yeah"
+        })
+        .toString();
+
+      expect(query).toEqual(
+        "SELECT column01 AS my_column01, column01, column02, column03 AS oh_yeah, column04, column04, * FROM my_table"
+      );
+    });
   });
 });
