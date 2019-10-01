@@ -1,5 +1,5 @@
 /**
- * Insert a piece of text a multiline sql statement.
+ * Insert a piece of text in a multiline sql statement.
  *
  * @param sql initial sql
  * @param input text to insert
@@ -11,22 +11,25 @@ export const insertText = (
   location: { line: number; column: number }
 ) => {
   const lines = sql.split("\n");
-  if (location.line > lines.length) {
+  if (location.line - 1 > lines.length) {
     throw new Error(
-      `Can't insert a text on line ${location.line}, the sql statement has only ${lines.length} lines`
+      `Can't insert a text on line ${location.line -
+        1}, the sql statement has only ${lines.length} lines`
     );
   }
 
-  if (location.column > lines[location.line].length) {
+  if (location.column > lines[location.line - 1].length) {
     throw new Error(
-      `Can't insert a text at ${location.line}:${location.column}, the line has only ${lines[location.line].length} characts`
+      `Can't insert a text at ${location.line - 1}:${
+        location.column
+      }, the line has only ${lines[location.line - 1].length} characts`
     );
   }
 
-  lines[location.line] =
-    lines[location.line].slice(0, location.column) +
+  lines[location.line - 1] =
+    lines[location.line - 1].slice(0, location.column) +
     input +
-    lines[location.line].slice(location.column);
+    lines[location.line - 1].slice(location.column);
 
   return lines.join("\n");
 };
