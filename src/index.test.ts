@@ -214,4 +214,93 @@ describe("rhombic", () => {
       expect(query).toEqual('SELECT *, column01 AS toto, "day" FROM my_table');
     });
   });
+
+  describe("updateProjectionItem", () => {
+    it("should rename a simple statement", () => {
+      const query = rhombic
+        .parse("SELECT column01 FROM my_table")
+        .updateProjectionItem({
+          columns: ["column01"],
+          index: 0,
+          value: "column01 AS my_column"
+        })
+        .toString();
+
+      expect(query).toEqual("SELECT column01 AS my_column FROM my_table");
+    });
+
+    it("should expanded a star if needed", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_table")
+        .updateProjectionItem({
+          columns: ["column01", "column02", "column03", "column04"],
+          index: 1,
+          value: "column02 AS my_column"
+        })
+        .toString();
+
+      expect(query).toEqual(
+        "SELECT column01, column02 AS my_column, column03, column04 FROM my_table"
+      );
+    });
+
+    it("should expanded a star with side projections", () => {
+      const query = rhombic
+        .parse("SELECT column01, *, column04 FROM my_table")
+        .updateProjectionItem({
+          columns: ["column01", "column02", "column03", "column04"],
+          index: 1,
+          value: "column02 AS my_column"
+        })
+        .toString();
+
+      expect(query).toEqual(
+        "SELECT column01, column02 AS my_column, column03, column04 FROM my_table"
+      );
+    });
+
+    it("should preserved previous rename", () => {
+      const query = rhombic
+        .parse("SELECT column01 AS my_column01, *, column04 FROM my_table")
+        .updateProjectionItem({
+          columns: ["my_column01", "column02", "column03", "column04"],
+          index: 1,
+          value: "column02 AS my_column02"
+        })
+        .toString();
+
+      expect(query).toEqual(
+        "SELECT column01 AS my_column01, column02 AS my_column02, column03, column04 FROM my_table"
+      );
+    });
+
+    it("should deal with multiple stars query", () => {
+      const query = rhombic
+        .parse("SELECT column01 AS my_column01, *, column04, * FROM my_table")
+        .updateProjectionItem({
+          columns: [
+            "my_column01",
+            // *
+            "column01",
+            "column02",
+            "column03",
+            "column04",
+            // column 04
+            "column040",
+            // *
+            "column010",
+            "column020",
+            "column030",
+            "column041"
+          ],
+          index: 3,
+          value: "column03 AS oh_yeah"
+        })
+        .toString();
+
+      expect(query).toEqual(
+        "SELECT column01 AS my_column01, column01, column02, column03 AS oh_yeah, column04, column04, * FROM my_table"
+      );
+    });
+  });
 });
