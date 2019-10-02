@@ -173,6 +173,36 @@ describe("parseSql", () => {
       )`
     },
     {
+      title: "SELECT with function",
+      sql: "SELECT COUNT(column01) FROM my_db",
+      expected: `
+      query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(
+              expression(
+                FunctionIdentifier("COUNT")
+                LParen("(")
+                expression(
+                  Identifier("column01")
+                )
+                RParen(")")
+              )
+            )
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier("my_db")
+              )
+            )
+          )
+        )
+      )`
+    },
+    {
       title: "SELECT multiple columns statement",
       sql: "SELECT column01, column02, column03 FROM my_db",
       expected: `

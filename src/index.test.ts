@@ -229,6 +229,19 @@ describe("rhombic", () => {
       expect(query).toEqual("SELECT column01 AS my_column FROM my_table");
     });
 
+    it("should rename a simple statement (with function)", () => {
+      const query = rhombic
+        .parse("SELECT column01 FROM my_table")
+        .updateProjectionItem({
+          columns: ["column01"],
+          index: 0,
+          value: "avg(column01)"
+        })
+        .toString();
+
+      expect(query).toEqual("SELECT avg(column01) FROM my_table");
+    });
+
     it("should expanded a star if needed", () => {
       const query = rhombic
         .parse("SELECT * FROM my_table")
