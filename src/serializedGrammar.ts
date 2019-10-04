@@ -63,7 +63,7 @@ export const serializedGrammar = [
     type: "Rule",
     name: "expression",
     orgText:
-      "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.CONSUME(Integer); } },\r\n                { ALT: function () { return _this.CONSUME(String); } },\r\n                { ALT: function () { return _this.CONSUME(Null); } },\r\n                {\r\n                    ALT: function () {\r\n                        _this.CONSUME(LParen);\r\n                        _this.MANY_SEP({\r\n                            SEP: Comma,\r\n                            DEF: function () { return _this.SUBRULE(_this.expression); }\r\n                        });\r\n                        _this.CONSUME(RParen);\r\n                    }\r\n                },\r\n                { ALT: function () { return _this.CONSUME(Identifier); } }\r\n            ]);\r\n        }",
+      "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.CONSUME(Integer); } },\r\n                { ALT: function () { return _this.CONSUME(String); } },\r\n                { ALT: function () { return _this.CONSUME(Null); } },\r\n                {\r\n                    ALT: function () {\r\n                        _this.CONSUME(LParen);\r\n                        _this.MANY_SEP({\r\n                            SEP: Comma,\r\n                            DEF: function () { return _this.SUBRULE(_this.expression); }\r\n                        });\r\n                        _this.CONSUME(RParen);\r\n                    }\r\n                },\r\n                { ALT: function () { return _this.CONSUME(Identifier); } },\r\n                {\r\n                    ALT: function () {\r\n                        _this.CONSUME(FunctionIdentifier), _this.CONSUME1(LParen);\r\n                        _this.SUBRULE1(_this.expression);\r\n                        _this.CONSUME1(RParen);\r\n                    }\r\n                }\r\n            ]);\r\n        }",
     definition: [
       {
         type: "Alternation",
@@ -152,6 +152,36 @@ export const serializedGrammar = [
                 label: "Identifier",
                 idx: 0,
                 pattern: '[a-zA-Z]\\w*|"[\\w "{2}]*"'
+              }
+            ]
+          },
+          {
+            type: "Flat",
+            definition: [
+              {
+                type: "Terminal",
+                name: "FunctionIdentifier",
+                label: "FunctionIdentifier",
+                idx: 0
+              },
+              {
+                type: "Terminal",
+                name: "LParen",
+                label: "LParen",
+                idx: 1,
+                pattern: "\\("
+              },
+              {
+                type: "NonTerminal",
+                name: "expression",
+                idx: 1
+              },
+              {
+                type: "Terminal",
+                name: "RParen",
+                label: "RParen",
+                idx: 1,
+                pattern: "\\)"
               }
             ]
           }

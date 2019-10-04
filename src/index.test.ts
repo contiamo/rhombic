@@ -316,4 +316,77 @@ describe("rhombic", () => {
       );
     });
   });
+
+  describe("getProjectionItem", () => {
+    it("should give projection item of a simple statement", () => {
+      const projectionItem = rhombic
+        .parse("SELECT hello FROM world")
+        .getProjectionItem({ columns: ["hello"], index: 0 });
+
+      expect(projectionItem).toEqual({
+        expression: "hello"
+      });
+    });
+
+    it("should give projection item of a renamed projection", () => {
+      const projectionItem = rhombic
+        .parse(
+          "SELECT mischa, slava, tejas as chicken, imogen, fabien FROM best_team_ever"
+        )
+        .getProjectionItem({
+          columns: ["mischa", "slava", "chicken", "imogen", "fabien"],
+          index: 2
+        });
+
+      expect(projectionItem).toEqual({
+        expression: "tejas",
+        alias: "chicken"
+      });
+    });
+
+    it("should give projection item of a renamed projection with function", () => {
+      const projectionItem = rhombic
+        .parse(
+          "SELECT mischa, slava, avg(tejas) as chicken, imogen, fabien FROM best_team_ever"
+        )
+        .getProjectionItem({
+          columns: ["mischa", "slava", "chicken", "imogen", "fabien"],
+          index: 2
+        });
+
+      expect(projectionItem).toEqual({
+        expression: "avg(tejas)",
+        alias: "chicken"
+      });
+    });
+
+    it("should preserve formatting of the expression", () => {
+      const projectionItem = rhombic
+        .parse(
+          "SELECT mischa, slava, avg( tejas ) as chicken, imogen, fabien FROM best_team_ever"
+        )
+        .getProjectionItem({
+          columns: ["mischa", "slava", "chicken", "imogen", "fabien"],
+          index: 2
+        });
+
+      expect(projectionItem).toEqual({
+        expression: "avg( tejas )",
+        alias: "chicken"
+      });
+    });
+
+    it("should return information from columns if the index is on the asterisk", () => {
+      const projectionItem = rhombic
+        .parse("SELECT * FROM best_team_ever")
+        .getProjectionItem({
+          columns: ["mischa", "slava", "tejas", "imogen", "fabien"],
+          index: 2
+        });
+
+      expect(projectionItem).toEqual({
+        expression: "tejas"
+      });
+    });
+  });
 });

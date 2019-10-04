@@ -46,6 +46,18 @@ export interface ParsedSql {
   hasTablePrimary(name: string): boolean;
 
   /**
+   * Get a projectionItem from result index.
+   *
+   * @param options
+   * @param options.columns Query columns results, needed to be able to expands `*`
+   * @param options.index Index of the `projectionItem` to rename
+   */
+  getProjectionItem(options: {
+    columns: string[];
+    index: number;
+  }): { expression: string; alias?: string };
+
+  /**
    * Add a projectionItem to the query.
    *
    * @param projectionItem
@@ -110,6 +122,24 @@ const parsedSql = (sql: string): ParsedSql => {
       const visitor = new HasTablePrimary(name);
       visitor.visit(cst);
       return visitor.hasTablePrimary;
+    },
+
+    getProjectionItem({ columns, index }) {
+      const visitor = new ProjectionItemsVisitor();
+      visitor.visit(cst);
+      const projectionItems = visitor.output;
+
+      if (visitor.asteriskCount > 0) {
+        // TODO
+        return {
+          expression: columns[index]
+        };
+      } else {
+        return {
+          expression: projectionItems[index].expression,
+          alias: projectionItems[index].alias
+        };
+      }
     },
 
     addProjectionItem(projectionItem, options) {

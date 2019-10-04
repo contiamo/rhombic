@@ -26,6 +26,11 @@ export interface ExpressionContext {
   LParen?: IToken[];
   RParen?: IToken[];
   Identifier?: IToken[];
+  FunctionIdentifier?: IToken[];
+  expression: Array<{
+    name: "expression";
+    children: ExpressionContext;
+  }>;
 }
 
 export interface ValueExpressionContext {}

@@ -1,6 +1,7 @@
 import { parser } from "../SqlParser";
 import { ProjectionItemContext } from "../Context";
 import { IToken } from "chevrotain";
+import { getImageFromChildren } from "../utils/getImageFromChildren";
 
 const Visitor = parser.getBaseCstVisitorConstructorWithDefaults();
 
@@ -14,6 +15,8 @@ export class ProjectionItemsVisitor extends Visitor {
     startColumn: number;
     endColumn: number;
     isAsterisk: boolean;
+    expression: string;
+    alias?: string;
     children: IToken[];
   }> = [];
 
@@ -30,6 +33,8 @@ export class ProjectionItemsVisitor extends Visitor {
     let startColumn = Infinity;
     let endColumn = -Infinity;
     let isAsterisk = false;
+    let expression = "";
+    let alias: string | undefined;
     const children: IToken[] = [];
 
     if (ctx.expression) {
@@ -44,6 +49,9 @@ export class ProjectionItemsVisitor extends Visitor {
           children.push(...j);
         });
       });
+      expression = getImageFromChildren(
+        ctx.expression.reduce((mem, i) => ({ mem, ...i.children }), {})
+      );
     }
 
     if (ctx.Asterisk) {
@@ -68,13 +76,19 @@ export class ProjectionItemsVisitor extends Visitor {
       children.push(...ctx.Identifier);
     }
 
+    if (ctx.As && ctx.Identifier) {
+      alias = ctx.Identifier[ctx.Identifier.length - 1].image;
+    }
+
     this.output.push({
       startLine,
       endLine,
       startColumn,
       endColumn,
       isAsterisk,
-      children
+      children,
+      alias,
+      expression
     });
   }
 }
