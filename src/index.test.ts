@@ -388,5 +388,52 @@ describe("rhombic", () => {
         expression: "tejas"
       });
     });
+
+    it("should still give the original expression with asterisk on the query", () => {
+      const projectionItem = rhombic
+        .parse("SELECT avg(mischa), * FROM best_team_ever")
+        .getProjectionItem({
+          columns: ["EXPR$0", "mischa", "slava", "tejas", "imogen", "fabien"],
+          index: 0
+        });
+
+      expect(projectionItem).toEqual({
+        expression: "avg(mischa)"
+      });
+    });
+
+    it("should deal with duplicate columns", () => {
+      const projectionItem = rhombic
+        .parse("SELECT mischa, * FROM best_team_ever")
+        .getProjectionItem({
+          columns: ["mischa", "mischa0", "slava", "tejas", "imogen", "fabien"],
+          index: 1
+        });
+
+      expect(projectionItem).toEqual({
+        expression: "mischa"
+      });
+    });
+
+    it("should deal with duplicate columns (tricky)", () => {
+      const projectionItem = rhombic
+        .parse("SELECT address, address1, * FROM foodmart.customer")
+        .getProjectionItem({
+          columns: [
+            "address",
+            "address1",
+            "address0",
+            "address10",
+            "address2",
+            "lname",
+            "fname"
+          ],
+          index: 3
+        });
+
+      expect(projectionItem).toEqual({
+        expression: "address1"
+      });
+    });
   });
 });

@@ -130,9 +130,29 @@ const parsedSql = (sql: string): ParsedSql => {
       const projectionItems = visitor.output;
 
       if (visitor.asteriskCount > 0) {
-        // TODO
+        // Projection not in asterisk
+        if (projectionItems[index] && !projectionItems[index].isAsterisk) {
+          return {
+            expression: projectionItems[index].expression,
+            alias: projectionItems[index].alias
+          };
+        }
+
+        // Check for duplicate projection names
+        const value = columns[index];
+        const otherNames = projectionItems.reduce(
+          (mem, i) => {
+            if (i.isAsterisk) return mem;
+            return [...mem, i.alias || i.expression];
+          },
+          [] as string[]
+        );
+        const candidates = otherNames
+          .filter(i => value.startsWith(i))
+          .sort((a, b) => b.length - a.length);
+        const originalValue = candidates[0];
         return {
-          expression: columns[index]
+          expression: originalValue || value
         };
       } else {
         return {
