@@ -327,7 +327,7 @@ describe("rhombic", () => {
         })
         .toString();
 
-      expect(query).toEqual("SELECT  b, c from d");
+      expect(query).toEqual("SELECT b, c from d");
     });
 
     it("should remove a simple projection item (second item)", () => {
@@ -339,7 +339,7 @@ describe("rhombic", () => {
         })
         .toString();
 
-      expect(query).toEqual("SELECT a,  c from d");
+      expect(query).toEqual("SELECT a, c from d");
     });
 
     it("should remove a simple projection item (last item)", () => {

@@ -7,6 +7,7 @@ import { HasTablePrimary } from "./visitors/HasTablePrimaryVisitor";
 import { reserved } from "./reserved";
 import { replaceText } from "./utils/replaceText";
 import { getLocation } from "./utils/getLocation";
+import { getText } from "./utils/getText";
 
 const rhombic = {
   /**
@@ -300,6 +301,15 @@ const parsedSql = (sql: string): ParsedSql => {
           } else {
             targetNode.endLine = comma.endLine || targetNode.endLine;
             targetNode.endColumn = comma.endColumn || targetNode.endColumn;
+
+            // Remove extra space
+            const textToRemove = getText(sql, {
+              ...targetNode,
+              endColumn: targetNode.endColumn + 1
+            });
+            if (textToRemove[textToRemove.length - 1] === " ") {
+              targetNode.endColumn++;
+            }
           }
         }
 
