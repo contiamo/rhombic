@@ -58,6 +58,7 @@ export interface ProjectionItemsContext {
     name: "projectionItem";
     children: ProjectionItemContext;
   }>;
+  Comma?: IToken[];
 }
 
 export interface ProjectionItemContext {

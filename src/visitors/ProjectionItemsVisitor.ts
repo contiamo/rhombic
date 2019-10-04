@@ -1,5 +1,5 @@
 import { parser } from "../SqlParser";
-import { ProjectionItemContext } from "../Context";
+import { ProjectionItemContext, ProjectionItemsContext } from "../Context";
 import { IToken } from "chevrotain";
 import { getImageFromChildren } from "../utils/getImageFromChildren";
 
@@ -20,11 +20,22 @@ export class ProjectionItemsVisitor extends Visitor {
     children: IToken[];
   }> = [];
 
+  public commas: IToken[] = [];
+
   public asteriskCount = 0;
 
   constructor() {
     super();
     this.validateVisitor();
+  }
+
+  projectionItems(ctx: ProjectionItemsContext) {
+    if (ctx.Comma) {
+      this.commas.push(...ctx.Comma);
+    }
+    if (ctx.projectionItem) {
+      ctx.projectionItem.map(i => this.projectionItem(i.children));
+    }
   }
 
   projectionItem(ctx: ProjectionItemContext) {

@@ -83,6 +83,18 @@ export interface ParsedSql {
     index: number;
     value: string;
   }): ParsedSql;
+
+  /**
+   * Remove a projectionItem.
+   *
+   * @param options
+   * @param options.columns Query columns results, needed to be able to expands `*`
+   * @param options.index Index of the `projectionItem` to rename
+   */
+  removeProjectionItem(options: {
+    columns: string[];
+    index: number;
+  }): ParsedSql;
 }
 
 /**
@@ -245,6 +257,53 @@ const parsedSql = (sql: string): ParsedSql => {
       } else {
         const targetNode = projectionItems[index];
         const nextSql = replaceText(sql, value, getLocation(targetNode));
+        return parsedSql(nextSql);
+      }
+    },
+
+    removeProjectionItem({ columns, index }) {
+      const visitor = new ProjectionItemsVisitor();
+      visitor.visit(cst);
+      const projectionItems = visitor.output;
+
+      if (visitor.asteriskCount > 0) {
+        // Expand asterisk
+        const nonAsteriskItemsCount = projectionItems.filter(i => !i.isAsterisk)
+          .length;
+        const projectionItemsBehindAsterisk =
+          (columns.length - nonAsteriskItemsCount) / visitor.asteriskCount;
+        const asteriskIndex = projectionItems.findIndex(t => t.isAsterisk) || 0;
+
+        const nextSql = replaceText(
+          sql,
+          columns
+            .slice(asteriskIndex, asteriskIndex + projectionItemsBehindAsterisk)
+            .filter((_, i) => i + asteriskIndex !== index)
+            .join(", "),
+          getLocation(projectionItems[asteriskIndex])
+        );
+
+        return parsedSql(nextSql);
+      } else {
+        const targetNode = projectionItems[index];
+        if (visitor.commas.length > 0) {
+          const comma = getLocation(
+            visitor.commas[Math.min(visitor.commas.length - 1, index)]
+          );
+          if (
+            comma.startLine < targetNode.startLine ||
+            comma.startColumn < targetNode.startColumn
+          ) {
+            targetNode.startLine = comma.startLine || targetNode.startLine;
+            targetNode.startColumn =
+              comma.startColumn || targetNode.startColumn;
+          } else {
+            targetNode.endLine = comma.endLine || targetNode.endLine;
+            targetNode.endColumn = comma.endColumn || targetNode.endColumn;
+          }
+        }
+
+        const nextSql = replaceText(sql, "", getLocation(targetNode));
         return parsedSql(nextSql);
       }
     }

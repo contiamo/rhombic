@@ -317,6 +317,68 @@ describe("rhombic", () => {
     });
   });
 
+  describe("removeProjectionItem", () => {
+    it("should remove a simple projection item", () => {
+      const query = rhombic
+        .parse("SELECT a, b, c from d")
+        .removeProjectionItem({
+          columns: ["a", "b", "c"],
+          index: 0
+        })
+        .toString();
+
+      expect(query).toEqual("SELECT  b, c from d");
+    });
+
+    it("should remove a simple projection item (second item)", () => {
+      const query = rhombic
+        .parse("SELECT a, b, c from d")
+        .removeProjectionItem({
+          columns: ["a", "b", "c"],
+          index: 1
+        })
+        .toString();
+
+      expect(query).toEqual("SELECT a,  c from d");
+    });
+
+    it("should remove a simple projection item (last item)", () => {
+      const query = rhombic
+        .parse("SELECT a, b, c from d")
+        .removeProjectionItem({
+          columns: ["a", "b", "c"],
+          index: 2
+        })
+        .toString();
+
+      expect(query).toEqual("SELECT a, b from d");
+    });
+
+    it("should remove a projection in asterisk", () => {
+      const query = rhombic
+        .parse("SELECT * from d")
+        .removeProjectionItem({
+          columns: ["a", "b", "c"],
+          index: 0
+        })
+        .toString();
+
+      expect(query).toEqual("SELECT b, c from d");
+    });
+
+    it("should remove a projection in asterisk with side projection", () => {
+      const query = rhombic
+        .parse("SELECT count(a), * from d")
+        .removeProjectionItem({
+          columns: ["a", "a", "b", "c"],
+          index: 1
+        })
+        .toString();
+
+      expect(query).toEqual("SELECT count(a), b, c from d");
+    });
+  });
+
   describe("getProjectionItem", () => {
     it("should give projection item of a simple statement", () => {
       const projectionItem = rhombic
