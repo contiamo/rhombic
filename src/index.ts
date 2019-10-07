@@ -7,6 +7,7 @@ import { HasTablePrimary } from "./visitors/HasTablePrimaryVisitor";
 import { reserved } from "./reserved";
 import { replaceText } from "./utils/replaceText";
 import { getLocation } from "./utils/getLocation";
+import { getText } from "./utils/getText";
 
 const rhombic = {
   /**
@@ -46,6 +47,18 @@ export interface ParsedSql {
   hasTablePrimary(name: string): boolean;
 
   /**
+   * Get a projectionItem from result index.
+   *
+   * @param options
+   * @param options.columns Query columns results, needed to be able to expands `*`
+   * @param options.index Index of the `projectionItem` to rename
+   */
+  getProjectionItem(options: {
+    columns: string[];
+    index: number;
+  }): { expression: string; alias?: string };
+
+  /**
    * Add a projectionItem to the query.
    *
    * @param projectionItem
@@ -70,6 +83,18 @@ export interface ParsedSql {
     columns: string[];
     index: number;
     value: string;
+  }): ParsedSql;
+
+  /**
+   * Remove a projectionItem.
+   *
+   * @param options
+   * @param options.columns Query columns results, needed to be able to expands `*`
+   * @param options.index Index of the `projectionItem` to rename
+   */
+  removeProjectionItem(options: {
+    columns: string[];
+    index: number;
   }): ParsedSql;
 }
 
@@ -110,6 +135,44 @@ const parsedSql = (sql: string): ParsedSql => {
       const visitor = new HasTablePrimary(name);
       visitor.visit(cst);
       return visitor.hasTablePrimary;
+    },
+
+    getProjectionItem({ columns, index }) {
+      const visitor = new ProjectionItemsVisitor();
+      visitor.visit(cst);
+      const projectionItems = visitor.output;
+
+      if (visitor.asteriskCount > 0) {
+        // Projection not in asterisk
+        if (projectionItems[index] && !projectionItems[index].isAsterisk) {
+          return {
+            expression: projectionItems[index].expression,
+            alias: projectionItems[index].alias
+          };
+        }
+
+        // Check for duplicate projection names
+        const value = columns[index];
+        const otherNames = projectionItems.reduce(
+          (mem, i) => {
+            if (i.isAsterisk) return mem;
+            return [...mem, i.alias || i.expression];
+          },
+          [] as string[]
+        );
+        const candidates = otherNames
+          .filter(i => value.startsWith(i))
+          .sort((a, b) => b.length - a.length);
+        const originalValue = candidates[0];
+        return {
+          expression: originalValue || value
+        };
+      } else {
+        return {
+          expression: projectionItems[index].expression,
+          alias: projectionItems[index].alias
+        };
+      }
     },
 
     addProjectionItem(projectionItem, options) {
@@ -195,6 +258,62 @@ const parsedSql = (sql: string): ParsedSql => {
       } else {
         const targetNode = projectionItems[index];
         const nextSql = replaceText(sql, value, getLocation(targetNode));
+        return parsedSql(nextSql);
+      }
+    },
+
+    removeProjectionItem({ columns, index }) {
+      const visitor = new ProjectionItemsVisitor();
+      visitor.visit(cst);
+      const projectionItems = visitor.output;
+
+      if (visitor.asteriskCount > 0) {
+        // Expand asterisk
+        const nonAsteriskItemsCount = projectionItems.filter(i => !i.isAsterisk)
+          .length;
+        const projectionItemsBehindAsterisk =
+          (columns.length - nonAsteriskItemsCount) / visitor.asteriskCount;
+        const asteriskIndex = projectionItems.findIndex(t => t.isAsterisk) || 0;
+
+        const nextSql = replaceText(
+          sql,
+          columns
+            .slice(asteriskIndex, asteriskIndex + projectionItemsBehindAsterisk)
+            .filter((_, i) => i + asteriskIndex !== index)
+            .join(", "),
+          getLocation(projectionItems[asteriskIndex])
+        );
+
+        return parsedSql(nextSql);
+      } else {
+        const targetNode = projectionItems[index];
+        if (visitor.commas.length > 0) {
+          const comma = getLocation(
+            visitor.commas[Math.min(visitor.commas.length - 1, index)]
+          );
+          if (
+            comma.startLine < targetNode.startLine ||
+            comma.startColumn < targetNode.startColumn
+          ) {
+            targetNode.startLine = comma.startLine || targetNode.startLine;
+            targetNode.startColumn =
+              comma.startColumn || targetNode.startColumn;
+          } else {
+            targetNode.endLine = comma.endLine || targetNode.endLine;
+            targetNode.endColumn = comma.endColumn || targetNode.endColumn;
+
+            // Remove extra space
+            const textToRemove = getText(sql, {
+              ...targetNode,
+              endColumn: targetNode.endColumn + 1
+            });
+            if (textToRemove[textToRemove.length - 1] === " ") {
+              targetNode.endColumn++;
+            }
+          }
+        }
+
+        const nextSql = replaceText(sql, "", getLocation(targetNode));
         return parsedSql(nextSql);
       }
     }

@@ -22,7 +22,7 @@ import { IToken } from "chevrotain";
     if (rule.type === "Rule") {
       const def = generateDefinitionTypes(rule.definition, 2);
       types += def.includes("|")
-        ? `\nexport type ${pascal(rule.name)}Context = \n  | {`
+        ? `\nexport type ${pascal(rule.name)}Context = \n  | {\n`
         : `\nexport interface ${pascal(rule.name)}Context {`;
       types += def;
       types += "\n}\n";
@@ -54,6 +54,14 @@ function generateDefinitionTypes(
 
         case "Option":
           return generateDefinitionTypes(node.definition, indent, true);
+
+        case "Repetition":
+          // TODO: remove duplicate definitions in a smarter way
+          return generateDefinitionTypes(
+            node.definition.slice(0, 1),
+            indent + 2,
+            true
+          );
 
         case "Alternation":
           const isTerminalOnly = !JSON.stringify(node.definition).includes(

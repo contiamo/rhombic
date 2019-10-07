@@ -229,6 +229,19 @@ describe("rhombic", () => {
       expect(query).toEqual("SELECT column01 AS my_column FROM my_table");
     });
 
+    it("should rename a simple statement (with function)", () => {
+      const query = rhombic
+        .parse("SELECT column01 FROM my_table")
+        .updateProjectionItem({
+          columns: ["column01"],
+          index: 0,
+          value: "avg(column01)"
+        })
+        .toString();
+
+      expect(query).toEqual("SELECT avg(column01) FROM my_table");
+    });
+
     it("should expanded a star if needed", () => {
       const query = rhombic
         .parse("SELECT * FROM my_table")
@@ -301,6 +314,188 @@ describe("rhombic", () => {
       expect(query).toEqual(
         "SELECT column01 AS my_column01, column01, column02, column03 AS oh_yeah, column04, column04, * FROM my_table"
       );
+    });
+  });
+
+  describe("removeProjectionItem", () => {
+    it("should remove a simple projection item", () => {
+      const query = rhombic
+        .parse("SELECT a, b, c from d")
+        .removeProjectionItem({
+          columns: ["a", "b", "c"],
+          index: 0
+        })
+        .toString();
+
+      expect(query).toEqual("SELECT b, c from d");
+    });
+
+    it("should remove a simple projection item (second item)", () => {
+      const query = rhombic
+        .parse("SELECT a, b, c from d")
+        .removeProjectionItem({
+          columns: ["a", "b", "c"],
+          index: 1
+        })
+        .toString();
+
+      expect(query).toEqual("SELECT a, c from d");
+    });
+
+    it("should remove a simple projection item (last item)", () => {
+      const query = rhombic
+        .parse("SELECT a, b, c from d")
+        .removeProjectionItem({
+          columns: ["a", "b", "c"],
+          index: 2
+        })
+        .toString();
+
+      expect(query).toEqual("SELECT a, b from d");
+    });
+
+    it("should remove a projection in asterisk", () => {
+      const query = rhombic
+        .parse("SELECT * from d")
+        .removeProjectionItem({
+          columns: ["a", "b", "c"],
+          index: 0
+        })
+        .toString();
+
+      expect(query).toEqual("SELECT b, c from d");
+    });
+
+    it("should remove a projection in asterisk with side projection", () => {
+      const query = rhombic
+        .parse("SELECT count(a), * from d")
+        .removeProjectionItem({
+          columns: ["a", "a", "b", "c"],
+          index: 1
+        })
+        .toString();
+
+      expect(query).toEqual("SELECT count(a), b, c from d");
+    });
+  });
+
+  describe("getProjectionItem", () => {
+    it("should give projection item of a simple statement", () => {
+      const projectionItem = rhombic
+        .parse("SELECT hello FROM world")
+        .getProjectionItem({ columns: ["hello"], index: 0 });
+
+      expect(projectionItem).toEqual({
+        expression: "hello"
+      });
+    });
+
+    it("should give projection item of a renamed projection", () => {
+      const projectionItem = rhombic
+        .parse(
+          "SELECT mischa, slava, tejas as chicken, imogen, fabien FROM best_team_ever"
+        )
+        .getProjectionItem({
+          columns: ["mischa", "slava", "chicken", "imogen", "fabien"],
+          index: 2
+        });
+
+      expect(projectionItem).toEqual({
+        expression: "tejas",
+        alias: "chicken"
+      });
+    });
+
+    it("should give projection item of a renamed projection with function", () => {
+      const projectionItem = rhombic
+        .parse(
+          "SELECT mischa, slava, avg(tejas) as chicken, imogen, fabien FROM best_team_ever"
+        )
+        .getProjectionItem({
+          columns: ["mischa", "slava", "chicken", "imogen", "fabien"],
+          index: 2
+        });
+
+      expect(projectionItem).toEqual({
+        expression: "avg(tejas)",
+        alias: "chicken"
+      });
+    });
+
+    it("should preserve formatting of the expression", () => {
+      const projectionItem = rhombic
+        .parse(
+          "SELECT mischa, slava, avg( tejas ) as chicken, imogen, fabien FROM best_team_ever"
+        )
+        .getProjectionItem({
+          columns: ["mischa", "slava", "chicken", "imogen", "fabien"],
+          index: 2
+        });
+
+      expect(projectionItem).toEqual({
+        expression: "avg( tejas )",
+        alias: "chicken"
+      });
+    });
+
+    it("should return information from columns if the index is on the asterisk", () => {
+      const projectionItem = rhombic
+        .parse("SELECT * FROM best_team_ever")
+        .getProjectionItem({
+          columns: ["mischa", "slava", "tejas", "imogen", "fabien"],
+          index: 2
+        });
+
+      expect(projectionItem).toEqual({
+        expression: "tejas"
+      });
+    });
+
+    it("should still give the original expression with asterisk on the query", () => {
+      const projectionItem = rhombic
+        .parse("SELECT avg(mischa), * FROM best_team_ever")
+        .getProjectionItem({
+          columns: ["EXPR$0", "mischa", "slava", "tejas", "imogen", "fabien"],
+          index: 0
+        });
+
+      expect(projectionItem).toEqual({
+        expression: "avg(mischa)"
+      });
+    });
+
+    it("should deal with duplicate columns", () => {
+      const projectionItem = rhombic
+        .parse("SELECT mischa, * FROM best_team_ever")
+        .getProjectionItem({
+          columns: ["mischa", "mischa0", "slava", "tejas", "imogen", "fabien"],
+          index: 1
+        });
+
+      expect(projectionItem).toEqual({
+        expression: "mischa"
+      });
+    });
+
+    it("should deal with duplicate columns (tricky)", () => {
+      const projectionItem = rhombic
+        .parse("SELECT address, address1, * FROM foodmart.customer")
+        .getProjectionItem({
+          columns: [
+            "address",
+            "address1",
+            "address0",
+            "address10",
+            "address2",
+            "lname",
+            "fname"
+          ],
+          index: 3
+        });
+
+      expect(projectionItem).toEqual({
+        expression: "address1"
+      });
     });
   });
 });

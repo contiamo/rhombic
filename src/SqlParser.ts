@@ -212,7 +212,14 @@ class SqlParser extends CstParser {
           this.CONSUME(RParen);
         }
       },
-      { ALT: () => this.CONSUME(Identifier) }
+      { ALT: () => this.CONSUME(Identifier) },
+      {
+        ALT: () => {
+          this.CONSUME(FunctionIdentifier), this.CONSUME1(LParen);
+          this.SUBRULE1(this.expression);
+          this.CONSUME1(RParen);
+        }
+      }
     ]);
   });
 
