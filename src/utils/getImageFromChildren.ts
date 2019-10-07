@@ -8,7 +8,7 @@ function isCstNode(element: CstElement): element is CstNode {
  * Extract every `node.image` recursively into `image`
  *
  * @param children
- * @param image
+ * @param image The textual representation of the Token as it appeared in the text.
  */
 const extractImage = (children: CstChildrenDictionary, image: string[]) =>
   Object.values(children).forEach(tokens => {
@@ -27,7 +27,7 @@ const extractImage = (children: CstChildrenDictionary, image: string[]) =>
   });
 
 /**
- * Extract the `image` from a children dictionnary.
+ * Extract the `image` from a children dictionary.
  *
  * /!\ This function only deal with one line context /!\
  * @param children
