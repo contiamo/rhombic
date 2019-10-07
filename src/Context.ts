@@ -31,6 +31,30 @@ export interface ExpressionContext {
     name: "expression";
     children: ExpressionContext;
   }>;
+  cast: Array<{
+    name: "cast";
+    children: CastContext;
+  }>;
+}
+
+export interface CastContext {
+  Cast: IToken[];
+  LParen: IToken[];
+  expression: Array<{
+    name: "expression";
+    children: ExpressionContext;
+  }>;
+  As: IToken[];
+  type: Array<{
+    name: "type";
+    children: TypeContext;
+  }>;
+  RParen: IToken[];
+}
+
+export interface TypeContext {
+  SqlTypeName?: IToken[];
+  CollectionTypeName?: IToken[];
 }
 
 export interface ValueExpressionContext {}

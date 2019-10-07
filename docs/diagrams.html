@@ -83,7 +83,7 @@
       type: "Rule",
       name: "expression",
       orgText:
-        "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.CONSUME(Integer); } },\r\n                { ALT: function () { return _this.CONSUME(String); } },\r\n                { ALT: function () { return _this.CONSUME(Null); } },\r\n                {\r\n                    ALT: function () {\r\n                        _this.CONSUME(LParen);\r\n                        _this.MANY_SEP({\r\n                            SEP: Comma,\r\n                            DEF: function () { return _this.SUBRULE(_this.expression); }\r\n                        });\r\n                        _this.CONSUME(RParen);\r\n                    }\r\n                },\r\n                { ALT: function () { return _this.CONSUME(Identifier); } }\r\n            ]);\r\n        }",
+        "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.CONSUME(Integer); } },\r\n                { ALT: function () { return _this.CONSUME(String); } },\r\n                { ALT: function () { return _this.CONSUME(Null); } },\r\n                {\r\n                    ALT: function () {\r\n                        _this.CONSUME(LParen);\r\n                        _this.MANY_SEP({\r\n                            SEP: Comma,\r\n                            DEF: function () { return _this.SUBRULE(_this.expression); }\r\n                        });\r\n                        _this.CONSUME(RParen);\r\n                    }\r\n                },\r\n                { ALT: function () { return _this.CONSUME(Identifier); } },\r\n                {\r\n                    ALT: function () {\r\n                        _this.CONSUME(FunctionIdentifier), _this.CONSUME1(LParen);\r\n                        _this.SUBRULE1(_this.expression);\r\n                        _this.CONSUME1(RParen);\r\n                    }\r\n                },\r\n                {\r\n                    ALT: function () { return _this.SUBRULE(_this.cast); }\r\n                }\r\n            ]);\r\n        }",
       definition: [
         {
           type: "Alternation",
@@ -172,6 +172,138 @@
                   label: "Identifier",
                   idx: 0,
                   pattern: '[a-zA-Z]\\w*|"[\\w "{2}]*"'
+                }
+              ]
+            },
+            {
+              type: "Flat",
+              definition: [
+                {
+                  type: "Terminal",
+                  name: "FunctionIdentifier",
+                  label: "FunctionIdentifier",
+                  idx: 0
+                },
+                {
+                  type: "Terminal",
+                  name: "LParen",
+                  label: "LParen",
+                  idx: 1,
+                  pattern: "\\("
+                },
+                {
+                  type: "NonTerminal",
+                  name: "expression",
+                  idx: 1
+                },
+                {
+                  type: "Terminal",
+                  name: "RParen",
+                  label: "RParen",
+                  idx: 1,
+                  pattern: "\\)"
+                }
+              ]
+            },
+            {
+              type: "Flat",
+              definition: [
+                {
+                  type: "NonTerminal",
+                  name: "cast",
+                  idx: 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "Rule",
+      name: "cast",
+      orgText:
+        "function () {\r\n            _this.CONSUME(Cast);\r\n            _this.CONSUME(LParen);\r\n            _this.SUBRULE(_this.expression);\r\n            _this.CONSUME(As);\r\n            _this.SUBRULE(_this.type);\r\n            _this.CONSUME(RParen);\r\n        }",
+      definition: [
+        {
+          type: "Terminal",
+          name: "Cast",
+          label: "Cast",
+          idx: 0,
+          pattern: "CAST"
+        },
+        {
+          type: "Terminal",
+          name: "LParen",
+          label: "LParen",
+          idx: 0,
+          pattern: "\\("
+        },
+        {
+          type: "NonTerminal",
+          name: "expression",
+          idx: 0
+        },
+        {
+          type: "Terminal",
+          name: "As",
+          label: "As",
+          idx: 0,
+          pattern: "AS"
+        },
+        {
+          type: "NonTerminal",
+          name: "type",
+          idx: 0
+        },
+        {
+          type: "Terminal",
+          name: "RParen",
+          label: "RParen",
+          idx: 0,
+          pattern: "\\)"
+        }
+      ]
+    },
+    {
+      type: "Rule",
+      name: "type",
+      orgText:
+        "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.CONSUME(SqlTypeName); } }\r\n                // { ALT: () => this.SUBRULE(this.rowTypeName)}\r\n            ]);\r\n            _this.OPTION(function () {\r\n                _this.MANY(function () {\r\n                    _this.CONSUME(CollectionTypeName);\r\n                });\r\n            });\r\n        }",
+      definition: [
+        {
+          type: "Alternation",
+          idx: 0,
+          definition: [
+            {
+              type: "Flat",
+              definition: [
+                {
+                  type: "Terminal",
+                  name: "SqlTypeName",
+                  label: "SqlTypeName",
+                  idx: 0,
+                  pattern:
+                    "CHARACTER|CHAR|CHAR VARYING|CHAR VARCHAR|CHARACTER VARYING|CHARACTER VARCHAR|DATE|TIME|TIMESTAMP|CHARACTER SET|GEOMETRY|DECIMAL|DEC|NUMERIC|INTEGER|INT|BOOLEAN|BINARY|BINARY VARYING|BINARY VARBINARY|TINYINT|SMALLINT|BIGINT|REAL|DOUBLE|FLOAT|ANY"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          type: "Option",
+          idx: 0,
+          definition: [
+            {
+              type: "Repetition",
+              idx: 0,
+              definition: [
+                {
+                  type: "Terminal",
+                  name: "CollectionTypeName",
+                  label: "CollectionTypeName",
+                  idx: 0,
+                  pattern: "ARRAY|MULTISET"
                 }
               ]
             }
