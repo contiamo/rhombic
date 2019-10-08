@@ -4,7 +4,7 @@ describe("rhombic", () => {
   describe("errors", () => {
     it("should throw on bad sql", () => {
       expect(() => rhombic.parse("I'm not a sql statement")).toThrowError(
-        `Lexer error:\n - unexpected character: ->'<- at offset: 1, skipped 1 characters.`,
+        `Lexer error:\n - unexpected character: ->'<- at offset: 1, skipped 1 characters.`
       );
     });
   });
@@ -29,13 +29,17 @@ describe("rhombic", () => {
 
   describe("hasTablePrimary", () => {
     it("should return true if the table is part of the query", () => {
-      const hasTablePrimary = rhombic.parse("SELECT * FROM plop").hasTablePrimary("plop");
+      const hasTablePrimary = rhombic
+        .parse("SELECT * FROM plop")
+        .hasTablePrimary("plop");
 
       expect(hasTablePrimary).toBe(true);
     });
 
     it("should return false if the table is not part of the query", () => {
-      const hasTablePrimary = rhombic.parse("SELECT * FROM plop").hasTablePrimary("nope");
+      const hasTablePrimary = rhombic
+        .parse("SELECT * FROM plop")
+        .hasTablePrimary("nope");
 
       expect(hasTablePrimary).toBe(false);
     });
@@ -65,7 +69,9 @@ describe("rhombic", () => {
     });
 
     it("should deal with case sensitivity", () => {
-      const hasTablePrimary = rhombic.parse("SELECT * FROM foo.BAR").hasTablePrimary("foo.bar");
+      const hasTablePrimary = rhombic
+        .parse("SELECT * FROM foo.BAR")
+        .hasTablePrimary("foo.bar");
 
       expect(hasTablePrimary).toBe(false);
     });
@@ -86,7 +92,9 @@ describe("rhombic", () => {
         .addProjectionItem("column03")
         .toString();
 
-      expect(query).toEqual("SELECT column01, column02, column03 FROM my_table");
+      expect(query).toEqual(
+        "SELECT column01, column02, column03 FROM my_table"
+      );
     });
     it("should add `column03` to the project items (integer)", () => {
       const query = rhombic
@@ -119,7 +127,7 @@ describe("rhombic", () => {
         SELECT
           *
         FROM
-          my_table`,
+          my_table`
         )
         .addProjectionItem("column03")
         .toString();
@@ -138,7 +146,7 @@ describe("rhombic", () => {
           *,
           column01
         FROM
-          my_table`,
+          my_table`
         )
         .addProjectionItem("column03")
         .toString();
@@ -165,7 +173,7 @@ describe("rhombic", () => {
         SELECT
           column01,
           column02
-        FROM my_table`,
+        FROM my_table`
         )
         .addProjectionItem("column03")
         .toString();
@@ -176,7 +184,7 @@ describe("rhombic", () => {
           column01,
           column02,
           column03
-        FROM my_table`,
+        FROM my_table`
       );
     });
     it("should deal with inserted quoted value", () => {
@@ -185,7 +193,9 @@ describe("rhombic", () => {
         .addProjectionItem('"column03"')
         .toString();
 
-      expect(query).toEqual('SELECT column01 AS toto, "column03" FROM my_table');
+      expect(query).toEqual(
+        'SELECT column01 AS toto, "column03" FROM my_table'
+      );
     });
     it("should escape reserved keyword", () => {
       const query = rhombic
@@ -212,7 +222,7 @@ describe("rhombic", () => {
         .updateProjectionItem({
           columns: ["column01"],
           index: 0,
-          value: "column01 AS my_column",
+          value: "column01 AS my_column"
         })
         .toString();
 
@@ -225,7 +235,7 @@ describe("rhombic", () => {
         .updateProjectionItem({
           columns: ["column01"],
           index: 0,
-          value: "avg(column01)",
+          value: "avg(column01)"
         })
         .toString();
 
@@ -238,11 +248,13 @@ describe("rhombic", () => {
         .updateProjectionItem({
           columns: ["column01", "column02", "column03", "column04"],
           index: 1,
-          value: "column02 AS my_column",
+          value: "column02 AS my_column"
         })
         .toString();
 
-      expect(query).toEqual("SELECT column01, column02 AS my_column, column03, column04 FROM my_table");
+      expect(query).toEqual(
+        "SELECT column01, column02 AS my_column, column03, column04 FROM my_table"
+      );
     });
 
     it("should expanded a star with side projections", () => {
@@ -251,11 +263,13 @@ describe("rhombic", () => {
         .updateProjectionItem({
           columns: ["column01", "column02", "column03", "column04"],
           index: 1,
-          value: "column02 AS my_column",
+          value: "column02 AS my_column"
         })
         .toString();
 
-      expect(query).toEqual("SELECT column01, column02 AS my_column, column03, column04 FROM my_table");
+      expect(query).toEqual(
+        "SELECT column01, column02 AS my_column, column03, column04 FROM my_table"
+      );
     });
 
     it("should preserved previous rename", () => {
@@ -264,12 +278,12 @@ describe("rhombic", () => {
         .updateProjectionItem({
           columns: ["my_column01", "column02", "column03", "column04"],
           index: 1,
-          value: "column02 AS my_column02",
+          value: "column02 AS my_column02"
         })
         .toString();
 
       expect(query).toEqual(
-        "SELECT column01 AS my_column01, column02 AS my_column02, column03, column04 FROM my_table",
+        "SELECT column01 AS my_column01, column02 AS my_column02, column03, column04 FROM my_table"
       );
     });
 
@@ -290,15 +304,15 @@ describe("rhombic", () => {
             "column010",
             "column020",
             "column030",
-            "column041",
+            "column041"
           ],
           index: 3,
-          value: "column03 AS oh_yeah",
+          value: "column03 AS oh_yeah"
         })
         .toString();
 
       expect(query).toEqual(
-        "SELECT column01 AS my_column01, column01, column02, column03 AS oh_yeah, column04, column04, * FROM my_table",
+        "SELECT column01 AS my_column01, column01, column02, column03 AS oh_yeah, column04, column04, * FROM my_table"
       );
     });
   });
@@ -309,7 +323,7 @@ describe("rhombic", () => {
         .parse("SELECT a, b, c from d")
         .removeProjectionItem({
           columns: ["a", "b", "c"],
-          index: 0,
+          index: 0
         })
         .toString();
 
@@ -321,7 +335,7 @@ describe("rhombic", () => {
         .parse("SELECT a, b, c from d")
         .removeProjectionItem({
           columns: ["a", "b", "c"],
-          index: 1,
+          index: 1
         })
         .toString();
 
@@ -333,7 +347,7 @@ describe("rhombic", () => {
         .parse("SELECT a, b, c from d")
         .removeProjectionItem({
           columns: ["a", "b", "c"],
-          index: 2,
+          index: 2
         })
         .toString();
 
@@ -345,7 +359,7 @@ describe("rhombic", () => {
         .parse("SELECT * from d")
         .removeProjectionItem({
           columns: ["a", "b", "c"],
-          index: 0,
+          index: 0
         })
         .toString();
 
@@ -357,7 +371,7 @@ describe("rhombic", () => {
         .parse("SELECT count(a), * from d")
         .removeProjectionItem({
           columns: ["a", "a", "b", "c"],
-          index: 1,
+          index: 1
         })
         .toString();
 
@@ -369,7 +383,7 @@ describe("rhombic", () => {
         .parse("SELECT count(a), b from d")
         .removeProjectionItem({
           columns: ["a", "b"],
-          index: 0,
+          index: 0
         })
         .toString();
 
@@ -381,7 +395,7 @@ describe("rhombic", () => {
         .parse("SELECT cast(a as INT), b from d")
         .removeProjectionItem({
           columns: ["a", "b"],
-          index: 0,
+          index: 0
         })
         .toString();
 
@@ -393,7 +407,7 @@ describe("rhombic", () => {
         .parse("SELECT a from d")
         .removeProjectionItem({
           columns: ["a"],
-          index: 0,
+          index: 0
         })
         .toString();
 
@@ -408,30 +422,34 @@ describe("rhombic", () => {
         .getProjectionItem({ columns: ["hello"], index: 0 });
 
       expect(projectionItem).toEqual({
-        expression: "hello",
+        expression: "hello"
       });
     });
 
     it("should give projection item of a renamed projection", () => {
       const projectionItem = rhombic
-        .parse("SELECT mischa, slava, tejas as chicken, imogen, fabien FROM best_team_ever")
+        .parse(
+          "SELECT mischa, slava, tejas as chicken, imogen, fabien FROM best_team_ever"
+        )
         .getProjectionItem({
           columns: ["mischa", "slava", "chicken", "imogen", "fabien"],
-          index: 2,
+          index: 2
         });
 
       expect(projectionItem).toEqual({
         expression: "tejas",
-        alias: "chicken",
+        alias: "chicken"
       });
     });
 
     it("should give projection item of a renamed projection with function", () => {
       const projectionItem = rhombic
-        .parse("SELECT mischa, slava, avg(tejas) as chicken, imogen, fabien FROM best_team_ever")
+        .parse(
+          "SELECT mischa, slava, avg(tejas) as chicken, imogen, fabien FROM best_team_ever"
+        )
         .getProjectionItem({
           columns: ["mischa", "slava", "chicken", "imogen", "fabien"],
-          index: 2,
+          index: 2
         });
 
       expect(projectionItem).toEqual({
@@ -439,17 +457,19 @@ describe("rhombic", () => {
         alias: "chicken",
         fn: {
           identifier: "avg",
-          value: "tejas",
-        },
+          value: "tejas"
+        }
       });
     });
 
     it("should preserve formatting of the expression", () => {
       const projectionItem = rhombic
-        .parse("SELECT mischa, slava, avg( tejas ) as chicken, imogen, fabien FROM best_team_ever")
+        .parse(
+          "SELECT mischa, slava, avg( tejas ) as chicken, imogen, fabien FROM best_team_ever"
+        )
         .getProjectionItem({
           columns: ["mischa", "slava", "chicken", "imogen", "fabien"],
-          index: 2,
+          index: 2
         });
 
       expect(projectionItem).toEqual({
@@ -457,56 +477,72 @@ describe("rhombic", () => {
         alias: "chicken",
         fn: {
           identifier: "avg",
-          value: "tejas",
-        },
+          value: "tejas"
+        }
       });
     });
 
     it("should return information from columns if the index is on the asterisk", () => {
-      const projectionItem = rhombic.parse("SELECT * FROM best_team_ever").getProjectionItem({
-        columns: ["mischa", "slava", "tejas", "imogen", "fabien"],
-        index: 2,
-      });
+      const projectionItem = rhombic
+        .parse("SELECT * FROM best_team_ever")
+        .getProjectionItem({
+          columns: ["mischa", "slava", "tejas", "imogen", "fabien"],
+          index: 2
+        });
 
       expect(projectionItem).toEqual({
-        expression: "tejas",
+        expression: "tejas"
       });
     });
 
     it("should still give the original expression with asterisk on the query", () => {
-      const projectionItem = rhombic.parse("SELECT avg(mischa), * FROM best_team_ever").getProjectionItem({
-        columns: ["EXPR$0", "mischa", "slava", "tejas", "imogen", "fabien"],
-        index: 0,
-      });
+      const projectionItem = rhombic
+        .parse("SELECT avg(mischa), * FROM best_team_ever")
+        .getProjectionItem({
+          columns: ["EXPR$0", "mischa", "slava", "tejas", "imogen", "fabien"],
+          index: 0
+        });
 
       expect(projectionItem).toEqual({
         expression: "avg(mischa)",
         fn: {
           identifier: "avg",
-          value: "mischa",
-        },
+          value: "mischa"
+        }
       });
     });
 
     it("should deal with duplicate columns", () => {
-      const projectionItem = rhombic.parse("SELECT mischa, * FROM best_team_ever").getProjectionItem({
-        columns: ["mischa", "mischa0", "slava", "tejas", "imogen", "fabien"],
-        index: 1,
-      });
+      const projectionItem = rhombic
+        .parse("SELECT mischa, * FROM best_team_ever")
+        .getProjectionItem({
+          columns: ["mischa", "mischa0", "slava", "tejas", "imogen", "fabien"],
+          index: 1
+        });
 
       expect(projectionItem).toEqual({
-        expression: "mischa",
+        expression: "mischa"
       });
     });
 
     it("should deal with duplicate columns (tricky)", () => {
-      const projectionItem = rhombic.parse("SELECT address, address1, * FROM foodmart.customer").getProjectionItem({
-        columns: ["address", "address1", "address0", "address10", "address2", "lname", "fname"],
-        index: 3,
-      });
+      const projectionItem = rhombic
+        .parse("SELECT address, address1, * FROM foodmart.customer")
+        .getProjectionItem({
+          columns: [
+            "address",
+            "address1",
+            "address0",
+            "address10",
+            "address2",
+            "lname",
+            "fname"
+          ],
+          index: 3
+        });
 
       expect(projectionItem).toEqual({
-        expression: "address1",
+        expression: "address1"
       });
     });
 
@@ -515,32 +551,34 @@ describe("rhombic", () => {
         .parse("SELECT CAST(address as CHAR), address1 FROM foodmart.customer")
         .getProjectionItem({
           columns: ["address", "address1"],
-          index: 0,
+          index: 0
         });
 
       expect(projectionItem).toEqual({
         expression: "CAST(address as CHAR)",
         cast: {
           value: "address",
-          type: "CHAR",
-        },
+          type: "CHAR"
+        }
       });
     });
 
     it("should retrieve cast information (with precision)", () => {
       const projectionItem = rhombic
-        .parse("SELECT CAST(address as CHAR(2)), address1 FROM foodmart.customer")
+        .parse(
+          "SELECT CAST(address as CHAR(2)), address1 FROM foodmart.customer"
+        )
         .getProjectionItem({
           columns: ["address", "address1"],
-          index: 0,
+          index: 0
         });
 
       expect(projectionItem).toEqual({
         expression: "CAST(address as CHAR(2))",
         cast: {
           value: "address",
-          type: "CHAR",
-        },
+          type: "CHAR"
+        }
       });
     });
   });
