@@ -8,31 +8,23 @@ export interface Range {
   endColumn: number;
 }
 
-const extractRange = (children: CstChildrenDictionary, range: Range) => {
-  Object.values(children).map(tokens => {
-    if (!Array.isArray(tokens)) return;
-    tokens.forEach(token => {
-      if (isCstNode(token)) {
-        extractRange(token.children, range);
-        return;
-      } else {
-        range.startLine = Math.min(
-          range.startLine,
-          token.startLine || Infinity
-        );
-        range.endLine = Math.max(range.endLine, token.endLine || -Infinity);
-        range.startColumn = Math.min(
-          range.startColumn,
-          token.startColumn || Infinity
-        );
-        range.endColumn = Math.max(
-          range.endColumn,
-          token.endColumn || -Infinity
-        );
-      }
-    });
-  });
-};
+const extractRange = (children: CstChildrenDictionary, range: Range): any =>
+  Object.values(children).reduce(
+    (_, tokens) =>
+      tokens.reduce((_, token) => {
+        if (isCstNode(token)) {
+          return extractRange(token.children, range);
+        } else {
+          return {
+            startLine: Math.min(range.startLine, token.startLine || Infinity),
+            endLine: Math.max(range.endLine, token.endLine || -Infinity),
+            startColumn: Math.min(range.startColumn, token.startColumn || Infinity),
+            endColumn: Math.max(range.endColumn, token.endColumn || -Infinity),
+          };
+        }
+      }, {}),
+    {},
+  );
 
 /**
  * Extract the range for a children dictionnary.
@@ -44,9 +36,8 @@ export const getChildrenRange = (children: CstChildrenDictionary): Range => {
     startLine: Infinity,
     endLine: -Infinity,
     startColumn: Infinity,
-    endColumn: -Infinity
+    endColumn: -Infinity,
   };
-  extractRange(children, range); // This mutate `range` directly
 
-  return range;
+  return extractRange(children, range);
 };
