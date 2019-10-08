@@ -42,3 +42,9 @@ https://www.esci.umn.edu/courses/1001/minerals/calcite.shtml
 [Calcite grammar](https://github.com/apache/calcite/blob/master/core/src/main/codegen/templates/Parser.jj)
 
 [SQL 2003-2 BNF](https://github.com/ronsavage/SQL/blob/master/sql-2003-2.bnf)
+
+## How to publish to npm?
+
+Just update the `version` in `package.json`!
+
+As soon as your branch will be merged to master, a new npm version will be automatically published for you.
