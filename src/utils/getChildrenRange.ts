@@ -9,7 +9,7 @@ export interface Range {
 }
 
 const extractRange = (children: CstChildrenDictionary, range: Range) => {
-  Object.values(children).map(tokens => {
+  Object.values(children).forEach(tokens => {
     if (!Array.isArray(tokens)) return;
     tokens.forEach(token => {
       if (isCstNode(token)) {
