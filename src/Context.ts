@@ -49,6 +49,11 @@ export interface CastContext {
     name: "type";
     children: TypeContext;
   }>;
+  LParen?: IToken[];
+  Integer?: IToken[];
+  Comma?: IToken[];
+  Integer?: IToken[];
+  RParen?: IToken[];
   RParen: IToken[];
 }
 

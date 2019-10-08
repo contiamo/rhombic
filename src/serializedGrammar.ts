@@ -203,7 +203,7 @@ export const serializedGrammar = [
     type: "Rule",
     name: "cast",
     orgText:
-      "function () {\r\n            _this.CONSUME(Cast);\r\n            _this.CONSUME(LParen);\r\n            _this.SUBRULE(_this.expression);\r\n            _this.CONSUME(As);\r\n            _this.SUBRULE(_this.type);\r\n            _this.CONSUME(RParen);\r\n        }",
+      "function () {\r\n            _this.CONSUME(Cast);\r\n            _this.CONSUME(LParen);\r\n            _this.SUBRULE(_this.expression);\r\n            _this.CONSUME(As);\r\n            _this.SUBRULE(_this.type);\r\n            _this.OPTION(function () {\r\n                _this.CONSUME1(LParen);\r\n                _this.CONSUME(Integer); // precision\r\n                _this.OPTION1(function () {\r\n                    _this.CONSUME(Comma);\r\n                    _this.CONSUME1(Integer); // scale\r\n                });\r\n                _this.CONSUME1(RParen);\r\n            });\r\n            _this.CONSUME(RParen);\r\n        }",
     definition: [
       {
         type: "Terminal",
@@ -237,6 +237,53 @@ export const serializedGrammar = [
         idx: 0
       },
       {
+        type: "Option",
+        idx: 0,
+        definition: [
+          {
+            type: "Terminal",
+            name: "LParen",
+            label: "LParen",
+            idx: 1,
+            pattern: "\\("
+          },
+          {
+            type: "Terminal",
+            name: "Integer",
+            label: "Integer",
+            idx: 0,
+            pattern: "0|[1-9]\\d*"
+          },
+          {
+            type: "Option",
+            idx: 1,
+            definition: [
+              {
+                type: "Terminal",
+                name: "Comma",
+                label: "Comma",
+                idx: 0,
+                pattern: ","
+              },
+              {
+                type: "Terminal",
+                name: "Integer",
+                label: "Integer",
+                idx: 1,
+                pattern: "0|[1-9]\\d*"
+              }
+            ]
+          },
+          {
+            type: "Terminal",
+            name: "RParen",
+            label: "RParen",
+            idx: 1,
+            pattern: "\\)"
+          }
+        ]
+      },
+      {
         type: "Terminal",
         name: "RParen",
         label: "RParen",
@@ -249,7 +296,7 @@ export const serializedGrammar = [
     type: "Rule",
     name: "type",
     orgText:
-      "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.CONSUME(SqlTypeName); } }\r\n                // { ALT: () => this.SUBRULE(this.rowTypeName)}\r\n            ]);\r\n            _this.OPTION(function () {\r\n                _this.MANY(function () {\r\n                    _this.CONSUME(CollectionTypeName);\r\n                });\r\n            });\r\n        }",
+      "function () {\r\n            _this.OR([{ ALT: function () { return _this.CONSUME(SqlTypeName); } }]);\r\n            _this.OPTION(function () {\r\n                _this.MANY(function () {\r\n                    _this.CONSUME(CollectionTypeName);\r\n                });\r\n            });\r\n        }",
     definition: [
       {
         type: "Alternation",

@@ -562,5 +562,24 @@ describe("rhombic", () => {
         }
       });
     });
+
+    it("should retrieve cast information (with precision)", () => {
+      const projectionItem = rhombic
+        .parse(
+          "SELECT CAST(address as CHAR(2)), address1 FROM foodmart.customer"
+        )
+        .getProjectionItem({
+          columns: ["address", "address1"],
+          index: 0
+        });
+
+      expect(projectionItem).toEqual({
+        expression: "CAST(address as CHAR(2))",
+        cast: {
+          value: "address",
+          type: "CHAR"
+        }
+      });
+    });
   });
 });

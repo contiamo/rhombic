@@ -253,6 +253,15 @@ class SqlParser extends CstParser {
     this.SUBRULE(this.expression);
     this.CONSUME(As);
     this.SUBRULE(this.type);
+    this.OPTION(() => {
+      this.CONSUME1(LParen);
+      this.CONSUME(Integer); // precision
+      this.OPTION1(() => {
+        this.CONSUME(Comma);
+        this.CONSUME1(Integer); // scale
+      });
+      this.CONSUME1(RParen);
+    });
     this.CONSUME(RParen);
   });
 
