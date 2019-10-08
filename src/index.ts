@@ -147,7 +147,9 @@ const parsedSql = (sql: string): ParsedSql => {
         if (projectionItems[index] && !projectionItems[index].isAsterisk) {
           return {
             expression: projectionItems[index].expression,
-            alias: projectionItems[index].alias
+            alias: projectionItems[index].alias,
+            cast: projectionItems[index].cast,
+            fn: projectionItems[index].fn
           };
         }
 
@@ -170,7 +172,9 @@ const parsedSql = (sql: string): ParsedSql => {
       } else {
         return {
           expression: projectionItems[index].expression,
-          alias: projectionItems[index].alias
+          alias: projectionItems[index].alias,
+          cast: projectionItems[index].cast,
+          fn: projectionItems[index].fn
         };
       }
     },
@@ -313,7 +317,12 @@ const parsedSql = (sql: string): ParsedSql => {
           }
         }
 
-        const nextSql = replaceText(sql, "", getLocation(targetNode));
+        const isLastProjectionItem = projectionItems.length === 1;
+        const nextSql = replaceText(
+          sql,
+          isLastProjectionItem ? "*" : "",
+          getLocation(targetNode)
+        );
         return parsedSql(nextSql);
       }
     }

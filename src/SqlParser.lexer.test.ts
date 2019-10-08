@@ -140,6 +140,50 @@ describe("Sql Lexer", () => {
         ", => Comma",
         "'3' => String"
       ]
+    },
+    {
+      title: "cast",
+      sql: "CAST(column1 AS INT)",
+      expected: [
+        "CAST => Cast",
+        "( => LParen",
+        "column1 => Identifier",
+        "AS => As",
+        "INT => SqlTypeName",
+        ") => RParen"
+      ]
+    },
+    {
+      title: "cast with precision",
+      sql: "CAST(column1 AS DEC(2))",
+      expected: [
+        "CAST => Cast",
+        "( => LParen",
+        "column1 => Identifier",
+        "AS => As",
+        "DEC => SqlTypeName",
+        "( => LParen",
+        "2 => Integer",
+        ") => RParen",
+        ") => RParen"
+      ]
+    },
+    {
+      title: "cast with precision and scale",
+      sql: "CAST(column1 AS DEC(2, 2))",
+      expected: [
+        "CAST => Cast",
+        "( => LParen",
+        "column1 => Identifier",
+        "AS => As",
+        "DEC => SqlTypeName",
+        "( => LParen",
+        "2 => Integer",
+        ", => Comma",
+        "2 => Integer",
+        ") => RParen",
+        ") => RParen"
+      ]
     }
   ];
 

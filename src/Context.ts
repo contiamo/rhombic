@@ -31,6 +31,32 @@ export interface ExpressionContext {
     name: "expression";
     children: ExpressionContext;
   }>;
+  cast: Array<{
+    name: "cast";
+    children: CastContext;
+  }>;
+}
+
+export interface CastContext {
+  Cast: IToken[];
+  LParen: IToken[];
+  expression: Array<{
+    name: "expression";
+    children: ExpressionContext;
+  }>;
+  As: IToken[];
+  type: Array<{
+    name: "type";
+    children: TypeContext;
+  }>;
+  Integer?: IToken[];
+  Comma?: IToken[];
+  RParen?: IToken[];
+}
+
+export interface TypeContext {
+  SqlTypeName?: IToken[];
+  CollectionTypeName?: IToken[];
 }
 
 export interface ValueExpressionContext {}
@@ -98,3 +124,24 @@ export interface GroupItemContext {}
 export interface WindowContext {}
 
 export interface WindowSpecContext {}
+
+export type IContext =
+  | StatementContext
+  | QueryContext
+  | ExpressionContext
+  | CastContext
+  | TypeContext
+  | ValueExpressionContext
+  | OrderItemContext
+  | SelectContext
+  | ProjectionItemsContext
+  | ProjectionItemContext
+  | TableExpressionContext
+  | JoinConditionContext
+  | TableReferenceContext
+  | TablePrimaryContext
+  | ColumnDeclContext
+  | ValuesContext
+  | GroupItemContext
+  | WindowContext
+  | WindowSpecContext;

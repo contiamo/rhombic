@@ -1,8 +1,6 @@
-import { CstChildrenDictionary, CstElement, CstNode } from "chevrotain";
-
-function isCstNode(element: CstElement): element is CstNode {
-  return Boolean((element as any).name);
-}
+import { CstChildrenDictionary } from "chevrotain";
+import { isCstNode } from "./isCstNode";
+import { IContext } from "../Context";
 
 /**
  * Extract every `node.image` recursively into `image`
@@ -32,11 +30,11 @@ const extractImage = (children: CstChildrenDictionary, image: string[]) =>
  * /!\ This function only deal with one line context /!\
  * @param children
  */
-export const getImageFromChildren = (
-  children: CstChildrenDictionary
-): string => {
+export const getImageFromChildren = (children: IContext): string => {
   const image: string[] = [];
-  extractImage(children, image); // This mutate `image` directly
+  // We need to cast `children` as `any` due to lack of typescript
+  // to match the generic `CstChildrenDictionary` type with the real implementation
+  extractImage(children as any, image); // This mutate `image` directly
 
   let output = "";
   for (let i = 0; i < image.length; i++) {

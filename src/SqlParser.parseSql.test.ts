@@ -203,6 +203,42 @@ describe("parseSql", () => {
       )`
     },
     {
+      title: "SELECT with cast",
+      sql: "SELECT CAST(column01 AS INT) FROM my_db",
+      expected: `
+      query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(
+              expression(
+                cast(
+                  Cast("CAST")
+                  LParen("(")
+                  expression(
+                    Identifier("column01")
+                  )
+                  As("AS")
+                  type(
+                    SqlTypeName("INT")
+                  )
+                  RParen(")")
+                )
+              )
+            )
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier("my_db")
+              )
+            )
+          )
+        )
+      )`
+    },
+    {
       title: "SELECT multiple columns statement",
       sql: "SELECT column01, column02, column03 FROM my_db",
       expected: `

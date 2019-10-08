@@ -20,6 +20,24 @@ const Select = createToken({
   longer_alt: Identifier
 });
 
+const Cast = createToken({
+  name: "Cast",
+  pattern: /CAST/i,
+  longer_alt: Identifier
+});
+
+const SqlTypeName = createToken({
+  name: "SqlTypeName",
+  pattern: /CHARACTER|CHAR|CHAR VARYING|CHAR VARCHAR|CHARACTER VARYING|CHARACTER VARCHAR|DATE|TIME|TIMESTAMP|CHARACTER SET|GEOMETRY|DECIMAL|DEC|NUMERIC|INTEGER|INT|BOOLEAN|BINARY|BINARY VARYING|BINARY VARBINARY|TINYINT|SMALLINT|BIGINT|REAL|DOUBLE|FLOAT|ANY/i,
+  longer_alt: Identifier
+});
+
+const CollectionTypeName = createToken({
+  name: "CollectionTypeName",
+  pattern: /ARRAY|MULTISET/i,
+  longer_alt: Identifier
+});
+
 const From = createToken({
   name: "From",
   pattern: /FROM/i,
@@ -133,6 +151,9 @@ const allTokens = [
   Stream,
 
   FunctionIdentifier,
+  SqlTypeName,
+  CollectionTypeName,
+  Cast,
 
   // The Identifier must appear after the keywords because all keywords are valid identifiers.
   Identifier,
@@ -219,8 +240,46 @@ class SqlParser extends CstParser {
           this.SUBRULE1(this.expression);
           this.CONSUME1(RParen);
         }
+      },
+      {
+        ALT: () => this.SUBRULE(this.cast)
       }
     ]);
+  });
+
+  public cast = this.RULE("cast", () => {
+    this.CONSUME(Cast);
+    this.CONSUME(LParen);
+    this.SUBRULE(this.expression);
+    this.CONSUME(As);
+    this.SUBRULE(this.type);
+    this.OPTION(() => {
+      this.CONSUME1(LParen);
+      this.CONSUME(Integer); // precision
+      this.OPTION1(() => {
+        this.CONSUME(Comma);
+        this.CONSUME1(Integer); // scale
+      });
+      this.CONSUME1(RParen);
+    });
+    this.CONSUME(RParen);
+  });
+
+  /**
+   * type:
+   *         typeName
+   *         [ collectionsTypeName ]*
+   *
+   *   typeName:
+   *         sqlTypeName
+   */
+  public type = this.RULE("type", () => {
+    this.OR([{ ALT: () => this.CONSUME(SqlTypeName) }]);
+    this.OPTION(() => {
+      this.MANY(() => {
+        this.CONSUME(CollectionTypeName);
+      });
+    });
   });
 
   /**
