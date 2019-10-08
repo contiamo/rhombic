@@ -1,8 +1,5 @@
-import { CstChildrenDictionary, CstElement, CstNode } from "chevrotain";
-
-function isCstNode(element: CstElement): element is CstNode {
-  return Boolean((element as any).name);
-}
+import { CstChildrenDictionary } from "chevrotain";
+import { isCstNode } from "./isCstNode";
 
 /**
  * Extract every `node.image` recursively into `image`

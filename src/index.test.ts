@@ -377,6 +377,42 @@ describe("rhombic", () => {
 
       expect(query).toEqual("SELECT count(a), b, c from d");
     });
+
+    it("should remove a function", () => {
+      const query = rhombic
+        .parse("SELECT count(a), b from d")
+        .removeProjectionItem({
+          columns: ["a", "b"],
+          index: 0
+        })
+        .toString();
+
+      expect(query).toEqual("SELECT b from d");
+    });
+
+    it("should remove a cast", () => {
+      const query = rhombic
+        .parse("SELECT cast(a as INT), b from d")
+        .removeProjectionItem({
+          columns: ["a", "b"],
+          index: 0
+        })
+        .toString();
+
+      expect(query).toEqual("SELECT b from d");
+    });
+
+    it("should remove the last element", () => {
+      const query = rhombic
+        .parse("SELECT a from d")
+        .removeProjectionItem({
+          columns: ["a"],
+          index: 0
+        })
+        .toString();
+
+      expect(query).toEqual("SELECT * from d");
+    });
   });
 
   describe("getProjectionItem", () => {
@@ -418,7 +454,11 @@ describe("rhombic", () => {
 
       expect(projectionItem).toEqual({
         expression: "avg(tejas)",
-        alias: "chicken"
+        alias: "chicken",
+        fn: {
+          identifier: "avg",
+          value: "tejas"
+        }
       });
     });
 
@@ -434,7 +474,11 @@ describe("rhombic", () => {
 
       expect(projectionItem).toEqual({
         expression: "avg( tejas )",
-        alias: "chicken"
+        alias: "chicken",
+        fn: {
+          identifier: "avg",
+          value: "tejas"
+        }
       });
     });
 
@@ -460,7 +504,11 @@ describe("rhombic", () => {
         });
 
       expect(projectionItem).toEqual({
-        expression: "avg(mischa)"
+        expression: "avg(mischa)",
+        fn: {
+          identifier: "avg",
+          value: "mischa"
+        }
       });
     });
 
@@ -495,6 +543,23 @@ describe("rhombic", () => {
 
       expect(projectionItem).toEqual({
         expression: "address1"
+      });
+    });
+
+    it("should retrieve cast information", () => {
+      const projectionItem = rhombic
+        .parse("SELECT CAST(address as CHAR), address1 FROM foodmart.customer")
+        .getProjectionItem({
+          columns: ["address", "address1"],
+          index: 0
+        });
+
+      expect(projectionItem).toEqual({
+        expression: "CAST(address as CHAR)",
+        cast: {
+          value: "address",
+          type: "CHAR"
+        }
       });
     });
   });

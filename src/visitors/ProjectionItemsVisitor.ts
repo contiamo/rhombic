@@ -1,7 +1,13 @@
 import { parser } from "../SqlParser";
-import { ProjectionItemContext, ProjectionItemsContext } from "../Context";
-import { IToken } from "chevrotain";
+import {
+  ProjectionItemContext,
+  ProjectionItemsContext,
+  CastContext
+} from "../Context";
+import { IToken, CstElement } from "chevrotain";
 import { getImageFromChildren } from "../utils/getImageFromChildren";
+import { isCstNode } from "../utils/isCstNode";
+import { getChildrenRange } from "../utils/getChildrenRange";
 
 const Visitor = parser.getBaseCstVisitorConstructorWithDefaults();
 
@@ -17,7 +23,11 @@ export class ProjectionItemsVisitor extends Visitor {
     isAsterisk: boolean;
     expression: string;
     alias?: string;
-    children: IToken[];
+    cast?: {
+      value: string;
+      type: string;
+    };
+    fn?: { identifier: string; value: string };
   }> = [];
 
   public commas: IToken[] = [];
@@ -38,53 +48,52 @@ export class ProjectionItemsVisitor extends Visitor {
     }
   }
 
+  cast(ctx: CastContext) {
+    return {
+      value: getImageFromChildren(ctx.expression[0].children as any),
+      type: getImageFromChildren(ctx.type[0].children as any)
+    };
+  }
+
   projectionItem(ctx: ProjectionItemContext) {
-    let startLine = Infinity;
-    let endLine = -Infinity;
-    let startColumn = Infinity;
-    let endColumn = -Infinity;
     let isAsterisk = false;
+    let cast: { value: string; type: string } | undefined;
+    let fn: { identifier: string; value: string } | undefined;
     let expression = "";
     let alias: string | undefined;
-    const children: IToken[] = [];
 
     if (ctx.expression) {
       ctx.expression.forEach(i => {
+        // Extract `fn` information
+        if (i.children.FunctionIdentifier) {
+          fn = {
+            identifier: i.children.FunctionIdentifier[0].image,
+            value: getImageFromChildren(i.children.expression[0]
+              .children as any)
+          };
+        }
+
         Object.values(i.children).forEach(j => {
-          j.map((token: IToken) => {
-            startLine = Math.min(startLine, token.startLine || Infinity);
-            endLine = Math.max(endLine, token.endLine || -Infinity);
-            startColumn = Math.min(startColumn, token.startColumn || Infinity);
-            endColumn = Math.max(endColumn, token.endColumn || -Infinity);
+          j.map((token: CstElement) => {
+            if (isCstNode(token)) {
+              // Extract `cast` information
+              if (token.name === "cast") {
+                cast = this.cast(token.children as any);
+              }
+            }
           });
-          children.push(...j);
         });
       });
+
+      // Extract `expression`
       expression = getImageFromChildren(
         ctx.expression.reduce((mem, i) => ({ mem, ...i.children }), {})
       );
     }
 
     if (ctx.Asterisk) {
-      ctx.Asterisk.map(token => {
-        startLine = Math.min(startLine, token.startLine || Infinity);
-        endLine = Math.max(endLine, token.endLine || -Infinity);
-        startColumn = Math.min(startColumn, token.startColumn || Infinity);
-        endColumn = Math.max(endColumn, token.endColumn || -Infinity);
-      });
-      children.push(...ctx.Asterisk);
       this.asteriskCount++;
       isAsterisk = true;
-    }
-
-    if (ctx.Identifier) {
-      ctx.Identifier.map(token => {
-        startLine = Math.min(startLine, token.startLine || Infinity);
-        endLine = Math.max(endLine, token.endLine || -Infinity);
-        startColumn = Math.min(startColumn, token.startColumn || Infinity);
-        endColumn = Math.max(endColumn, token.endColumn || -Infinity);
-      });
-      children.push(...ctx.Identifier);
     }
 
     if (ctx.As && ctx.Identifier) {
@@ -92,13 +101,11 @@ export class ProjectionItemsVisitor extends Visitor {
     }
 
     this.output.push({
-      startLine,
-      endLine,
-      startColumn,
-      endColumn,
+      ...getChildrenRange(ctx as any),
       isAsterisk,
-      children,
       alias,
+      cast,
+      fn,
       expression
     });
   }
