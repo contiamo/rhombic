@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - master
-    paths:
-      - package.json
+    # paths:
+    #   - package.json
 
 jobs:
   npm-publish:
@@ -15,5 +15,8 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 12
+          registry-url: https://registry.npmjs.org/
       - run: yarn
       - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
