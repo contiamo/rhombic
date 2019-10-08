@@ -124,3 +124,24 @@ export interface GroupItemContext {}
 export interface WindowContext {}
 
 export interface WindowSpecContext {}
+
+export type IContext =
+  | StatementContext
+  | QueryContext
+  | ExpressionContext
+  | CastContext
+  | TypeContext
+  | ValueExpressionContext
+  | OrderItemContext
+  | SelectContext
+  | ProjectionItemsContext
+  | ProjectionItemContext
+  | TableExpressionContext
+  | JoinConditionContext
+  | TableReferenceContext
+  | TablePrimaryContext
+  | ColumnDeclContext
+  | ValuesContext
+  | GroupItemContext
+  | WindowContext
+  | WindowSpecContext;

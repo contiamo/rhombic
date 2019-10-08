@@ -11,6 +11,15 @@ import { getChildrenRange } from "../utils/getChildrenRange";
 
 const Visitor = parser.getBaseCstVisitorConstructorWithDefaults();
 
+function isCastNode(
+  node: any
+): node is {
+  name: "cast";
+  children: CastContext;
+} {
+  return isCstNode(node) && node.name === "cast";
+}
+
 /**
  * Visitor to extract `projectionItem` list
  */
@@ -50,8 +59,8 @@ export class ProjectionItemsVisitor extends Visitor {
 
   cast(ctx: CastContext) {
     return {
-      value: getImageFromChildren(ctx.expression[0].children as any),
-      type: getImageFromChildren(ctx.type[0].children as any)
+      value: getImageFromChildren(ctx.expression[0].children),
+      type: getImageFromChildren(ctx.type[0].children)
     };
   }
 
@@ -68,18 +77,15 @@ export class ProjectionItemsVisitor extends Visitor {
         if (i.children.FunctionIdentifier) {
           fn = {
             identifier: i.children.FunctionIdentifier[0].image,
-            value: getImageFromChildren(i.children.expression[0]
-              .children as any)
+            value: getImageFromChildren(i.children.expression[0].children)
           };
         }
 
         Object.values(i.children).forEach(j => {
           j.map((token: CstElement) => {
-            if (isCstNode(token)) {
+            if (isCastNode(token)) {
               // Extract `cast` information
-              if (token.name === "cast") {
-                cast = this.cast(token.children as any);
-              }
+              cast = this.cast(token.children);
             }
           });
         });
@@ -101,7 +107,7 @@ export class ProjectionItemsVisitor extends Visitor {
     }
 
     this.output.push({
-      ...getChildrenRange(ctx as any),
+      ...getChildrenRange(ctx),
       isAsterisk,
       alias,
       cast,

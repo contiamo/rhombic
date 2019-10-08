@@ -1,5 +1,6 @@
 import { CstChildrenDictionary } from "chevrotain";
 import { isCstNode } from "./isCstNode";
+import { IContext } from "../Context";
 
 export interface Range {
   startLine: number;
@@ -39,14 +40,16 @@ const extractRange = (children: CstChildrenDictionary, range: Range) => {
  *
  * @param children
  */
-export const getChildrenRange = (children: CstChildrenDictionary): Range => {
+export const getChildrenRange = (children: IContext): Range => {
   const range: Range = {
     startLine: Infinity,
     endLine: -Infinity,
     startColumn: Infinity,
     endColumn: -Infinity
   };
-  extractRange(children, range); // This mutate `range` directly
+  // We need to cast `children` as `any` due to lack of typescript
+  // to match the generic `CstChildrenDictionary` type with the real implementation
+  extractRange(children as any, range); // This mutate `range` directly
 
   return range;
 };
