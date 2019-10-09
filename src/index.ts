@@ -56,7 +56,12 @@ export interface ParsedSql {
   getProjectionItem(options: {
     columns: string[];
     index: number;
-  }): { expression: string; alias?: string };
+  }): {
+    expression: string;
+    alias?: string;
+    cast?: { value: string; type: string };
+    fn?: { identifier: string; value: string };
+  };
 
   /**
    * Add a projectionItem to the query.
