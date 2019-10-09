@@ -3,7 +3,7 @@ import { matchFunctionName } from "./utils/matchFunctionName";
 
 const Identifier = createToken({
   name: "Identifier",
-  pattern: /[a-zA-Z]\w*|"[\w "{2}]*"/
+  pattern: /[a-zA-Z]\w*|"[^"]*"/
 });
 
 const FunctionIdentifier = createToken({

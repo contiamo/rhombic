@@ -58,6 +58,16 @@ describe("Sql Lexer", () => {
       ]
     },
     {
+      title: "escaped identifier with exotics chars",
+      sql: `SELECT "column' 1$&@" FROM table2`,
+      expected: [
+        "SELECT => Select",
+        '"column\' 1$&@" => Identifier',
+        "FROM => From",
+        "table2 => Identifier"
+      ]
+    },
+    {
       title: "escaped identifier with a reserved word inside",
       sql: `SELECT "select" FROM table2`,
       expected: [
