@@ -29,7 +29,7 @@ export const serializedGrammar = [
     type: "Rule",
     name: "query",
     orgText:
-      "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.SUBRULE(_this.values); } },\r\n                { ALT: function () { return _this.SUBRULE(_this.select); } }\r\n            ]);\r\n        }",
+      "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.SUBRULE(_this.values); } },\r\n                {\r\n                    ALT: function () {\r\n                        _this.SUBRULE(_this.select);\r\n                        _this.OPTION(function () {\r\n                            _this.CONSUME(OrderBy);\r\n                            _this.MANY_SEP({\r\n                                SEP: Comma,\r\n                                DEF: function () { return _this.SUBRULE(_this.orderItem); }\r\n                            });\r\n                        });\r\n                    }\r\n                }\r\n            ]);\r\n        }",
     definition: [
       {
         type: "Alternation",
@@ -52,6 +52,37 @@ export const serializedGrammar = [
                 type: "NonTerminal",
                 name: "select",
                 idx: 0
+              },
+              {
+                type: "Option",
+                idx: 0,
+                definition: [
+                  {
+                    type: "Terminal",
+                    name: "OrderBy",
+                    label: "OrderBy",
+                    idx: 0,
+                    pattern: "ORDER BY"
+                  },
+                  {
+                    type: "RepetitionWithSeparator",
+                    idx: 0,
+                    separator: {
+                      type: "Terminal",
+                      name: "Comma",
+                      label: "Comma",
+                      idx: 1,
+                      pattern: ","
+                    },
+                    definition: [
+                      {
+                        type: "NonTerminal",
+                        name: "orderItem",
+                        idx: 0
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           }
@@ -151,7 +182,7 @@ export const serializedGrammar = [
                 name: "Identifier",
                 label: "Identifier",
                 idx: 0,
-                pattern: '[a-zA-Z]\\w*|"[\\w "{2}]*"'
+                pattern: '[a-zA-Z]\\w*|"[^"]*"'
               }
             ]
           },
@@ -311,7 +342,7 @@ export const serializedGrammar = [
                 label: "SqlTypeName",
                 idx: 0,
                 pattern:
-                  "CHARACTER|CHAR|CHAR VARYING|CHAR VARCHAR|CHARACTER VARYING|CHARACTER VARCHAR|DATE|TIME|TIMESTAMP|CHARACTER SET|GEOMETRY|DECIMAL|DEC|NUMERIC|INTEGER|INT|BOOLEAN|BINARY|BINARY VARYING|BINARY VARBINARY|TINYINT|SMALLINT|BIGINT|REAL|DOUBLE|FLOAT|ANY"
+                  "CHAR(ACTER)?( VARYING)?|VARCHAR|DATE|TIME(STAMP)?|CHARACTER SET|GEOMETRY|DEC(IMAL)?|NUMERIC|INT(EGER)?|BOOLEAN|BINARY( VARYING)?|VARBINARY|TINYINT|SMALLINT|BIGINT|REAL|DOUBLE|FLOAT|ANY"
               }
             ]
           }
@@ -347,8 +378,101 @@ export const serializedGrammar = [
   {
     type: "Rule",
     name: "orderItem",
-    orgText: "function () { }",
-    definition: []
+    orgText:
+      "function () {\r\n            _this.SUBRULE(_this.expression);\r\n            _this.OPTION(function () {\r\n                _this.OR([\r\n                    { ALT: function () { return _this.CONSUME(Asc); } },\r\n                    { ALT: function () { return _this.CONSUME(Desc); } }\r\n                ]);\r\n            });\r\n            _this.OPTION1(function () {\r\n                _this.OR1([\r\n                    {\r\n                        ALT: function () {\r\n                            _this.CONSUME(Nulls);\r\n                            _this.CONSUME(First);\r\n                        }\r\n                    },\r\n                    {\r\n                        ALT: function () {\r\n                            _this.CONSUME1(Nulls);\r\n                            _this.CONSUME(Last);\r\n                        }\r\n                    }\r\n                ]);\r\n            });\r\n        }",
+    definition: [
+      {
+        type: "NonTerminal",
+        name: "expression",
+        idx: 0
+      },
+      {
+        type: "Option",
+        idx: 0,
+        definition: [
+          {
+            type: "Alternation",
+            idx: 0,
+            definition: [
+              {
+                type: "Flat",
+                definition: [
+                  {
+                    type: "Terminal",
+                    name: "Asc",
+                    label: "Asc",
+                    idx: 0,
+                    pattern: "ASC"
+                  }
+                ]
+              },
+              {
+                type: "Flat",
+                definition: [
+                  {
+                    type: "Terminal",
+                    name: "Desc",
+                    label: "Desc",
+                    idx: 0,
+                    pattern: "DESC"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        type: "Option",
+        idx: 1,
+        definition: [
+          {
+            type: "Alternation",
+            idx: 1,
+            definition: [
+              {
+                type: "Flat",
+                definition: [
+                  {
+                    type: "Terminal",
+                    name: "Nulls",
+                    label: "Nulls",
+                    idx: 0,
+                    pattern: "NULLS"
+                  },
+                  {
+                    type: "Terminal",
+                    name: "First",
+                    label: "First",
+                    idx: 0,
+                    pattern: "FIRST"
+                  }
+                ]
+              },
+              {
+                type: "Flat",
+                definition: [
+                  {
+                    type: "Terminal",
+                    name: "Nulls",
+                    label: "Nulls",
+                    idx: 1,
+                    pattern: "NULLS"
+                  },
+                  {
+                    type: "Terminal",
+                    name: "Last",
+                    label: "Last",
+                    idx: 0,
+                    pattern: "LAST"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     type: "Rule",
@@ -508,7 +632,7 @@ export const serializedGrammar = [
                     name: "Identifier",
                     label: "Identifier",
                     idx: 0,
-                    pattern: '[a-zA-Z]\\w*|"[\\w "{2}]*"'
+                    pattern: '[a-zA-Z]\\w*|"[^"]*"'
                   }
                 ]
               }
@@ -608,7 +732,7 @@ export const serializedGrammar = [
                     name: "Identifier",
                     label: "Identifier",
                     idx: 1,
-                    pattern: '[a-zA-Z]\\w*|"[\\w "{2}]*"'
+                    pattern: '[a-zA-Z]\\w*|"[^"]*"'
                   },
                   {
                     type: "Terminal",
@@ -628,7 +752,7 @@ export const serializedGrammar = [
                     name: "Identifier",
                     label: "Identifier",
                     idx: 3,
-                    pattern: '[a-zA-Z]\\w*|"[\\w "{2}]*"'
+                    pattern: '[a-zA-Z]\\w*|"[^"]*"'
                   },
                   {
                     type: "Terminal",
@@ -644,7 +768,7 @@ export const serializedGrammar = [
                 name: "Identifier",
                 label: "Identifier",
                 idx: 4,
-                pattern: '[a-zA-Z]\\w*|"[\\w "{2}]*"'
+                pattern: '[a-zA-Z]\\w*|"[^"]*"'
               }
             ]
           }

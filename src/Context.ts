@@ -17,6 +17,7 @@ export interface QueryContext {
     name: "select";
     children: SelectContext;
   }>;
+  OrderBy?: IToken[];
 }
 
 export interface ExpressionContext {
@@ -61,7 +62,17 @@ export interface TypeContext {
 
 export interface ValueExpressionContext {}
 
-export interface OrderItemContext {}
+export interface OrderItemContext {
+  expression: Array<{
+    name: "expression";
+    children: ExpressionContext;
+  }>;
+  Asc?: IToken[];
+  Desc?: IToken[];
+  Nulls?: IToken[];
+  First?: IToken[];
+  Last?: IToken[];
+}
 
 export interface SelectContext {
   Select: IToken[];

@@ -8,6 +8,7 @@ import { replaceText } from "./utils/replaceText";
 import { getLocation } from "./utils/getLocation";
 import { needToBeEscaped } from "./utils/needToBeEscaped";
 import { getText } from "./utils/getText";
+import { OrderByVisitor } from "./visitors/OrderByVisitor";
 
 // Utils
 export { needToBeEscaped };
@@ -103,6 +104,20 @@ export interface ParsedSql {
   removeProjectionItem(options: {
     columns: string[];
     index: number;
+  }): ParsedSql;
+
+  /**
+   * Add/Update an ORDER BY expression.
+   *
+   * @param options
+   * @param options.expression
+   * @param options.order
+   * @param options.nullsOrder
+   */
+  orderBy(options: {
+    expression: string;
+    order?: "asc" | "desc";
+    nullsOrder?: "last" | "first";
   }): ParsedSql;
 }
 
@@ -350,6 +365,39 @@ const parsedSql = (sql: string): ParsedSql => {
       }
 
       return parsedSql(nextSql);
+    },
+
+    orderBy({ expression, order, nullsOrder }) {
+      const visitor = new OrderByVisitor();
+      visitor.visit(cst);
+      const orderItems = visitor.output;
+
+      if (orderItems.length === 0) {
+        let orderBy = ` ORDER BY ${expression}`;
+        if (order) orderBy += ` ${order.toUpperCase()}`;
+        if (nullsOrder) orderBy += ` NULLS ${nullsOrder.toUpperCase()}`;
+
+        return parsedSql(sql + orderBy);
+      } else {
+        const existingOrderItem = orderItems.find(
+          i => i.expression === expression
+        );
+        if (existingOrderItem) {
+          const nextNullsOrders = nullsOrder || existingOrderItem.nullsOrder;
+          const nextSql = replaceText(
+            sql,
+            `${existingOrderItem.expression} ${
+              (existingOrderItem.order || "asc") === "asc" ? "DESC" : "ASC"
+            }${
+              nextNullsOrders ? ` NULLS ${nextNullsOrders.toUpperCase()}` : ""
+            }`,
+            getLocation(existingOrderItem)
+          );
+
+          return parsedSql(nextSql);
+        }
+        return parsedSql(sql);
+      }
     }
   };
 };
