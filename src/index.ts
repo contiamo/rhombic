@@ -4,10 +4,13 @@ import { ProjectionItemsVisitor } from "./visitors/ProjectionItemsVisitor";
 import { insertText } from "./utils/insertText";
 import { CstNode } from "chevrotain";
 import { HasTablePrimary } from "./visitors/HasTablePrimaryVisitor";
-import { reserved } from "./reserved";
 import { replaceText } from "./utils/replaceText";
 import { getLocation } from "./utils/getLocation";
+import { needToBeEscaped } from "./utils/needToBeEscaped";
 import { getText } from "./utils/getText";
+
+// Utils
+export { needToBeEscaped };
 
 const rhombic = {
   /**
@@ -201,7 +204,8 @@ const parsedSql = (sql: string): ParsedSql => {
       // escape reserved keywords
       if (
         options.escapeReservedKeywords &&
-        reserved.includes(projectionItem.toUpperCase())
+        projectionItem[0] !== '"' &&
+        needToBeEscaped(projectionItem)
       ) {
         projectionItem = `"${projectionItem}"`;
       }
