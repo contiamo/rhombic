@@ -306,7 +306,9 @@ const parsedSql = (sql: string): ParsedSql => {
       }
 
       const targetNode = projectionItems[index];
+
       if (visitor.commas.length > 0) {
+        // Include the commas in the selection to remove
         const comma = getLocation(
           visitor.commas[Math.min(visitor.commas.length - 1, index)]
         );
@@ -332,11 +334,21 @@ const parsedSql = (sql: string): ParsedSql => {
       }
 
       const isLastProjectionItem = projectionItems.length === 1;
-      const nextSql = replaceText(
+      let nextSql = replaceText(
         sql,
         isLastProjectionItem ? "*" : "",
         getLocation(targetNode)
       );
+
+      // Remove resulting emtpy line
+      const removedLine = targetNode.startLine - 1;
+      if (!nextSql.split("\n")[removedLine].trim()) {
+        nextSql = [
+          ...nextSql.split("\n").slice(0, removedLine),
+          ...nextSql.split("\n").slice(removedLine + 1)
+        ].join("\n");
+      }
+
       return parsedSql(nextSql);
     }
   };

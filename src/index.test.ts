@@ -425,6 +425,28 @@ describe("rhombic", () => {
 
       expect(query).toEqual("SELECT * from d");
     });
+    it("should keep the formatting clean", () => {
+      const query = rhombic
+        .parse(
+          `SELECT
+  a,
+  b,
+  c
+FROM
+  d`
+        )
+        .removeProjectionItem({
+          columns: ["a", "b", "c"],
+          index: 1
+        })
+        .toString();
+
+      expect(query).toEqual(`SELECT
+  a,
+  c
+FROM
+  d`);
+    });
   });
 
   describe("getProjectionItem", () => {
