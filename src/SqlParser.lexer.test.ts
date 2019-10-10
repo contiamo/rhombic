@@ -164,6 +164,22 @@ describe("Sql Lexer", () => {
       ]
     },
     {
+      title: "sql type name",
+      sql:
+        "TIMESTAMP DATE CHAR VARYING CHAR CHARACTER DECIMAL INT INTEGER BINARY VARYING",
+      expected: [
+        "TIMESTAMP => SqlTypeName",
+        "DATE => SqlTypeName",
+        "CHAR VARYING => SqlTypeName",
+        "CHAR => SqlTypeName",
+        "CHARACTER => SqlTypeName",
+        "DECIMAL => SqlTypeName",
+        "INT => SqlTypeName",
+        "INTEGER => SqlTypeName",
+        "BINARY VARYING => SqlTypeName"
+      ]
+    },
+    {
       title: "cast with precision",
       sql: "CAST(column1 AS DEC(2))",
       expected: [
