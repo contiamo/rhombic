@@ -325,6 +325,127 @@ describe("parseSql", () => {
           )
         )
       )`
+    },
+    {
+      title: "ORDER BY ASC",
+      sql: "SELECT column1, column2 FROM my_db ORDER BY column1 ASC",
+      expected: `query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(expression(Identifier("column1")))
+            projectionItem(expression(Identifier("column2")))
+            Comma(",")
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(tablePrimary(Identifier("my_db"))))
+          )
+          OrderBy("ORDER BY")
+          orderItem(
+            expression(Identifier("column1"))
+            Asc("ASC")
+          )
+        )`
+    },
+    {
+      title: "ORDER BY DESC",
+      sql: "SELECT column1, column2 FROM my_db ORDER BY column1 DESC",
+      expected: `query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(expression(Identifier("column1")))
+            projectionItem(expression(Identifier("column2")))
+            Comma(",")
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(tablePrimary(Identifier("my_db"))))
+          )
+          OrderBy("ORDER BY")
+          orderItem(
+            expression(Identifier("column1"))
+            Desc("DESC")
+          )
+        )`
+    },
+    {
+      title: "ORDER BY NULLS FIRST",
+      sql:
+        "SELECT column1, column2 FROM my_db ORDER BY column1 ASC NULLS FIRST",
+      expected: `query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(expression(Identifier("column1")))
+            projectionItem(expression(Identifier("column2")))
+            Comma(",")
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(tablePrimary(Identifier("my_db"))))
+          )
+          OrderBy("ORDER BY")
+          orderItem(
+            expression(Identifier("column1"))
+            Asc("ASC")
+            Nulls("NULLS")
+            First("FIRST")
+          )
+        )`
+    },
+    {
+      title: "ORDER BY NULLS LAST",
+      sql: "SELECT column1, column2 FROM my_db ORDER BY column1 ASC NULLS LAST",
+      expected: `query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(expression(Identifier("column1")))
+            projectionItem(expression(Identifier("column2")))
+            Comma(",")
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(tablePrimary(Identifier("my_db"))))
+          )
+          OrderBy("ORDER BY")
+          orderItem(
+            expression(Identifier("column1"))
+            Asc("ASC")
+            Nulls("NULLS")
+            Last("LAST")
+          )
+        )`
+    },
+    {
+      title: "ORDER BY multiple",
+      sql:
+        "SELECT column1, column2 FROM my_db ORDER BY column1 ASC, column2 DESC",
+      expected: `query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(expression(Identifier("column1")))
+            projectionItem(expression(Identifier("column2")))
+            Comma(",")
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(tablePrimary(Identifier("my_db"))))
+          )
+          OrderBy("ORDER BY")
+          orderItem(
+            expression(Identifier("column1"))
+            Asc("ASC")
+          )
+          orderItem(
+            expression(Identifier("column2"))
+            Desc("DESC")
+            )
+          Comma(",")
+        )`
     }
   ];
 
@@ -354,7 +475,10 @@ describe("parseSql", () => {
       }
 
       expect(prettifyCst(result.cst.children)).toEqual(
-        expectedCst.replace(/[\s\t\n]/g, "")
+        expectedCst
+          .split("\n")
+          .map(i => i.replace(/^\s*/g, "").replace(/, /g, ","))
+          .join("")
       );
     });
   });

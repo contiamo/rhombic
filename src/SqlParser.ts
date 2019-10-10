@@ -250,7 +250,18 @@ class SqlParser extends CstParser {
   public query = this.RULE("query", () => {
     this.OR([
       { ALT: () => this.SUBRULE(this.values) },
-      { ALT: () => this.SUBRULE(this.select) }
+      {
+        ALT: () => {
+          this.SUBRULE(this.select);
+          this.OPTION(() => {
+            this.CONSUME(OrderBy);
+            this.MANY_SEP({
+              SEP: Comma,
+              DEF: () => this.SUBRULE(this.orderItem)
+            });
+          });
+        }
+      }
     ]);
   });
 
@@ -343,7 +354,31 @@ class SqlParser extends CstParser {
    * orderItem:
    *     expression [ ASC | DESC ] [ NULLS FIRST | NULLS LAST ]
    */
-  public orderItem = this.RULE("orderItem", () => {});
+  public orderItem = this.RULE("orderItem", () => {
+    this.SUBRULE(this.expression);
+    this.OPTION(() => {
+      this.OR([
+        { ALT: () => this.CONSUME(Asc) },
+        { ALT: () => this.CONSUME(Desc) }
+      ]);
+    });
+    this.OPTION1(() => {
+      this.OR1([
+        {
+          ALT: () => {
+            this.CONSUME(Nulls);
+            this.CONSUME(First);
+          }
+        },
+        {
+          ALT: () => {
+            this.CONSUME1(Nulls);
+            this.CONSUME(Last);
+          }
+        }
+      ]);
+    });
+  });
 
   /**
    * select:
