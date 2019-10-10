@@ -8,7 +8,7 @@ describe("needToBeEscaped", () => {
     "sum",
     "@chicken"
   ];
-  const falseCases: string[] = ["chicken", "crazy_potatoe", "Joker"];
+  const falseCases: string[] = ["chicken", "crazy_potatoe", "Joker", "*"];
 
   trueCases.forEach(identifier =>
     it(`should return true for "${identifier}"`, () => {
