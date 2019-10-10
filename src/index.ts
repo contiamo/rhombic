@@ -288,52 +288,56 @@ const parsedSql = (sql: string): ParsedSql => {
           (columns.length - nonAsteriskItemsCount) / visitor.asteriskCount;
         const asteriskIndex = projectionItems.findIndex(t => t.isAsterisk) || 0;
 
-        const nextSql = replaceText(
-          sql,
-          columns
-            .slice(asteriskIndex, asteriskIndex + projectionItemsBehindAsterisk)
-            .filter((_, i) => i + asteriskIndex !== index)
-            .join(", "),
-          getLocation(projectionItems[asteriskIndex])
-        );
-
-        return parsedSql(nextSql);
-      } else {
-        const targetNode = projectionItems[index];
-        if (visitor.commas.length > 0) {
-          const comma = getLocation(
-            visitor.commas[Math.min(visitor.commas.length - 1, index)]
+        if (index >= asteriskIndex) {
+          const nextSql = replaceText(
+            sql,
+            columns
+              .slice(
+                asteriskIndex,
+                asteriskIndex + projectionItemsBehindAsterisk
+              )
+              .filter((_, i) => i + asteriskIndex !== index)
+              .join(", "),
+            getLocation(projectionItems[asteriskIndex])
           );
-          if (
-            comma.startLine < targetNode.startLine ||
-            comma.startColumn < targetNode.startColumn
-          ) {
-            targetNode.startLine = comma.startLine || targetNode.startLine;
-            targetNode.startColumn =
-              comma.startColumn || targetNode.startColumn;
-          } else {
-            targetNode.endLine = comma.endLine || targetNode.endLine;
-            targetNode.endColumn = comma.endColumn || targetNode.endColumn;
 
-            // Remove extra space
-            const textToRemove = getText(sql, {
-              ...targetNode,
-              endColumn: targetNode.endColumn + 1
-            });
-            if (textToRemove[textToRemove.length - 1] === " ") {
-              targetNode.endColumn++;
-            }
+          return parsedSql(nextSql);
+        }
+      }
+
+      const targetNode = projectionItems[index];
+      if (visitor.commas.length > 0) {
+        const comma = getLocation(
+          visitor.commas[Math.min(visitor.commas.length - 1, index)]
+        );
+        if (
+          comma.startLine < targetNode.startLine ||
+          comma.startColumn < targetNode.startColumn
+        ) {
+          targetNode.startLine = comma.startLine || targetNode.startLine;
+          targetNode.startColumn = comma.startColumn || targetNode.startColumn;
+        } else {
+          targetNode.endLine = comma.endLine || targetNode.endLine;
+          targetNode.endColumn = comma.endColumn || targetNode.endColumn;
+
+          // Remove extra space
+          const textToRemove = getText(sql, {
+            ...targetNode,
+            endColumn: targetNode.endColumn + 1
+          });
+          if (textToRemove[textToRemove.length - 1] === " ") {
+            targetNode.endColumn++;
           }
         }
-
-        const isLastProjectionItem = projectionItems.length === 1;
-        const nextSql = replaceText(
-          sql,
-          isLastProjectionItem ? "*" : "",
-          getLocation(targetNode)
-        );
-        return parsedSql(nextSql);
       }
+
+      const isLastProjectionItem = projectionItems.length === 1;
+      const nextSql = replaceText(
+        sql,
+        isLastProjectionItem ? "*" : "",
+        getLocation(targetNode)
+      );
+      return parsedSql(nextSql);
     }
   };
 };

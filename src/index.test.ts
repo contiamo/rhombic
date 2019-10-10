@@ -378,6 +378,18 @@ describe("rhombic", () => {
       expect(query).toEqual("SELECT count(a), b, c from d");
     });
 
+    it("should remove a projection without touching the asterisk if not needed", () => {
+      const query = rhombic
+        .parse("SELECT a, * from d")
+        .removeProjectionItem({
+          columns: ["a", "a", "b", "c"],
+          index: 0
+        })
+        .toString();
+
+      expect(query).toEqual("SELECT * from d");
+    });
+
     it("should remove a function", () => {
       const query = rhombic
         .parse("SELECT count(a), b from d")
