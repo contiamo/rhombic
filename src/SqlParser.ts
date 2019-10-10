@@ -38,6 +38,42 @@ const CollectionTypeName = createToken({
   longer_alt: Identifier
 });
 
+const OrderBy = createToken({
+  name: "OrderBy",
+  pattern: /ORDER BY/i,
+  longer_alt: Identifier
+});
+
+const Asc = createToken({
+  name: "Asc",
+  pattern: /ASC/i,
+  longer_alt: Identifier
+});
+
+const Desc = createToken({
+  name: "Desc",
+  pattern: /DESC/i,
+  longer_alt: Identifier
+});
+
+const Nulls = createToken({
+  name: "Nulls",
+  pattern: /NULLS/i,
+  longer_alt: Identifier
+});
+
+const First = createToken({
+  name: "First",
+  pattern: /FIRST/i,
+  longer_alt: Identifier
+});
+
+const Last = createToken({
+  name: "Last",
+  pattern: /LAST/i,
+  longer_alt: Identifier
+});
+
 const From = createToken({
   name: "From",
   pattern: /FROM/i,
@@ -141,19 +177,24 @@ const allTokens = [
   Where,
   Values,
   And,
+  OrderBy,
   Or,
   IsNotNull,
   IsNull,
+  Nulls,
   Null,
+  Asc,
   As,
   Distinct,
   All,
   Stream,
-
   FunctionIdentifier,
   SqlTypeName,
   CollectionTypeName,
   Cast,
+  Desc,
+  Last,
+  First,
 
   // The Identifier must appear after the keywords because all keywords are valid identifiers.
   Identifier,
