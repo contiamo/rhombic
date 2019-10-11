@@ -124,6 +124,31 @@ describe("parseSql", () => {
       )`
     },
     {
+      title: "simple SELECT with LIMIT",
+      sql: "SELECT * FROM my_db LIMIT 10",
+      expected: `
+      query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(
+              Asterisk("*")
+            )
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier("my_db")
+              )
+            )
+          )
+        )
+        Limit("LIMIT")
+        Integer("10")
+      )`
+    },
+    {
       title: "simple SELECT * statement (complex table name)",
       sql: "SELECT * FROM my_catalog.my_schema.my_table",
       expected: `

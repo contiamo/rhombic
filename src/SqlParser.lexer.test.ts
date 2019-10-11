@@ -232,6 +232,11 @@ describe("Sql Lexer", () => {
         "NULLS => Nulls",
         "LAST => Last"
       ]
+    },
+    {
+      title: "limit",
+      sql: "LIMIT 10",
+      expected: ["LIMIT => Limit", "10 => Integer"]
     }
   ];
 

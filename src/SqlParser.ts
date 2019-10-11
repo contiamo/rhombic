@@ -139,6 +139,13 @@ const IsNotNull = createToken({
   pattern: /IS NOT NULL/i,
   longer_alt: Identifier
 });
+
+const Limit = createToken({
+  name: "Limit",
+  pattern: /LIMIT/i,
+  longer_alt: Identifier
+});
+
 const Null = createToken({ name: "Null", pattern: /null/ });
 const Asterisk = createToken({ name: "Asterisk", pattern: /\*/ });
 const Comma = createToken({ name: "Comma", pattern: /,/ });
@@ -195,6 +202,7 @@ const allTokens = [
   Desc,
   Last,
   First,
+  Limit,
 
   // The Identifier must appear after the keywords because all keywords are valid identifiers.
   Identifier,
@@ -259,6 +267,10 @@ class SqlParser extends CstParser {
               SEP: Comma,
               DEF: () => this.SUBRULE(this.orderItem)
             });
+          });
+          this.OPTION1(() => {
+            this.CONSUME(Limit);
+            this.CONSUME(Integer);
           });
         }
       }
