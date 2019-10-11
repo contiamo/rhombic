@@ -28,13 +28,49 @@ const Cast = createToken({
 
 const SqlTypeName = createToken({
   name: "SqlTypeName",
-  pattern: /CHARACTER|CHAR|CHAR VARYING|CHARACTER VARYING|VARCHAR|DATE|TIME|TIMESTAMP|CHARACTER SET|GEOMETRY|DECIMAL|DEC|NUMERIC|INTEGER|INT|BOOLEAN|BINARY|BINARY VARYING|VARBINARY|TINYINT|SMALLINT|BIGINT|REAL|DOUBLE|FLOAT|ANY/i,
+  pattern: /CHAR(ACTER)?( VARYING)?|VARCHAR|DATE|TIME(STAMP)?|CHARACTER SET|GEOMETRY|DEC(IMAL)?|NUMERIC|INT(EGER)?|BOOLEAN|BINARY( VARYING)?|VARBINARY|TINYINT|SMALLINT|BIGINT|REAL|DOUBLE|FLOAT|ANY/i,
   longer_alt: Identifier
 });
 
 const CollectionTypeName = createToken({
   name: "CollectionTypeName",
   pattern: /ARRAY|MULTISET/i,
+  longer_alt: Identifier
+});
+
+const OrderBy = createToken({
+  name: "OrderBy",
+  pattern: /ORDER BY/i,
+  longer_alt: Identifier
+});
+
+const Asc = createToken({
+  name: "Asc",
+  pattern: /ASC/i,
+  longer_alt: Identifier
+});
+
+const Desc = createToken({
+  name: "Desc",
+  pattern: /DESC/i,
+  longer_alt: Identifier
+});
+
+const Nulls = createToken({
+  name: "Nulls",
+  pattern: /NULLS/i,
+  longer_alt: Identifier
+});
+
+const First = createToken({
+  name: "First",
+  pattern: /FIRST/i,
+  longer_alt: Identifier
+});
+
+const Last = createToken({
+  name: "Last",
+  pattern: /LAST/i,
   longer_alt: Identifier
 });
 
@@ -141,19 +177,24 @@ const allTokens = [
   Where,
   Values,
   And,
+  OrderBy,
   Or,
   IsNotNull,
   IsNull,
+  Nulls,
   Null,
+  Asc,
   As,
   Distinct,
   All,
   Stream,
-
   FunctionIdentifier,
   SqlTypeName,
   CollectionTypeName,
   Cast,
+  Desc,
+  Last,
+  First,
 
   // The Identifier must appear after the keywords because all keywords are valid identifiers.
   Identifier,
@@ -209,7 +250,18 @@ class SqlParser extends CstParser {
   public query = this.RULE("query", () => {
     this.OR([
       { ALT: () => this.SUBRULE(this.values) },
-      { ALT: () => this.SUBRULE(this.select) }
+      {
+        ALT: () => {
+          this.SUBRULE(this.select);
+          this.OPTION(() => {
+            this.CONSUME(OrderBy);
+            this.MANY_SEP({
+              SEP: Comma,
+              DEF: () => this.SUBRULE(this.orderItem)
+            });
+          });
+        }
+      }
     ]);
   });
 
@@ -302,7 +354,31 @@ class SqlParser extends CstParser {
    * orderItem:
    *     expression [ ASC | DESC ] [ NULLS FIRST | NULLS LAST ]
    */
-  public orderItem = this.RULE("orderItem", () => {});
+  public orderItem = this.RULE("orderItem", () => {
+    this.SUBRULE(this.expression);
+    this.OPTION(() => {
+      this.OR([
+        { ALT: () => this.CONSUME(Asc) },
+        { ALT: () => this.CONSUME(Desc) }
+      ]);
+    });
+    this.OPTION1(() => {
+      this.OR1([
+        {
+          ALT: () => {
+            this.CONSUME(Nulls);
+            this.CONSUME(First);
+          }
+        },
+        {
+          ALT: () => {
+            this.CONSUME1(Nulls);
+            this.CONSUME(Last);
+          }
+        }
+      ]);
+    });
+  });
 
   /**
    * select:

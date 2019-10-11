@@ -616,4 +616,109 @@ FROM
       });
     });
   });
+
+  describe("orderBy", () => {
+    it("should add an ORDER BY if not exists", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_db")
+        .orderBy({ expression: "a" })
+        .toString();
+
+      expect(query).toEqual("SELECT * FROM my_db ORDER BY a");
+    });
+
+    it("should add an ORDER BY (asc) if not exists", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_db")
+        .orderBy({ expression: "a", order: "asc" })
+        .toString();
+
+      expect(query).toEqual("SELECT * FROM my_db ORDER BY a ASC");
+    });
+
+    it("should add an ORDER BY (desc) if not exists", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_db")
+        .orderBy({ expression: "a", order: "desc" })
+        .toString();
+
+      expect(query).toEqual("SELECT * FROM my_db ORDER BY a DESC");
+    });
+
+    it("should add an ORDER BY (nulls first) if not exists", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_db")
+        .orderBy({ expression: "a", nullsOrder: "first" })
+        .toString();
+
+      expect(query).toEqual("SELECT * FROM my_db ORDER BY a NULLS FIRST");
+    });
+
+    it("should add an ORDER BY (nulls last) if not exists", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_db")
+        .orderBy({ expression: "a", nullsOrder: "last" })
+        .toString();
+
+      expect(query).toEqual("SELECT * FROM my_db ORDER BY a NULLS LAST");
+    });
+
+    it("should switch the order if the expression already exists (default)", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_db ORDER BY a")
+        .orderBy({ expression: "a" })
+        .toString();
+
+      expect(query).toEqual("SELECT * FROM my_db ORDER BY a DESC");
+    });
+
+    it("should switch the order if the expression already exists (asc)", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_db ORDER BY a ASC")
+        .orderBy({ expression: "a" })
+        .toString();
+
+      expect(query).toEqual("SELECT * FROM my_db ORDER BY a DESC");
+    });
+
+    it("should switch the order if the expression already exists (desc)", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_db ORDER BY a DESC")
+        .orderBy({ expression: "a" })
+        .toString();
+
+      expect(query).toEqual("SELECT * FROM my_db ORDER BY a ASC");
+    });
+
+    it("should override the existing expression", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_db ORDER BY b DESC")
+        .orderBy({ expression: "a" })
+        .toString();
+
+      expect(query).toEqual("SELECT * FROM my_db ORDER BY a");
+    });
+
+    it("should override the existing expression (multiple)", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_db ORDER BY b DESC, c ASC")
+        .orderBy({ expression: "a" })
+        .toString();
+
+      expect(query).toEqual("SELECT * FROM my_db ORDER BY a");
+    });
+
+    it("should switch the order if the expression already exists (multiple)", () => {
+      const query = rhombic
+        .parse(
+          "SELECT * FROM my_db ORDER BY b DESC NULLS LAST, a ASC, c DESC NULLS FIRST"
+        )
+        .orderBy({ expression: "a" })
+        .toString();
+
+      expect(query).toEqual(
+        "SELECT * FROM my_db ORDER BY b DESC NULLS LAST, a DESC, c DESC NULLS FIRST"
+      );
+    });
+  });
 });

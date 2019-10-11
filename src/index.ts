@@ -8,6 +8,7 @@ import { replaceText } from "./utils/replaceText";
 import { getLocation } from "./utils/getLocation";
 import { needToBeEscaped } from "./utils/needToBeEscaped";
 import { getText } from "./utils/getText";
+import { OrderByVisitor } from "./visitors/OrderByVisitor";
 
 // Utils
 export { needToBeEscaped };
@@ -103,6 +104,20 @@ export interface ParsedSql {
   removeProjectionItem(options: {
     columns: string[];
     index: number;
+  }): ParsedSql;
+
+  /**
+   * Add/Update an ORDER BY expression.
+   *
+   * @param options
+   * @param options.expression
+   * @param options.order
+   * @param options.nullsOrder
+   */
+  orderBy(options: {
+    expression: string;
+    order?: "asc" | "desc";
+    nullsOrder?: "last" | "first";
   }): ParsedSql;
 }
 
@@ -350,6 +365,60 @@ const parsedSql = (sql: string): ParsedSql => {
       }
 
       return parsedSql(nextSql);
+    },
+
+    orderBy({ expression, order, nullsOrder }) {
+      const visitor = new OrderByVisitor();
+      visitor.visit(cst);
+      const orderItems = visitor.output;
+
+      if (orderItems.length === 0) {
+        // Add order by statement
+        let orderBy = ` ORDER BY ${expression}`;
+        if (order) orderBy += ` ${order.toUpperCase()}`;
+        if (nullsOrder) orderBy += ` NULLS ${nullsOrder.toUpperCase()}`;
+
+        return parsedSql(sql + orderBy);
+      } else {
+        const existingOrderItem = orderItems.find(
+          i => i.expression === expression
+        );
+        if (existingOrderItem) {
+          // Update existing order
+          const nextNullsOrders = nullsOrder || existingOrderItem.nullsOrder;
+          const nextSql = replaceText(
+            sql,
+            `${existingOrderItem.expression} ${
+              (existingOrderItem.order || "asc") === "asc" ? "DESC" : "ASC"
+            }${
+              nextNullsOrders ? ` NULLS ${nextNullsOrders.toUpperCase()}` : ""
+            }`,
+            getLocation(existingOrderItem)
+          );
+
+          return parsedSql(nextSql);
+        } else {
+          // Replace order items with the new one
+          let orderByItem = expression;
+          if (order) orderByItem += ` ${order.toUpperCase()}`;
+          if (nullsOrder) orderByItem += ` NULLS ${nullsOrder.toUpperCase()}`;
+
+          const firstItem = orderItems[0];
+          const lastItem = orderItems[orderItems.length - 1];
+
+          const nextSql = replaceText(
+            sql,
+            orderByItem,
+            getLocation({
+              startLine: firstItem.startLine,
+              startColumn: firstItem.startColumn,
+              endLine: lastItem.endLine,
+              endColumn: lastItem.endColumn
+            })
+          );
+          return parsedSql(nextSql);
+        }
+      }
     }
   };
 };

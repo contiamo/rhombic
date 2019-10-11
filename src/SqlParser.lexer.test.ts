@@ -164,6 +164,22 @@ describe("Sql Lexer", () => {
       ]
     },
     {
+      title: "sql type name",
+      sql:
+        "TIMESTAMP DATE CHAR VARYING CHAR CHARACTER DECIMAL INT INTEGER BINARY VARYING",
+      expected: [
+        "TIMESTAMP => SqlTypeName",
+        "DATE => SqlTypeName",
+        "CHAR VARYING => SqlTypeName",
+        "CHAR => SqlTypeName",
+        "CHARACTER => SqlTypeName",
+        "DECIMAL => SqlTypeName",
+        "INT => SqlTypeName",
+        "INTEGER => SqlTypeName",
+        "BINARY VARYING => SqlTypeName"
+      ]
+    },
+    {
       title: "cast with precision",
       sql: "CAST(column1 AS DEC(2))",
       expected: [
@@ -193,6 +209,28 @@ describe("Sql Lexer", () => {
         "2 => Integer",
         ") => RParen",
         ") => RParen"
+      ]
+    },
+    {
+      title: "order by asc",
+      sql: "ORDER BY column1 ASC NULLS FIRST",
+      expected: [
+        "ORDER BY => OrderBy",
+        "column1 => Identifier",
+        "ASC => Asc",
+        "NULLS => Nulls",
+        "FIRST => First"
+      ]
+    },
+    {
+      title: "order by desc",
+      sql: "ORDER BY column1 DESC NULLS LAST",
+      expected: [
+        "ORDER BY => OrderBy",
+        "column1 => Identifier",
+        "DESC => Desc",
+        "NULLS => Nulls",
+        "LAST => Last"
       ]
     }
   ];
