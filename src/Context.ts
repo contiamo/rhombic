@@ -18,6 +18,14 @@ export interface QueryContext {
     children: SelectContext;
   }>;
   OrderBy?: IToken[];
+  orderItem: Array<{
+    name: "orderItem";
+    children: OrderItemContext;
+  }>;
+  Comma?: IToken[];
+  Limit?: IToken[];
+  Integer?: IToken[];
+  All?: IToken[];
 }
 
 export interface ExpressionContext {
@@ -128,6 +136,11 @@ export interface ColumnDeclContext {}
 
 export interface ValuesContext {
   Values: IToken[];
+  expression: Array<{
+    name: "expression";
+    children: ExpressionContext;
+  }>;
+  Comma?: IToken[];
 }
 
 export interface GroupItemContext {}

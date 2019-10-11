@@ -14,8 +14,8 @@ type Node =
   | RepetitionWithSeparatorNode
   | OptionNode
   | RepetitionNode
-  | { type: "RepetitionMandatory" }
-  | { type: "RepetitionMandatoryWithSeparator" };
+  | RepetitionMandatoryWithSeparator
+  | { type: "RepetitionMandatory" };
 
 interface RuleNode {
   type: "Rule";
@@ -52,8 +52,15 @@ interface TerminalNode {
 interface RepetitionWithSeparatorNode {
   type: "RepetitionWithSeparator";
   idx: number;
-  separator: Node;
+  separator: TerminalNode;
   definition: Node[];
+}
+
+interface RepetitionMandatoryWithSeparator {
+  type: "RepetitionMandatoryWithSeparator";
+  idx: number;
+  separator: TerminalNode;
+  definition: NonTerminalNode[];
 }
 
 interface OptionNode {
@@ -122,6 +129,14 @@ function generateDefinitionTypes(
 
         case "Option":
           return generateDefinitionTypes(node.definition, indent, true, keys);
+
+        case "RepetitionMandatoryWithSeparator":
+          return generateDefinitionTypes(
+            [...node.definition, node.separator],
+            indent + 2,
+            true,
+            keys
+          );
 
         case "Repetition":
           return generateDefinitionTypes(

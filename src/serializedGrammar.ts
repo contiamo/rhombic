@@ -29,7 +29,7 @@ export const serializedGrammar = [
     type: "Rule",
     name: "query",
     orgText:
-      "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.SUBRULE(_this.values); } },\r\n                {\r\n                    ALT: function () {\r\n                        _this.SUBRULE(_this.select);\r\n                        _this.OPTION(function () {\r\n                            _this.CONSUME(OrderBy);\r\n                            _this.MANY_SEP({\r\n                                SEP: Comma,\r\n                                DEF: function () { return _this.SUBRULE(_this.orderItem); }\r\n                            });\r\n                        });\r\n                    }\r\n                }\r\n            ]);\r\n        }",
+      "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.SUBRULE(_this.values); } },\r\n                {\r\n                    ALT: function () {\r\n                        _this.SUBRULE(_this.select);\r\n                        _this.OPTION(function () {\r\n                            _this.CONSUME(OrderBy);\r\n                            _this.AT_LEAST_ONE_SEP({\r\n                                SEP: Comma,\r\n                                DEF: function () { return _this.SUBRULE(_this.orderItem); }\r\n                            });\r\n                        });\r\n                        _this.OPTION1(function () {\r\n                            _this.CONSUME(Limit);\r\n                            _this.OR1([\r\n                                { ALT: function () { return _this.CONSUME(Integer); } },\r\n                                { ALT: function () { return _this.CONSUME(All); } }\r\n                            ]);\r\n                        });\r\n                    }\r\n                }\r\n            ]);\r\n        }",
     definition: [
       {
         type: "Alternation",
@@ -65,7 +65,7 @@ export const serializedGrammar = [
                     pattern: "ORDER BY"
                   },
                   {
-                    type: "RepetitionWithSeparator",
+                    type: "RepetitionMandatoryWithSeparator",
                     idx: 0,
                     separator: {
                       type: "Terminal",
@@ -79,6 +79,49 @@ export const serializedGrammar = [
                         type: "NonTerminal",
                         name: "orderItem",
                         idx: 0
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                type: "Option",
+                idx: 1,
+                definition: [
+                  {
+                    type: "Terminal",
+                    name: "Limit",
+                    label: "Limit",
+                    idx: 0,
+                    pattern: "LIMIT"
+                  },
+                  {
+                    type: "Alternation",
+                    idx: 1,
+                    definition: [
+                      {
+                        type: "Flat",
+                        definition: [
+                          {
+                            type: "Terminal",
+                            name: "Integer",
+                            label: "Integer",
+                            idx: 0,
+                            pattern: "0|[1-9]\\d*"
+                          }
+                        ]
+                      },
+                      {
+                        type: "Flat",
+                        definition: [
+                          {
+                            type: "Terminal",
+                            name: "All",
+                            label: "All",
+                            idx: 0,
+                            pattern: "ALL"
+                          }
+                        ]
                       }
                     ]
                   }
@@ -565,34 +608,23 @@ export const serializedGrammar = [
     type: "Rule",
     name: "projectionItems",
     orgText:
-      "function () {\r\n            _this.SUBRULE(_this.projectionItem);\r\n            _this.OPTION(function () {\r\n                _this.MANY(function () {\r\n                    _this.CONSUME(Comma);\r\n                    _this.SUBRULE1(_this.projectionItem);\r\n                });\r\n            });\r\n        }",
+      "function () {\r\n            _this.AT_LEAST_ONE_SEP({\r\n                SEP: Comma,\r\n                DEF: function () { return _this.SUBRULE(_this.projectionItem); }\r\n            });\r\n        }",
     definition: [
       {
-        type: "NonTerminal",
-        name: "projectionItem",
-        idx: 0
-      },
-      {
-        type: "Option",
+        type: "RepetitionMandatoryWithSeparator",
         idx: 0,
+        separator: {
+          type: "Terminal",
+          name: "Comma",
+          label: "Comma",
+          idx: 1,
+          pattern: ","
+        },
         definition: [
           {
-            type: "Repetition",
-            idx: 0,
-            definition: [
-              {
-                type: "Terminal",
-                name: "Comma",
-                label: "Comma",
-                idx: 0,
-                pattern: ","
-              },
-              {
-                type: "NonTerminal",
-                name: "projectionItem",
-                idx: 1
-              }
-            ]
+            type: "NonTerminal",
+            name: "projectionItem",
+            idx: 0
           }
         ]
       }
@@ -786,7 +818,7 @@ export const serializedGrammar = [
     type: "Rule",
     name: "values",
     orgText:
-      "function () {\r\n            _this.CONSUME(Values);\r\n            _this.MANY_SEP({\r\n                SEP: Comma,\r\n                DEF: function () { return _this.SUBRULE(_this.expression); }\r\n            });\r\n        }",
+      "function () {\r\n            _this.CONSUME(Values);\r\n            _this.AT_LEAST_ONE_SEP({\r\n                SEP: Comma,\r\n                DEF: function () { return _this.SUBRULE(_this.expression); }\r\n            });\r\n        }",
     definition: [
       {
         type: "Terminal",
@@ -796,7 +828,7 @@ export const serializedGrammar = [
         pattern: "VALUES"
       },
       {
-        type: "RepetitionWithSeparator",
+        type: "RepetitionMandatoryWithSeparator",
         idx: 0,
         separator: {
           type: "Terminal",

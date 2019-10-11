@@ -270,7 +270,10 @@ class SqlParser extends CstParser {
           });
           this.OPTION1(() => {
             this.CONSUME(Limit);
-            this.CONSUME(Integer);
+            this.OR1([
+              { ALT: () => this.CONSUME(Integer) },
+              { ALT: () => this.CONSUME(All) }
+            ]);
           });
         }
       }
