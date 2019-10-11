@@ -255,7 +255,7 @@ class SqlParser extends CstParser {
           this.SUBRULE(this.select);
           this.OPTION(() => {
             this.CONSUME(OrderBy);
-            this.MANY_SEP({
+            this.AT_LEAST_ONE_SEP({
               SEP: Comma,
               DEF: () => this.SUBRULE(this.orderItem)
             });
@@ -415,12 +415,9 @@ class SqlParser extends CstParser {
    *     projectionItem [, projectionItem ]*
    */
   public projectionItems = this.RULE("projectionItems", () => {
-    this.SUBRULE(this.projectionItem);
-    this.OPTION(() => {
-      this.MANY(() => {
-        this.CONSUME(Comma);
-        this.SUBRULE1(this.projectionItem);
-      });
+    this.AT_LEAST_ONE_SEP({
+      SEP: Comma,
+      DEF: () => this.SUBRULE(this.projectionItem)
     });
   });
 
@@ -533,7 +530,7 @@ class SqlParser extends CstParser {
    */
   public values = this.RULE("values", () => {
     this.CONSUME(Values);
-    this.MANY_SEP({
+    this.AT_LEAST_ONE_SEP({
       SEP: Comma,
       DEF: () => this.SUBRULE(this.expression)
     });
