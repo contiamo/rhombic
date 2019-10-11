@@ -689,5 +689,36 @@ FROM
 
       expect(query).toEqual("SELECT * FROM my_db ORDER BY a ASC");
     });
+
+    it("should override the existing expression", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_db ORDER BY b DESC")
+        .orderBy({ expression: "a" })
+        .toString();
+
+      expect(query).toEqual("SELECT * FROM my_db ORDER BY a");
+    });
+
+    it("should override the existing expression (multiple)", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_db ORDER BY b DESC, c ASC")
+        .orderBy({ expression: "a" })
+        .toString();
+
+      expect(query).toEqual("SELECT * FROM my_db ORDER BY a");
+    });
+
+    it("should switch the order if the expression already exists (multiple)", () => {
+      const query = rhombic
+        .parse(
+          "SELECT * FROM my_db ORDER BY b DESC NULLS LAST, a ASC, c DESC NULLS FIRST"
+        )
+        .orderBy({ expression: "a" })
+        .toString();
+
+      expect(query).toEqual(
+        "SELECT * FROM my_db ORDER BY b DESC NULLS LAST, a DESC, c DESC NULLS FIRST"
+      );
+    });
   });
 });

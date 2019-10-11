@@ -373,6 +373,7 @@ const parsedSql = (sql: string): ParsedSql => {
       const orderItems = visitor.output;
 
       if (orderItems.length === 0) {
+        // Add order by statement
         let orderBy = ` ORDER BY ${expression}`;
         if (order) orderBy += ` ${order.toUpperCase()}`;
         if (nullsOrder) orderBy += ` NULLS ${nullsOrder.toUpperCase()}`;
@@ -383,6 +384,7 @@ const parsedSql = (sql: string): ParsedSql => {
           i => i.expression === expression
         );
         if (existingOrderItem) {
+          // Update existing order
           const nextNullsOrders = nullsOrder || existingOrderItem.nullsOrder;
           const nextSql = replaceText(
             sql,
@@ -395,8 +397,27 @@ const parsedSql = (sql: string): ParsedSql => {
           );
 
           return parsedSql(nextSql);
+        } else {
+          // Replace order items with the new one
+          let orderByItem = expression;
+          if (order) orderByItem += ` ${order.toUpperCase()}`;
+          if (nullsOrder) orderByItem += ` NULLS ${nullsOrder.toUpperCase()}`;
+
+          const firstItem = orderItems[0];
+          const lastItem = orderItems[orderItems.length - 1];
+
+          const nextSql = replaceText(
+            sql,
+            orderByItem,
+            getLocation({
+              startLine: firstItem.startLine,
+              startColumn: firstItem.startColumn,
+              endLine: lastItem.endLine,
+              endColumn: lastItem.endColumn
+            })
+          );
+          return parsedSql(nextSql);
         }
-        return parsedSql(sql);
       }
     }
   };
