@@ -720,5 +720,14 @@ FROM
         "SELECT * FROM my_db ORDER BY b DESC NULLS LAST, a DESC, c DESC NULLS FIRST"
       );
     });
+
+    it("should update a statement with a LIMIT", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_db LIMIT 10")
+        .orderBy({ expression: "a" })
+        .toString();
+
+      expect(query).toEqual("SELECT * FROM my_db ORDER BY a LIMIT 10");
+    });
   });
 });
