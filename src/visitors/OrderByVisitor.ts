@@ -1,5 +1,5 @@
 import { parser } from "../SqlParser";
-import { OrderItemContext } from "../Context";
+import { OrderItemContext, SelectContext } from "../Context";
 import { getImageFromChildren } from "../utils/getImageFromChildren";
 import { getChildrenRange } from "../utils/getChildrenRange";
 
@@ -20,6 +20,10 @@ interface OrderItem {
  */
 export class OrderByVisitor extends Visitor {
   public output: OrderItem[] = [];
+  /**
+   * Position to insert an ORDER BY statement
+   */
+  public insertLocation?: { line: number; column: number };
 
   constructor() {
     super();
@@ -39,5 +43,13 @@ export class OrderByVisitor extends Visitor {
     if (ctx.Last) item.nullsOrder = "last";
 
     this.output.push(item);
+  }
+
+  select(ctx: SelectContext) {
+    const range = getChildrenRange(ctx);
+    this.insertLocation = {
+      line: range.endLine,
+      column: range.endColumn
+    };
   }
 }

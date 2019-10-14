@@ -378,6 +378,9 @@ const parsedSql = (sql: string): ParsedSql => {
         if (order) orderBy += ` ${order.toUpperCase()}`;
         if (nullsOrder) orderBy += ` NULLS ${nullsOrder.toUpperCase()}`;
 
+        if (visitor.insertLocation) {
+          return parsedSql(insertText(sql, orderBy, visitor.insertLocation));
+        }
         return parsedSql(sql + orderBy);
       } else {
         const existingOrderItem = orderItems.find(
