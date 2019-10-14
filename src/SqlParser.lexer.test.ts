@@ -101,7 +101,7 @@ describe("Sql Lexer", () => {
         "table2 => Identifier",
         "WHERE => Where",
         "column1 => Identifier",
-        "> => Operator",
+        "> => BinaryOperator",
         "42 => Integer"
       ]
     },
@@ -115,11 +115,11 @@ describe("Sql Lexer", () => {
         "table2 => Identifier",
         "WHERE => Where",
         "a => Identifier",
-        "<= => Operator",
+        "<= => BinaryOperator",
         "30 => Integer",
         "AND => And",
         "b => Identifier",
-        ">= => Operator",
+        ">= => BinaryOperator",
         "10 => Integer",
         "OR => Or",
         "c => Identifier",
@@ -237,6 +237,37 @@ describe("Sql Lexer", () => {
       title: "limit",
       sql: "LIMIT 10",
       expected: ["LIMIT => Limit", "10 => Integer"]
+    },
+    {
+      title: "binary operators",
+      sql: "= > >= < <= !=",
+      expected: [
+        "= => BinaryOperator",
+        "> => BinaryOperator",
+        ">= => BinaryOperator",
+        "< => BinaryOperator",
+        "<= => BinaryOperator",
+        "!= => BinaryOperator"
+      ]
+    },
+    {
+      title: "multival operators",
+      sql: "in not in like",
+      expected: [
+        "in => MultivalOperator",
+        "not in => MultivalOperator",
+        "like => MultivalOperator"
+      ]
+    },
+    {
+      title: "unary operators",
+      sql: "is null IS NOT NULL",
+      expected: ["is null => IsNull", "IS NOT NULL => IsNotNull"]
+    },
+    {
+      title: "boolean",
+      sql: "true false",
+      expected: ["true => Boolean", "false => Boolean"]
     }
   ];
 

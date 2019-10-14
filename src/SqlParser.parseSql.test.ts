@@ -496,6 +496,67 @@ describe("parseSql", () => {
             )
           Comma(",")
         )`
+    },
+    {
+      title: "WHERE",
+      sql: "SELECT * FROM my_db WHERE column1 = 'toto'",
+      expected: `query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(
+              Asterisk("*")
+            )
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(tablePrimary(Identifier("my_db")))
+          )
+          Where("WHERE")
+          booleanExpression(
+            booleanExpressionValue(
+              Identifier("column1")
+              BinaryOperator("=")
+              valueExpression(String("'toto'"))
+            )
+          )
+        )
+      )`
+    },
+    {
+      title: "WHERE with multivalue",
+      sql:
+        "SELECT * FROM \"foodmart\".\"CURRENCY\" WHERE CURRENCY in ('USD', 'Mexican Peso')",
+      expected: `query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(
+              Asterisk("*")
+            )
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(tablePrimary(
+              Identifier(""foodmart"", ""CURRENCY"")
+              Period(".")
+              )
+            )
+          )
+          Where("WHERE")
+          booleanExpression(
+            booleanExpressionValue(
+              Identifier("CURRENCY")
+              MultivalOperator("in")
+              LParen("(")
+              valueExpression(String("'USD'"))
+              valueExpression(String("'Mexican Peso'"))
+              Comma(",")
+              RParen(")")
+            )
+          )
+        )
+      )`
     }
   ];
 

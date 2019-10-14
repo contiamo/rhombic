@@ -157,9 +157,21 @@ const RParen = createToken({ name: "RParen", pattern: /\)/ });
 const Column = createToken({ name: "Column", pattern: /:/ });
 const SemiColumn = createToken({ name: "SemiColumn", pattern: /;/ });
 
-const Operator = createToken({
-  name: "Operator",
-  pattern: /(!=|<>|==|<=|>=|!<|!>|\|\||::|->>|->|~~\*|~~|!~~\*|!~~|~\*|!~\*|!~|>|<|\+|-|\/|%)/
+const BinaryOperator = createToken({
+  name: "BinaryOperator",
+  pattern: /=|>=?|<=?|\!=/
+});
+
+const MultivalOperator = createToken({
+  name: "MultivalOperator",
+  pattern: /NOT IN|IN|LIKE/i,
+  longer_alt: Identifier
+});
+
+const Boolean = createToken({
+  name: "Boolean",
+  pattern: /TRUE|FALSE/i,
+  longer_alt: Identifier
 });
 
 const Integer = createToken({ name: "Integer", pattern: /0|[1-9]\d*/ });
@@ -203,6 +215,8 @@ const allTokens = [
   Last,
   First,
   Limit,
+  MultivalOperator,
+  Boolean,
 
   // The Identifier must appear after the keywords because all keywords are valid identifiers.
   Identifier,
@@ -218,7 +232,7 @@ const allTokens = [
   RParen,
   Comma,
   Period,
-  Operator
+  BinaryOperator
 ];
 
 // reuse the same lexer instance
@@ -363,7 +377,70 @@ class SqlParser extends CstParser {
    *
    * https://github.com/ronsavage/SQL/blob/master/sql-2003-2.bnf
    */
-  public valueExpression = this.RULE("valueExpression", () => {});
+  public valueExpression = this.RULE("valueExpression", () => {
+    this.OR([
+      { ALT: () => this.CONSUME(Integer) },
+      { ALT: () => this.CONSUME(String) },
+      { ALT: () => this.CONSUME(Boolean) }
+    ]);
+  });
+
+  public booleanExpression = this.RULE("booleanExpression", () => {
+    this.OR([
+      {
+        ALT: () => {
+          this.CONSUME(LParen);
+          this.SUBRULE(this.booleanExpression);
+          this.CONSUME(RParen);
+        }
+      },
+      {
+        ALT: () => this.SUBRULE1(this.booleanExpressionValue)
+      }
+    ]);
+
+    this.OPTION(() => {
+      this.OR1([
+        { ALT: () => this.CONSUME(Or) },
+        { ALT: () => this.CONSUME(And) }
+      ]);
+      this.SUBRULE2(this.booleanExpression);
+    });
+  });
+
+  public booleanExpressionValue = this.RULE("booleanExpressionValue", () => {
+    this.CONSUME(Identifier);
+    this.OR([
+      {
+        ALT: () => {
+          // Binary operation
+          this.CONSUME(BinaryOperator);
+          this.SUBRULE(this.valueExpression);
+        }
+      },
+      {
+        ALT: () => {
+          // Multival operation
+          this.CONSUME(MultivalOperator);
+          this.CONSUME1(LParen);
+          this.AT_LEAST_ONE_SEP({
+            SEP: Comma,
+            DEF: () => this.SUBRULE1(this.valueExpression)
+          });
+          this.CONSUME1(RParen);
+        }
+      },
+      {
+        ALT: () => {
+          // Unary operation
+          this.OR2([
+            { ALT: () => this.CONSUME(IsNull) },
+            { ALT: () => this.CONSUME(IsNotNull) }
+          ]);
+        }
+      }
+    ]);
+  });
 
   /**
    * orderItem:
@@ -405,7 +482,6 @@ class SqlParser extends CstParser {
    *      [ HAVING booleanExpression ]
    *      [ WINDOW windowName AS windowSpec [, windowName AS windowSpec ]* ]
    *
-   *
    */
   public select = this.RULE("select", () => {
     this.CONSUME(Select);
@@ -422,6 +498,11 @@ class SqlParser extends CstParser {
     this.OPTION3(() => {
       this.CONSUME(From);
       this.SUBRULE(this.tableExpression);
+    });
+
+    this.OPTION4(() => {
+      this.CONSUME(Where);
+      this.SUBRULE(this.booleanExpression);
     });
   });
 
