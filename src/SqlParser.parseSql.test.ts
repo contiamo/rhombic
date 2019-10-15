@@ -557,6 +557,58 @@ describe("parseSql", () => {
           )
         )
       )`
+    },
+    {
+      title: "WHERE with multiple conditions",
+      sql:
+        "SELECT * FROM my_db WHERE a in ('USD', 'Mexican Peso') AND (b = 'foo' OR c >= 42)",
+      debug: true,
+      expected: `query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(Asterisk("*"))
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(Identifier("my_db"))
+            )
+          )
+          Where("WHERE")
+          booleanExpression(
+            booleanExpressionValue(
+              Identifier("a")
+              MultivalOperator("in")
+              LParen("(")
+              valueExpression(String("'USD'"))
+              valueExpression(String("'Mexican Peso'"))
+              Comma(",")
+              RParen(")")
+            )
+            And("AND")
+            booleanExpression(
+              LParen("(")
+              booleanExpression(
+                booleanExpressionValue(
+                  Identifier("b")
+                  BinaryOperator("=")
+                  valueExpression(String("'foo'"))
+                )
+                Or("OR")
+                booleanExpression(
+                  booleanExpressionValue(
+                    Identifier("c")
+                    BinaryOperator(">=")
+                    valueExpression(Integer("42"))
+                  )
+                )
+              )
+              RParen(")")
+            )
+          )
+        )
+      )`
     }
   ];
 
@@ -579,7 +631,7 @@ describe("parseSql", () => {
       // Advanced debug
       if (debug) {
         const previous = require("fs").readFileSync("debug.json", "utf-8");
-        const next = JSON.stringify(result.cst, null, 2);
+        const next = prettifyCst(result.cst.children);
         if (previous !== next) {
           require("fs").writeFileSync("debug.json", next);
         }
