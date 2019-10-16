@@ -88,10 +88,6 @@ export interface BooleanExpressionContext {
   }>;
   Or?: IToken[];
   And?: IToken[];
-  booleanExpression: Array<{
-    name: "booleanExpression";
-    children: BooleanExpressionContext;
-  }>;
 }
 
 export interface BooleanExpressionValueContext {
@@ -103,10 +99,6 @@ export interface BooleanExpressionValueContext {
   }>;
   MultivalOperator?: IToken[];
   LParen?: IToken[];
-  valueExpression: Array<{
-    name: "valueExpression";
-    children: ValueExpressionContext;
-  }>;
   Comma?: IToken[];
   RParen?: IToken[];
   IsNull?: IToken[];
