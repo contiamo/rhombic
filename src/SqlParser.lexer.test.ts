@@ -264,6 +264,11 @@ describe("Sql Lexer", () => {
       title: "boolean",
       sql: "true false",
       expected: ["true => Boolean", "false => Boolean"]
+    },
+    {
+      title: "date",
+      sql: "date '2019-02-01'",
+      expected: ["date '2019-02-01' => Date"]
     }
   ];
 

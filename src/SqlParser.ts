@@ -179,6 +179,10 @@ const String = createToken({
   name: "String",
   pattern: /((`[^`]*(`))+)|((\[[^\]]*(\]))(\][^\]]*(\]))*)|(("[^"\\]*(?:\\.[^"\\]*)*("))+)|(('[^'\\]*(?:\\.[^'\\]*)*('))+)|((N'[^N'\\]*(?:\\.[^N'\\]*)*('))+)/
 });
+const Date = createToken({
+  name: "Date",
+  pattern: /DATE '\d{4}-((0[1-9])|(1[0-2]))-((0[1-9])|([1-2][0-9])|3[0-1])'/i
+});
 
 const WhiteSpace = createToken({
   name: "WhiteSpace",
@@ -208,6 +212,7 @@ const allTokens = [
   All,
   Stream,
   FunctionIdentifier,
+  Date,
   SqlTypeName,
   CollectionTypeName,
   Cast,
@@ -381,7 +386,8 @@ class SqlParser extends CstParser {
     this.OR([
       { ALT: () => this.CONSUME(Integer) },
       { ALT: () => this.CONSUME(String) },
-      { ALT: () => this.CONSUME(Boolean) }
+      { ALT: () => this.CONSUME(Boolean) },
+      { ALT: () => this.CONSUME(Date) }
     ]);
   });
 
