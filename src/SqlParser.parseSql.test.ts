@@ -1,35 +1,6 @@
 import { parseSql } from "./SqlParser";
-import {
-  ILexingError,
-  IRecognitionException,
-  CstNode,
-  CstChildrenDictionary
-} from "chevrotain";
-
-const isCstNode = (node: any): node is CstNode => !!node.name;
-
-/**
- * Pretty output for cst for easy specifications
- *
- * @param cst
- */
-function prettifyCst(cst: CstChildrenDictionary) {
-  let output = "";
-  Object.entries(cst).forEach(([_, elements]) => {
-    elements.forEach((node, i, nodes) => {
-      if (isCstNode(node)) {
-        output += node.name + "(" + prettifyCst(node.children) + ")";
-      } else {
-        if (i === 0 && node.tokenType) output += node.tokenType.tokenName;
-        if (i === 0) output += "(";
-        output += `"${node.image}"`;
-        if (i === nodes.length - 1) output += ")";
-        else output += ",";
-      }
-    });
-  });
-  return output;
-}
+import { ILexingError, IRecognitionException } from "chevrotain";
+import { prettifyCst } from "./utils/prettifyCst";
 
 describe("parseSql", () => {
   const cases: Array<{
@@ -124,6 +95,30 @@ describe("parseSql", () => {
       )`
     },
     {
+      title: "SELECT with multi-level identifiers",
+      sql: "SELECT foo.bar FROM foo.bar",
+      expected: `query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(
+              expression(
+                Identifier("foo.bar")
+              )
+            )
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier("foo.bar")
+              )
+            )
+          )
+        )
+      )`
+    },
+    {
       title: "simple SELECT with LIMIT",
       sql: "SELECT * FROM my_db LIMIT 10",
       expected: `
@@ -189,8 +184,7 @@ describe("parseSql", () => {
           tableExpression(
             tableReference(
               tablePrimary(
-                Identifier("my_catalog", "my_schema", "my_table")
-                Period(".", ".")
+                Identifier("my_catalog.my_schema.my_table")
               )
             )
           )
@@ -562,7 +556,6 @@ describe("parseSql", () => {
       title: "WHERE with multiple conditions",
       sql:
         "SELECT * FROM my_db WHERE a in ('USD', 'Mexican Peso') AND (b = 'foo' OR c >= 42)",
-      debug: true,
       expected: `query(
         select(
           Select("SELECT")

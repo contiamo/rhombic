@@ -68,7 +68,49 @@ export interface TypeContext {
   CollectionTypeName?: IToken[];
 }
 
-export interface ValueExpressionContext {}
+export interface ValueExpressionContext {
+  Integer?: IToken[];
+  String?: IToken[];
+  Boolean?: IToken[];
+}
+
+export interface BooleanExpressionContext {
+  LParen?: IToken[];
+  booleanExpression: Array<{
+    name: "booleanExpression";
+    children: BooleanExpressionContext;
+  }>;
+  RParen?: IToken[];
+  booleanExpressionValue: Array<{
+    name: "booleanExpressionValue";
+    children: BooleanExpressionValueContext;
+  }>;
+  Or?: IToken[];
+  And?: IToken[];
+  booleanExpression: Array<{
+    name: "booleanExpression";
+    children: BooleanExpressionContext;
+  }>;
+}
+
+export interface BooleanExpressionValueContext {
+  Identifier: IToken[];
+  BinaryOperator?: IToken[];
+  valueExpression: Array<{
+    name: "valueExpression";
+    children: ValueExpressionContext;
+  }>;
+  MultivalOperator?: IToken[];
+  LParen?: IToken[];
+  valueExpression: Array<{
+    name: "valueExpression";
+    children: ValueExpressionContext;
+  }>;
+  Comma?: IToken[];
+  RParen?: IToken[];
+  IsNull?: IToken[];
+  IsNotNull?: IToken[];
+}
 
 export interface OrderItemContext {
   expression: Array<{
@@ -95,6 +137,11 @@ export interface SelectContext {
   tableExpression: Array<{
     name: "tableExpression";
     children: TableExpressionContext;
+  }>;
+  Where?: IToken[];
+  booleanExpression: Array<{
+    name: "booleanExpression";
+    children: BooleanExpressionContext;
   }>;
 }
 
@@ -156,6 +203,8 @@ export type IContext =
   | CastContext
   | TypeContext
   | ValueExpressionContext
+  | BooleanExpressionContext
+  | BooleanExpressionValueContext
   | OrderItemContext
   | SelectContext
   | ProjectionItemsContext
