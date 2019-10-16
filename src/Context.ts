@@ -72,6 +72,7 @@ export interface ValueExpressionContext {
   Integer?: IToken[];
   String?: IToken[];
   Boolean?: IToken[];
+  Date?: IToken[];
 }
 
 export interface BooleanExpressionContext {

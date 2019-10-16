@@ -225,7 +225,7 @@ export const serializedGrammar = [
                 name: "Identifier",
                 label: "Identifier",
                 idx: 0,
-                pattern: '[a-zA-Z]\\w*|"[^"]*"'
+                pattern: '[a-zA-Z][\\w\\.]*|"[^"]*"'
               }
             ]
           },
@@ -416,7 +416,7 @@ export const serializedGrammar = [
     type: "Rule",
     name: "valueExpression",
     orgText:
-      "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.CONSUME(Integer); } },\r\n                { ALT: function () { return _this.CONSUME(String); } },\r\n                { ALT: function () { return _this.CONSUME(Boolean); } }\r\n            ]);\r\n        }",
+      "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.CONSUME(Integer); } },\r\n                { ALT: function () { return _this.CONSUME(String); } },\r\n                { ALT: function () { return _this.CONSUME(Boolean); } },\r\n                { ALT: function () { return _this.CONSUME(Date); } }\r\n            ]);\r\n        }",
     definition: [
       {
         type: "Alternation",
@@ -456,6 +456,19 @@ export const serializedGrammar = [
                 label: "Boolean",
                 idx: 0,
                 pattern: "TRUE|FALSE"
+              }
+            ]
+          },
+          {
+            type: "Flat",
+            definition: [
+              {
+                type: "Terminal",
+                name: "Date",
+                label: "Date",
+                idx: 0,
+                pattern:
+                  "DATE '\\d{4}-((0[1-9])|(1[0-2]))-((0[1-9])|([1-2][0-9])|3[0-1])'"
               }
             ]
           }
@@ -563,7 +576,7 @@ export const serializedGrammar = [
         name: "Identifier",
         label: "Identifier",
         idx: 0,
-        pattern: '[a-zA-Z]\\w*|"[^"]*"'
+        pattern: '[a-zA-Z][\\w\\.]*|"[^"]*"'
       },
       {
         type: "Alternation",
@@ -933,7 +946,7 @@ export const serializedGrammar = [
                     name: "Identifier",
                     label: "Identifier",
                     idx: 0,
-                    pattern: '[a-zA-Z]\\w*|"[^"]*"'
+                    pattern: '[a-zA-Z][\\w\\.]*|"[^"]*"'
                   }
                 ]
               }
@@ -1033,7 +1046,7 @@ export const serializedGrammar = [
                     name: "Identifier",
                     label: "Identifier",
                     idx: 1,
-                    pattern: '[a-zA-Z]\\w*|"[^"]*"'
+                    pattern: '[a-zA-Z][\\w\\.]*|"[^"]*"'
                   },
                   {
                     type: "Terminal",
@@ -1053,7 +1066,7 @@ export const serializedGrammar = [
                     name: "Identifier",
                     label: "Identifier",
                     idx: 3,
-                    pattern: '[a-zA-Z]\\w*|"[^"]*"'
+                    pattern: '[a-zA-Z][\\w\\.]*|"[^"]*"'
                   },
                   {
                     type: "Terminal",
@@ -1069,7 +1082,7 @@ export const serializedGrammar = [
                 name: "Identifier",
                 label: "Identifier",
                 idx: 4,
-                pattern: '[a-zA-Z]\\w*|"[^"]*"'
+                pattern: '[a-zA-Z][\\w\\.]*|"[^"]*"'
               }
             ]
           }

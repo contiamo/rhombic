@@ -7,13 +7,14 @@ import { HasTablePrimary } from "./visitors/HasTablePrimaryVisitor";
 import { replaceText } from "./utils/replaceText";
 import { getLocation } from "./utils/getLocation";
 import { needToBeEscaped } from "./utils/needToBeEscaped";
+import { printFilter } from "./utils/printFilter";
 import { getText } from "./utils/getText";
 import { OrderByVisitor } from "./visitors/OrderByVisitor";
 import { FilterTree } from "./FilterTree";
 import { FilterTreeVisitor } from "./visitors/FilterTreeVisitor";
 
 // Utils
-export { needToBeEscaped };
+export { needToBeEscaped, printFilter };
 
 const rhombic = {
   /**
