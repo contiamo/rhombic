@@ -78,15 +78,13 @@ describe("Sql Lexer", () => {
       ]
     },
     {
-      title: "period between two identifier",
+      title: "identifier with dot",
       sql: `SELECT column1 FROM db.table2`,
       expected: [
         "SELECT => Select",
         "column1 => Identifier",
         "FROM => From",
-        "db => Identifier",
-        ". => Period",
-        "table2 => Identifier"
+        "db.table2 => Identifier"
       ]
     },
     {
@@ -96,9 +94,7 @@ describe("Sql Lexer", () => {
         "SELECT => Select",
         "column1 => Identifier",
         "FROM => From",
-        "db => Identifier",
-        ". => Period",
-        "table2 => Identifier",
+        "db.table2 => Identifier",
         "WHERE => Where",
         "column1 => Identifier",
         "> => BinaryOperator",

@@ -435,8 +435,259 @@
     {
       type: "Rule",
       name: "valueExpression",
-      orgText: "function () { }",
-      definition: []
+      orgText:
+        "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.CONSUME(Integer); } },\r\n                { ALT: function () { return _this.CONSUME(String); } },\r\n                { ALT: function () { return _this.CONSUME(Boolean); } }\r\n            ]);\r\n        }",
+      definition: [
+        {
+          type: "Alternation",
+          idx: 0,
+          definition: [
+            {
+              type: "Flat",
+              definition: [
+                {
+                  type: "Terminal",
+                  name: "Integer",
+                  label: "Integer",
+                  idx: 0,
+                  pattern: "0|[1-9]\\d*"
+                }
+              ]
+            },
+            {
+              type: "Flat",
+              definition: [
+                {
+                  type: "Terminal",
+                  name: "String",
+                  label: "String",
+                  idx: 0,
+                  pattern:
+                    "((`[^`]*(`))+)|((\\[[^\\]]*(\\]))(\\][^\\]]*(\\]))*)|((\"[^\"\\\\]*(?:\\\\.[^\"\\\\]*)*(\"))+)|(('[^'\\\\]*(?:\\\\.[^'\\\\]*)*('))+)|((N'[^N'\\\\]*(?:\\\\.[^N'\\\\]*)*('))+)"
+                }
+              ]
+            },
+            {
+              type: "Flat",
+              definition: [
+                {
+                  type: "Terminal",
+                  name: "Boolean",
+                  label: "Boolean",
+                  idx: 0,
+                  pattern: "TRUE|FALSE"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "Rule",
+      name: "booleanExpression",
+      orgText:
+        "function () {\r\n            _this.OR([\r\n                {\r\n                    ALT: function () {\r\n                        _this.CONSUME(LParen);\r\n                        _this.SUBRULE(_this.booleanExpression);\r\n                        _this.CONSUME(RParen);\r\n                    }\r\n                },\r\n                {\r\n                    ALT: function () { return _this.SUBRULE1(_this.booleanExpressionValue); }\r\n                }\r\n            ]);\r\n            _this.OPTION(function () {\r\n                _this.OR1([\r\n                    { ALT: function () { return _this.CONSUME(Or); } },\r\n                    { ALT: function () { return _this.CONSUME(And); } }\r\n                ]);\r\n                _this.SUBRULE2(_this.booleanExpression);\r\n            });\r\n        }",
+      definition: [
+        {
+          type: "Alternation",
+          idx: 0,
+          definition: [
+            {
+              type: "Flat",
+              definition: [
+                {
+                  type: "Terminal",
+                  name: "LParen",
+                  label: "LParen",
+                  idx: 0,
+                  pattern: "\\("
+                },
+                {
+                  type: "NonTerminal",
+                  name: "booleanExpression",
+                  idx: 0
+                },
+                {
+                  type: "Terminal",
+                  name: "RParen",
+                  label: "RParen",
+                  idx: 0,
+                  pattern: "\\)"
+                }
+              ]
+            },
+            {
+              type: "Flat",
+              definition: [
+                {
+                  type: "NonTerminal",
+                  name: "booleanExpressionValue",
+                  idx: 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          type: "Option",
+          idx: 0,
+          definition: [
+            {
+              type: "Alternation",
+              idx: 1,
+              definition: [
+                {
+                  type: "Flat",
+                  definition: [
+                    {
+                      type: "Terminal",
+                      name: "Or",
+                      label: "Or",
+                      idx: 0,
+                      pattern: "OR"
+                    }
+                  ]
+                },
+                {
+                  type: "Flat",
+                  definition: [
+                    {
+                      type: "Terminal",
+                      name: "And",
+                      label: "And",
+                      idx: 0,
+                      pattern: "AND"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              type: "NonTerminal",
+              name: "booleanExpression",
+              idx: 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "Rule",
+      name: "booleanExpressionValue",
+      orgText:
+        "function () {\r\n            _this.CONSUME(Identifier);\r\n            _this.OR([\r\n                {\r\n                    ALT: function () {\r\n                        // Binary operation\r\n                        _this.CONSUME(BinaryOperator);\r\n                        _this.SUBRULE(_this.valueExpression);\r\n                    }\r\n                },\r\n                {\r\n                    ALT: function () {\r\n                        // Multival operation\r\n                        _this.CONSUME(MultivalOperator);\r\n                        _this.CONSUME1(LParen);\r\n                        _this.AT_LEAST_ONE_SEP({\r\n                            SEP: Comma,\r\n                            DEF: function () { return _this.SUBRULE1(_this.valueExpression); }\r\n                        });\r\n                        _this.CONSUME1(RParen);\r\n                    }\r\n                },\r\n                {\r\n                    ALT: function () {\r\n                        // Unary operation\r\n                        _this.OR2([\r\n                            { ALT: function () { return _this.CONSUME(IsNull); } },\r\n                            { ALT: function () { return _this.CONSUME(IsNotNull); } }\r\n                        ]);\r\n                    }\r\n                }\r\n            ]);\r\n        }",
+      definition: [
+        {
+          type: "Terminal",
+          name: "Identifier",
+          label: "Identifier",
+          idx: 0,
+          pattern: '[a-zA-Z]\\w*|"[^"]*"'
+        },
+        {
+          type: "Alternation",
+          idx: 0,
+          definition: [
+            {
+              type: "Flat",
+              definition: [
+                {
+                  type: "Terminal",
+                  name: "BinaryOperator",
+                  label: "BinaryOperator",
+                  idx: 0,
+                  pattern: "=|>=?|<=?|\\!="
+                },
+                {
+                  type: "NonTerminal",
+                  name: "valueExpression",
+                  idx: 0
+                }
+              ]
+            },
+            {
+              type: "Flat",
+              definition: [
+                {
+                  type: "Terminal",
+                  name: "MultivalOperator",
+                  label: "MultivalOperator",
+                  idx: 0,
+                  pattern: "NOT IN|IN|LIKE"
+                },
+                {
+                  type: "Terminal",
+                  name: "LParen",
+                  label: "LParen",
+                  idx: 1,
+                  pattern: "\\("
+                },
+                {
+                  type: "RepetitionMandatoryWithSeparator",
+                  idx: 0,
+                  separator: {
+                    type: "Terminal",
+                    name: "Comma",
+                    label: "Comma",
+                    idx: 1,
+                    pattern: ","
+                  },
+                  definition: [
+                    {
+                      type: "NonTerminal",
+                      name: "valueExpression",
+                      idx: 1
+                    }
+                  ]
+                },
+                {
+                  type: "Terminal",
+                  name: "RParen",
+                  label: "RParen",
+                  idx: 1,
+                  pattern: "\\)"
+                }
+              ]
+            },
+            {
+              type: "Flat",
+              definition: [
+                {
+                  type: "Alternation",
+                  idx: 2,
+                  definition: [
+                    {
+                      type: "Flat",
+                      definition: [
+                        {
+                          type: "Terminal",
+                          name: "IsNull",
+                          label: "IsNull",
+                          idx: 0,
+                          pattern: "IS NULL"
+                        }
+                      ]
+                    },
+                    {
+                      type: "Flat",
+                      definition: [
+                        {
+                          type: "Terminal",
+                          name: "IsNotNull",
+                          label: "IsNotNull",
+                          idx: 0,
+                          pattern: "IS NOT NULL"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       type: "Rule",
@@ -541,7 +792,7 @@
       type: "Rule",
       name: "select",
       orgText:
-        "function () {\r\n            _this.CONSUME(Select);\r\n            _this.OPTION(function () { return _this.CONSUME(Stream); });\r\n            _this.OPTION1(function () {\r\n                _this.OR([\r\n                    { ALT: function () { return _this.CONSUME(All); } },\r\n                    { ALT: function () { return _this.CONSUME(Distinct); } }\r\n                ]);\r\n            });\r\n            _this.SUBRULE(_this.projectionItems);\r\n            // Everything is wrap into `OPTION` to deal with selectWithoutFrom case\r\n            _this.OPTION3(function () {\r\n                _this.CONSUME(From);\r\n                _this.SUBRULE(_this.tableExpression);\r\n            });\r\n        }",
+        "function () {\r\n            _this.CONSUME(Select);\r\n            _this.OPTION(function () { return _this.CONSUME(Stream); });\r\n            _this.OPTION1(function () {\r\n                _this.OR([\r\n                    { ALT: function () { return _this.CONSUME(All); } },\r\n                    { ALT: function () { return _this.CONSUME(Distinct); } }\r\n                ]);\r\n            });\r\n            _this.SUBRULE(_this.projectionItems);\r\n            // Everything is wrap into `OPTION` to deal with selectWithoutFrom case\r\n            _this.OPTION3(function () {\r\n                _this.CONSUME(From);\r\n                _this.SUBRULE(_this.tableExpression);\r\n            });\r\n            _this.OPTION4(function () {\r\n                _this.CONSUME(Where);\r\n                _this.SUBRULE(_this.booleanExpression);\r\n            });\r\n        }",
       definition: [
         {
           type: "Terminal",
@@ -618,6 +869,24 @@
             {
               type: "NonTerminal",
               name: "tableExpression",
+              idx: 0
+            }
+          ]
+        },
+        {
+          type: "Option",
+          idx: 4,
+          definition: [
+            {
+              type: "Terminal",
+              name: "Where",
+              label: "Where",
+              idx: 0,
+              pattern: "WHERE"
+            },
+            {
+              type: "NonTerminal",
+              name: "booleanExpression",
               idx: 0
             }
           ]

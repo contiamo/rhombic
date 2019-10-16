@@ -9,6 +9,8 @@ import { getLocation } from "./utils/getLocation";
 import { needToBeEscaped } from "./utils/needToBeEscaped";
 import { getText } from "./utils/getText";
 import { OrderByVisitor } from "./visitors/OrderByVisitor";
+import { FilterTree } from "./FilterTree";
+import { FilterTreeVisitor } from "./visitors/FilterTreeVisitor";
 
 // Utils
 export { needToBeEscaped };
@@ -119,6 +121,11 @@ export interface ParsedSql {
     order?: "asc" | "desc";
     nullsOrder?: "last" | "first";
   }): ParsedSql;
+
+  /**
+   * Retrieve a UI friendly object that represent the current filter (`WHERE` statement)
+   */
+  getFilterTree(): FilterTree;
 }
 
 /**
@@ -422,6 +429,12 @@ const parsedSql = (sql: string): ParsedSql => {
           return parsedSql(nextSql);
         }
       }
+    },
+
+    getFilterTree() {
+      const visitor = new FilterTreeVisitor();
+      visitor.visit(cst);
+      return visitor.tree.length > 1 ? visitor.tree : [];
     }
   };
 };
