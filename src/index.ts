@@ -12,6 +12,8 @@ import { getText } from "./utils/getText";
 import { OrderByVisitor } from "./visitors/OrderByVisitor";
 import { FilterTree } from "./FilterTree";
 import { FilterTreeVisitor } from "./visitors/FilterTreeVisitor";
+import { WhereVisitor } from "./visitors/WhereVisitor";
+import { getImageFromChildren } from "./utils/getImageFromChildren";
 
 // Utils
 export { needToBeEscaped, printFilter };
@@ -124,9 +126,21 @@ export interface ParsedSql {
   }): ParsedSql;
 
   /**
-   * Retrieve a UI friendly object that represent the current filter (`WHERE` statement)
+   * Retrieve a UI friendly object that represent the current filter (`WHERE` statement).
    */
   getFilterTree(): FilterTree;
+
+  /**
+   * Get the filter as a string (`WHERE statement`).
+   */
+  getFilterString(): string;
+
+  /**
+   * Update the current filter.
+   *
+   * @param filter
+   */
+  updateFilter(filter: FilterTree | string): ParsedSql;
 }
 
 /**
@@ -436,6 +450,41 @@ const parsedSql = (sql: string): ParsedSql => {
       const visitor = new FilterTreeVisitor();
       visitor.visit(cst);
       return visitor.tree.length > 1 ? visitor.tree : [];
+    },
+
+    getFilterString() {
+      const visitor = new WhereVisitor();
+      visitor.visit(cst);
+      return visitor.booleanExpressionNode
+        ? getImageFromChildren(visitor.booleanExpressionNode)
+        : "";
+    },
+
+    updateFilter(filter) {
+      const visitor = new WhereVisitor();
+      visitor.visit(cst);
+      const hasWhere = Boolean(visitor.booleanExpressionNode);
+
+      if (!visitor.location) {
+        throw new Error("Can't update/add a filter to this query");
+      }
+
+      if (typeof filter === "string") {
+        const nextSql = replaceText(
+          sql,
+          hasWhere ? filter : ` WHERE ${filter} `,
+          visitor.location
+        ).trim();
+        return parsedSql(nextSql);
+      } else {
+        const filterString = printFilter(filter);
+        const nextSql = replaceText(
+          sql,
+          hasWhere ? filterString : ` WHERE ${filterString} `,
+          visitor.location
+        ).trim();
+        return parsedSql(nextSql);
+      }
     }
   };
 };

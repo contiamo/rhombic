@@ -590,7 +590,7 @@ export const serializedGrammar = [
                 name: "BinaryOperator",
                 label: "BinaryOperator",
                 idx: 0,
-                pattern: "=|>=?|<=?|\\!="
+                pattern: "=|>=?|<=?|\\!=|LIKE"
               },
               {
                 type: "NonTerminal",
@@ -607,7 +607,7 @@ export const serializedGrammar = [
                 name: "MultivalOperator",
                 label: "MultivalOperator",
                 idx: 0,
-                pattern: "NOT IN|IN|LIKE"
+                pattern: "NOT IN|IN"
               },
               {
                 type: "Terminal",

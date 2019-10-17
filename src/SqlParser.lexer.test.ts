@@ -236,24 +236,21 @@ describe("Sql Lexer", () => {
     },
     {
       title: "binary operators",
-      sql: "= > >= < <= !=",
+      sql: "= > >= < <= != like",
       expected: [
         "= => BinaryOperator",
         "> => BinaryOperator",
         ">= => BinaryOperator",
         "< => BinaryOperator",
         "<= => BinaryOperator",
-        "!= => BinaryOperator"
+        "!= => BinaryOperator",
+        "like => BinaryOperator"
       ]
     },
     {
       title: "multival operators",
-      sql: "in not in like",
-      expected: [
-        "in => MultivalOperator",
-        "not in => MultivalOperator",
-        "like => MultivalOperator"
-      ]
+      sql: "in not in",
+      expected: ["in => MultivalOperator", "not in => MultivalOperator"]
     },
     {
       title: "unary operators",

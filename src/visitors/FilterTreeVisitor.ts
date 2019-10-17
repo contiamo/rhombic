@@ -9,7 +9,7 @@ import { getImageFromChildren } from "../utils/getImageFromChildren";
 const Visitor = parser.getBaseCstVisitorConstructorWithDefaults();
 
 /**
- * Visitor to filter tree on the `WHERE` statement
+ * Visitor to extract filter tree on the `WHERE` statement
  */
 export class FilterTreeVisitor extends Visitor {
   public tree: FilterTree = [

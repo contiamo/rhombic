@@ -159,12 +159,13 @@ const SemiColumn = createToken({ name: "SemiColumn", pattern: /;/ });
 
 const BinaryOperator = createToken({
   name: "BinaryOperator",
-  pattern: /=|>=?|<=?|\!=/
+  pattern: /=|>=?|<=?|\!=|LIKE/i,
+  longer_alt: Identifier
 });
 
 const MultivalOperator = createToken({
   name: "MultivalOperator",
-  pattern: /NOT IN|IN|LIKE/i,
+  pattern: /NOT IN|IN/i,
   longer_alt: Identifier
 });
 
@@ -221,6 +222,7 @@ const allTokens = [
   First,
   Limit,
   MultivalOperator,
+  BinaryOperator,
   Boolean,
 
   // The Identifier must appear after the keywords because all keywords are valid identifiers.
@@ -236,8 +238,7 @@ const allTokens = [
   LParen,
   RParen,
   Comma,
-  Period,
-  BinaryOperator
+  Period
 ];
 
 // reuse the same lexer instance
