@@ -1,4 +1,4 @@
-import rhombic from ".";
+import rhombic, { printFilter } from ".";
 import { FilterTree } from "./FilterTree";
 
 describe("getFilterTree", () => {
@@ -297,6 +297,20 @@ describe("getFilterTree", () => {
       ]
     },
     {
+      name: "a filter with like keyword",
+      filter: "customer.name like 'a%'",
+      tree: [
+        { type: "operator", openParentheses: [], closeParentheses: [] },
+        {
+          type: "predicate",
+          dimension: "customer.name",
+          operator: "like",
+          value: "'a%'"
+        },
+        { type: "operator", openParentheses: [], closeParentheses: [] }
+      ]
+    },
+    {
       name: "an empty filter",
       filter: "",
       tree: []
@@ -312,6 +326,10 @@ describe("getFilterTree", () => {
       const filterTree = rhombic.parse(sql).getFilterTree();
 
       expect(filterTree).toEqual(tree);
+    });
+
+    (only ? it.only : it)(`should print ${name}`, () => {
+      expect(printFilter(tree)).toEqual(filter);
     });
   });
 });

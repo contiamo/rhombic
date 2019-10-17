@@ -15,7 +15,7 @@ export const printFilter = (input: FilterTree): string =>
           "(".repeat(item.openParentheses.length)
         );
       } else {
-        if (["in", "not in", "like"].includes(item.operator)) {
+        if (["in", "not in"].includes(item.operator)) {
           return `${item.dimension} ${item.operator} ${
             item.value ? `(${item.value})` : ""
           }`;

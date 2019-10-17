@@ -21,16 +21,16 @@ export class FilterTreeVisitor extends Visitor {
 
   private getOperator(expressionValue: BooleanExpressionValueContext) {
     if (expressionValue.BinaryOperator) {
-      return expressionValue.BinaryOperator[0].image as Operator;
+      return expressionValue.BinaryOperator[0].image.toLowerCase() as Operator;
     }
     if (expressionValue.MultivalOperator) {
-      return expressionValue.MultivalOperator[0].image as Operator;
+      return expressionValue.MultivalOperator[0].image.toLowerCase() as Operator;
     }
     if (expressionValue.IsNotNull) {
-      return expressionValue.IsNotNull[0].image as Operator;
+      return expressionValue.IsNotNull[0].image.toLowerCase() as Operator;
     }
     if (expressionValue.IsNull) {
-      return expressionValue.IsNull[0].image as Operator;
+      return expressionValue.IsNull[0].image.toLowerCase() as Operator;
     }
 
     return "="; // This is just to make typescript happy, this case is not possible with the actual grammar
