@@ -169,19 +169,22 @@ const MultivalOperator = createToken({
   longer_alt: Identifier
 });
 
-const Boolean = createToken({
-  name: "Boolean",
+const BooleanValue = createToken({
+  name: "BooleanValue",
   pattern: /TRUE|FALSE/i,
   longer_alt: Identifier
 });
 
-const Integer = createToken({ name: "Integer", pattern: /0|[1-9]\d*/ });
-const String = createToken({
-  name: "String",
+const IntegerValue = createToken({
+  name: "IntegerValue",
+  pattern: /0|[1-9]\d*/
+});
+const StringValue = createToken({
+  name: "StringValue",
   pattern: /((`[^`]*(`))+)|((\[[^\]]*(\]))(\][^\]]*(\]))*)|(("[^"\\]*(?:\\.[^"\\]*)*("))+)|(('[^'\\]*(?:\\.[^'\\]*)*('))+)|((N'[^N'\\]*(?:\\.[^N'\\]*)*('))+)/
 });
-const Date = createToken({
-  name: "Date",
+const DateValue = createToken({
+  name: "DateValue",
   pattern: /DATE '\d{4}-((0[1-9])|(1[0-2]))-((0[1-9])|([1-2][0-9])|3[0-1])'/i
 });
 
@@ -213,7 +216,7 @@ const allTokens = [
   All,
   Stream,
   FunctionIdentifier,
-  Date,
+  DateValue,
   SqlTypeName,
   CollectionTypeName,
   Cast,
@@ -223,12 +226,12 @@ const allTokens = [
   Limit,
   MultivalOperator,
   BinaryOperator,
-  Boolean,
+  BooleanValue,
 
   // The Identifier must appear after the keywords because all keywords are valid identifiers.
   Identifier,
-  Integer,
-  String,
+  IntegerValue,
+  StringValue,
 
   Asterisk,
   Column,
@@ -291,7 +294,7 @@ class SqlParser extends CstParser {
           this.OPTION1(() => {
             this.CONSUME(Limit);
             this.OR1([
-              { ALT: () => this.CONSUME(Integer) },
+              { ALT: () => this.CONSUME(IntegerValue) },
               { ALT: () => this.CONSUME(All) }
             ]);
           });
@@ -307,8 +310,8 @@ class SqlParser extends CstParser {
    */
   public expression = this.RULE("expression", () => {
     this.OR([
-      { ALT: () => this.CONSUME(Integer) },
-      { ALT: () => this.CONSUME(String) },
+      { ALT: () => this.CONSUME(IntegerValue) },
+      { ALT: () => this.CONSUME(StringValue) },
       { ALT: () => this.CONSUME(Null) },
       {
         ALT: () => {
@@ -342,10 +345,10 @@ class SqlParser extends CstParser {
     this.SUBRULE(this.type);
     this.OPTION(() => {
       this.CONSUME1(LParen);
-      this.CONSUME(Integer); // precision
+      this.CONSUME(IntegerValue); // precision
       this.OPTION1(() => {
         this.CONSUME(Comma);
-        this.CONSUME1(Integer); // scale
+        this.CONSUME1(IntegerValue); // scale
       });
       this.CONSUME1(RParen);
     });
@@ -385,10 +388,10 @@ class SqlParser extends CstParser {
    */
   public valueExpression = this.RULE("valueExpression", () => {
     this.OR([
-      { ALT: () => this.CONSUME(Integer) },
-      { ALT: () => this.CONSUME(String) },
-      { ALT: () => this.CONSUME(Boolean) },
-      { ALT: () => this.CONSUME(Date) }
+      { ALT: () => this.CONSUME(IntegerValue) },
+      { ALT: () => this.CONSUME(StringValue) },
+      { ALT: () => this.CONSUME(BooleanValue) },
+      { ALT: () => this.CONSUME(DateValue) }
     ]);
   });
 
