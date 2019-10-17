@@ -1,4 +1,5 @@
 import rhombic from "./";
+import { FilterTree } from "./FilterTree";
 
 describe("rhombic", () => {
   describe("errors", () => {
@@ -718,6 +719,81 @@ FROM
 
       expect(query).toEqual(
         "SELECT * FROM my_db ORDER BY b DESC NULLS LAST, a DESC, c DESC NULLS FIRST"
+      );
+    });
+  });
+
+  describe("getFilterString", () => {
+    it("should return an empty string if no filter", () => {
+      const filter = rhombic.parse("SELECT * FROM foo").getFilterString();
+      expect(filter).toEqual("");
+    });
+
+    it("should return the filter string", () => {
+      const filter = rhombic
+        .parse(
+          "SELECT * FROM foo WHERE name = 'tejas' AND chicken LIKE 'crispy' LIMIT 10"
+        )
+        .getFilterString();
+      expect(filter).toEqual("name = 'tejas' AND chicken LIKE 'crispy'");
+    });
+  });
+
+  describe("updateFilter", () => {
+    const filterTree: FilterTree = [
+      { type: "operator", openParentheses: [], closeParentheses: [] },
+      {
+        type: "predicate",
+        dimension: "customer.city",
+        operator: "=",
+        value: "'Paris'"
+      },
+      { type: "operator", openParentheses: [], closeParentheses: [] }
+    ];
+
+    const filterString = "chicken LIKE 'crispy'";
+
+    it("should add a filter from a tree", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_db")
+        .updateFilter(filterTree)
+        .toString();
+
+      expect(query).toEqual(
+        "SELECT * FROM my_db WHERE customer.city = 'Paris'"
+      );
+    });
+
+    it("should add a filter from a string", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_db LIMIT 42")
+        .updateFilter(filterString)
+        .toString();
+
+      expect(query).toEqual(
+        "SELECT * FROM my_db WHERE chicken LIKE 'crispy' LIMIT 42"
+      );
+    });
+
+    it("should update a filter from a tree", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_db WHERE foo = 42")
+        .updateFilter(filterTree)
+        .toString();
+
+      expect(query).toEqual(
+        "SELECT * FROM my_db WHERE customer.city = 'Paris'"
+      );
+    });
+
+    it("should update a filter from a string", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_db WHERE chicken != 'fresh' LIMIT 42")
+        .updateFilter(filterString)
+        .toString();
+
+      expect(query).toEqual(
+        "SELECT * FROM my_db WHERE chicken LIKE 'crispy' LIMIT 42"
       );
     });
   });
