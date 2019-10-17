@@ -24,13 +24,13 @@ export interface QueryContext {
   }>;
   Comma?: IToken[];
   Limit?: IToken[];
-  Integer?: IToken[];
+  IntegerValue?: IToken[];
   All?: IToken[];
 }
 
 export interface ExpressionContext {
-  Integer?: IToken[];
-  String?: IToken[];
+  IntegerValue?: IToken[];
+  StringValue?: IToken[];
   Null?: IToken[];
   LParen?: IToken[];
   RParen?: IToken[];
@@ -58,7 +58,7 @@ export interface CastContext {
     name: "type";
     children: TypeContext;
   }>;
-  Integer?: IToken[];
+  IntegerValue?: IToken[];
   Comma?: IToken[];
   RParen?: IToken[];
 }
@@ -69,10 +69,10 @@ export interface TypeContext {
 }
 
 export interface ValueExpressionContext {
-  Integer?: IToken[];
-  String?: IToken[];
-  Boolean?: IToken[];
-  Date?: IToken[];
+  IntegerValue?: IToken[];
+  StringValue?: IToken[];
+  BooleanValue?: IToken[];
+  DateValue?: IToken[];
 }
 
 export interface BooleanExpressionContext {

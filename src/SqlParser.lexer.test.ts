@@ -98,7 +98,7 @@ describe("Sql Lexer", () => {
         "WHERE => Where",
         "column1 => Identifier",
         "> => BinaryOperator",
-        "42 => Integer"
+        "42 => IntegerValue"
       ]
     },
     {
@@ -112,11 +112,11 @@ describe("Sql Lexer", () => {
         "WHERE => Where",
         "a => Identifier",
         "<= => BinaryOperator",
-        "30 => Integer",
+        "30 => IntegerValue",
         "AND => And",
         "b => Identifier",
         ">= => BinaryOperator",
-        "10 => Integer",
+        "10 => IntegerValue",
         "OR => Or",
         "c => Identifier",
         "IS NULL => IsNull"
@@ -140,11 +140,11 @@ describe("Sql Lexer", () => {
       sql: `VALUES '1', '2', '3'`,
       expected: [
         "VALUES => Values",
-        "'1' => String",
+        "'1' => StringValue",
         ", => Comma",
-        "'2' => String",
+        "'2' => StringValue",
         ", => Comma",
-        "'3' => String"
+        "'3' => StringValue"
       ]
     },
     {
@@ -185,7 +185,7 @@ describe("Sql Lexer", () => {
         "AS => As",
         "DEC => SqlTypeName",
         "( => LParen",
-        "2 => Integer",
+        "2 => IntegerValue",
         ") => RParen",
         ") => RParen"
       ]
@@ -200,9 +200,9 @@ describe("Sql Lexer", () => {
         "AS => As",
         "DEC => SqlTypeName",
         "( => LParen",
-        "2 => Integer",
+        "2 => IntegerValue",
         ", => Comma",
-        "2 => Integer",
+        "2 => IntegerValue",
         ") => RParen",
         ") => RParen"
       ]
@@ -232,7 +232,7 @@ describe("Sql Lexer", () => {
     {
       title: "limit",
       sql: "LIMIT 10",
-      expected: ["LIMIT => Limit", "10 => Integer"]
+      expected: ["LIMIT => Limit", "10 => IntegerValue"]
     },
     {
       title: "binary operators",
@@ -260,12 +260,12 @@ describe("Sql Lexer", () => {
     {
       title: "boolean",
       sql: "true false",
-      expected: ["true => Boolean", "false => Boolean"]
+      expected: ["true => BooleanValue", "false => BooleanValue"]
     },
     {
       title: "date",
       sql: "date '2019-02-01'",
-      expected: ["date '2019-02-01' => Date"]
+      expected: ["date '2019-02-01' => DateValue"]
     }
   ];
 

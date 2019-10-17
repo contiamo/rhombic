@@ -29,7 +29,7 @@ export const serializedGrammar = [
     type: "Rule",
     name: "query",
     orgText:
-      "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.SUBRULE(_this.values); } },\r\n                {\r\n                    ALT: function () {\r\n                        _this.SUBRULE(_this.select);\r\n                        _this.OPTION(function () {\r\n                            _this.CONSUME(OrderBy);\r\n                            _this.AT_LEAST_ONE_SEP({\r\n                                SEP: Comma,\r\n                                DEF: function () { return _this.SUBRULE(_this.orderItem); }\r\n                            });\r\n                        });\r\n                        _this.OPTION1(function () {\r\n                            _this.CONSUME(Limit);\r\n                            _this.OR1([\r\n                                { ALT: function () { return _this.CONSUME(Integer); } },\r\n                                { ALT: function () { return _this.CONSUME(All); } }\r\n                            ]);\r\n                        });\r\n                    }\r\n                }\r\n            ]);\r\n        }",
+      "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.SUBRULE(_this.values); } },\r\n                {\r\n                    ALT: function () {\r\n                        _this.SUBRULE(_this.select);\r\n                        _this.OPTION(function () {\r\n                            _this.CONSUME(OrderBy);\r\n                            _this.AT_LEAST_ONE_SEP({\r\n                                SEP: Comma,\r\n                                DEF: function () { return _this.SUBRULE(_this.orderItem); }\r\n                            });\r\n                        });\r\n                        _this.OPTION1(function () {\r\n                            _this.CONSUME(Limit);\r\n                            _this.OR1([\r\n                                { ALT: function () { return _this.CONSUME(IntegerValue); } },\r\n                                { ALT: function () { return _this.CONSUME(All); } }\r\n                            ]);\r\n                        });\r\n                    }\r\n                }\r\n            ]);\r\n        }",
     definition: [
       {
         type: "Alternation",
@@ -104,8 +104,8 @@ export const serializedGrammar = [
                         definition: [
                           {
                             type: "Terminal",
-                            name: "Integer",
-                            label: "Integer",
+                            name: "IntegerValue",
+                            label: "IntegerValue",
                             idx: 0,
                             pattern: "0|[1-9]\\d*"
                           }
@@ -137,7 +137,7 @@ export const serializedGrammar = [
     type: "Rule",
     name: "expression",
     orgText:
-      "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.CONSUME(Integer); } },\r\n                { ALT: function () { return _this.CONSUME(String); } },\r\n                { ALT: function () { return _this.CONSUME(Null); } },\r\n                {\r\n                    ALT: function () {\r\n                        _this.CONSUME(LParen);\r\n                        _this.MANY_SEP({\r\n                            SEP: Comma,\r\n                            DEF: function () { return _this.SUBRULE(_this.expression); }\r\n                        });\r\n                        _this.CONSUME(RParen);\r\n                    }\r\n                },\r\n                { ALT: function () { return _this.CONSUME(Identifier); } },\r\n                {\r\n                    ALT: function () {\r\n                        _this.CONSUME(FunctionIdentifier), _this.CONSUME1(LParen);\r\n                        _this.SUBRULE1(_this.expression);\r\n                        _this.CONSUME1(RParen);\r\n                    }\r\n                },\r\n                {\r\n                    ALT: function () { return _this.SUBRULE(_this.cast); }\r\n                }\r\n            ]);\r\n        }",
+      "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.CONSUME(IntegerValue); } },\r\n                { ALT: function () { return _this.CONSUME(StringValue); } },\r\n                { ALT: function () { return _this.CONSUME(Null); } },\r\n                {\r\n                    ALT: function () {\r\n                        _this.CONSUME(LParen);\r\n                        _this.MANY_SEP({\r\n                            SEP: Comma,\r\n                            DEF: function () { return _this.SUBRULE(_this.expression); }\r\n                        });\r\n                        _this.CONSUME(RParen);\r\n                    }\r\n                },\r\n                { ALT: function () { return _this.CONSUME(Identifier); } },\r\n                {\r\n                    ALT: function () {\r\n                        _this.CONSUME(FunctionIdentifier), _this.CONSUME1(LParen);\r\n                        _this.SUBRULE1(_this.expression);\r\n                        _this.CONSUME1(RParen);\r\n                    }\r\n                },\r\n                {\r\n                    ALT: function () { return _this.SUBRULE(_this.cast); }\r\n                }\r\n            ]);\r\n        }",
     definition: [
       {
         type: "Alternation",
@@ -148,8 +148,8 @@ export const serializedGrammar = [
             definition: [
               {
                 type: "Terminal",
-                name: "Integer",
-                label: "Integer",
+                name: "IntegerValue",
+                label: "IntegerValue",
                 idx: 0,
                 pattern: "0|[1-9]\\d*"
               }
@@ -160,8 +160,8 @@ export const serializedGrammar = [
             definition: [
               {
                 type: "Terminal",
-                name: "String",
-                label: "String",
+                name: "StringValue",
+                label: "StringValue",
                 idx: 0,
                 pattern:
                   "((`[^`]*(`))+)|((\\[[^\\]]*(\\]))(\\][^\\]]*(\\]))*)|((\"[^\"\\\\]*(?:\\\\.[^\"\\\\]*)*(\"))+)|(('[^'\\\\]*(?:\\\\.[^'\\\\]*)*('))+)|((N'[^N'\\\\]*(?:\\\\.[^N'\\\\]*)*('))+)"
@@ -277,7 +277,7 @@ export const serializedGrammar = [
     type: "Rule",
     name: "cast",
     orgText:
-      "function () {\r\n            _this.CONSUME(Cast);\r\n            _this.CONSUME(LParen);\r\n            _this.SUBRULE(_this.expression);\r\n            _this.CONSUME(As);\r\n            _this.SUBRULE(_this.type);\r\n            _this.OPTION(function () {\r\n                _this.CONSUME1(LParen);\r\n                _this.CONSUME(Integer); // precision\r\n                _this.OPTION1(function () {\r\n                    _this.CONSUME(Comma);\r\n                    _this.CONSUME1(Integer); // scale\r\n                });\r\n                _this.CONSUME1(RParen);\r\n            });\r\n            _this.CONSUME(RParen);\r\n        }",
+      "function () {\r\n            _this.CONSUME(Cast);\r\n            _this.CONSUME(LParen);\r\n            _this.SUBRULE(_this.expression);\r\n            _this.CONSUME(As);\r\n            _this.SUBRULE(_this.type);\r\n            _this.OPTION(function () {\r\n                _this.CONSUME1(LParen);\r\n                _this.CONSUME(IntegerValue); // precision\r\n                _this.OPTION1(function () {\r\n                    _this.CONSUME(Comma);\r\n                    _this.CONSUME1(IntegerValue); // scale\r\n                });\r\n                _this.CONSUME1(RParen);\r\n            });\r\n            _this.CONSUME(RParen);\r\n        }",
     definition: [
       {
         type: "Terminal",
@@ -323,8 +323,8 @@ export const serializedGrammar = [
           },
           {
             type: "Terminal",
-            name: "Integer",
-            label: "Integer",
+            name: "IntegerValue",
+            label: "IntegerValue",
             idx: 0,
             pattern: "0|[1-9]\\d*"
           },
@@ -341,8 +341,8 @@ export const serializedGrammar = [
               },
               {
                 type: "Terminal",
-                name: "Integer",
-                label: "Integer",
+                name: "IntegerValue",
+                label: "IntegerValue",
                 idx: 1,
                 pattern: "0|[1-9]\\d*"
               }
@@ -416,7 +416,7 @@ export const serializedGrammar = [
     type: "Rule",
     name: "valueExpression",
     orgText:
-      "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.CONSUME(Integer); } },\r\n                { ALT: function () { return _this.CONSUME(String); } },\r\n                { ALT: function () { return _this.CONSUME(Boolean); } },\r\n                { ALT: function () { return _this.CONSUME(Date); } }\r\n            ]);\r\n        }",
+      "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.CONSUME(IntegerValue); } },\r\n                { ALT: function () { return _this.CONSUME(StringValue); } },\r\n                { ALT: function () { return _this.CONSUME(BooleanValue); } },\r\n                { ALT: function () { return _this.CONSUME(DateValue); } }\r\n            ]);\r\n        }",
     definition: [
       {
         type: "Alternation",
@@ -427,8 +427,8 @@ export const serializedGrammar = [
             definition: [
               {
                 type: "Terminal",
-                name: "Integer",
-                label: "Integer",
+                name: "IntegerValue",
+                label: "IntegerValue",
                 idx: 0,
                 pattern: "0|[1-9]\\d*"
               }
@@ -439,8 +439,8 @@ export const serializedGrammar = [
             definition: [
               {
                 type: "Terminal",
-                name: "String",
-                label: "String",
+                name: "StringValue",
+                label: "StringValue",
                 idx: 0,
                 pattern:
                   "((`[^`]*(`))+)|((\\[[^\\]]*(\\]))(\\][^\\]]*(\\]))*)|((\"[^\"\\\\]*(?:\\\\.[^\"\\\\]*)*(\"))+)|(('[^'\\\\]*(?:\\\\.[^'\\\\]*)*('))+)|((N'[^N'\\\\]*(?:\\\\.[^N'\\\\]*)*('))+)"
@@ -452,8 +452,8 @@ export const serializedGrammar = [
             definition: [
               {
                 type: "Terminal",
-                name: "Boolean",
-                label: "Boolean",
+                name: "BooleanValue",
+                label: "BooleanValue",
                 idx: 0,
                 pattern: "TRUE|FALSE"
               }
@@ -464,8 +464,8 @@ export const serializedGrammar = [
             definition: [
               {
                 type: "Terminal",
-                name: "Date",
-                label: "Date",
+                name: "DateValue",
+                label: "DateValue",
                 idx: 0,
                 pattern:
                   "DATE '\\d{4}-((0[1-9])|(1[0-2]))-((0[1-9])|([1-2][0-9])|3[0-1])'"

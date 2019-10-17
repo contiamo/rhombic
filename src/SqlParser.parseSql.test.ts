@@ -22,8 +22,8 @@ describe("parseSql", () => {
       expected: `query(
         values(
           Values("VALUES")
-          expression(Integer("2"))
-          expression(Integer("3"))
+          expression(IntegerValue("2"))
+          expression(IntegerValue("3"))
           Comma(",")
         )
       )`
@@ -34,8 +34,8 @@ describe("parseSql", () => {
       expected: `query(
         values(
           Values("VALUES")
-          expression(String("'a'"))
-          expression(String("'b'"))
+          expression(StringValue("'a'"))
+          expression(StringValue("'b'"))
           Comma(",")
         )
       )`
@@ -48,8 +48,8 @@ describe("parseSql", () => {
           Values("VALUES")
           expression(
             LParen("(")
-            expression(String("'a'"))
-            expression(String("'b'"))
+            expression(StringValue("'a'"))
+            expression(StringValue("'b'"))
             Comma(",")
             RParen(")")
           )
@@ -65,7 +65,7 @@ describe("parseSql", () => {
           Select("SELECT")
           projectionItems(
             projectionItem(
-              expression(String("'hello'"))
+              expression(StringValue("'hello'"))
             )
           )
         )
@@ -140,7 +140,7 @@ describe("parseSql", () => {
           )
         )
         Limit("LIMIT")
-        Integer("10")
+        IntegerValue("10")
       )`
     },
     {
@@ -511,7 +511,7 @@ describe("parseSql", () => {
             booleanExpressionValue(
               Identifier("column1")
               BinaryOperator("=")
-              valueExpression(String("'toto'"))
+              valueExpression(StringValue("'toto'"))
             )
           )
         )
@@ -543,8 +543,8 @@ describe("parseSql", () => {
               Identifier("CURRENCY")
               MultivalOperator("in")
               LParen("(")
-              valueExpression(String("'USD'"))
-              valueExpression(String("'Mexican Peso'"))
+              valueExpression(StringValue("'USD'"))
+              valueExpression(StringValue("'Mexican Peso'"))
               Comma(",")
               RParen(")")
             )
@@ -574,8 +574,8 @@ describe("parseSql", () => {
               Identifier("a")
               MultivalOperator("in")
               LParen("(")
-              valueExpression(String("'USD'"))
-              valueExpression(String("'Mexican Peso'"))
+              valueExpression(StringValue("'USD'"))
+              valueExpression(StringValue("'Mexican Peso'"))
               Comma(",")
               RParen(")")
             )
@@ -586,14 +586,14 @@ describe("parseSql", () => {
                 booleanExpressionValue(
                   Identifier("b")
                   BinaryOperator("=")
-                  valueExpression(String("'foo'"))
+                  valueExpression(StringValue("'foo'"))
                 )
                 Or("OR")
                 booleanExpression(
                   booleanExpressionValue(
                     Identifier("c")
                     BinaryOperator(">=")
-                    valueExpression(Integer("42"))
+                    valueExpression(IntegerValue("42"))
                   )
                 )
               )
