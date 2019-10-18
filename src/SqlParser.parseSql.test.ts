@@ -1,35 +1,6 @@
 import { parseSql } from "./SqlParser";
-import {
-  ILexingError,
-  IRecognitionException,
-  CstNode,
-  CstChildrenDictionary
-} from "chevrotain";
-
-const isCstNode = (node: any): node is CstNode => !!node.name;
-
-/**
- * Pretty output for cst for easy specifications
- *
- * @param cst
- */
-function prettifyCst(cst: CstChildrenDictionary) {
-  let output = "";
-  Object.entries(cst).forEach(([_, elements]) => {
-    elements.forEach((node, i, nodes) => {
-      if (isCstNode(node)) {
-        output += node.name + "(" + prettifyCst(node.children) + ")";
-      } else {
-        if (i === 0 && node.tokenType) output += node.tokenType.tokenName;
-        if (i === 0) output += "(";
-        output += `"${node.image}"`;
-        if (i === nodes.length - 1) output += ")";
-        else output += ",";
-      }
-    });
-  });
-  return output;
-}
+import { ILexingError, IRecognitionException } from "chevrotain";
+import { prettifyCst } from "./utils/prettifyCst";
 
 describe("parseSql", () => {
   const cases: Array<{
@@ -51,8 +22,8 @@ describe("parseSql", () => {
       expected: `query(
         values(
           Values("VALUES")
-          expression(Integer("2"))
-          expression(Integer("3"))
+          expression(IntegerValue("2"))
+          expression(IntegerValue("3"))
           Comma(",")
         )
       )`
@@ -63,8 +34,8 @@ describe("parseSql", () => {
       expected: `query(
         values(
           Values("VALUES")
-          expression(String("'a'"))
-          expression(String("'b'"))
+          expression(StringValue("'a'"))
+          expression(StringValue("'b'"))
           Comma(",")
         )
       )`
@@ -77,8 +48,8 @@ describe("parseSql", () => {
           Values("VALUES")
           expression(
             LParen("(")
-            expression(String("'a'"))
-            expression(String("'b'"))
+            expression(StringValue("'a'"))
+            expression(StringValue("'b'"))
             Comma(",")
             RParen(")")
           )
@@ -94,7 +65,7 @@ describe("parseSql", () => {
           Select("SELECT")
           projectionItems(
             projectionItem(
-              expression(String("'hello'"))
+              expression(StringValue("'hello'"))
             )
           )
         )
@@ -124,6 +95,30 @@ describe("parseSql", () => {
       )`
     },
     {
+      title: "SELECT with multi-level identifiers",
+      sql: "SELECT foo.bar FROM foo.bar",
+      expected: `query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(
+              expression(
+                Identifier("foo.bar")
+              )
+            )
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier("foo.bar")
+              )
+            )
+          )
+        )
+      )`
+    },
+    {
       title: "simple SELECT with LIMIT",
       sql: "SELECT * FROM my_db LIMIT 10",
       expected: `
@@ -145,7 +140,7 @@ describe("parseSql", () => {
           )
         )
         Limit("LIMIT")
-        Integer("10")
+        IntegerValue("10")
       )`
     },
     {
@@ -189,8 +184,7 @@ describe("parseSql", () => {
           tableExpression(
             tableReference(
               tablePrimary(
-                Identifier("my_catalog", "my_schema", "my_table")
-                Period(".", ".")
+                Identifier("my_catalog.my_schema.my_table")
               )
             )
           )
@@ -496,6 +490,118 @@ describe("parseSql", () => {
             )
           Comma(",")
         )`
+    },
+    {
+      title: "WHERE",
+      sql: "SELECT * FROM my_db WHERE column1 = 'toto'",
+      expected: `query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(
+              Asterisk("*")
+            )
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(tablePrimary(Identifier("my_db")))
+          )
+          Where("WHERE")
+          booleanExpression(
+            booleanExpressionValue(
+              Identifier("column1")
+              BinaryOperator("=")
+              valueExpression(StringValue("'toto'"))
+            )
+          )
+        )
+      )`
+    },
+    {
+      title: "WHERE with multivalue",
+      sql:
+        "SELECT * FROM \"foodmart\".\"CURRENCY\" WHERE CURRENCY in ('USD', 'Mexican Peso')",
+      expected: `query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(
+              Asterisk("*")
+            )
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(tablePrimary(
+              Identifier(""foodmart"", ""CURRENCY"")
+              Period(".")
+              )
+            )
+          )
+          Where("WHERE")
+          booleanExpression(
+            booleanExpressionValue(
+              Identifier("CURRENCY")
+              MultivalOperator("in")
+              LParen("(")
+              valueExpression(StringValue("'USD'"))
+              valueExpression(StringValue("'Mexican Peso'"))
+              Comma(",")
+              RParen(")")
+            )
+          )
+        )
+      )`
+    },
+    {
+      title: "WHERE with multiple conditions",
+      sql:
+        "SELECT * FROM my_db WHERE a in ('USD', 'Mexican Peso') AND (b = 'foo' OR c >= 42)",
+      expected: `query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(Asterisk("*"))
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(Identifier("my_db"))
+            )
+          )
+          Where("WHERE")
+          booleanExpression(
+            booleanExpressionValue(
+              Identifier("a")
+              MultivalOperator("in")
+              LParen("(")
+              valueExpression(StringValue("'USD'"))
+              valueExpression(StringValue("'Mexican Peso'"))
+              Comma(",")
+              RParen(")")
+            )
+            And("AND")
+            booleanExpression(
+              LParen("(")
+              booleanExpression(
+                booleanExpressionValue(
+                  Identifier("b")
+                  BinaryOperator("=")
+                  valueExpression(StringValue("'foo'"))
+                )
+                Or("OR")
+                booleanExpression(
+                  booleanExpressionValue(
+                    Identifier("c")
+                    BinaryOperator(">=")
+                    valueExpression(IntegerValue("42"))
+                  )
+                )
+              )
+              RParen(")")
+            )
+          )
+        )
+      )`
     }
   ];
 
@@ -518,7 +624,7 @@ describe("parseSql", () => {
       // Advanced debug
       if (debug) {
         const previous = require("fs").readFileSync("debug.json", "utf-8");
-        const next = JSON.stringify(result.cst, null, 2);
+        const next = prettifyCst(result.cst.children);
         if (previous !== next) {
           require("fs").writeFileSync("debug.json", next);
         }

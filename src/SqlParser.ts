@@ -3,7 +3,7 @@ import { matchFunctionName } from "./utils/matchFunctionName";
 
 const Identifier = createToken({
   name: "Identifier",
-  pattern: /[a-zA-Z]\w*|"[^"]*"/
+  pattern: /[a-zA-Z][\w\.]*|"[^"]*"/
 });
 
 const FunctionIdentifier = createToken({
@@ -157,15 +157,35 @@ const RParen = createToken({ name: "RParen", pattern: /\)/ });
 const Column = createToken({ name: "Column", pattern: /:/ });
 const SemiColumn = createToken({ name: "SemiColumn", pattern: /;/ });
 
-const Operator = createToken({
-  name: "Operator",
-  pattern: /(!=|<>|==|<=|>=|!<|!>|\|\||::|->>|->|~~\*|~~|!~~\*|!~~|~\*|!~\*|!~|>|<|\+|-|\/|%)/
+const BinaryOperator = createToken({
+  name: "BinaryOperator",
+  pattern: /=|>=?|<=?|\!=|LIKE/i,
+  longer_alt: Identifier
 });
 
-const Integer = createToken({ name: "Integer", pattern: /0|[1-9]\d*/ });
-const String = createToken({
-  name: "String",
+const MultivalOperator = createToken({
+  name: "MultivalOperator",
+  pattern: /NOT IN|IN/i,
+  longer_alt: Identifier
+});
+
+const BooleanValue = createToken({
+  name: "BooleanValue",
+  pattern: /TRUE|FALSE/i,
+  longer_alt: Identifier
+});
+
+const IntegerValue = createToken({
+  name: "IntegerValue",
+  pattern: /0|[1-9]\d*/
+});
+const StringValue = createToken({
+  name: "StringValue",
   pattern: /((`[^`]*(`))+)|((\[[^\]]*(\]))(\][^\]]*(\]))*)|(("[^"\\]*(?:\\.[^"\\]*)*("))+)|(('[^'\\]*(?:\\.[^'\\]*)*('))+)|((N'[^N'\\]*(?:\\.[^N'\\]*)*('))+)/
+});
+const DateValue = createToken({
+  name: "DateValue",
+  pattern: /DATE '\d{4}-((0[1-9])|(1[0-2]))-((0[1-9])|([1-2][0-9])|3[0-1])'/i
 });
 
 const WhiteSpace = createToken({
@@ -196,6 +216,7 @@ const allTokens = [
   All,
   Stream,
   FunctionIdentifier,
+  DateValue,
   SqlTypeName,
   CollectionTypeName,
   Cast,
@@ -203,11 +224,14 @@ const allTokens = [
   Last,
   First,
   Limit,
+  MultivalOperator,
+  BinaryOperator,
+  BooleanValue,
 
   // The Identifier must appear after the keywords because all keywords are valid identifiers.
   Identifier,
-  Integer,
-  String,
+  IntegerValue,
+  StringValue,
 
   Asterisk,
   Column,
@@ -217,8 +241,7 @@ const allTokens = [
   LParen,
   RParen,
   Comma,
-  Period,
-  Operator
+  Period
 ];
 
 // reuse the same lexer instance
@@ -271,7 +294,7 @@ class SqlParser extends CstParser {
           this.OPTION1(() => {
             this.CONSUME(Limit);
             this.OR1([
-              { ALT: () => this.CONSUME(Integer) },
+              { ALT: () => this.CONSUME(IntegerValue) },
               { ALT: () => this.CONSUME(All) }
             ]);
           });
@@ -287,8 +310,8 @@ class SqlParser extends CstParser {
    */
   public expression = this.RULE("expression", () => {
     this.OR([
-      { ALT: () => this.CONSUME(Integer) },
-      { ALT: () => this.CONSUME(String) },
+      { ALT: () => this.CONSUME(IntegerValue) },
+      { ALT: () => this.CONSUME(StringValue) },
       { ALT: () => this.CONSUME(Null) },
       {
         ALT: () => {
@@ -322,10 +345,10 @@ class SqlParser extends CstParser {
     this.SUBRULE(this.type);
     this.OPTION(() => {
       this.CONSUME1(LParen);
-      this.CONSUME(Integer); // precision
+      this.CONSUME(IntegerValue); // precision
       this.OPTION1(() => {
         this.CONSUME(Comma);
-        this.CONSUME1(Integer); // scale
+        this.CONSUME1(IntegerValue); // scale
       });
       this.CONSUME1(RParen);
     });
@@ -363,7 +386,71 @@ class SqlParser extends CstParser {
    *
    * https://github.com/ronsavage/SQL/blob/master/sql-2003-2.bnf
    */
-  public valueExpression = this.RULE("valueExpression", () => {});
+  public valueExpression = this.RULE("valueExpression", () => {
+    this.OR([
+      { ALT: () => this.CONSUME(IntegerValue) },
+      { ALT: () => this.CONSUME(StringValue) },
+      { ALT: () => this.CONSUME(BooleanValue) },
+      { ALT: () => this.CONSUME(DateValue) }
+    ]);
+  });
+
+  public booleanExpression = this.RULE("booleanExpression", () => {
+    this.OR([
+      {
+        ALT: () => {
+          this.CONSUME(LParen);
+          this.SUBRULE(this.booleanExpression);
+          this.CONSUME(RParen);
+        }
+      },
+      {
+        ALT: () => this.SUBRULE1(this.booleanExpressionValue)
+      }
+    ]);
+
+    this.OPTION(() => {
+      this.OR1([
+        { ALT: () => this.CONSUME(Or) },
+        { ALT: () => this.CONSUME(And) }
+      ]);
+      this.SUBRULE2(this.booleanExpression);
+    });
+  });
+
+  public booleanExpressionValue = this.RULE("booleanExpressionValue", () => {
+    this.CONSUME(Identifier);
+    this.OR([
+      {
+        ALT: () => {
+          // Binary operation
+          this.CONSUME(BinaryOperator);
+          this.SUBRULE(this.valueExpression);
+        }
+      },
+      {
+        ALT: () => {
+          // Multival operation
+          this.CONSUME(MultivalOperator);
+          this.CONSUME1(LParen);
+          this.AT_LEAST_ONE_SEP({
+            SEP: Comma,
+            DEF: () => this.SUBRULE1(this.valueExpression)
+          });
+          this.CONSUME1(RParen);
+        }
+      },
+      {
+        ALT: () => {
+          // Unary operation
+          this.OR2([
+            { ALT: () => this.CONSUME(IsNull) },
+            { ALT: () => this.CONSUME(IsNotNull) }
+          ]);
+        }
+      }
+    ]);
+  });
 
   /**
    * orderItem:
@@ -405,7 +492,6 @@ class SqlParser extends CstParser {
    *      [ HAVING booleanExpression ]
    *      [ WINDOW windowName AS windowSpec [, windowName AS windowSpec ]* ]
    *
-   *
    */
   public select = this.RULE("select", () => {
     this.CONSUME(Select);
@@ -422,6 +508,11 @@ class SqlParser extends CstParser {
     this.OPTION3(() => {
       this.CONSUME(From);
       this.SUBRULE(this.tableExpression);
+    });
+
+    this.OPTION4(() => {
+      this.CONSUME(Where);
+      this.SUBRULE(this.booleanExpression);
     });
   });
 

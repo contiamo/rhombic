@@ -154,7 +154,7 @@ function generateDefinitionTypes(
           const entries = new Set();
           return "\n" + isTerminalOnly
             ? node.definition
-                .map(i => generateDefinitionTypes(i.definition, 0, true))
+                .map(i => generateDefinitionTypes(i.definition, 0, true, keys))
                 .join("")
                 .split("\n")
                 .filter((j: string) => {

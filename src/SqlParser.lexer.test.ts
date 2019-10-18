@@ -78,15 +78,13 @@ describe("Sql Lexer", () => {
       ]
     },
     {
-      title: "period between two identifier",
+      title: "identifier with dot",
       sql: `SELECT column1 FROM db.table2`,
       expected: [
         "SELECT => Select",
         "column1 => Identifier",
         "FROM => From",
-        "db => Identifier",
-        ". => Period",
-        "table2 => Identifier"
+        "db.table2 => Identifier"
       ]
     },
     {
@@ -96,13 +94,11 @@ describe("Sql Lexer", () => {
         "SELECT => Select",
         "column1 => Identifier",
         "FROM => From",
-        "db => Identifier",
-        ". => Period",
-        "table2 => Identifier",
+        "db.table2 => Identifier",
         "WHERE => Where",
         "column1 => Identifier",
-        "> => Operator",
-        "42 => Integer"
+        "> => BinaryOperator",
+        "42 => IntegerValue"
       ]
     },
     {
@@ -115,12 +111,12 @@ describe("Sql Lexer", () => {
         "table2 => Identifier",
         "WHERE => Where",
         "a => Identifier",
-        "<= => Operator",
-        "30 => Integer",
+        "<= => BinaryOperator",
+        "30 => IntegerValue",
         "AND => And",
         "b => Identifier",
-        ">= => Operator",
-        "10 => Integer",
+        ">= => BinaryOperator",
+        "10 => IntegerValue",
         "OR => Or",
         "c => Identifier",
         "IS NULL => IsNull"
@@ -144,11 +140,11 @@ describe("Sql Lexer", () => {
       sql: `VALUES '1', '2', '3'`,
       expected: [
         "VALUES => Values",
-        "'1' => String",
+        "'1' => StringValue",
         ", => Comma",
-        "'2' => String",
+        "'2' => StringValue",
         ", => Comma",
-        "'3' => String"
+        "'3' => StringValue"
       ]
     },
     {
@@ -189,7 +185,7 @@ describe("Sql Lexer", () => {
         "AS => As",
         "DEC => SqlTypeName",
         "( => LParen",
-        "2 => Integer",
+        "2 => IntegerValue",
         ") => RParen",
         ") => RParen"
       ]
@@ -204,9 +200,9 @@ describe("Sql Lexer", () => {
         "AS => As",
         "DEC => SqlTypeName",
         "( => LParen",
-        "2 => Integer",
+        "2 => IntegerValue",
         ", => Comma",
-        "2 => Integer",
+        "2 => IntegerValue",
         ") => RParen",
         ") => RParen"
       ]
@@ -236,7 +232,40 @@ describe("Sql Lexer", () => {
     {
       title: "limit",
       sql: "LIMIT 10",
-      expected: ["LIMIT => Limit", "10 => Integer"]
+      expected: ["LIMIT => Limit", "10 => IntegerValue"]
+    },
+    {
+      title: "binary operators",
+      sql: "= > >= < <= != like",
+      expected: [
+        "= => BinaryOperator",
+        "> => BinaryOperator",
+        ">= => BinaryOperator",
+        "< => BinaryOperator",
+        "<= => BinaryOperator",
+        "!= => BinaryOperator",
+        "like => BinaryOperator"
+      ]
+    },
+    {
+      title: "multival operators",
+      sql: "in not in",
+      expected: ["in => MultivalOperator", "not in => MultivalOperator"]
+    },
+    {
+      title: "unary operators",
+      sql: "is null IS NOT NULL",
+      expected: ["is null => IsNull", "IS NOT NULL => IsNotNull"]
+    },
+    {
+      title: "boolean",
+      sql: "true false",
+      expected: ["true => BooleanValue", "false => BooleanValue"]
+    },
+    {
+      title: "date",
+      sql: "date '2019-02-01'",
+      expected: ["date '2019-02-01' => DateValue"]
     }
   ];
 
