@@ -26,6 +26,19 @@ const rhombic = {
    */
   parse(sql: string) {
     return parsedSql(sql);
+  },
+
+  /**
+   * Returns `true` if the query is empty (no executable sql)
+   *
+   * Note: the sql don't have to be valid, we are just checking if everything is commented
+   * @param sql
+   */
+  isEmpty(sql: string) {
+    return sql.split("\n").reduce((isEmpty, line) => {
+      if (line.trim().startsWith("--") || line.trim() === "") return isEmpty;
+      return false;
+    }, true);
   }
 };
 

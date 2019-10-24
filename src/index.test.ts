@@ -806,4 +806,30 @@ FROM
       );
     });
   });
+
+  describe("isEmpty", () => {
+    it("should return true if the sql don't have any statement", () => {
+      [
+        "",
+        `
+      `,
+        `
+       -- this is a comment
+      `,
+        `
+      
+      -- still a comment
+      `
+      ].forEach(test => expect(rhombic.isEmpty(test)).toBe(true));
+    });
+
+    it("should return false if the sql have any statement", () => {
+      expect(
+        rhombic.isEmpty(`
+      -- Hello
+      SELECT * FROM plop
+      `)
+      ).toBe(false);
+    });
+  });
 });
