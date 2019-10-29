@@ -245,7 +245,8 @@ const parsedSql = (sql: string): ParsedSql => {
           expression: projectionItems[index].expression,
           alias: projectionItems[index].alias,
           cast: projectionItems[index].cast,
-          fn: projectionItems[index].fn
+          fn: projectionItems[index].fn,
+          sort: projectionItems[index].sort
         };
       }
     },

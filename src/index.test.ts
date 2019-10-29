@@ -631,6 +631,22 @@ FROM
         }
       });
     });
+
+    it("should retrieve sort information", () => {
+      const projectionItem = rhombic
+        .parse("SELECT foo, bar FROM foodmart.customer ORDER BY foo")
+        .getProjectionItem({
+          columns: ["foo", "bar"],
+          index: 0
+        });
+
+      expect(projectionItem).toEqual({
+        expression: "foo",
+        sort: {
+          order: "asc"
+        }
+      });
+    });
   });
 
   describe("getProjectionItems", () => {
@@ -648,30 +664,35 @@ FROM
             "cast": undefined,
             "expression": "mischa",
             "fn": undefined,
+            "sort": undefined,
           },
           Object {
             "alias": undefined,
             "cast": undefined,
             "expression": "slava",
             "fn": undefined,
+            "sort": undefined,
           },
           Object {
             "alias": "chicken",
             "cast": undefined,
             "expression": "tejas",
             "fn": undefined,
+            "sort": undefined,
           },
           Object {
             "alias": undefined,
             "cast": undefined,
             "expression": "imogen",
             "fn": undefined,
+            "sort": undefined,
           },
           Object {
             "alias": undefined,
             "cast": undefined,
             "expression": "fabien",
             "fn": undefined,
+            "sort": undefined,
           },
         ]
       `);

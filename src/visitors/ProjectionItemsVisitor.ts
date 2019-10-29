@@ -2,7 +2,8 @@ import { parser } from "../SqlParser";
 import {
   ProjectionItemContext,
   ProjectionItemsContext,
-  CastContext
+  CastContext,
+  OrderItemContext
 } from "../Context";
 import { IToken, CstElement } from "chevrotain";
 import { getImageFromChildren } from "../utils/getImageFromChildren";
@@ -37,6 +38,10 @@ export class ProjectionItemsVisitor extends Visitor {
       type: string;
     };
     fn?: { identifier: string; value: string };
+    sort?: {
+      order: "asc" | "desc";
+      nullsOrder?: "first" | "last";
+    };
   }> = [];
 
   public commas: IToken[] = [];
@@ -62,6 +67,24 @@ export class ProjectionItemsVisitor extends Visitor {
       value: getImageFromChildren(ctx.expression[0].children),
       type: getImageFromChildren(ctx.type[0].children)
     };
+  }
+
+  orderItem(ctx: OrderItemContext) {
+    const expression = getImageFromChildren(ctx.expression[0].children);
+    const sort: {
+      order: "asc" | "desc";
+      nullsOrder?: "first" | "last";
+    } = {
+      order: "asc"
+    };
+
+    if (ctx.Desc) sort.order = "desc";
+    if (ctx.First) sort.nullsOrder = "first";
+    if (ctx.Last) sort.nullsOrder = "last";
+
+    this.output = this.output.map(i =>
+      i.expression === expression ? { ...i, sort } : i
+    );
   }
 
   projectionItem(ctx: ProjectionItemContext) {
