@@ -810,6 +810,15 @@ FROM
       expect(query).toEqual("SELECT * FROM my_db ORDER BY a ASC");
     });
 
+    it("should switch the order if the expression already exists (desc)(with order)", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_db ORDER BY a DESC")
+        .orderBy({ expression: "a", order: "asc" })
+        .toString();
+
+      expect(query).toEqual("SELECT * FROM my_db ORDER BY a ASC");
+    });
+
     it("should override the existing expression", () => {
       const query = rhombic
         .parse("SELECT * FROM my_db ORDER BY b DESC")
