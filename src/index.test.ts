@@ -727,6 +727,15 @@ FROM
       expect(query).toEqual("SELECT * FROM my_db ORDER BY a DESC");
     });
 
+    it("should do nothing if the order already exists", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_db ORDER BY a DESC")
+        .orderBy({ expression: "a", order: "desc" })
+        .toString();
+
+      expect(query).toEqual("SELECT * FROM my_db ORDER BY a DESC");
+    });
+
     it("should add an ORDER BY (nulls first) if not exists", () => {
       const query = rhombic
         .parse("SELECT * FROM my_db")

@@ -451,9 +451,11 @@ const parsedSql = (sql: string): ParsedSql => {
           const nextNullsOrders = nullsOrder || existingOrderItem.nullsOrder;
           const nextSql = replaceText(
             sql,
-            `${existingOrderItem.expression} ${
-              (existingOrderItem.order || "asc") === "asc" ? "DESC" : "ASC"
-            }${
+            `${existingOrderItem.expression} ${(order ||
+            (existingOrderItem.order || "asc") === "asc"
+              ? "desc"
+              : "asc"
+            ).toUpperCase()}${
               nextNullsOrders ? ` NULLS ${nextNullsOrders.toUpperCase()}` : ""
             }`,
             getLocation(existingOrderItem)
