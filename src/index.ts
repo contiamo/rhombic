@@ -241,8 +241,14 @@ const parsedSql = (sql: string): ParsedSql => {
           .filter(i => value.startsWith(i))
           .sort((a, b) => b.length - a.length);
         const originalValue = candidates[0];
+        const sort = visitor.sort.find(
+          i => i.expression === originalValue || value
+        );
+        if (sort) delete sort.expression; // Remove duplicate data
+
         return {
-          expression: originalValue || value
+          expression: originalValue || value,
+          sort
         };
       } else {
         return {

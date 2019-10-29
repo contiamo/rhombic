@@ -44,6 +44,12 @@ export class ProjectionItemsVisitor extends Visitor {
     };
   }> = [];
 
+  public sort: Array<{
+    expression: string;
+    order: "asc" | "desc";
+    nullsOrder?: "first" | "last";
+  }> = [];
+
   public commas: IToken[] = [];
 
   public asteriskCount = 0;
@@ -85,6 +91,7 @@ export class ProjectionItemsVisitor extends Visitor {
     this.output = this.output.map(i =>
       i.expression === expression ? { ...i, sort } : i
     );
+    this.sort.push({ expression, ...sort });
   }
 
   projectionItem(ctx: ProjectionItemContext) {

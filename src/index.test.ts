@@ -647,6 +647,22 @@ FROM
         }
       });
     });
+
+    it("should retrieve sort information from asterisk", () => {
+      const projectionItem = rhombic
+        .parse("SELECT * FROM foodmart.customer ORDER BY foo")
+        .getProjectionItem({
+          columns: ["foo", "bar"],
+          index: 0
+        });
+
+      expect(projectionItem).toEqual({
+        expression: "foo",
+        sort: {
+          order: "asc"
+        }
+      });
+    });
   });
 
   describe("getProjectionItems", () => {
