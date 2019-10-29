@@ -47,6 +47,10 @@ export interface ProjectionItemMetadata {
   alias?: string;
   cast?: { value: string; type: string };
   fn?: { identifier: string; value: string };
+  sort?: {
+    order: "asc" | "desc";
+    nullsOrder?: "first" | "last";
+  };
 }
 
 // Note: Because we have a recursion, we can't rely on typescript inference
