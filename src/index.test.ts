@@ -663,6 +663,19 @@ FROM
         }
       });
     });
+
+    it("should not expand the sort to all columns from asterisk", () => {
+      const projectionItem = rhombic
+        .parse("SELECT * FROM foodmart.customer ORDER BY foo")
+        .getProjectionItem({
+          columns: ["foo", "bar"],
+          index: 1
+        });
+
+      expect(projectionItem).toEqual({
+        expression: "bar"
+      });
+    });
   });
 
   describe("getProjectionItems", () => {
