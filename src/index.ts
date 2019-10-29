@@ -333,7 +333,10 @@ const parsedSql = (sql: string): ParsedSql => {
           sql,
           columns
             .slice(asteriskIndex, asteriskIndex + projectionItemsBehindAsterisk)
-            .map((c, i) => (i + asteriskIndex === index ? value : c))
+            .map((c, i) => {
+              if (i + asteriskIndex === index) return value;
+              return needToBeEscaped(c) ? `"${c}"` : c;
+            })
             .join(", "),
           getLocation(projectionItems[asteriskIndex])
         );

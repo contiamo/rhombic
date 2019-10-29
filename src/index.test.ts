@@ -258,6 +258,21 @@ describe("rhombic", () => {
       );
     });
 
+    it("should deal with reserved keywords in columns", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_table")
+        .updateProjectionItem({
+          columns: ["DATE", "column02", "column03", "column04"],
+          index: 1,
+          value: "column02 AS my_column"
+        })
+        .toString();
+
+      expect(query).toEqual(
+        'SELECT "DATE", column02 AS my_column, column03, column04 FROM my_table'
+      );
+    });
+
     it("should expanded a star with side projections", () => {
       const query = rhombic
         .parse("SELECT column01, *, column04 FROM my_table")
