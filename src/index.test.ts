@@ -618,6 +618,51 @@ FROM
     });
   });
 
+  describe("getProjectionItems", () => {
+    it("should retrieve all projection items metadata", () => {
+      const projectionItems = rhombic
+        .parse(
+          "SELECT mischa, slava, tejas as chicken, imogen, fabien FROM best_team_ever"
+        )
+        .getProjectionItems(["mischa", "slava", "chicken", "imogen", "fabien"]);
+
+      expect(projectionItems).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "alias": undefined,
+            "cast": undefined,
+            "expression": "mischa",
+            "fn": undefined,
+          },
+          Object {
+            "alias": undefined,
+            "cast": undefined,
+            "expression": "slava",
+            "fn": undefined,
+          },
+          Object {
+            "alias": "chicken",
+            "cast": undefined,
+            "expression": "tejas",
+            "fn": undefined,
+          },
+          Object {
+            "alias": undefined,
+            "cast": undefined,
+            "expression": "imogen",
+            "fn": undefined,
+          },
+          Object {
+            "alias": undefined,
+            "cast": undefined,
+            "expression": "fabien",
+            "fn": undefined,
+          },
+        ]
+      `);
+    });
+  });
+
   describe("orderBy", () => {
     it("should add an ORDER BY if not exists", () => {
       const query = rhombic

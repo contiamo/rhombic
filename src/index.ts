@@ -42,9 +42,15 @@ const rhombic = {
   }
 };
 
+export interface ProjectionItemMetadata {
+  expression: string;
+  alias?: string;
+  cast?: { value: string; type: string };
+  fn?: { identifier: string; value: string };
+}
+
 // Note: Because we have a recursion, we can't rely on typescript inference
 // `addProjectionItem` will return `any` without this type definition
-
 export interface ParsedSql {
   /**
    * Return the sql as a raw string.
@@ -74,16 +80,23 @@ export interface ParsedSql {
    * @param options
    * @param options.columns Query columns results, needed to be able to expands `*`
    * @param options.index Index of the `projectionItem` to rename
+   *
+   * @param internalVisitor used internally by `getProjectionItems` to reused the same visitor (the visitor must already have a valid `output`)
    */
-  getProjectionItem(options: {
-    columns: string[];
-    index: number;
-  }): {
-    expression: string;
-    alias?: string;
-    cast?: { value: string; type: string };
-    fn?: { identifier: string; value: string };
-  };
+  getProjectionItem(
+    options: {
+      columns: string[];
+      index: number;
+    },
+    internalVisitor?: ProjectionItemsVisitor
+  ): ProjectionItemMetadata;
+
+  /**
+   * Get all projectionItems metadata.
+   *
+   * @param columns Query columns results, needed to be able to expands `*`
+   */
+  getProjectionItems(columns: string[]): ProjectionItemMetadata[];
 
   /**
    * Add a projectionItem to the query.
@@ -195,9 +208,9 @@ const parsedSql = (sql: string): ParsedSql => {
       return visitor.hasTablePrimary;
     },
 
-    getProjectionItem({ columns, index }) {
-      const visitor = new ProjectionItemsVisitor();
-      visitor.visit(cst);
+    getProjectionItem({ columns, index }, internalVisitor) {
+      const visitor = internalVisitor || new ProjectionItemsVisitor();
+      if (!internalVisitor) visitor.visit(cst);
       const projectionItems = visitor.output;
 
       if (visitor.asteriskCount > 0) {
@@ -235,6 +248,14 @@ const parsedSql = (sql: string): ParsedSql => {
           fn: projectionItems[index].fn
         };
       }
+    },
+
+    getProjectionItems(columns) {
+      const visitor = new ProjectionItemsVisitor();
+      visitor.visit(cst);
+      return columns.map((_, index) =>
+        this.getProjectionItem({ columns, index }, visitor)
+      );
     },
 
     addProjectionItem(projectionItem, options) {
