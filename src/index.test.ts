@@ -858,6 +858,33 @@ FROM
 
       expect(query).toEqual("SELECT * FROM my_db ORDER BY a LIMIT 10");
     });
+
+    it("should insert the ORDER BY in a multiline query", () => {
+      const query = rhombic
+        .parse(
+          `SELECT
+          ACCOUNT_ID,
+          ACCOUNT_PARENT AS felix,
+          ACCOUNT_DESCRIPTION,
+          ACCOUNT_TYPE,
+          ACCOUNT_ROLLUP,
+          CUSTOM_MEMBERS
+        FROM
+          "foodmart"."ACCOUNT"`
+        )
+        .orderBy({ expression: "felix" })
+        .toString();
+
+        expect(query).toEqual(`SELECT
+          ACCOUNT_ID,
+          ACCOUNT_PARENT AS felix,
+          ACCOUNT_DESCRIPTION,
+          ACCOUNT_TYPE,
+          ACCOUNT_ROLLUP,
+          CUSTOM_MEMBERS
+        FROM
+          "foodmart"."ACCOUNT" ORDER BY felix`);
+    });
   });
 
   describe("getFilterString", () => {

@@ -17,19 +17,33 @@ const extractRange = (children: CstChildrenDictionary, range: Range) => {
         extractRange(token.children, range);
         return;
       } else {
-        range.startLine = Math.min(
-          range.startLine,
-          token.startLine || Infinity
-        );
-        range.endLine = Math.max(range.endLine, token.endLine || -Infinity);
-        range.startColumn = Math.min(
-          range.startColumn,
-          token.startColumn || Infinity
-        );
-        range.endColumn = Math.max(
-          range.endColumn,
-          token.endColumn || -Infinity
-        );
+        if (
+          !token.startLine ||
+          !token.startColumn ||
+          !token.endLine ||
+          !token.endColumn
+        ) {
+          return;
+        }
+
+        // Start range check
+        if (
+          token.startLine < range.startLine ||
+          (token.startLine === range.startLine &&
+            token.startColumn < range.startColumn)
+        ) {
+          range.startLine = token.startLine;
+          range.startColumn = token.startColumn;
+        }
+
+        // End range check
+        if (
+          token.endLine > range.endLine ||
+          (token.endLine === range.endLine && token.endColumn > range.endColumn)
+        ) {
+          range.endLine = token.endLine;
+          range.endColumn = token.endColumn;
+        }
       }
     });
   });
