@@ -7,8 +7,8 @@ import {
 } from "../Context";
 import { IToken, CstElement } from "chevrotain";
 import { getImageFromChildren } from "../utils/getImageFromChildren";
+import { getChildrenRange, Range } from "../utils/getChildrenRange";
 import { isCstNode } from "../utils/isCstNode";
-import { getChildrenRange } from "../utils/getChildrenRange";
 
 const Visitor = parser.getBaseCstVisitorConstructorWithDefaults();
 
@@ -46,6 +46,7 @@ export class ProjectionItemsVisitor extends Visitor {
 
   public sort: Array<{
     expression: string;
+    expressionRange: Range;
     order: "asc" | "desc";
     nullsOrder?: "first" | "last";
   }> = [];
@@ -77,6 +78,7 @@ export class ProjectionItemsVisitor extends Visitor {
 
   orderItem(ctx: OrderItemContext) {
     const expression = getImageFromChildren(ctx.expression[0].children);
+    const expressionRange = getChildrenRange(ctx.expression[0].children);
     const sort: {
       order: "asc" | "desc";
       nullsOrder?: "first" | "last";
@@ -91,7 +93,7 @@ export class ProjectionItemsVisitor extends Visitor {
     this.output = this.output.map(i =>
       i.expression === expression ? { ...i, sort } : i
     );
-    this.sort.push({ expression, ...sort });
+    this.sort.push({ expression, expressionRange, ...sort });
   }
 
   projectionItem(ctx: ProjectionItemContext) {

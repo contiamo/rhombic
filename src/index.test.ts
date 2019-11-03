@@ -331,6 +331,23 @@ describe("rhombic", () => {
         "SELECT column01 AS my_column01, column01, column02, column03 AS oh_yeah, column04, column04, * FROM my_table"
       );
     });
+
+    it("should update the ORDER BY statement if related to the projectionItem", () => {
+      const query = rhombic
+        .parse(
+          "SELECT column01 AS my_column01 FROM my_table ORDER BY my_column01"
+        )
+        .updateProjectionItem({
+          columns: ["my_column01"],
+          index: 0,
+          value: "column01 AS a_new_name"
+        })
+        .toString();
+
+      expect(query).toEqual(
+        "SELECT column01 AS a_new_name FROM my_table ORDER BY a_new_name"
+      );
+    });
   });
 
   describe("removeProjectionItem", () => {
@@ -875,7 +892,7 @@ FROM
         .orderBy({ expression: "felix" })
         .toString();
 
-        expect(query).toEqual(`SELECT
+      expect(query).toEqual(`SELECT
           ACCOUNT_ID,
           ACCOUNT_PARENT AS felix,
           ACCOUNT_DESCRIPTION,

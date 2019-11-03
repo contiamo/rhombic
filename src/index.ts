@@ -14,6 +14,7 @@ import { FilterTree } from "./FilterTree";
 import { FilterTreeVisitor } from "./visitors/FilterTreeVisitor";
 import { WhereVisitor } from "./visitors/WhereVisitor";
 import { getImageFromChildren } from "./utils/getImageFromChildren";
+import { fixOrderItem } from "./utils/fixOrderItem";
 
 // Utils
 export { needToBeEscaped, printFilter };
@@ -244,7 +245,10 @@ const parsedSql = (sql: string): ParsedSql => {
         const sort = visitor.sort.find(
           i => i.expression === (originalValue || value)
         );
-        if (sort) delete sort.expression; // Remove duplicate data
+        if (sort) {
+          delete sort.expression; // Remove internal data
+          delete sort.expressionRange; // Remove internal data
+        }
 
         return {
           expression: originalValue || value,
@@ -356,6 +360,19 @@ const parsedSql = (sql: string): ParsedSql => {
       } else {
         const targetNode = projectionItems[index];
         const nextSql = replaceText(sql, value, getLocation(targetNode));
+
+        // Check if we need to rename an order item
+        const needToFixOrderItem =
+          visitor.sort.filter(
+            i =>
+              i.expression === targetNode.expression ||
+              i.expression === targetNode.alias
+          ).length > 0;
+
+        if (needToFixOrderItem) {
+          return parsedSql(fixOrderItem(parsedSql(nextSql), targetNode, index));
+        }
+
         return parsedSql(nextSql);
       }
     },
