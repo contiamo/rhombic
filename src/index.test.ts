@@ -458,6 +458,7 @@ describe("rhombic", () => {
 
       expect(query).toEqual("SELECT * from d");
     });
+
     it("should keep the formatting clean", () => {
       const query = rhombic
         .parse(
@@ -479,6 +480,30 @@ FROM
   c
 FROM
   d`);
+    });
+
+    it("should remove associated order by statements", () => {
+      const query = rhombic
+        .parse("SELECT a, b FROM c ORDER BY a, b")
+        .removeProjectionItem({
+          columns: ["a", "b"],
+          index: 1
+        })
+        .toString();
+
+      expect(query).toEqual("SELECT a FROM c ORDER BY a");
+    });
+
+    it("should remove the entire ORDER BY node if empty", () => {
+      const query = rhombic
+        .parse("SELECT a, b FROM c ORDER BY a")
+        .removeProjectionItem({
+          columns: ["a", "b"],
+          index: 0
+        })
+        .toString();
+
+      expect(query).toEqual("SELECT b FROM c");
     });
   });
 

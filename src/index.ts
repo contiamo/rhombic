@@ -15,6 +15,7 @@ import { FilterTreeVisitor } from "./visitors/FilterTreeVisitor";
 import { WhereVisitor } from "./visitors/WhereVisitor";
 import { getImageFromChildren } from "./utils/getImageFromChildren";
 import { fixOrderItem } from "./utils/fixOrderItem";
+import { removeUnusedOrderItems } from "./utils/removeUnusedOrderItems";
 
 // Utils
 export { needToBeEscaped, printFilter };
@@ -225,7 +226,8 @@ const parsedSql = (sql: string): ParsedSql => {
             expression: projectionItems[index].expression,
             alias: projectionItems[index].alias,
             cast: projectionItems[index].cast,
-            fn: projectionItems[index].fn
+            fn: projectionItems[index].fn,
+            sort: projectionItems[index].sort
           };
         }
 
@@ -252,7 +254,7 @@ const parsedSql = (sql: string): ParsedSql => {
 
         return {
           expression: originalValue || value,
-          sort
+          sort: sort ? { order: "asc", ...sort } : undefined
         };
       } else {
         return {
@@ -381,6 +383,7 @@ const parsedSql = (sql: string): ParsedSql => {
       const visitor = new ProjectionItemsVisitor();
       visitor.visit(cst);
       const projectionItems = visitor.output;
+      const hasSort = visitor.sort.length > 0;
 
       if (visitor.asteriskCount > 0) {
         // Expand asterisk
@@ -402,7 +405,11 @@ const parsedSql = (sql: string): ParsedSql => {
               .join(", "),
             getLocation(projectionItems[asteriskIndex])
           );
-
+          if (hasSort) {
+            return parsedSql(
+              removeUnusedOrderItems(parsedSql(nextSql), columns[index])
+            );
+          }
           return parsedSql(nextSql);
         }
       }
@@ -449,6 +456,12 @@ const parsedSql = (sql: string): ParsedSql => {
           ...nextSql.split("\n").slice(0, removedLine),
           ...nextSql.split("\n").slice(removedLine + 1)
         ].join("\n");
+      }
+
+      if (hasSort) {
+        return parsedSql(
+          removeUnusedOrderItems(parsedSql(nextSql), columns[index]).trim()
+        );
       }
 
       return parsedSql(nextSql);

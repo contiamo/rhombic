@@ -385,10 +385,12 @@ describe("parseSql", () => {
           tableExpression(
             tableReference(tablePrimary(Identifier("my_db"))))
           )
-          OrderBy("ORDER BY")
-          orderItem(
-            expression(Identifier("column1"))
-            Asc("ASC")
+          orderBy(
+            OrderBy("ORDER BY")
+            orderItem(
+              expression(Identifier("column1"))
+              Asc("ASC")
+            )
           )
         )`
     },
@@ -407,10 +409,12 @@ describe("parseSql", () => {
           tableExpression(
             tableReference(tablePrimary(Identifier("my_db"))))
           )
-          OrderBy("ORDER BY")
-          orderItem(
-            expression(Identifier("column1"))
-            Desc("DESC")
+          orderBy(
+            OrderBy("ORDER BY")
+            orderItem(
+              expression(Identifier("column1"))
+              Desc("DESC")
+            )
           )
         )`
     },
@@ -430,12 +434,14 @@ describe("parseSql", () => {
           tableExpression(
             tableReference(tablePrimary(Identifier("my_db"))))
           )
-          OrderBy("ORDER BY")
-          orderItem(
-            expression(Identifier("column1"))
-            Asc("ASC")
-            Nulls("NULLS")
-            First("FIRST")
+          orderBy(
+            OrderBy("ORDER BY")
+            orderItem(
+              expression(Identifier("column1"))
+              Asc("ASC")
+              Nulls("NULLS")
+              First("FIRST")
+            )
           )
         )`
     },
@@ -454,12 +460,14 @@ describe("parseSql", () => {
           tableExpression(
             tableReference(tablePrimary(Identifier("my_db"))))
           )
-          OrderBy("ORDER BY")
-          orderItem(
-            expression(Identifier("column1"))
-            Asc("ASC")
-            Nulls("NULLS")
-            Last("LAST")
+          orderBy(
+            OrderBy("ORDER BY")
+            orderItem(
+              expression(Identifier("column1"))
+              Asc("ASC")
+              Nulls("NULLS")
+              Last("LAST")
+            )
           )
         )`
     },
@@ -479,16 +487,18 @@ describe("parseSql", () => {
           tableExpression(
             tableReference(tablePrimary(Identifier("my_db"))))
           )
-          OrderBy("ORDER BY")
-          orderItem(
-            expression(Identifier("column1"))
-            Asc("ASC")
-          )
-          orderItem(
-            expression(Identifier("column2"))
-            Desc("DESC")
+          orderBy(
+            OrderBy("ORDER BY")
+            orderItem(
+              expression(Identifier("column1"))
+              Asc("ASC")
             )
-          Comma(",")
+            orderItem(
+              expression(Identifier("column2"))
+              Desc("DESC")
+              )
+            Comma(",")
+          )
         )`
     },
     {

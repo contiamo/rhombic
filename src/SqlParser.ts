@@ -285,11 +285,7 @@ class SqlParser extends CstParser {
         ALT: () => {
           this.SUBRULE(this.select);
           this.OPTION(() => {
-            this.CONSUME(OrderBy);
-            this.AT_LEAST_ONE_SEP({
-              SEP: Comma,
-              DEF: () => this.SUBRULE(this.orderItem)
-            });
+            this.SUBRULE(this.orderBy);
           });
           this.OPTION1(() => {
             this.CONSUME(Limit);
@@ -353,6 +349,14 @@ class SqlParser extends CstParser {
       this.CONSUME1(RParen);
     });
     this.CONSUME(RParen);
+  });
+
+  public orderBy = this.RULE("orderBy", () => {
+    this.CONSUME(OrderBy);
+    this.AT_LEAST_ONE_SEP({
+      SEP: Comma,
+      DEF: () => this.SUBRULE(this.orderItem)
+    });
   });
 
   /**

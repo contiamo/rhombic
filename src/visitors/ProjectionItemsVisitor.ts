@@ -3,7 +3,8 @@ import {
   ProjectionItemContext,
   ProjectionItemsContext,
   CastContext,
-  OrderItemContext
+  OrderItemContext,
+  OrderByContext
 } from "../Context";
 import { IToken, CstElement } from "chevrotain";
 import { getImageFromChildren } from "../utils/getImageFromChildren";
@@ -47,9 +48,11 @@ export class ProjectionItemsVisitor extends Visitor {
   public sort: Array<{
     expression: string;
     expressionRange: Range;
-    order: "asc" | "desc";
+    order?: "asc" | "desc";
     nullsOrder?: "first" | "last";
   }> = [];
+
+  public sortRange: Range | undefined;
 
   public commas: IToken[] = [];
 
@@ -76,22 +79,34 @@ export class ProjectionItemsVisitor extends Visitor {
     };
   }
 
+  orderBy(ctx: OrderByContext) {
+    this.sortRange = getChildrenRange(ctx);
+    ctx.orderItem.forEach(i => this.orderItem(i.children));
+  }
+
   orderItem(ctx: OrderItemContext) {
     const expression = getImageFromChildren(ctx.expression[0].children);
     const expressionRange = getChildrenRange(ctx.expression[0].children);
     const sort: {
-      order: "asc" | "desc";
+      order?: "asc" | "desc";
       nullsOrder?: "first" | "last";
-    } = {
-      order: "asc"
-    };
+    } = {};
 
     if (ctx.Desc) sort.order = "desc";
+    if (ctx.Asc) sort.order = "asc";
     if (ctx.First) sort.nullsOrder = "first";
     if (ctx.Last) sort.nullsOrder = "last";
 
     this.output = this.output.map(i =>
-      i.expression === expression ? { ...i, sort } : i
+      i.expression === expression
+        ? {
+            ...i,
+            sort: {
+              ...sort,
+              order: sort.order || "asc"
+            }
+          }
+        : i
     );
     this.sort.push({ expression, expressionRange, ...sort });
   }

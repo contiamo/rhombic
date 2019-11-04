@@ -17,12 +17,10 @@ export interface QueryContext {
     name: "select";
     children: SelectContext;
   }>;
-  OrderBy?: IToken[];
-  orderItem: Array<{
-    name: "orderItem";
-    children: OrderItemContext;
+  orderBy: Array<{
+    name: "orderBy";
+    children: OrderByContext;
   }>;
-  Comma?: IToken[];
   Limit?: IToken[];
   IntegerValue?: IToken[];
   All?: IToken[];
@@ -61,6 +59,15 @@ export interface CastContext {
   IntegerValue?: IToken[];
   Comma?: IToken[];
   RParen?: IToken[];
+}
+
+export interface OrderByContext {
+  OrderBy: IToken[];
+  orderItem: Array<{
+    name: "orderItem";
+    children: OrderItemContext;
+  }>;
+  Comma?: IToken[];
 }
 
 export interface TypeContext {
@@ -194,6 +201,7 @@ export type IContext =
   | QueryContext
   | ExpressionContext
   | CastContext
+  | OrderByContext
   | TypeContext
   | ValueExpressionContext
   | BooleanExpressionContext
