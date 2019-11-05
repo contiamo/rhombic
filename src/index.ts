@@ -337,14 +337,14 @@ const parsedSql = (sql: string): ParsedSql => {
       const visitor = new ProjectionItemsVisitor();
       visitor.visit(cst);
       const projectionItems = visitor.output;
+      const asteriskIndex = projectionItems.findIndex(t => t.isAsterisk) || 0;
 
-      if (visitor.asteriskCount > 0) {
+      if (visitor.asteriskCount > 0 && index >= asteriskIndex) {
         // Expand asterisk
         const nonAsteriskItemsCount = projectionItems.filter(i => !i.isAsterisk)
           .length;
         const projectionItemsBehindAsterisk =
           (columns.length - nonAsteriskItemsCount) / visitor.asteriskCount;
-        const asteriskIndex = projectionItems.findIndex(t => t.isAsterisk) || 0;
 
         const nextSql = replaceText(
           sql,

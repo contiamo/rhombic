@@ -348,6 +348,54 @@ describe("rhombic", () => {
         "SELECT column01 AS a_new_name FROM my_table ORDER BY a_new_name"
       );
     });
+
+    it("should rename a projection that already have an alias", () => {
+      const query = rhombic
+        .parse(
+          `SELECT
+        ACCOUNT_ID,
+        ACCOUNT_PARENT AS felix,
+        ACCOUNT_DESCRIPTION,
+        ACCOUNT_TYPE,
+        ACCOUNT_ROLLUP,
+        CUSTOM_MEMBERS,
+        *
+      FROM
+        "foodmart"."ACCOUNT"
+        `
+        )
+        .updateProjectionItem({
+          columns: [
+            "ACCOUNT_ID",
+            "felix",
+            "ACCOUNT_DESCRIPTION",
+            "ACCOUNT_TYPE",
+            "ACCOUNT_ROLLUP",
+            "CUSTOM_MEMBERS",
+            "ACCOUNT_ID0",
+            "ACCOUNT_PARENT",
+            "ACCOUNT_DESCRIPTION0",
+            "ACCOUNT_TYPE0",
+            "ACCOUNT_ROLLUP0",
+            "CUSTOM_MEMBERS0"
+          ],
+          index: 1,
+          value: "ACCOUNT_PARENT AS felix2"
+        })
+        .toString();
+
+      expect(query).toEqual(`SELECT
+        ACCOUNT_ID,
+        ACCOUNT_PARENT AS felix2,
+        ACCOUNT_DESCRIPTION,
+        ACCOUNT_TYPE,
+        ACCOUNT_ROLLUP,
+        CUSTOM_MEMBERS,
+        *
+      FROM
+        "foodmart"."ACCOUNT"
+        `);
+    });
   });
 
   describe("removeProjectionItem", () => {
