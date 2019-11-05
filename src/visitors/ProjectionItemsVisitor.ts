@@ -98,7 +98,7 @@ export class ProjectionItemsVisitor extends Visitor {
     if (ctx.Last) sort.nullsOrder = "last";
 
     this.output = this.output.map(i =>
-      i.expression === expression
+      i.expression === expression || i.alias === expression
         ? {
             ...i,
             sort: {

@@ -738,6 +738,25 @@ FROM
       });
     });
 
+    it("should retrieve sort information (with alias)", () => {
+      const projectionItem = rhombic
+        .parse(
+          "SELECT foo as chocapic, bar FROM foodmart.customer ORDER BY chocapic"
+        )
+        .getProjectionItem({
+          columns: ["chocapic", "bar"],
+          index: 0
+        });
+
+      expect(projectionItem).toEqual({
+        expression: "foo",
+        alias: "chocapic",
+        sort: {
+          order: "asc"
+        }
+      });
+    });
+
     it("should retrieve sort information from asterisk", () => {
       const projectionItem = rhombic
         .parse("SELECT * FROM foodmart.customer ORDER BY foo")
