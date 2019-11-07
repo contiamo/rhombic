@@ -1096,4 +1096,31 @@ FROM
       ).toBe(false);
     });
   });
+
+  describe("isFilterValid", () => {
+    // Valid cases
+    [
+      "my_column = 'Berlin'",
+      "my_column in ('Paris', 'Berlin')",
+      "my_column is null",
+      "my_column is not null"
+    ].forEach(i =>
+      it(`should return true for "${i}"`, () => {
+        const isValid = rhombic.isFilterValid(i);
+        expect(isValid).toBeTruthy();
+      })
+    );
+
+    // Not valid cases
+    [
+      "my_column = 'Berlin",
+      "my_column = 'Paris', 'Berlin'",
+      "my_column = Berlin"
+    ].forEach(i =>
+      it(`should return false for "${i}"`, () => {
+        const isValid = rhombic.isFilterValid(i);
+        expect(isValid).toBeFalsy();
+      })
+    );
+  });
 });

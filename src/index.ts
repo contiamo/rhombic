@@ -1,4 +1,4 @@
-import { parseSql } from "./SqlParser";
+import { parseSql, parseFilter } from "./SqlParser";
 import { HasFromVisitor } from "./visitors/HasFromVisitor";
 import { ProjectionItemsVisitor } from "./visitors/ProjectionItemsVisitor";
 import { insertText } from "./utils/insertText";
@@ -41,6 +41,16 @@ const rhombic = {
       if (line.trim().startsWith("--") || line.trim() === "") return isEmpty;
       return false;
     }, true);
+  },
+
+  /**
+   * Returns `true` if the filter is valid.
+   *
+   * @param filter
+   */
+  isFilterValid(filter: string) {
+    const { lexErrors, parseErrors } = parseFilter(filter);
+    return lexErrors.length + parseErrors.length === 0;
   }
 };
 

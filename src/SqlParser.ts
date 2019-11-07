@@ -708,3 +708,20 @@ export function parseSql(statement: string) {
     parseErrors: parser.errors
   };
 }
+
+export function parseFilter(filter: string) {
+  const lexResult = SqlLexer.tokenize(filter);
+
+  // setting a new input will RESET the parser instance's state.
+  parser.input = lexResult.tokens;
+
+  // ref: https://sap.github.io/chevrotain/docs/guide/concrete_syntax_tree.html#ast-vs-cst
+  // `booleanExpression` is our top level rule for a filter
+  const cst = parser.booleanExpression();
+
+  return {
+    cst,
+    lexErrors: lexResult.errors,
+    parseErrors: parser.errors
+  };
+}
