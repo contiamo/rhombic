@@ -490,7 +490,7 @@ class SqlParser extends CstParser {
    * select:
    *      SELECT [ STREAM ] [ ALL | DISTINCT ]
    *          { projectionItem [, projectionItem ]* }
-   *      FROM tableExpression
+   *      FROM tableExpression [ AS tableAlias ]
    *      [ WHERE booleanExpression ]
    *      [ GROUP BY { groupItem [, groupItem ]* } ]
    *      [ HAVING booleanExpression ]
@@ -597,6 +597,18 @@ class SqlParser extends CstParser {
    */
   public tableReference = this.RULE("tableReference", () => {
     this.SUBRULE(this.tablePrimary);
+    this.OPTION(() => {
+      this.CONSUME(As);
+      this.CONSUME(Identifier); // alias
+      this.OPTION1(() => {
+        this.CONSUME(LParen);
+        this.AT_LEAST_ONE_SEP({
+          SEP: Comma,
+          DEF: () => this.CONSUME1(Identifier) // columnAlias
+        });
+        this.CONSUME(RParen);
+      });
+    });
   });
 
   /**

@@ -612,6 +612,26 @@ describe("parseSql", () => {
           )
         )
       )`
+    },
+    {
+      title: "table alias",
+      sql: "SELECT * FROM my_db AS plop",
+      expected: `query(
+      select(
+        Select("SELECT")
+        projectionItems(
+          projectionItem(Asterisk("*"))
+        )
+        From("FROM")
+        tableExpression(
+          tableReference(
+            tablePrimary(Identifier("my_db"))
+            As("AS")
+            Identifier("plop")
+          )
+        )
+      )
+    )`
     }
   ];
 
