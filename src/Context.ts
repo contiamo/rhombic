@@ -172,6 +172,11 @@ export interface TableReferenceContext {
     name: "tablePrimary";
     children: TablePrimaryContext;
   }>;
+  As?: IToken[];
+  Identifier?: IToken[];
+  LParen?: IToken[];
+  Comma?: IToken[];
+  RParen?: IToken[];
 }
 
 export interface TablePrimaryContext {
