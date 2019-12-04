@@ -1090,6 +1090,15 @@ FROM
 
     it("should remove filter for empty string", () => {
       const query = rhombic
+        .parse("SELECT * FROM my_db WHERE chicken != 'fresh' LIMIT 42")
+        .updateFilter("")
+        .toString();
+
+      expect(query).toEqual("SELECT * FROM my_db LIMIT 42");
+    });
+
+    it("should remove filter for empty string", () => {
+      const query = rhombic
         .parse("SELECT * FROM my_db WHERE chicken != 'fresh'")
         .updateFilter("")
         .toString();
