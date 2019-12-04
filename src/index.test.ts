@@ -1069,6 +1069,15 @@ FROM
         "SELECT * FROM my_db WHERE chicken LIKE 'crispy' LIMIT 42"
       );
     });
+
+    it("should remove filter", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_db WHERE chicken != 'fresh' LIMIT 42")
+        .updateFilter([])
+        .toString();
+
+      expect(query).toEqual("SELECT * FROM my_db LIMIT 42");
+    });
   });
 
   describe("isEmpty", () => {
