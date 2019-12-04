@@ -564,7 +564,7 @@ const parsedSql = (sql: string): ParsedSql => {
           visitor.location
         ).trim();
         if (filter === "") {
-          return parsedSql(nextSql.replace(" WHERE ", ""));
+          return parsedSql(nextSql.replace(/ WHERE ?/gi, ""));
         }
         return parsedSql(nextSql);
       } else {
@@ -575,7 +575,7 @@ const parsedSql = (sql: string): ParsedSql => {
           visitor.location
         ).trim();
         if (filterString === "") {
-          return parsedSql(nextSql.replace(" WHERE ", ""));
+          return parsedSql(nextSql.replace(/ WHERE ?/gi, ""));
         }
         return parsedSql(nextSql);
       }

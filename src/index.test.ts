@@ -1079,13 +1079,22 @@ FROM
       expect(query).toEqual("SELECT * FROM my_db LIMIT 42");
     });
 
+    it("should remove filter for empty array", () => {
+      const query = rhombic
+        .parse("SELECT * FROM my_db WHERE chicken != 'fresh'")
+        .updateFilter([])
+        .toString();
+
+      expect(query).toEqual("SELECT * FROM my_db");
+    });
+
     it("should remove filter for empty string", () => {
       const query = rhombic
-        .parse("SELECT * FROM my_db WHERE chicken != 'fresh' LIMIT 42")
+        .parse("SELECT * FROM my_db WHERE chicken != 'fresh'")
         .updateFilter("")
         .toString();
 
-      expect(query).toEqual("SELECT * FROM my_db LIMIT 42");
+      expect(query).toEqual("SELECT * FROM my_db");
     });
   });
 
