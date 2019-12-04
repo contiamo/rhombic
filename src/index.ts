@@ -571,6 +571,9 @@ const parsedSql = (sql: string): ParsedSql => {
           hasWhere ? filterString : ` WHERE ${filterString} `,
           visitor.location
         ).trim();
+        if (filterString === "") {
+          return parsedSql(nextSql.replace(" WHERE ", ""));
+        }
         return parsedSql(nextSql);
       }
     }
