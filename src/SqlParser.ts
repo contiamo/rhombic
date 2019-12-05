@@ -515,9 +515,16 @@ class SqlParser extends CstParser {
     });
 
     this.OPTION4(() => {
-      this.CONSUME(Where);
-      this.SUBRULE(this.booleanExpression);
+      this.SUBRULE(this.where);
     });
+  });
+
+  /**
+   * Where statement
+   */
+  public where = this.RULE("where", () => {
+    this.CONSUME(Where);
+    this.SUBRULE(this.booleanExpression);
   });
 
   /**

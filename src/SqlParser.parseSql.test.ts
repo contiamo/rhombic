@@ -516,12 +516,14 @@ describe("parseSql", () => {
           tableExpression(
             tableReference(tablePrimary(Identifier("my_db")))
           )
-          Where("WHERE")
-          booleanExpression(
-            booleanExpressionValue(
-              Identifier("column1")
-              BinaryOperator("=")
-              valueExpression(StringValue("'toto'"))
+          where(
+            Where("WHERE")
+            booleanExpression(
+              booleanExpressionValue(
+                Identifier("column1")
+                BinaryOperator("=")
+                valueExpression(StringValue("'toto'"))
+              )
             )
           )
         )
@@ -547,16 +549,18 @@ describe("parseSql", () => {
               )
             )
           )
-          Where("WHERE")
-          booleanExpression(
-            booleanExpressionValue(
-              Identifier("CURRENCY")
-              MultivalOperator("in")
-              LParen("(")
-              valueExpression(StringValue("'USD'"))
-              valueExpression(StringValue("'Mexican Peso'"))
-              Comma(",")
-              RParen(")")
+          where(
+            Where("WHERE")
+            booleanExpression(
+              booleanExpressionValue(
+                Identifier("CURRENCY")
+                MultivalOperator("in")
+                LParen("(")
+                valueExpression(StringValue("'USD'"))
+                valueExpression(StringValue("'Mexican Peso'"))
+                Comma(",")
+                RParen(")")
+              )
             )
           )
         )
@@ -578,36 +582,38 @@ describe("parseSql", () => {
               tablePrimary(Identifier("my_db"))
             )
           )
-          Where("WHERE")
-          booleanExpression(
-            booleanExpressionValue(
-              Identifier("a")
-              MultivalOperator("in")
-              LParen("(")
-              valueExpression(StringValue("'USD'"))
-              valueExpression(StringValue("'Mexican Peso'"))
-              Comma(",")
-              RParen(")")
-            )
-            And("AND")
+          where(
+            Where("WHERE")
             booleanExpression(
-              LParen("(")
+              booleanExpressionValue(
+                Identifier("a")
+                MultivalOperator("in")
+                LParen("(")
+                valueExpression(StringValue("'USD'"))
+                valueExpression(StringValue("'Mexican Peso'"))
+                Comma(",")
+                RParen(")")
+              )
+              And("AND")
               booleanExpression(
-                booleanExpressionValue(
-                  Identifier("b")
-                  BinaryOperator("=")
-                  valueExpression(StringValue("'foo'"))
-                )
-                Or("OR")
+                LParen("(")
                 booleanExpression(
                   booleanExpressionValue(
-                    Identifier("c")
-                    BinaryOperator(">=")
-                    valueExpression(IntegerValue("42"))
+                    Identifier("b")
+                    BinaryOperator("=")
+                    valueExpression(StringValue("'foo'"))
+                  )
+                  Or("OR")
+                  booleanExpression(
+                    booleanExpressionValue(
+                      Identifier("c")
+                      BinaryOperator(">=")
+                      valueExpression(IntegerValue("42"))
+                    )
                   )
                 )
+                RParen(")")
               )
-              RParen(")")
             )
           )
         )

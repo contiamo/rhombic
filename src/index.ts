@@ -553,32 +553,27 @@ const parsedSql = (sql: string): ParsedSql => {
       visitor.visit(cst);
       const hasWhere = Boolean(visitor.booleanExpressionNode);
 
-      if (!visitor.location) {
+      if (!visitor.booleanExpression) {
         throw new Error("Can't update/add a filter to this query");
       }
 
-      if (typeof filter === "string") {
-        const nextSql = replaceText(
-          sql,
-          hasWhere ? filter : ` WHERE ${filter} `,
-          visitor.location
-        ).trim();
-        if (filter === "") {
-          return parsedSql(nextSql.replace(/ WHERE ?/gi, ""));
-        }
-        return parsedSql(nextSql);
-      } else {
-        const filterString = printFilter(filter);
-        const nextSql = replaceText(
-          sql,
-          hasWhere ? filterString : ` WHERE ${filterString} `,
-          visitor.location
-        ).trim();
-        if (filterString === "") {
-          return parsedSql(nextSql.replace(/ WHERE ?/gi, ""));
-        }
-        return parsedSql(nextSql);
+      const computedFilter =
+        typeof filter === "string" ? filter : printFilter(filter);
+
+      const nextSql = replaceText(
+        sql,
+        hasWhere ? computedFilter : ` WHERE ${computedFilter} `,
+        hasWhere ? visitor.booleanExpressionLocation! : visitor.tableLocation!
+      ).trim();
+      if (computedFilter === "" && visitor.whereLocation) {
+        return parsedSql(
+          replaceText(sql, "", {
+            ...visitor.whereLocation,
+            startColumn: visitor.whereLocation.startColumn - 1 // Remove the space before WHERE
+          }).trim()
+        );
       }
+      return parsedSql(nextSql);
     }
   };
 };
