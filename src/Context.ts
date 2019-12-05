@@ -138,7 +138,14 @@ export interface SelectContext {
     name: "tableExpression";
     children: TableExpressionContext;
   }>;
-  Where?: IToken[];
+  where: Array<{
+    name: "where";
+    children: WhereContext;
+  }>;
+}
+
+export interface WhereContext {
+  Where: IToken[];
   booleanExpression: Array<{
     name: "booleanExpression";
     children: BooleanExpressionContext;
@@ -213,6 +220,7 @@ export type IContext =
   | BooleanExpressionValueContext
   | OrderItemContext
   | SelectContext
+  | WhereContext
   | ProjectionItemsContext
   | ProjectionItemContext
   | TableExpressionContext
