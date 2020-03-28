@@ -78,6 +78,42 @@ describe("rhombic", () => {
     });
   });
 
+  describe("getTablePrimaries", () => {
+    it("should return an empty array with a query without table primary", () => {
+      const tables = rhombic.parse("SELECT 'hello'").getTablePrimaries();
+
+      expect(tables).toEqual([]);
+    });
+
+    it("should return one tableName", () => {
+      const tables = rhombic.parse("SELECT * FROM my_db").getTablePrimaries();
+
+      expect(tables).toEqual([{ tableName: "my_db" }]);
+    });
+
+    it("should return on table with a schema", () => {
+      const tables = rhombic
+        .parse("SELECT * FROM my_schema.my_db")
+        .getTablePrimaries();
+
+      expect(tables).toEqual([{ tableName: "my_db", schemaName: "my_schema" }]);
+    });
+
+    it("should return on table with a schema and catalog", () => {
+      const tables = rhombic
+        .parse("SELECT * FROM my_catalog.my_schema.my_db")
+        .getTablePrimaries();
+
+      expect(tables).toEqual([
+        {
+          tableName: "my_db",
+          schemaName: "my_schema",
+          catalogName: "my_catalog"
+        }
+      ]);
+    });
+  });
+
   describe("orderBy", () => {
     it("should add an ORDER BY if not exists", () => {
       const query = rhombic
