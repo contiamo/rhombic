@@ -24,12 +24,7 @@ export class TablePrimaryVisitor extends Visitor {
 
   protected tablePrimary(ctx: TablePrimaryContext) {
     if (ctx.Identifier) {
-      // Why `.join(".").split(".")`?
-      // => Because Identifier can have dots, so `my_schema.my_db` is only one Identifier
-      // but `"my_schema"."my_db"` is two Identifiers.
-      const tableName = ctx.Identifier.map(i => sanitizeTableName(i.image))
-        .join(".")
-        .split(".");
+      const tableName = ctx.Identifier.map(i => sanitizeTableName(i.image));
 
       if (tableName.length === 3) {
         this.tables.push({
