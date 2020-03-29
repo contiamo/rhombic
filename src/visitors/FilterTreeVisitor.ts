@@ -75,7 +75,9 @@ export class FilterTreeVisitor extends Visitor {
       ctx.booleanExpressionValue.forEach(predicate => {
         this.tree.push({
           type: "predicate",
-          dimension: predicate.children.Identifier[0].image,
+          dimension: predicate.children.columnPrimary[0].children.Identifier.map(
+            i => i.image
+          ).join("."),
           operator: this.getOperator(predicate.children),
           value: this.getValue(predicate.children)
         });

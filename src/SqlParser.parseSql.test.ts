@@ -103,7 +103,10 @@ describe("parseSql", () => {
           projectionItems(
             projectionItem(
               expression(
-                Identifier("foo.bar")
+                columnPrimary(
+                  Identifier("foo", "bar")
+                  Period(".")
+                )
               )
             )
           )
@@ -111,7 +114,8 @@ describe("parseSql", () => {
           tableExpression(
             tableReference(
               tablePrimary(
-                Identifier("foo.bar")
+                Identifier("foo", "bar")
+                Period(".")
               )
             )
           )
@@ -184,7 +188,8 @@ describe("parseSql", () => {
           tableExpression(
             tableReference(
               tablePrimary(
-                Identifier("my_catalog.my_schema.my_table")
+                Identifier("my_catalog", "my_schema", "my_table")
+                Period(".", ".")
               )
             )
           )
@@ -201,7 +206,9 @@ describe("parseSql", () => {
           projectionItems(
             projectionItem(
               expression(
-                Identifier("column01")
+                columnPrimary(
+                  Identifier("column01")
+                )
               )
             )
           )
@@ -229,7 +236,9 @@ describe("parseSql", () => {
                 FunctionIdentifier("COUNT")
                 LParen("(")
                 expression(
-                  Identifier("column01")
+                  columnPrimary(
+                    Identifier("column01")
+                  )
                 )
                 RParen(")")
               )
@@ -260,7 +269,9 @@ describe("parseSql", () => {
                   Cast("CAST")
                   LParen("(")
                   expression(
-                    Identifier("column01")
+                    columnPrimary(
+                      Identifier("column01")
+                    )
                   )
                   As("AS")
                   type(
@@ -292,17 +303,23 @@ describe("parseSql", () => {
           projectionItems(
             projectionItem(
               expression(
-                Identifier("column01")
+                columnPrimary(
+                  Identifier("column01")
+                )
               )
             )
             projectionItem(
               expression(
-                Identifier("column02")
+                columnPrimary(
+                  Identifier("column02")
+                )
               )
             )
             projectionItem(
               expression(
-                Identifier("column03")
+                columnPrimary(
+                  Identifier("column03")
+                )
               )
             )
             Comma(",", ",")
@@ -329,7 +346,9 @@ describe("parseSql", () => {
           projectionItems(
             projectionItem(
               expression(
-                Identifier("column01")
+                columnPrimary(
+                  Identifier("column01")
+                )
               )
             )
           )
@@ -355,7 +374,9 @@ describe("parseSql", () => {
           projectionItems(
             projectionItem(
               expression(
-                Identifier("column01")
+                columnPrimary(
+                  Identifier("column01")
+                )
               )
             )
           )
@@ -377,8 +398,8 @@ describe("parseSql", () => {
         select(
           Select("SELECT")
           projectionItems(
-            projectionItem(expression(Identifier("column1")))
-            projectionItem(expression(Identifier("column2")))
+            projectionItem(expression(columnPrimary(Identifier("column1"))))
+            projectionItem(expression(columnPrimary(Identifier("column2"))))
             Comma(",")
           )
           From("FROM")
@@ -388,7 +409,7 @@ describe("parseSql", () => {
           orderBy(
             OrderBy("ORDER BY")
             orderItem(
-              expression(Identifier("column1"))
+              expression(columnPrimary(Identifier("column1")))
               Asc("ASC")
             )
           )
@@ -401,8 +422,8 @@ describe("parseSql", () => {
         select(
           Select("SELECT")
           projectionItems(
-            projectionItem(expression(Identifier("column1")))
-            projectionItem(expression(Identifier("column2")))
+            projectionItem(expression(columnPrimary(Identifier("column1"))))
+            projectionItem(expression(columnPrimary(Identifier("column2"))))
             Comma(",")
           )
           From("FROM")
@@ -412,7 +433,7 @@ describe("parseSql", () => {
           orderBy(
             OrderBy("ORDER BY")
             orderItem(
-              expression(Identifier("column1"))
+              expression(columnPrimary(Identifier("column1")))
               Desc("DESC")
             )
           )
@@ -426,8 +447,8 @@ describe("parseSql", () => {
         select(
           Select("SELECT")
           projectionItems(
-            projectionItem(expression(Identifier("column1")))
-            projectionItem(expression(Identifier("column2")))
+            projectionItem(expression(columnPrimary(Identifier("column1"))))
+            projectionItem(expression(columnPrimary(Identifier("column2"))))
             Comma(",")
           )
           From("FROM")
@@ -437,7 +458,7 @@ describe("parseSql", () => {
           orderBy(
             OrderBy("ORDER BY")
             orderItem(
-              expression(Identifier("column1"))
+              expression(columnPrimary(Identifier("column1")))
               Asc("ASC")
               Nulls("NULLS")
               First("FIRST")
@@ -452,8 +473,8 @@ describe("parseSql", () => {
         select(
           Select("SELECT")
           projectionItems(
-            projectionItem(expression(Identifier("column1")))
-            projectionItem(expression(Identifier("column2")))
+            projectionItem(expression(columnPrimary(Identifier("column1"))))
+            projectionItem(expression(columnPrimary(Identifier("column2"))))
             Comma(",")
           )
           From("FROM")
@@ -463,7 +484,7 @@ describe("parseSql", () => {
           orderBy(
             OrderBy("ORDER BY")
             orderItem(
-              expression(Identifier("column1"))
+              expression(columnPrimary(Identifier("column1")))
               Asc("ASC")
               Nulls("NULLS")
               Last("LAST")
@@ -479,8 +500,8 @@ describe("parseSql", () => {
         select(
           Select("SELECT")
           projectionItems(
-            projectionItem(expression(Identifier("column1")))
-            projectionItem(expression(Identifier("column2")))
+            projectionItem(expression(columnPrimary(Identifier("column1"))))
+            projectionItem(expression(columnPrimary(Identifier("column2"))))
             Comma(",")
           )
           From("FROM")
@@ -490,11 +511,11 @@ describe("parseSql", () => {
           orderBy(
             OrderBy("ORDER BY")
             orderItem(
-              expression(Identifier("column1"))
+              expression(columnPrimary(Identifier("column1")))
               Asc("ASC")
             )
             orderItem(
-              expression(Identifier("column2"))
+              expression(columnPrimary(Identifier("column2")))
               Desc("DESC")
               )
             Comma(",")
@@ -520,7 +541,9 @@ describe("parseSql", () => {
             Where("WHERE")
             booleanExpression(
               booleanExpressionValue(
-                Identifier("column1")
+                columnPrimary(
+                  Identifier("column1")
+                )
                 BinaryOperator("=")
                 valueExpression(StringValue("'toto'"))
               )
@@ -553,7 +576,9 @@ describe("parseSql", () => {
             Where("WHERE")
             booleanExpression(
               booleanExpressionValue(
-                Identifier("CURRENCY")
+                columnPrimary(
+                  Identifier("CURRENCY")
+                )
                 MultivalOperator("in")
                 LParen("(")
                 valueExpression(StringValue("'USD'"))
@@ -586,7 +611,9 @@ describe("parseSql", () => {
             Where("WHERE")
             booleanExpression(
               booleanExpressionValue(
-                Identifier("a")
+                columnPrimary(
+                  Identifier("a")
+                )
                 MultivalOperator("in")
                 LParen("(")
                 valueExpression(StringValue("'USD'"))
@@ -599,14 +626,18 @@ describe("parseSql", () => {
                 LParen("(")
                 booleanExpression(
                   booleanExpressionValue(
-                    Identifier("b")
+                    columnPrimary(
+                      Identifier("b")
+                    )
                     BinaryOperator("=")
                     valueExpression(StringValue("'foo'"))
                   )
                   Or("OR")
                   booleanExpression(
                     booleanExpressionValue(
-                      Identifier("c")
+                      columnPrimary(
+                        Identifier("c")
+                      )
                       BinaryOperator(">=")
                       valueExpression(IntegerValue("42"))
                     )

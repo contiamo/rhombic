@@ -137,6 +137,14 @@ describe("projectionItem", () => {
 
       expect(query).toEqual('SELECT *, column01 AS toto, "day" FROM my_table');
     });
+    it("should deal with scoped table names", () => {
+      const query = rhombic
+        .parse("SELECT my_table.column01 FROM my_table")
+        .addProjectionItem("column02")
+        .toString();
+
+      expect(query).toEqual("SELECT my_table.column01, column02 FROM my_table");
+    });
   });
 
   describe("updateProjectionItem", () => {

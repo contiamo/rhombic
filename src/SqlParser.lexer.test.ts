@@ -84,7 +84,9 @@ describe("Sql Lexer", () => {
         "SELECT => Select",
         "column1 => Identifier",
         "FROM => From",
-        "db.table2 => Identifier"
+        "db => Identifier",
+        ". => Period",
+        "table2 => Identifier"
       ]
     },
     {
@@ -94,7 +96,9 @@ describe("Sql Lexer", () => {
         "SELECT => Select",
         "column1 => Identifier",
         "FROM => From",
-        "db.table2 => Identifier",
+        "db => Identifier",
+        ". => Period",
+        "table2 => Identifier",
         "WHERE => Where",
         "column1 => Identifier",
         "> => BinaryOperator",

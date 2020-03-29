@@ -32,7 +32,10 @@ export interface ExpressionContext {
   Null?: IToken[];
   LParen?: IToken[];
   RParen?: IToken[];
-  Identifier?: IToken[];
+  columnPrimary: Array<{
+    name: "columnPrimary";
+    children: ColumnPrimaryContext;
+  }>;
   FunctionIdentifier?: IToken[];
   expression: Array<{
     name: "expression";
@@ -98,7 +101,10 @@ export interface BooleanExpressionContext {
 }
 
 export interface BooleanExpressionValueContext {
-  Identifier: IToken[];
+  columnPrimary: Array<{
+    name: "columnPrimary";
+    children: ColumnPrimaryContext;
+  }>;
   BinaryOperator?: IToken[];
   valueExpression: Array<{
     name: "valueExpression";
@@ -191,6 +197,11 @@ export interface TablePrimaryContext {
   Period?: IToken[];
 }
 
+export interface ColumnPrimaryContext {
+  Identifier: IToken[];
+  Period?: IToken[];
+}
+
 export interface ColumnDeclContext {}
 
 export interface ValuesContext {
@@ -227,6 +238,7 @@ export type IContext =
   | JoinConditionContext
   | TableReferenceContext
   | TablePrimaryContext
+  | ColumnPrimaryContext
   | ColumnDeclContext
   | ValuesContext
   | GroupItemContext
