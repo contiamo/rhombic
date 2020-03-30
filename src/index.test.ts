@@ -88,7 +88,17 @@ describe("rhombic", () => {
     it("should return one tableName", () => {
       const tables = rhombic.parse("SELECT * FROM my_db").getTablePrimaries();
 
-      expect(tables).toEqual([{ tableName: "my_db" }]);
+      expect(tables).toEqual([
+        {
+          tableName: "my_db",
+          location: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 15,
+            endColumn: 19
+          }
+        }
+      ]);
     });
 
     it("should return on table with a schema", () => {
@@ -96,7 +106,18 @@ describe("rhombic", () => {
         .parse("SELECT * FROM my_schema.my_db")
         .getTablePrimaries();
 
-      expect(tables).toEqual([{ tableName: "my_db", schemaName: "my_schema" }]);
+      expect(tables).toEqual([
+        {
+          tableName: "my_db",
+          schemaName: "my_schema",
+          location: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 15,
+            endColumn: 29
+          }
+        }
+      ]);
     });
 
     it("should return on table with a schema and catalog", () => {
@@ -108,7 +129,13 @@ describe("rhombic", () => {
         {
           tableName: "my_db",
           schemaName: "my_schema",
-          catalogName: "my_catalog"
+          catalogName: "my_catalog",
+          location: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 15,
+            endColumn: 40
+          }
         }
       ]);
     });

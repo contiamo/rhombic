@@ -5,7 +5,7 @@ import { insertText } from "./utils/insertText";
 import { CstNode } from "chevrotain";
 import { TablePrimaryVisitor } from "./visitors/TablePrimaryVisitor";
 import { replaceText } from "./utils/replaceText";
-import { getLocation } from "./utils/getLocation";
+import { getLocation, Location } from "./utils/getLocation";
 import { needToBeEscaped } from "./utils/needToBeEscaped";
 import { printFilter } from "./utils/printFilter";
 import { getText } from "./utils/getText";
@@ -69,6 +69,7 @@ export interface TablePrimary {
   catalogName?: string;
   schemaName?: string;
   tableName: string;
+  location: Location;
 }
 
 // Note: Because we have a recursion, we can't rely on typescript inference
