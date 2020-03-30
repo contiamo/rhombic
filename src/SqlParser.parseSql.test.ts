@@ -1,6 +1,7 @@
 import { parseSql } from "./SqlParser";
 import { ILexingError, IRecognitionException } from "chevrotain";
 import { prettifyCst } from "./utils/prettifyCst";
+import fs from "fs";
 
 describe("parseSql", () => {
   const cases: Array<{
@@ -690,10 +691,12 @@ describe("parseSql", () => {
 
       // Advanced debug
       if (debug) {
-        const previous = require("fs").readFileSync("debug.json", "utf-8");
-        const next = prettifyCst(result.cst.children);
+        const previous = fs.existsSync("debug.json")
+          ? fs.readFileSync("debug.json", "utf-8")
+          : "";
+        const next = JSON.stringify(result, null, 2);
         if (previous !== next) {
-          require("fs").writeFileSync("debug.json", next);
+          fs.writeFileSync("debug.json", next);
         }
       }
 
