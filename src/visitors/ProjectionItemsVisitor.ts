@@ -10,6 +10,11 @@ import { IToken, CstElement } from "chevrotain";
 import { getImageFromChildren } from "../utils/getImageFromChildren";
 import { getChildrenRange, Range } from "../utils/getChildrenRange";
 import { isCstNode } from "../utils/isCstNode";
+import {
+  isAsteriskContext,
+  isExpressionContext
+} from "../utils/projectionItem";
+import { isFunctionContext } from "../utils/expression";
 
 const Visitor = parser.getBaseCstVisitorConstructorWithDefaults();
 
@@ -118,10 +123,10 @@ export class ProjectionItemsVisitor extends Visitor {
     let expression = "";
     let alias: string | undefined;
 
-    if (ctx.expression) {
+    if (isExpressionContext(ctx)) {
       ctx.expression.forEach(i => {
         // Extract `fn` information
-        if (i.children.FunctionIdentifier) {
+        if (isFunctionContext(i.children)) {
           fn = {
             identifier: i.children.FunctionIdentifier[0].image,
             value: getImageFromChildren(i.children.expression[0].children)
@@ -144,12 +149,12 @@ export class ProjectionItemsVisitor extends Visitor {
       );
     }
 
-    if (ctx.Asterisk) {
+    if (isAsteriskContext(ctx)) {
       this.asteriskCount++;
       isAsterisk = true;
     }
 
-    if (ctx.As && ctx.Identifier) {
+    if (isExpressionContext(ctx) && ctx.As && ctx.Identifier) {
       alias = ctx.Identifier[ctx.Identifier.length - 1].image;
     }
 

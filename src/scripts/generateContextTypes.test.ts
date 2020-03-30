@@ -75,22 +75,22 @@ describe("generateDefinitionTypes", () => {
     ]);
 
     expect(generateDefinitionTypes(definition)).toMatchInlineSnapshot(`
-                        "
-                          Cast: IToken[];
-                          LParen: IToken[];
-                          expression: Array<{
-                            name: \\"expression\\";
-                            children: ExpressionContext;
-                          }>;
-                          As: IToken[];
-                          type: Array<{
-                            name: \\"type\\";
-                            children: TypeContext;
-                          }>;
-                          IntegerValue?: IToken[];
-                          Comma?: IToken[];
-                          RParen: IToken[];"
-                `);
+                                                      "
+                                                        Cast: IToken[];
+                                                        LParen: IToken[];
+                                                        expression: Array<{
+                                                          name: \\"expression\\";
+                                                          children: ExpressionContext;
+                                                        }>;
+                                                        As: IToken[];
+                                                        type: Array<{
+                                                          name: \\"type\\";
+                                                          children: TypeContext;
+                                                        }>;
+                                                        IntegerValue?: IToken[];
+                                                        Comma?: IToken[];
+                                                        RParen: IToken[];"
+                                    `);
   });
 
   it("should deal with options", () => {
@@ -143,19 +143,19 @@ describe("generateDefinitionTypes", () => {
     ]);
 
     expect(generateDefinitionTypes(definition)).toMatchInlineSnapshot(`
-            "
-              select: Array<{
-                name: \\"select\\";
-                children: SelectContext;
-              }>;
-              orderBy?: Array<{
-                name: \\"orderBy\\";
-                children: OrderByContext;
-              }>;
-              Limit?: IToken[];
-            IntegerValue?: IToken[];
-            All?: IToken[];"
-        `);
+                                          "
+                                            select: Array<{
+                                              name: \\"select\\";
+                                              children: SelectContext;
+                                            }>;
+                                            orderBy?: Array<{
+                                              name: \\"orderBy\\";
+                                              children: OrderByContext;
+                                            }>;
+                                            Limit?: IToken[];
+                                          IntegerValue?: IToken[];
+                                          All?: IToken[];"
+                            `);
   });
 
   it("should deal with RepetitionMandatoryWithSeparator", () => {
@@ -180,13 +180,100 @@ describe("generateDefinitionTypes", () => {
     ]);
 
     expect(generateDefinitionTypes(definition)).toMatchInlineSnapshot(`
+                                    "
+                                      OrderBy: IToken[];
+                                        orderItem: Array<{
+                                          name: \\"orderItem\\";
+                                          children: OrderItemContext;
+                                        }>;
+                                        Comma?: IToken[];"
+                        `);
+  });
+
+  it("should deal with alternation with definition after", () => {
+    const definition = mockDefinition([
+      {
+        type: "Alternation",
+        definition: [
+          {
+            type: "Flat",
+            definition: [
+              {
+                type: "Terminal",
+                name: "LParen"
+              },
+              {
+                type: "NonTerminal",
+                name: "booleanExpression"
+              },
+              {
+                type: "Terminal",
+                name: "RParen"
+              }
+            ]
+          },
+          {
+            type: "Flat",
+            definition: [
+              {
+                type: "NonTerminal",
+                name: "booleanExpressionValue"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        type: "Option",
+        definition: [
+          {
+            type: "Alternation",
+            definition: [
+              {
+                type: "Flat",
+                definition: [
+                  {
+                    type: "Terminal",
+                    name: "Or"
+                  }
+                ]
+              },
+              {
+                type: "Flat",
+                definition: [
+                  {
+                    type: "Terminal",
+                    name: "And"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            type: "NonTerminal",
+            name: "booleanExpression"
+          }
+        ]
+      }
+    ]);
+
+    expect(generateDefinitionTypes(definition)).toMatchInlineSnapshot(`
       "
-        OrderBy: IToken[];
-          orderItem: Array<{
-            name: \\"orderItem\\";
-            children: OrderItemContext;
-          }>;
-          Comma?: IToken[];"
+      LParen: IToken[];
+      booleanExpression: Array<{
+        name: \\"booleanExpression\\";
+        children: BooleanExpressionContext;
+      }>;
+      RParen: IToken[];} | {booleanExpressionValue: Array<{
+        name: \\"booleanExpressionValue\\";
+        children: BooleanExpressionValueContext;
+      }>;}) & {
+      Or?: IToken[];
+      And?: IToken[];
+        booleanExpression?: Array<{
+          name: \\"booleanExpression\\";
+          children: BooleanExpressionContext;
+        }>;"
     `);
   });
 });

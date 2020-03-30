@@ -75,6 +75,8 @@ interface RepetitionNode {
   definition: Node[];
 }
 
+const alternationLink = `}) & {`;
+
 /**
  * Script to generate context types from the grammar.
  *
@@ -89,10 +91,12 @@ import { IToken } from "chevrotain";
 
   // Improve the type safety with our own types, `RuleNode[]` is a better version of `ISerializedGast[]`
   (grammar as RuleNode[]).forEach(rule => {
-    const def = generateDefinitionTypes(rule.definition, 2);
+    const def = generateDefinitionTypes(rule.definition);
     IContext.push(`${pascal(rule.name)}Context`);
     types += def.includes("|")
-      ? `\nexport type ${pascal(rule.name)}Context = \n  | {\n`
+      ? `\nexport type ${pascal(rule.name)}Context = \n  ${
+          def.includes(alternationLink) ? "(" : ""
+        } | {\n`
       : `\nexport interface ${pascal(rule.name)}Context {`;
     types += def;
     types += "\n}\n\n";
@@ -104,94 +108,155 @@ import { IToken } from "chevrotain";
 
 export function generateDefinitionTypes(
   definition: Node[],
-  indent = 2,
-  optionnal = false,
-  keys: string[] = [] // store of previous keys to prevent duplicate
+  options?: {
+    indent?: number;
+    optional?: boolean;
+    keys?: string[]; // store of previous keys to prevent duplicate
+  }
 ): string {
-  return definition.reduce((output, node) => {
-    switch (node.type) {
-      case "Terminal":
-        if (keys.includes(node.name)) {
-          if (!optionnal) {
-            // Remove optional from definition
-            return output.replace(
-              `${node.name}?: IToken[];`,
-              `${node.name}: IToken[];`
-            );
+  const { indent, optional, keys } = {
+    keys: [] as string[],
+    indent: 2,
+    optional: false,
+    ...options
+  };
+
+  return definition.reduce(
+    ({ output, isAfterAlternation }, node) => {
+      // Avoid the next node to be inside the Alternation union
+      if (isAfterAlternation && output.includes("} | {")) {
+        output += alternationLink;
+      }
+
+      switch (node.type) {
+        case "Terminal":
+          if (keys.includes(node.name)) {
+            if (!optional) {
+              // Remove optional from definition
+              return {
+                output: output.replace(
+                  `${node.name}?: IToken[];`,
+                  `${node.name}: IToken[];`
+                ),
+                isAfterAlternation: false
+              };
+            }
+            return { output, isAfterAlternation: false };
           }
-          return output;
-        }
-        keys.push(node.name);
-        return `${output}\n${" ".repeat(indent)}${node.name}${
-          optionnal ? "?" : ""
-        }: IToken[];`;
+          keys.push(node.name);
+          return {
+            output: `${output}\n${" ".repeat(indent)}${node.name}${
+              optional ? "?" : ""
+            }: IToken[];`,
+            isAfterAlternation: false
+          };
 
-      case "NonTerminal":
-        if (keys.includes(node.name)) return output;
-        keys.push(node.name);
-        return `${output}\n${" ".repeat(indent)}${node.name}${
-          optionnal ? "?" : ""
-        }: Array<{\n${" ".repeat(indent + 2)}name: "${
-          node.name
-        }";\n${" ".repeat(indent + 2)}children: ${pascal(
-          node.name
-        )}Context;\n${" ".repeat(indent)}}>;`;
+        case "NonTerminal":
+          if (keys.includes(node.name))
+            return { output, isAfterAlternation: false };
+          keys.push(node.name);
+          return {
+            output: `${output}\n${" ".repeat(indent)}${node.name}${
+              optional ? "?" : ""
+            }: Array<{\n${" ".repeat(indent + 2)}name: "${
+              node.name
+            }";\n${" ".repeat(indent + 2)}children: ${pascal(
+              node.name
+            )}Context;\n${" ".repeat(indent)}}>;`,
+            isAfterAlternation: false
+          };
 
-      case "Option":
-        return (
-          output + generateDefinitionTypes(node.definition, indent, true, keys)
-        );
+        case "Option":
+          return {
+            output:
+              output +
+              generateDefinitionTypes(node.definition, {
+                indent,
+                optional: true,
+                keys
+              }),
+            isAfterAlternation: false
+          };
 
-      case "RepetitionMandatoryWithSeparator":
-        return (
-          output +
-          generateDefinitionTypes(node.definition, indent + 2, false, keys) +
-          generateDefinitionTypes([node.separator], indent + 2, true, keys)
-        );
+        case "RepetitionMandatoryWithSeparator":
+          return {
+            output:
+              output +
+              generateDefinitionTypes(node.definition, {
+                indent: indent + 2,
+                keys
+              }) +
+              generateDefinitionTypes([node.separator], {
+                indent: indent + 2,
+                optional: true,
+                keys
+              }),
+            isAfterAlternation: false
+          };
 
-      case "Repetition":
-        return (
-          output +
-          generateDefinitionTypes(node.definition, indent + 2, true, keys)
-        );
+        case "Repetition":
+          return {
+            output:
+              output +
+              generateDefinitionTypes(node.definition, {
+                indent: indent + 2,
+                optional: true,
+                keys
+              }),
+            isAfterAlternation: false
+          };
 
-      case "Alternation":
-        const isTerminalOnly = !JSON.stringify(node.definition).includes(
-          "NonTerminal"
-        );
+        case "Alternation":
+          const isTerminalOnly = !JSON.stringify(node.definition).includes(
+            "NonTerminal"
+          );
 
-        const entries = new Set();
-        return (
-          output +
-          "\n" +
-          (isTerminalOnly
-            ? node.definition
-                .map(i => generateDefinitionTypes(i.definition, 0, true, keys))
-                .join("")
-                .split("\n")
-                .filter((j: string) => {
-                  const isAlreadyDefined = entries.has(j);
-                  if (!j.includes("}>;")) {
-                    entries.add(j);
-                  }
-                  return !isEmpty(j) && !isAlreadyDefined;
-                })
-                .join("\n")
-            : node.definition
-                .map(i =>
-                  generateDefinitionTypes(i.definition, 0).replace("\n", "")
-                )
-                .join("} | {"))
-        );
+          const entries = new Set();
+          return {
+            output:
+              output +
+              "\n" +
+              (isTerminalOnly
+                ? node.definition
+                    .map(i =>
+                      generateDefinitionTypes(i.definition, {
+                        indent: 0,
+                        optional: true,
+                        keys
+                      })
+                    )
+                    .join("")
+                    .split("\n")
+                    .filter((j: string) => {
+                      const isAlreadyDefined = entries.has(j);
+                      if (!j.includes("}>;")) {
+                        entries.add(j);
+                      }
+                      return !isEmpty(j) && !isAlreadyDefined;
+                    })
+                    .join("\n")
+                : node.definition
+                    .map(i =>
+                      generateDefinitionTypes(i.definition, {
+                        indent: 0
+                      }).replace("\n", "")
+                    )
+                    .join("} | {")),
+            isAfterAlternation: true
+          };
 
-      case "Flat":
-        return (
-          output +
-          generateDefinitionTypes(node.definition).replace(/[\n;]/g, "")
-        );
+        case "Flat":
+          return {
+            output:
+              output +
+              generateDefinitionTypes(node.definition).replace(/[\n;]/g, ""),
+            isAfterAlternation: false
+          };
 
-      default:
-        return output;
-    }
-  }, "");
+        default:
+          return { output, isAfterAlternation: false };
+      }
+    },
+    { output: "", isAfterAlternation: false }
+  ).output;
 }

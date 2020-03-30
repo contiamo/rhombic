@@ -96,7 +96,7 @@ export interface ValueExpressionContext {
   DateValue?: IToken[];
 }
 
-export type BooleanExpressionContext =
+export type BooleanExpressionContext = (
   | {
       LParen: IToken[];
       booleanExpression: Array<{
@@ -110,13 +110,14 @@ export type BooleanExpressionContext =
         name: "booleanExpressionValue";
         children: BooleanExpressionValueContext;
       }>;
-      Or?: IToken[];
-      And?: IToken[];
-      booleanExpression?: Array<{
-        name: "booleanExpression";
-        children: BooleanExpressionContext;
-      }>;
-    };
+    }) & {
+  Or?: IToken[];
+  And?: IToken[];
+  booleanExpression?: Array<{
+    name: "booleanExpression";
+    children: BooleanExpressionContext;
+  }>;
+};
 
 export type BooleanExpressionValueContext =
   | {
