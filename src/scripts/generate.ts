@@ -13,7 +13,7 @@ program
   .parse(process.argv);
 
 /**
- * Generate every grammar artefacts (types, doc, serialijed grammar).
+ * Generate every grammar artefacts (types, doc, serialized grammar).
  */
 function generate() {
   const grammar = parser.getSerializedGastProductions();

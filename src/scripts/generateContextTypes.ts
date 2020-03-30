@@ -5,7 +5,7 @@ import { pascal } from "case";
 import isEmpty from "lodash/isEmpty";
 import { ISerializedGast } from "chevrotain";
 
-type Node =
+export type Node =
   | FlatNode
   | RuleNode
   | AlternationNode
@@ -102,57 +102,69 @@ import { IToken } from "chevrotain";
   console.log(chalk.green("✔") + " context types generated!");
 }
 
-function generateDefinitionTypes(
+export function generateDefinitionTypes(
   definition: Node[],
   indent = 2,
   optionnal = false,
   keys: string[] = [] // store of previous keys to prevent duplicate
 ): string {
-  return definition
-    .map(node => {
-      switch (node.type) {
-        case "Terminal":
-          if (keys.includes(node.name)) return "";
-          keys.push(node.name);
-          return `\n${" ".repeat(indent)}${node.name}${
-            optionnal ? "?" : ""
-          }: IToken[];`;
+  return definition.reduce((output, node) => {
+    switch (node.type) {
+      case "Terminal":
+        if (keys.includes(node.name)) {
+          if (!optionnal) {
+            // Remove optional from definition
+            return output.replace(
+              `${node.name}?: IToken[];`,
+              `${node.name}: IToken[];`
+            );
+          }
+          return output;
+        }
+        keys.push(node.name);
+        return `${output}\n${" ".repeat(indent)}${node.name}${
+          optionnal ? "?" : ""
+        }: IToken[];`;
 
-        case "NonTerminal":
-          if (keys.includes(node.name)) return "";
-          keys.push(node.name);
-          return `\n${" ".repeat(indent)}${node.name}: Array<{\n${" ".repeat(
-            indent + 2
-          )}name: "${node.name}";\n${" ".repeat(indent + 2)}children: ${pascal(
-            node.name
-          )}Context;\n${" ".repeat(indent)}}>;`;
+      case "NonTerminal":
+        if (keys.includes(node.name)) return output;
+        keys.push(node.name);
+        return `${output}\n${" ".repeat(indent)}${node.name}${
+          optionnal ? "?" : ""
+        }: Array<{\n${" ".repeat(indent + 2)}name: "${
+          node.name
+        }";\n${" ".repeat(indent + 2)}children: ${pascal(
+          node.name
+        )}Context;\n${" ".repeat(indent)}}>;`;
 
-        case "Option":
-          return generateDefinitionTypes(node.definition, indent, true, keys);
+      case "Option":
+        return (
+          output + generateDefinitionTypes(node.definition, indent, true, keys)
+        );
 
-        case "RepetitionMandatoryWithSeparator":
-          return generateDefinitionTypes(
-            [...node.definition, node.separator],
-            indent + 2,
-            true,
-            keys
-          );
+      case "RepetitionMandatoryWithSeparator":
+        return (
+          output +
+          generateDefinitionTypes(node.definition, indent + 2, false, keys) +
+          generateDefinitionTypes([node.separator], indent + 2, true, keys)
+        );
 
-        case "Repetition":
-          return generateDefinitionTypes(
-            node.definition,
-            indent + 2,
-            true,
-            keys
-          );
+      case "Repetition":
+        return (
+          output +
+          generateDefinitionTypes(node.definition, indent + 2, true, keys)
+        );
 
-        case "Alternation":
-          const isTerminalOnly = !JSON.stringify(node.definition).includes(
-            "NonTerminal"
-          );
+      case "Alternation":
+        const isTerminalOnly = !JSON.stringify(node.definition).includes(
+          "NonTerminal"
+        );
 
-          const entries = new Set();
-          return "\n" + isTerminalOnly
+        const entries = new Set();
+        return (
+          output +
+          "\n" +
+          (isTerminalOnly
             ? node.definition
                 .map(i => generateDefinitionTypes(i.definition, 0, true, keys))
                 .join("")
@@ -169,14 +181,17 @@ function generateDefinitionTypes(
                 .map(i =>
                   generateDefinitionTypes(i.definition, 0).replace("\n", "")
                 )
-                .join("} | {");
+                .join("} | {"))
+        );
 
-        case "Flat":
-          return generateDefinitionTypes(node.definition).replace(/[\n;]/g, "");
+      case "Flat":
+        return (
+          output +
+          generateDefinitionTypes(node.definition).replace(/[\n;]/g, "")
+        );
 
-        default:
-          return "";
-      }
-    })
-    .join("");
+      default:
+        return output;
+    }
+  }, "");
 }

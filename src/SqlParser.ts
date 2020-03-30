@@ -320,7 +320,7 @@ class SqlParser extends CstParser {
         }
       },
       {
-        ALT: () => this.SUBRULE(this.columnPrimary) // TODO add a test for this
+        ALT: () => this.SUBRULE(this.columnPrimary)
       },
       {
         ALT: () => {

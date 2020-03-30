@@ -8,44 +8,55 @@ export interface StatementContext {
   }>;
 }
 
-export interface QueryContext {
-  values: Array<{
-    name: "values";
-    children: ValuesContext;
-  }>;
-  select: Array<{
-    name: "select";
-    children: SelectContext;
-  }>;
-  orderBy: Array<{
-    name: "orderBy";
-    children: OrderByContext;
-  }>;
-  Limit?: IToken[];
-  IntegerValue?: IToken[];
-  All?: IToken[];
-}
+export type QueryContext =
+  | {
+      values: Array<{
+        name: "values";
+        children: ValuesContext;
+      }>;
+    }
+  | {
+      select: Array<{
+        name: "select";
+        children: SelectContext;
+      }>;
+      orderBy?: Array<{
+        name: "orderBy";
+        children: OrderByContext;
+      }>;
+      Limit?: IToken[];
+      IntegerValue?: IToken[];
+      All?: IToken[];
+    };
 
-export interface ExpressionContext {
-  IntegerValue?: IToken[];
-  StringValue?: IToken[];
-  Null?: IToken[];
-  LParen?: IToken[];
-  RParen?: IToken[];
-  columnPrimary: Array<{
-    name: "columnPrimary";
-    children: ColumnPrimaryContext;
-  }>;
-  FunctionIdentifier?: IToken[];
-  expression: Array<{
-    name: "expression";
-    children: ExpressionContext;
-  }>;
-  cast: Array<{
-    name: "cast";
-    children: CastContext;
-  }>;
-}
+export type ExpressionContext =
+  | {
+      IntegerValue: IToken[];
+    }
+  | { StringValue: IToken[] }
+  | { Null: IToken[] }
+  | { LParen: IToken[]; RParen: IToken[] }
+  | {
+      columnPrimary: Array<{
+        name: "columnPrimary";
+        children: ColumnPrimaryContext;
+      }>;
+    }
+  | {
+      FunctionIdentifier: IToken[];
+      LParen: IToken[];
+      expression: Array<{
+        name: "expression";
+        children: ExpressionContext;
+      }>;
+      RParen: IToken[];
+    }
+  | {
+      cast: Array<{
+        name: "cast";
+        children: CastContext;
+      }>;
+    };
 
 export interface CastContext {
   Cast: IToken[];
@@ -61,7 +72,7 @@ export interface CastContext {
   }>;
   IntegerValue?: IToken[];
   Comma?: IToken[];
-  RParen?: IToken[];
+  RParen: IToken[];
 }
 
 export interface OrderByContext {
@@ -85,38 +96,51 @@ export interface ValueExpressionContext {
   DateValue?: IToken[];
 }
 
-export interface BooleanExpressionContext {
-  LParen?: IToken[];
-  booleanExpression: Array<{
-    name: "booleanExpression";
-    children: BooleanExpressionContext;
-  }>;
-  RParen?: IToken[];
-  booleanExpressionValue: Array<{
-    name: "booleanExpressionValue";
-    children: BooleanExpressionValueContext;
-  }>;
-  Or?: IToken[];
-  And?: IToken[];
-}
+export type BooleanExpressionContext =
+  | {
+      LParen: IToken[];
+      booleanExpression: Array<{
+        name: "booleanExpression";
+        children: BooleanExpressionContext;
+      }>;
+      RParen: IToken[];
+    }
+  | {
+      booleanExpressionValue: Array<{
+        name: "booleanExpressionValue";
+        children: BooleanExpressionValueContext;
+      }>;
+      Or?: IToken[];
+      And?: IToken[];
+      booleanExpression?: Array<{
+        name: "booleanExpression";
+        children: BooleanExpressionContext;
+      }>;
+    };
 
-export interface BooleanExpressionValueContext {
-  columnPrimary: Array<{
-    name: "columnPrimary";
-    children: ColumnPrimaryContext;
-  }>;
-  BinaryOperator?: IToken[];
-  valueExpression: Array<{
-    name: "valueExpression";
-    children: ValueExpressionContext;
-  }>;
-  MultivalOperator?: IToken[];
-  LParen?: IToken[];
-  Comma?: IToken[];
-  RParen?: IToken[];
-  IsNull?: IToken[];
-  IsNotNull?: IToken[];
-}
+export type BooleanExpressionValueContext =
+  | {
+      columnPrimary: Array<{
+        name: "columnPrimary";
+        children: ColumnPrimaryContext;
+      }>;
+      BinaryOperator: IToken[];
+      valueExpression: Array<{
+        name: "valueExpression";
+        children: ValueExpressionContext;
+      }>;
+    }
+  | {
+      MultivalOperator: IToken[];
+      LParen: IToken[];
+      valueExpression: Array<{
+        name: "valueExpression";
+        children: ValueExpressionContext;
+      }>;
+      Comma?: IToken[];
+      RParen: IToken[];
+    }
+  | { IsNull?: IToken[]; IsNotNull?: IToken[] };
 
 export interface OrderItemContext {
   expression: Array<{
@@ -140,11 +164,11 @@ export interface SelectContext {
     children: ProjectionItemsContext;
   }>;
   From?: IToken[];
-  tableExpression: Array<{
+  tableExpression?: Array<{
     name: "tableExpression";
     children: TableExpressionContext;
   }>;
-  where: Array<{
+  where?: Array<{
     name: "where";
     children: WhereContext;
   }>;
@@ -166,15 +190,16 @@ export interface ProjectionItemsContext {
   Comma?: IToken[];
 }
 
-export interface ProjectionItemContext {
-  expression: Array<{
-    name: "expression";
-    children: ExpressionContext;
-  }>;
-  As?: IToken[];
-  Identifier?: IToken[];
-  Asterisk?: IToken[];
-}
+export type ProjectionItemContext =
+  | {
+      expression: Array<{
+        name: "expression";
+        children: ExpressionContext;
+      }>;
+      As?: IToken[];
+      Identifier?: IToken[];
+    }
+  | { Asterisk: IToken[] };
 
 export interface TableExpressionContext {}
 
