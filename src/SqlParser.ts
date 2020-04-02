@@ -3,7 +3,7 @@ import { matchFunctionName } from "./utils/matchFunctionName";
 
 const Identifier = createToken({
   name: "Identifier",
-  pattern: /[a-zA-Z][\w\.]*|"[^"]*"/
+  pattern: /[a-zA-Z][\w]*|"[^"]*"/
 });
 
 const FunctionIdentifier = createToken({
@@ -319,7 +319,9 @@ class SqlParser extends CstParser {
           this.CONSUME(RParen);
         }
       },
-      { ALT: () => this.CONSUME(Identifier) },
+      {
+        ALT: () => this.SUBRULE(this.columnPrimary)
+      },
       {
         ALT: () => {
           this.CONSUME(FunctionIdentifier), this.CONSUME1(LParen);
@@ -423,7 +425,7 @@ class SqlParser extends CstParser {
   });
 
   public booleanExpressionValue = this.RULE("booleanExpressionValue", () => {
-    this.CONSUME(Identifier);
+    this.SUBRULE(this.columnPrimary);
     this.OR([
       {
         ALT: () => {
@@ -641,10 +643,35 @@ class SqlParser extends CstParser {
             this.CONSUME3(Identifier);
             this.CONSUME2(Period);
           });
+          // tableName
           this.CONSUME4(Identifier);
         }
       }
     ]);
+  });
+
+  /**
+   * columnPrimary:
+   *  [ [ [ catalogName . ] schemaName . ] tableName . ] columnName
+   */
+  public columnPrimary = this.RULE("columnPrimary", () => {
+    // CatalogName
+    this.OPTION(() => {
+      this.CONSUME(Identifier);
+      this.CONSUME(Period);
+    });
+    // schemaName
+    this.OPTION1(() => {
+      this.CONSUME1(Identifier);
+      this.CONSUME1(Period);
+    });
+    // tableName
+    this.OPTION2(() => {
+      this.CONSUME2(Identifier);
+      this.CONSUME2(Period);
+    });
+    // columnName
+    this.CONSUME3(Identifier);
   });
 
   /**

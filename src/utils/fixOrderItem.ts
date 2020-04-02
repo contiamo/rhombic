@@ -4,7 +4,7 @@ import { ParsedSql } from "..";
 
 /**
  * Fix order by item after a projectionItem refactor. Indeed if the order by rely on an alias,
- * and the alias is not in the query anymore, the quey will be unvalid.
+ * and the alias is not in the query anymore, the query will be unvalid.
  *
  * @param cst
  * @param prevProjectionItem

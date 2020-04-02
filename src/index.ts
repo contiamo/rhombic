@@ -3,9 +3,9 @@ import { HasFromVisitor } from "./visitors/HasFromVisitor";
 import { ProjectionItemsVisitor } from "./visitors/ProjectionItemsVisitor";
 import { insertText } from "./utils/insertText";
 import { CstNode } from "chevrotain";
-import { HasTablePrimary } from "./visitors/HasTablePrimaryVisitor";
+import { TablePrimaryVisitor } from "./visitors/TablePrimaryVisitor";
 import { replaceText } from "./utils/replaceText";
-import { getLocation } from "./utils/getLocation";
+import { getLocation, Location } from "./utils/getLocation";
 import { needToBeEscaped } from "./utils/needToBeEscaped";
 import { printFilter } from "./utils/printFilter";
 import { getText } from "./utils/getText";
@@ -65,6 +65,13 @@ export interface ProjectionItemMetadata {
   };
 }
 
+export interface TablePrimary {
+  catalogName?: string;
+  schemaName?: string;
+  tableName: string;
+  location: Location;
+}
+
 // Note: Because we have a recursion, we can't rely on typescript inference
 // `addProjectionItem` will return `any` without this type definition
 export interface ParsedSql {
@@ -89,6 +96,11 @@ export interface ParsedSql {
    * @param name
    */
   hasTablePrimary(name: string): boolean;
+
+  /**
+   * Get all `tablePrimary`.
+   */
+  getTablePrimaries(): TablePrimary[];
 
   /**
    * Get a projectionItem from result index.
@@ -219,9 +231,15 @@ const parsedSql = (sql: string): ParsedSql => {
     },
 
     hasTablePrimary(name) {
-      const visitor = new HasTablePrimary(name);
+      const visitor = new TablePrimaryVisitor(name);
       visitor.visit(cst);
       return visitor.hasTablePrimary;
+    },
+
+    getTablePrimaries() {
+      const visitor = new TablePrimaryVisitor();
+      visitor.visit(cst);
+      return visitor.tables;
     },
 
     getProjectionItem({ columns, index }, internalVisitor) {
