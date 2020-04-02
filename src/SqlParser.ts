@@ -86,6 +86,42 @@ const Where = createToken({
   longer_alt: Identifier
 });
 
+const Natural = createToken({
+  name: "Natural",
+  pattern: /NATURAL/i,
+  longer_alt: Identifier
+});
+
+const Left = createToken({
+  name: "Left",
+  pattern: /LEFT/i,
+  longer_alt: Identifier
+});
+
+const Right = createToken({
+  name: "Right",
+  pattern: /RIGHT/i,
+  longer_alt: Identifier
+});
+
+const Full = createToken({
+  name: "Full",
+  pattern: /FULL/i,
+  longer_alt: Identifier
+});
+
+const Outer = createToken({
+  name: "Outer",
+  pattern: /OUTER/i,
+  longer_alt: Identifier
+});
+
+const Join = createToken({
+  name: "Join",
+  pattern: /JOIN/i,
+  longer_alt: Identifier
+});
+
 const Values = createToken({
   name: "Values",
   pattern: /VALUES/i,
@@ -202,6 +238,12 @@ const allTokens = [
   Select,
   From,
   Where,
+  Natural,
+  Left,
+  Right,
+  Full,
+  Outer,
+  Join,
   Values,
   And,
   OrderBy,

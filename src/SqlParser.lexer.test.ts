@@ -270,6 +270,18 @@ describe("Sql Lexer", () => {
       title: "date",
       sql: "date '2019-02-01'",
       expected: ["date '2019-02-01' => DateValue"]
+    },
+    {
+      title: "join keywords",
+      sql: "NATURAL LEFT RIGHT FULL OUTER JOIN",
+      expected: [
+        "NATURAL => Natural",
+        "LEFT => Left",
+        "RIGHT => Right",
+        "FULL => Full",
+        "OUTER => Outer",
+        "JOIN => Join"
+      ]
     }
   ];
 
