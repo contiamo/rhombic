@@ -1,6 +1,6 @@
 import { parseSql } from "./SqlParser";
 import { ILexingError, IRecognitionException } from "chevrotain";
-import { prettifyCst } from "./utils/prettifyCst";
+import { prettifyCst, formatCst } from "./utils/prettifyCst";
 import fs from "fs";
 
 describe("parseSql", () => {
@@ -694,17 +694,23 @@ describe("parseSql", () => {
         const previous = fs.existsSync("debug.json")
           ? fs.readFileSync("debug.json", "utf-8")
           : "";
-        const next = JSON.stringify(result, null, 2);
+        const next =
+          "-----------------\n" +
+          "   Received\n" +
+          "-----------------\n" +
+          formatCst(prettifyCst(result.cst.children)) +
+          "\n\n-----------------\n" +
+          "   Expected\n" +
+          "-----------------\n" +
+          formatCst(expectedCst);
+
         if (previous !== next) {
           fs.writeFileSync("debug.json", next);
         }
       }
 
-      expect(prettifyCst(result.cst.children)).toEqual(
-        expectedCst
-          .split("\n")
-          .map(i => i.replace(/^\s*/g, "").replace(/, /g, ","))
-          .join("")
+      expect(formatCst(prettifyCst(result.cst.children))).toEqual(
+        formatCst(expectedCst)
       );
     });
   });
