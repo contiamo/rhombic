@@ -619,16 +619,33 @@ class SqlParser extends CstParser {
    *  |   tableExpression [ CROSS | OUTER ] APPLY tableExpression
    */
   public tableExpression = this.RULE("tableExpression", () => {
-    this.OR([
-      {
-        ALT: () => {
-          this.MANY_SEP({
-            SEP: Comma,
-            DEF: () => this.SUBRULE(this.tableReference)
-          });
+    // tableReference [, tableReference ]*
+    this.MANY_SEP({
+      SEP: Comma,
+      DEF: () => this.SUBRULE(this.tableReference)
+    });
+
+    this.OPTION(() => {
+      this.OR([
+        {
+          // [ NATURAL ] [ ( LEFT | RIGHT | FULL ) [ OUTER ] ] JOIN tableExpression [ joinCondition ]
+          ALT: () => {
+            this.OPTION1(() => this.CONSUME(Natural));
+            this.OPTION2(() => {
+              this.OR1([
+                { ALT: () => this.CONSUME(Left) },
+                { ALT: () => this.CONSUME(Right) },
+                { ALT: () => this.CONSUME(Full) }
+              ]);
+              this.OPTION3(() => this.CONSUME(Outer));
+            });
+            this.CONSUME(Join);
+            this.SUBRULE1(this.tableExpression);
+            // join condition (optionnal)
+          }
         }
-      }
-    ]);
+      ]);
+    });
   });
 
   /**
