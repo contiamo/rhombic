@@ -655,21 +655,52 @@ describe("parseSql", () => {
       title: "table alias",
       sql: "SELECT * FROM my_db AS plop",
       expected: `query(
-      select(
-        Select("SELECT")
-        projectionItems(
-          projectionItem(Asterisk("*"))
-        )
-        From("FROM")
-        tableExpression(
-          tableReference(
-            tablePrimary(Identifier("my_db"))
-            As("AS")
-            Identifier("plop")
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(Asterisk("*"))
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(Identifier("my_db"))
+              As("AS")
+              Identifier("plop")
+            )
           )
         )
-      )
-    )`
+      )`
+    },
+    {
+      title: "natural join",
+      sql: "SELECT * FROM my_db NATURAL JOIN my_other_db",
+      expected: `query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(
+              Asterisk("*")
+            )
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier("my_db")
+              )
+            )
+            Natural("NATURAL")
+            Join("JOIN")
+            tableExpression(
+              tableReference(
+                tablePrimary(
+                  Identifier("my_other_db")
+                )
+              )
+            )
+          )
+        )
+      )`
     }
   ];
 
