@@ -687,6 +687,17 @@ class SqlParser extends CstParser {
             this.CONSUME2(Join);
             this.SUBRULE2(this.tableExpression);
           }
+        },
+        {
+          // [ CROSS | OUTER ] APPLY tableExpression
+          ALT: () => {
+            this.OR2([
+              { ALT: () => this.CONSUME1(Cross) },
+              { ALT: () => this.CONSUME1(Outer) }
+            ]);
+            this.CONSUME(Apply);
+            this.SUBRULE3(this.tableExpression);
+          }
         }
       ]);
     });

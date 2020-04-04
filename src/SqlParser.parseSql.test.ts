@@ -782,6 +782,37 @@ describe("parseSql", () => {
           )
         )
       )`
+    },
+    {
+      title: "cross apply",
+      sql: "SELECT * FROM table_a CROSS APPLY table_b",
+      expected: `query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(
+              Asterisk("*")
+            )
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier("table_a")
+              )
+            )
+            Cross("CROSS")
+            Apply("APPLY")
+            tableExpression(
+              tableReference(
+                tablePrimary(
+                  Identifier("table_b")
+                )
+              )
+            )
+          )
+        )
+      )`
     }
   ];
 
