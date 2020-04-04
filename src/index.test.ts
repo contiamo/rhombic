@@ -454,7 +454,8 @@ describe("rhombic", () => {
       "my_column = 'Berlin'",
       "my_column in ('Paris', 'Berlin')",
       "my_column is null",
-      "my_column is not null"
+      "my_column is not null",
+      "my_column = Berlin"
     ].forEach(i =>
       it(`should return true for "${i}"`, () => {
         const isValid = rhombic.isFilterValid(i);
@@ -463,11 +464,7 @@ describe("rhombic", () => {
     );
 
     // Not valid cases
-    [
-      "my_column = 'Berlin",
-      "my_column = 'Paris', 'Berlin'",
-      "my_column = Berlin"
-    ].forEach(i =>
+    ["my_column = 'Berlin", "my_column = 'Paris', 'Berlin'"].forEach(i =>
       it(`should return false for "${i}"`, () => {
         const isValid = rhombic.isFilterValid(i);
         expect(isValid).toBeFalsy();

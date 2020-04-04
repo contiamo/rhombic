@@ -122,6 +122,18 @@ const Join = createToken({
   longer_alt: Identifier
 });
 
+const On = createToken({
+  name: "On",
+  pattern: /ON/i,
+  longer_alt: Identifier
+});
+
+const Using = createToken({
+  name: "Using",
+  pattern: /USING/i,
+  longer_alt: Identifier
+});
+
 const Values = createToken({
   name: "Values",
   pattern: /VALUES/i,
@@ -244,6 +256,8 @@ const allTokens = [
   Full,
   Outer,
   Join,
+  On,
+  Using,
   Values,
   And,
   OrderBy,
@@ -473,7 +487,10 @@ class SqlParser extends CstParser {
         ALT: () => {
           // Binary operation
           this.CONSUME(BinaryOperator);
-          this.SUBRULE(this.valueExpression);
+          this.OR1([
+            { ALT: () => this.SUBRULE1(this.valueExpression) },
+            { ALT: () => this.SUBRULE2(this.columnPrimary) }
+          ]);
         }
       },
       {
@@ -483,7 +500,12 @@ class SqlParser extends CstParser {
           this.CONSUME1(LParen);
           this.AT_LEAST_ONE_SEP({
             SEP: Comma,
-            DEF: () => this.SUBRULE1(this.valueExpression)
+            DEF: () => {
+              this.OR2([
+                { ALT: () => this.SUBRULE3(this.valueExpression) },
+                { ALT: () => this.SUBRULE4(this.columnPrimary) }
+              ]);
+            }
           });
           this.CONSUME1(RParen);
         }
@@ -491,7 +513,7 @@ class SqlParser extends CstParser {
       {
         ALT: () => {
           // Unary operation
-          this.OR2([
+          this.OR3([
             { ALT: () => this.CONSUME(IsNull) },
             { ALT: () => this.CONSUME(IsNotNull) }
           ]);
@@ -641,7 +663,7 @@ class SqlParser extends CstParser {
             });
             this.CONSUME(Join);
             this.SUBRULE1(this.tableExpression);
-            // join condition (optionnal)
+            this.OPTION4(() => this.SUBRULE2(this.joinCondition));
           }
         }
       ]);
@@ -653,7 +675,24 @@ class SqlParser extends CstParser {
    *      ON booleanExpression
    *  |   USING '(' column [, column ]* ')'
    */
-  public joinCondition = this.RULE("joinCondition", () => {});
+  public joinCondition = this.RULE("joinCondition", () => {
+    this.OR([
+      {
+        ALT: () => {
+          this.CONSUME(On);
+          this.SUBRULE(this.booleanExpression);
+        }
+      },
+      {
+        ALT: () => {
+          this.CONSUME(Using);
+          this.CONSUME(LParen);
+          this.SUBRULE(this.projectionItems);
+          this.CONSUME(RParen);
+        }
+      }
+    ]);
+  });
 
   /**
    * tableReference:
