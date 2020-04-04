@@ -116,6 +116,18 @@ const Outer = createToken({
   longer_alt: Identifier
 });
 
+const Cross = createToken({
+  name: "Cross",
+  pattern: /CROSS/i,
+  longer_alt: Identifier
+});
+
+const Apply = createToken({
+  name: "Apply",
+  pattern: /APPLY/i,
+  longer_alt: Identifier
+});
+
 const Join = createToken({
   name: "Join",
   pattern: /JOIN/i,
@@ -255,6 +267,8 @@ const allTokens = [
   Right,
   Full,
   Outer,
+  Cross,
+  Apply,
   Join,
   On,
   Using,
@@ -664,6 +678,14 @@ class SqlParser extends CstParser {
             this.CONSUME(Join);
             this.SUBRULE1(this.tableExpression);
             this.OPTION4(() => this.SUBRULE2(this.joinCondition));
+          }
+        },
+        {
+          // CROSS JOIN tableExpression
+          ALT: () => {
+            this.CONSUME(Cross);
+            this.CONSUME2(Join);
+            this.SUBRULE2(this.tableExpression);
           }
         }
       ]);

@@ -273,14 +273,16 @@ describe("Sql Lexer", () => {
     },
     {
       title: "join keywords",
-      sql: "NATURAL LEFT RIGHT FULL OUTER JOIN",
+      sql: "NATURAL LEFT RIGHT FULL OUTER JOIN CROSS APPLY",
       expected: [
         "NATURAL => Natural",
         "LEFT => Left",
         "RIGHT => Right",
         "FULL => Full",
         "OUTER => Outer",
-        "JOIN => Join"
+        "JOIN => Join",
+        "CROSS => Cross",
+        "APPLY => Apply"
       ]
     }
   ];

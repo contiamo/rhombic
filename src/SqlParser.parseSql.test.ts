@@ -697,8 +697,6 @@ describe("parseSql", () => {
     },
     {
       title: "join on",
-      debug: true,
-      only: true,
       sql: `SELECT
               *
             FROM
@@ -747,6 +745,37 @@ describe("parseSql", () => {
                     Period(".")
                   )
                   BinaryOperator("=")
+                )
+              )
+            )
+          )
+        )
+      )`
+    },
+    {
+      title: "cross join",
+      sql: "SELECT * FROM table_a CROSS JOIN table_b",
+      expected: `query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(
+              Asterisk("*")
+            )
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier("table_a")
+              )
+            )
+            Cross("CROSS")
+            Join("JOIN")
+            tableExpression(
+              tableReference(
+                tablePrimary(
+                  Identifier("table_b")
                 )
               )
             )
