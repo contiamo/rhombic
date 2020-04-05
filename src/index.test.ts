@@ -139,6 +139,36 @@ describe("rhombic", () => {
         }
       ]);
     });
+
+    it("should return two tables with a join", () => {
+      const tables = rhombic
+        .parse(
+          "SELECT * FROM myschema.mytable AS a LEFT JOIN mytable2 AS b on (a.id = b.id)"
+        )
+        .getTablePrimaries();
+
+      expect(tables).toEqual([
+        {
+          location: {
+            endColumn: 30,
+            endLine: 1,
+            startColumn: 15,
+            startLine: 1
+          },
+          schemaName: "myschema",
+          tableName: "mytable"
+        },
+        {
+          location: {
+            endColumn: 54,
+            endLine: 1,
+            startColumn: 47,
+            startLine: 1
+          },
+          tableName: "mytable2"
+        }
+      ]);
+    });
   });
 
   describe("orderBy", () => {
@@ -297,6 +327,17 @@ describe("rhombic", () => {
           CUSTOM_MEMBERS
         FROM
           "foodmart"."ACCOUNT" ORDER BY felix`);
+    });
+
+    it("should add an ORDER_BY on statement with join", () => {
+      const query = rhombic
+        .parse("SELECT * FROM myschema.mytable NATURAL JOIN mytable2")
+        .orderBy({ expression: "ACCOUNT_ID" })
+        .toString();
+
+      expect(query).toEqual(
+        "SELECT * FROM myschema.mytable NATURAL JOIN mytable2 ORDER BY ACCOUNT_ID"
+      );
     });
   });
 
