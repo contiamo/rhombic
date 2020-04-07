@@ -86,6 +86,66 @@ const Where = createToken({
   longer_alt: Identifier
 });
 
+const Natural = createToken({
+  name: "Natural",
+  pattern: /NATURAL/i,
+  longer_alt: Identifier
+});
+
+const Left = createToken({
+  name: "Left",
+  pattern: /LEFT/i,
+  longer_alt: Identifier
+});
+
+const Right = createToken({
+  name: "Right",
+  pattern: /RIGHT/i,
+  longer_alt: Identifier
+});
+
+const Full = createToken({
+  name: "Full",
+  pattern: /FULL/i,
+  longer_alt: Identifier
+});
+
+const Outer = createToken({
+  name: "Outer",
+  pattern: /OUTER/i,
+  longer_alt: Identifier
+});
+
+const Cross = createToken({
+  name: "Cross",
+  pattern: /CROSS/i,
+  longer_alt: Identifier
+});
+
+const Apply = createToken({
+  name: "Apply",
+  pattern: /APPLY/i,
+  longer_alt: Identifier
+});
+
+const Join = createToken({
+  name: "Join",
+  pattern: /JOIN/i,
+  longer_alt: Identifier
+});
+
+const On = createToken({
+  name: "On",
+  pattern: /ON/i,
+  longer_alt: Identifier
+});
+
+const Using = createToken({
+  name: "Using",
+  pattern: /USING/i,
+  longer_alt: Identifier
+});
+
 const Values = createToken({
   name: "Values",
   pattern: /VALUES/i,
@@ -202,6 +262,16 @@ const allTokens = [
   Select,
   From,
   Where,
+  Natural,
+  Left,
+  Right,
+  Full,
+  Outer,
+  Cross,
+  Apply,
+  Join,
+  On,
+  Using,
   Values,
   And,
   OrderBy,
@@ -431,7 +501,10 @@ class SqlParser extends CstParser {
         ALT: () => {
           // Binary operation
           this.CONSUME(BinaryOperator);
-          this.SUBRULE(this.valueExpression);
+          this.OR1([
+            { ALT: () => this.SUBRULE1(this.valueExpression) },
+            { ALT: () => this.SUBRULE2(this.columnPrimary) }
+          ]);
         }
       },
       {
@@ -441,7 +514,12 @@ class SqlParser extends CstParser {
           this.CONSUME1(LParen);
           this.AT_LEAST_ONE_SEP({
             SEP: Comma,
-            DEF: () => this.SUBRULE1(this.valueExpression)
+            DEF: () => {
+              this.OR2([
+                { ALT: () => this.SUBRULE3(this.valueExpression) },
+                { ALT: () => this.SUBRULE4(this.columnPrimary) }
+              ]);
+            }
           });
           this.CONSUME1(RParen);
         }
@@ -449,7 +527,7 @@ class SqlParser extends CstParser {
       {
         ALT: () => {
           // Unary operation
-          this.OR2([
+          this.OR3([
             { ALT: () => this.CONSUME(IsNull) },
             { ALT: () => this.CONSUME(IsNotNull) }
           ]);
@@ -577,16 +655,52 @@ class SqlParser extends CstParser {
    *  |   tableExpression [ CROSS | OUTER ] APPLY tableExpression
    */
   public tableExpression = this.RULE("tableExpression", () => {
-    this.OR([
-      {
-        ALT: () => {
-          this.MANY_SEP({
-            SEP: Comma,
-            DEF: () => this.SUBRULE(this.tableReference)
-          });
+    // tableReference [, tableReference ]*
+    this.MANY_SEP({
+      SEP: Comma,
+      DEF: () => this.SUBRULE(this.tableReference)
+    });
+
+    this.OPTION(() => {
+      this.OR([
+        {
+          // [ NATURAL ] [ ( LEFT | RIGHT | FULL ) [ OUTER ] ] JOIN tableExpression [ joinCondition ]
+          ALT: () => {
+            this.OPTION1(() => this.CONSUME(Natural));
+            this.OPTION2(() => {
+              this.OR1([
+                { ALT: () => this.CONSUME(Left) },
+                { ALT: () => this.CONSUME(Right) },
+                { ALT: () => this.CONSUME(Full) }
+              ]);
+              this.OPTION3(() => this.CONSUME(Outer));
+            });
+            this.CONSUME(Join);
+            this.SUBRULE1(this.tableExpression);
+            this.OPTION4(() => this.SUBRULE2(this.joinCondition));
+          }
+        },
+        {
+          // CROSS JOIN tableExpression
+          ALT: () => {
+            this.CONSUME(Cross);
+            this.CONSUME2(Join);
+            this.SUBRULE2(this.tableExpression);
+          }
+        },
+        {
+          // [ CROSS | OUTER ] APPLY tableExpression
+          ALT: () => {
+            this.OR2([
+              { ALT: () => this.CONSUME1(Cross) },
+              { ALT: () => this.CONSUME1(Outer) }
+            ]);
+            this.CONSUME(Apply);
+            this.SUBRULE3(this.tableExpression);
+          }
         }
-      }
-    ]);
+      ]);
+    });
   });
 
   /**
@@ -594,7 +708,24 @@ class SqlParser extends CstParser {
    *      ON booleanExpression
    *  |   USING '(' column [, column ]* ')'
    */
-  public joinCondition = this.RULE("joinCondition", () => {});
+  public joinCondition = this.RULE("joinCondition", () => {
+    this.OR([
+      {
+        ALT: () => {
+          this.CONSUME(On);
+          this.SUBRULE(this.booleanExpression);
+        }
+      },
+      {
+        ALT: () => {
+          this.CONSUME(Using);
+          this.CONSUME(LParen);
+          this.SUBRULE(this.projectionItems);
+          this.CONSUME(RParen);
+        }
+      }
+    ]);
+  });
 
   /**
    * tableReference:

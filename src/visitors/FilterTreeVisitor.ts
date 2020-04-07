@@ -12,7 +12,8 @@ import {
 import {
   hasColumnPrimary,
   isBinaryOperation,
-  isMultivalOperation
+  isMultivalOperation,
+  isUnaryOperation
 } from "../utils/booleanExpressionValue";
 
 const Visitor = parser.getBaseCstVisitorConstructorWithDefaults();
@@ -35,10 +36,10 @@ export class FilterTreeVisitor extends Visitor {
     if (isMultivalOperation(expressionValue)) {
       return expressionValue.MultivalOperator[0].image.toLowerCase() as Operator;
     }
-    if (expressionValue.IsNotNull) {
+    if (isUnaryOperation(expressionValue) && expressionValue.IsNotNull) {
       return expressionValue.IsNotNull[0].image.toLowerCase() as Operator;
     }
-    if (expressionValue.IsNull) {
+    if (isUnaryOperation(expressionValue) && expressionValue.IsNull) {
       return expressionValue.IsNull[0].image.toLowerCase() as Operator;
     }
 

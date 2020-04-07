@@ -139,6 +139,36 @@ describe("rhombic", () => {
         }
       ]);
     });
+
+    it("should return two tables with a join", () => {
+      const tables = rhombic
+        .parse(
+          "SELECT * FROM myschema.mytable AS a LEFT JOIN mytable2 AS b on (a.id = b.id)"
+        )
+        .getTablePrimaries();
+
+      expect(tables).toEqual([
+        {
+          location: {
+            endColumn: 30,
+            endLine: 1,
+            startColumn: 15,
+            startLine: 1
+          },
+          schemaName: "myschema",
+          tableName: "mytable"
+        },
+        {
+          location: {
+            endColumn: 54,
+            endLine: 1,
+            startColumn: 47,
+            startLine: 1
+          },
+          tableName: "mytable2"
+        }
+      ]);
+    });
   });
 
   describe("orderBy", () => {
@@ -298,6 +328,17 @@ describe("rhombic", () => {
         FROM
           "foodmart"."ACCOUNT" ORDER BY felix`);
     });
+
+    it("should add an ORDER_BY on statement with join", () => {
+      const query = rhombic
+        .parse("SELECT * FROM myschema.mytable NATURAL JOIN mytable2")
+        .orderBy({ expression: "ACCOUNT_ID" })
+        .toString();
+
+      expect(query).toEqual(
+        "SELECT * FROM myschema.mytable NATURAL JOIN mytable2 ORDER BY ACCOUNT_ID"
+      );
+    });
   });
 
   describe("getFilterString", () => {
@@ -454,7 +495,8 @@ describe("rhombic", () => {
       "my_column = 'Berlin'",
       "my_column in ('Paris', 'Berlin')",
       "my_column is null",
-      "my_column is not null"
+      "my_column is not null",
+      "my_column = Berlin"
     ].forEach(i =>
       it(`should return true for "${i}"`, () => {
         const isValid = rhombic.isFilterValid(i);
@@ -463,11 +505,7 @@ describe("rhombic", () => {
     );
 
     // Not valid cases
-    [
-      "my_column = 'Berlin",
-      "my_column = 'Paris', 'Berlin'",
-      "my_column = Berlin"
-    ].forEach(i =>
+    ["my_column = 'Berlin", "my_column = 'Paris', 'Berlin'"].forEach(i =>
       it(`should return false for "${i}"`, () => {
         const isValid = rhombic.isFilterValid(i);
         expect(isValid).toBeFalsy();

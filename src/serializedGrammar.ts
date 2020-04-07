@@ -580,7 +580,7 @@ export const serializedGrammar = [
     type: "Rule",
     name: "booleanExpressionValue",
     orgText:
-      "function () {\r\n            _this.SUBRULE(_this.columnPrimary);\r\n            _this.OR([\r\n                {\r\n                    ALT: function () {\r\n                        // Binary operation\r\n                        _this.CONSUME(BinaryOperator);\r\n                        _this.SUBRULE(_this.valueExpression);\r\n                    }\r\n                },\r\n                {\r\n                    ALT: function () {\r\n                        // Multival operation\r\n                        _this.CONSUME(MultivalOperator);\r\n                        _this.CONSUME1(LParen);\r\n                        _this.AT_LEAST_ONE_SEP({\r\n                            SEP: Comma,\r\n                            DEF: function () { return _this.SUBRULE1(_this.valueExpression); }\r\n                        });\r\n                        _this.CONSUME1(RParen);\r\n                    }\r\n                },\r\n                {\r\n                    ALT: function () {\r\n                        // Unary operation\r\n                        _this.OR2([\r\n                            { ALT: function () { return _this.CONSUME(IsNull); } },\r\n                            { ALT: function () { return _this.CONSUME(IsNotNull); } }\r\n                        ]);\r\n                    }\r\n                }\r\n            ]);\r\n        }",
+      "function () {\r\n            _this.SUBRULE(_this.columnPrimary);\r\n            _this.OR([\r\n                {\r\n                    ALT: function () {\r\n                        // Binary operation\r\n                        _this.CONSUME(BinaryOperator);\r\n                        _this.OR1([\r\n                            { ALT: function () { return _this.SUBRULE1(_this.valueExpression); } },\r\n                            { ALT: function () { return _this.SUBRULE2(_this.columnPrimary); } }\r\n                        ]);\r\n                    }\r\n                },\r\n                {\r\n                    ALT: function () {\r\n                        // Multival operation\r\n                        _this.CONSUME(MultivalOperator);\r\n                        _this.CONSUME1(LParen);\r\n                        _this.AT_LEAST_ONE_SEP({\r\n                            SEP: Comma,\r\n                            DEF: function () {\r\n                                _this.OR2([\r\n                                    { ALT: function () { return _this.SUBRULE3(_this.valueExpression); } },\r\n                                    { ALT: function () { return _this.SUBRULE4(_this.columnPrimary); } }\r\n                                ]);\r\n                            }\r\n                        });\r\n                        _this.CONSUME1(RParen);\r\n                    }\r\n                },\r\n                {\r\n                    ALT: function () {\r\n                        // Unary operation\r\n                        _this.OR3([\r\n                            { ALT: function () { return _this.CONSUME(IsNull); } },\r\n                            { ALT: function () { return _this.CONSUME(IsNotNull); } }\r\n                        ]);\r\n                    }\r\n                }\r\n            ]);\r\n        }",
     definition: [
       {
         type: "NonTerminal",
@@ -602,9 +602,30 @@ export const serializedGrammar = [
                 pattern: "=|>=?|<=?|\\!=|LIKE"
               },
               {
-                type: "NonTerminal",
-                name: "valueExpression",
-                idx: 0
+                type: "Alternation",
+                idx: 1,
+                definition: [
+                  {
+                    type: "Flat",
+                    definition: [
+                      {
+                        type: "NonTerminal",
+                        name: "valueExpression",
+                        idx: 1
+                      }
+                    ]
+                  },
+                  {
+                    type: "Flat",
+                    definition: [
+                      {
+                        type: "NonTerminal",
+                        name: "columnPrimary",
+                        idx: 2
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           },
@@ -637,9 +658,30 @@ export const serializedGrammar = [
                 },
                 definition: [
                   {
-                    type: "NonTerminal",
-                    name: "valueExpression",
-                    idx: 1
+                    type: "Alternation",
+                    idx: 2,
+                    definition: [
+                      {
+                        type: "Flat",
+                        definition: [
+                          {
+                            type: "NonTerminal",
+                            name: "valueExpression",
+                            idx: 3
+                          }
+                        ]
+                      },
+                      {
+                        type: "Flat",
+                        definition: [
+                          {
+                            type: "NonTerminal",
+                            name: "columnPrimary",
+                            idx: 4
+                          }
+                        ]
+                      }
+                    ]
                   }
                 ]
               },
@@ -657,7 +699,7 @@ export const serializedGrammar = [
             definition: [
               {
                 type: "Alternation",
-                idx: 2,
+                idx: 3,
                 definition: [
                   {
                     type: "Flat",
@@ -994,30 +1036,204 @@ export const serializedGrammar = [
     type: "Rule",
     name: "tableExpression",
     orgText:
-      "function () {\r\n            _this.OR([\r\n                {\r\n                    ALT: function () {\r\n                        _this.MANY_SEP({\r\n                            SEP: Comma,\r\n                            DEF: function () { return _this.SUBRULE(_this.tableReference); }\r\n                        });\r\n                    }\r\n                }\r\n            ]);\r\n        }",
+      "function () {\r\n            // tableReference [, tableReference ]*\r\n            _this.MANY_SEP({\r\n                SEP: Comma,\r\n                DEF: function () { return _this.SUBRULE(_this.tableReference); }\r\n            });\r\n            _this.OPTION(function () {\r\n                _this.OR([\r\n                    {\r\n                        // [ NATURAL ] [ ( LEFT | RIGHT | FULL ) [ OUTER ] ] JOIN tableExpression [ joinCondition ]\r\n                        ALT: function () {\r\n                            _this.OPTION1(function () { return _this.CONSUME(Natural); });\r\n                            _this.OPTION2(function () {\r\n                                _this.OR1([\r\n                                    { ALT: function () { return _this.CONSUME(Left); } },\r\n                                    { ALT: function () { return _this.CONSUME(Right); } },\r\n                                    { ALT: function () { return _this.CONSUME(Full); } }\r\n                                ]);\r\n                                _this.OPTION3(function () { return _this.CONSUME(Outer); });\r\n                            });\r\n                            _this.CONSUME(Join);\r\n                            _this.SUBRULE1(_this.tableExpression);\r\n                            _this.OPTION4(function () { return _this.SUBRULE2(_this.joinCondition); });\r\n                        }\r\n                    },\r\n                    {\r\n                        // CROSS JOIN tableExpression\r\n                        ALT: function () {\r\n                            _this.CONSUME(Cross);\r\n                            _this.CONSUME2(Join);\r\n                            _this.SUBRULE2(_this.tableExpression);\r\n                        }\r\n                    },\r\n                    {\r\n                        // [ CROSS | OUTER ] APPLY tableExpression\r\n                        ALT: function () {\r\n                            _this.OR2([\r\n                                { ALT: function () { return _this.CONSUME1(Cross); } },\r\n                                { ALT: function () { return _this.CONSUME1(Outer); } }\r\n                            ]);\r\n                            _this.CONSUME(Apply);\r\n                            _this.SUBRULE3(_this.tableExpression);\r\n                        }\r\n                    }\r\n                ]);\r\n            });\r\n        }",
     definition: [
       {
-        type: "Alternation",
+        type: "RepetitionWithSeparator",
+        idx: 0,
+        separator: {
+          type: "Terminal",
+          name: "Comma",
+          label: "Comma",
+          idx: 1,
+          pattern: ","
+        },
+        definition: [
+          {
+            type: "NonTerminal",
+            name: "tableReference",
+            idx: 0
+          }
+        ]
+      },
+      {
+        type: "Option",
         idx: 0,
         definition: [
           {
-            type: "Flat",
+            type: "Alternation",
+            idx: 0,
             definition: [
               {
-                type: "RepetitionWithSeparator",
-                idx: 0,
-                separator: {
-                  type: "Terminal",
-                  name: "Comma",
-                  label: "Comma",
-                  idx: 1,
-                  pattern: ","
-                },
+                type: "Flat",
                 definition: [
                   {
+                    type: "Option",
+                    idx: 1,
+                    definition: [
+                      {
+                        type: "Terminal",
+                        name: "Natural",
+                        label: "Natural",
+                        idx: 0,
+                        pattern: "NATURAL"
+                      }
+                    ]
+                  },
+                  {
+                    type: "Option",
+                    idx: 2,
+                    definition: [
+                      {
+                        type: "Alternation",
+                        idx: 1,
+                        definition: [
+                          {
+                            type: "Flat",
+                            definition: [
+                              {
+                                type: "Terminal",
+                                name: "Left",
+                                label: "Left",
+                                idx: 0,
+                                pattern: "LEFT"
+                              }
+                            ]
+                          },
+                          {
+                            type: "Flat",
+                            definition: [
+                              {
+                                type: "Terminal",
+                                name: "Right",
+                                label: "Right",
+                                idx: 0,
+                                pattern: "RIGHT"
+                              }
+                            ]
+                          },
+                          {
+                            type: "Flat",
+                            definition: [
+                              {
+                                type: "Terminal",
+                                name: "Full",
+                                label: "Full",
+                                idx: 0,
+                                pattern: "FULL"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        type: "Option",
+                        idx: 3,
+                        definition: [
+                          {
+                            type: "Terminal",
+                            name: "Outer",
+                            label: "Outer",
+                            idx: 0,
+                            pattern: "OUTER"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    type: "Terminal",
+                    name: "Join",
+                    label: "Join",
+                    idx: 0,
+                    pattern: "JOIN"
+                  },
+                  {
                     type: "NonTerminal",
-                    name: "tableReference",
-                    idx: 0
+                    name: "tableExpression",
+                    idx: 1
+                  },
+                  {
+                    type: "Option",
+                    idx: 4,
+                    definition: [
+                      {
+                        type: "NonTerminal",
+                        name: "joinCondition",
+                        idx: 2
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                type: "Flat",
+                definition: [
+                  {
+                    type: "Terminal",
+                    name: "Cross",
+                    label: "Cross",
+                    idx: 0,
+                    pattern: "CROSS"
+                  },
+                  {
+                    type: "Terminal",
+                    name: "Join",
+                    label: "Join",
+                    idx: 2,
+                    pattern: "JOIN"
+                  },
+                  {
+                    type: "NonTerminal",
+                    name: "tableExpression",
+                    idx: 2
+                  }
+                ]
+              },
+              {
+                type: "Flat",
+                definition: [
+                  {
+                    type: "Alternation",
+                    idx: 2,
+                    definition: [
+                      {
+                        type: "Flat",
+                        definition: [
+                          {
+                            type: "Terminal",
+                            name: "Cross",
+                            label: "Cross",
+                            idx: 1,
+                            pattern: "CROSS"
+                          }
+                        ]
+                      },
+                      {
+                        type: "Flat",
+                        definition: [
+                          {
+                            type: "Terminal",
+                            name: "Outer",
+                            label: "Outer",
+                            idx: 1,
+                            pattern: "OUTER"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    type: "Terminal",
+                    name: "Apply",
+                    label: "Apply",
+                    idx: 0,
+                    pattern: "APPLY"
+                  },
+                  {
+                    type: "NonTerminal",
+                    name: "tableExpression",
+                    idx: 3
                   }
                 ]
               }
@@ -1030,8 +1246,64 @@ export const serializedGrammar = [
   {
     type: "Rule",
     name: "joinCondition",
-    orgText: "function () { }",
-    definition: []
+    orgText:
+      "function () {\r\n            _this.OR([\r\n                {\r\n                    ALT: function () {\r\n                        _this.CONSUME(On);\r\n                        _this.SUBRULE(_this.booleanExpression);\r\n                    }\r\n                },\r\n                {\r\n                    ALT: function () {\r\n                        _this.CONSUME(Using);\r\n                        _this.CONSUME(LParen);\r\n                        _this.SUBRULE(_this.projectionItems);\r\n                        _this.CONSUME(RParen);\r\n                    }\r\n                }\r\n            ]);\r\n        }",
+    definition: [
+      {
+        type: "Alternation",
+        idx: 0,
+        definition: [
+          {
+            type: "Flat",
+            definition: [
+              {
+                type: "Terminal",
+                name: "On",
+                label: "On",
+                idx: 0,
+                pattern: "ON"
+              },
+              {
+                type: "NonTerminal",
+                name: "booleanExpression",
+                idx: 0
+              }
+            ]
+          },
+          {
+            type: "Flat",
+            definition: [
+              {
+                type: "Terminal",
+                name: "Using",
+                label: "Using",
+                idx: 0,
+                pattern: "USING"
+              },
+              {
+                type: "Terminal",
+                name: "LParen",
+                label: "LParen",
+                idx: 0,
+                pattern: "\\("
+              },
+              {
+                type: "NonTerminal",
+                name: "projectionItems",
+                idx: 0
+              },
+              {
+                type: "Terminal",
+                name: "RParen",
+                label: "RParen",
+                idx: 0,
+                pattern: "\\)"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     type: "Rule",

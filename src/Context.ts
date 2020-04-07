@@ -132,11 +132,23 @@ export type BooleanExpressionValueContext =
       }>;
     }
   | {
+      columnPrimary: Array<{
+        name: "columnPrimary";
+        children: ColumnPrimaryContext;
+      }>;
+    }
+  | {
       MultivalOperator: IToken[];
       LParen: IToken[];
       valueExpression: Array<{
         name: "valueExpression";
         children: ValueExpressionContext;
+      }>;
+    }
+  | {
+      columnPrimary: Array<{
+        name: "columnPrimary";
+        children: ColumnPrimaryContext;
       }>;
       Comma?: IToken[];
       RParen: IToken[];
@@ -202,9 +214,58 @@ export type ProjectionItemContext =
     }
   | { Asterisk: IToken[] };
 
-export interface TableExpressionContext {}
+export type TableExpressionContext =
+  | {
+      Natural?: IToken[];
+      Left?: IToken[];
+      Right?: IToken[];
+      Full?: IToken[];
+      Outer?: IToken[];
+      Join: IToken[];
+      tableExpression: Array<{
+        name: "tableExpression";
+        children: TableExpressionContext;
+      }>;
+      joinCondition?: Array<{
+        name: "joinCondition";
+        children: JoinConditionContext;
+      }>;
+    }
+  | {
+      Cross: IToken[];
+      Join: IToken[];
+      tableExpression: Array<{
+        name: "tableExpression";
+        children: TableExpressionContext;
+      }>;
+    }
+  | {
+      Cross?: IToken[];
+      Outer?: IToken[];
+      Apply: IToken[];
+      tableExpression: Array<{
+        name: "tableExpression";
+        children: TableExpressionContext;
+      }>;
+    };
 
-export interface JoinConditionContext {}
+export type JoinConditionContext =
+  | {
+      On: IToken[];
+      booleanExpression: Array<{
+        name: "booleanExpression";
+        children: BooleanExpressionContext;
+      }>;
+    }
+  | {
+      Using: IToken[];
+      LParen: IToken[];
+      projectionItems: Array<{
+        name: "projectionItems";
+        children: ProjectionItemsContext;
+      }>;
+      RParen: IToken[];
+    };
 
 export interface TableReferenceContext {
   tablePrimary: Array<{

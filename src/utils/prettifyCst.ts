@@ -40,6 +40,15 @@ export function formatCst(prettifiedCst: string) {
   parser.input = lexResult.tokens;
 
   const cst = parser.node();
+
+  if (parser.errors.length + lexResult.errors.length > 0) {
+    throw new Error(
+      `PrettifyCst Error: \n - ${[
+        ...parser.errors.map(i => i.message),
+        ...lexResult.errors.map(i => i.message)
+      ].join("\n - ")}`
+    );
+  }
   const visitor = new PrettyCstVisitor();
   visitor.visit(cst);
 
@@ -52,20 +61,21 @@ export function formatCst(prettifiedCst: string) {
 // Lexer/Parser/Visitor to support `formatCst()`
 const Identifier = createToken({
   name: "Identifier",
-  pattern: /[a-zA-Z]+/
+  pattern: /[a-zA-Z_]+/
 });
 const Value = createToken({
   name: "Value",
-  pattern: /(("[^"\\]*(?:\\.[^"\\]*)*("))+)/
+  pattern: /((""[^"\\]*(?:\\.[^"\\]*)*(""))+)|(("[^"\\]*(?:\\.[^"\\]*)*("))+)/
 });
 const LParen = createToken({ name: "LParen", pattern: /\(/ });
 const RParen = createToken({ name: "RParen", pattern: /\)/ });
+const Comma = createToken({ name: "Comma", pattern: /,/ });
 const WhiteSpace = createToken({
   name: "WhiteSpace",
   pattern: /\s+/,
   group: Lexer.SKIPPED
 });
-const allTokens = [WhiteSpace, Identifier, Value, LParen, RParen];
+const allTokens = [WhiteSpace, Identifier, Value, LParen, RParen, Comma];
 const PrettyCstLexer = new Lexer(allTokens, {
   lineTerminatorCharacters: ["\n"]
 });
@@ -80,7 +90,33 @@ class PrettyCstParser extends CstParser {
     this.CONSUME(Identifier);
     this.CONSUME(LParen);
     this.OR([
-      { ALT: () => this.CONSUME(Value) },
+      {
+        ALT: () => {
+          // Should be `AT_LEAST_ONE_SEP` but strange error with chevrotain…
+          // this.AT_LEAST_ONE_SEP({
+          //   DEF: () => this.CONSUME(Value),
+          //   SEP: Comma
+          // });
+          this.CONSUME(Value);
+
+          this.OPTION(() => {
+            this.CONSUME(Comma);
+            this.CONSUME1(Value);
+          });
+          this.OPTION1(() => {
+            this.CONSUME1(Comma);
+            this.CONSUME2(Value);
+          });
+          this.OPTION2(() => {
+            this.CONSUME2(Comma);
+            this.CONSUME3(Value);
+          });
+          this.OPTION3(() => {
+            this.CONSUME3(Comma);
+            this.CONSUME4(Value);
+          });
+        }
+      },
       { ALT: () => this.AT_LEAST_ONE(() => this.SUBRULE(this.node)) }
     ]);
     this.CONSUME(RParen);
@@ -95,6 +131,7 @@ interface NodeContext {
   Identifier: IToken[];
   LParen: IToken[];
   Value?: IToken[];
+  Comma?: IToken[];
   node?: Array<{
     name: "node";
     children: NodeContext;
@@ -115,7 +152,8 @@ class PrettyCstVisitor extends Visitor {
     this.output += this.indent + ctx.Identifier[0].image + ctx.LParen[0].image;
 
     if (ctx.Value) {
-      this.output += ctx.Value[0].image + ctx.RParen[0].image + "\n";
+      this.output +=
+        ctx.Value.map(v => v.image).join(", ") + ctx.RParen[0].image + "\n";
     } else if (ctx.node) {
       this.output += "\n";
       this.indent += "  ";

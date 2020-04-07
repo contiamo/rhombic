@@ -1,5 +1,4 @@
 import { parseSql } from "./SqlParser";
-import { ILexingError, IRecognitionException } from "chevrotain";
 import { prettifyCst, formatCst } from "./utils/prettifyCst";
 import fs from "fs";
 
@@ -7,13 +6,7 @@ describe("parseSql", () => {
   const cases: Array<{
     title: string;
     sql: string;
-    expected:
-      | {
-          lexErrors?: ILexingError[];
-          parseError?: IRecognitionException[];
-          cst: string;
-        }
-      | string;
+    expected: string;
     only?: boolean;
     debug?: boolean; // export in debug.json
   }> = [
@@ -655,39 +648,190 @@ describe("parseSql", () => {
       title: "table alias",
       sql: "SELECT * FROM my_db AS plop",
       expected: `query(
-      select(
-        Select("SELECT")
-        projectionItems(
-          projectionItem(Asterisk("*"))
-        )
-        From("FROM")
-        tableExpression(
-          tableReference(
-            tablePrimary(Identifier("my_db"))
-            As("AS")
-            Identifier("plop")
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(Asterisk("*"))
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(Identifier("my_db"))
+              As("AS")
+              Identifier("plop")
+            )
           )
         )
-      )
-    )`
+      )`
+    },
+    {
+      title: "natural join",
+      sql: "SELECT * FROM my_db NATURAL JOIN my_other_db",
+      expected: `query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(
+              Asterisk("*")
+            )
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier("my_db")
+              )
+            )
+            Natural("NATURAL")
+            Join("JOIN")
+            tableExpression(
+              tableReference(
+                tablePrimary(
+                  Identifier("my_other_db")
+                )
+              )
+            )
+          )
+        )
+      )`
+    },
+    {
+      title: "join on",
+      sql: `SELECT
+              *
+            FROM
+              "foodmart"."employee" as a
+            JOIN "foodmart"."employee_closure" as b
+            ON a.employee_id = b.employee_id`,
+      expected: `query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(
+              Asterisk("*")
+            )
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier(""foodmart"", ""employee"")
+                Period(".")
+              )
+              As("as")
+              Identifier("a")
+            )
+            Join("JOIN")
+            tableExpression(
+              tableReference(
+                tablePrimary(
+                  Identifier(""foodmart"", ""employee_closure"")
+                  Period(".")
+                )
+                As("as")
+                Identifier("b")
+              )
+            )
+            joinCondition(
+              On("ON")
+              booleanExpression(
+                booleanExpressionValue(
+                  columnPrimary(
+                    Identifier("a", "employee_id")
+                    Period(".")
+                  )
+                  columnPrimary(
+                    Identifier("b", "employee_id")
+                    Period(".")
+                  )
+                  BinaryOperator("=")
+                )
+              )
+            )
+          )
+        )
+      )`
+    },
+    {
+      title: "cross join",
+      sql: "SELECT * FROM table_a CROSS JOIN table_b",
+      expected: `query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(
+              Asterisk("*")
+            )
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier("table_a")
+              )
+            )
+            Cross("CROSS")
+            Join("JOIN")
+            tableExpression(
+              tableReference(
+                tablePrimary(
+                  Identifier("table_b")
+                )
+              )
+            )
+          )
+        )
+      )`
+    },
+    {
+      title: "cross apply",
+      sql: "SELECT * FROM table_a CROSS APPLY table_b",
+      expected: `query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(
+              Asterisk("*")
+            )
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier("table_a")
+              )
+            )
+            Cross("CROSS")
+            Apply("APPLY")
+            tableExpression(
+              tableReference(
+                tablePrimary(
+                  Identifier("table_b")
+                )
+              )
+            )
+          )
+        )
+      )`
     }
   ];
 
   cases.forEach(({ sql, only, title, expected, debug }) => {
     (only ? it.only : it)(`should parse ${title}`, () => {
       const result = parseSql(sql);
+
       // Error assertions
-      const expectedLexErrors =
-        typeof expected === "string" ? [] : expected.lexErrors || [];
-      const expectedParseErrors =
-        typeof expected === "string" ? [] : expected.parseError || [];
+      expect(result.lexErrors).toEqual([]);
+      expect(result.parseErrors).toEqual([]);
 
-      expect(result.lexErrors).toEqual(expectedLexErrors);
-      expect(result.parseErrors).toEqual(expectedParseErrors);
+      // Expected (can be unvalid for debugging)
+      let expectedCst = expected;
+      try {
+        expectedCst = formatCst(expected);
+      } catch {}
 
-      // Result assertion
-      const expectedCst =
-        typeof expected === "string" ? expected : expected.cst;
+      // Result
+      const receivedCst = formatCst(prettifyCst(result.cst.children));
 
       // Advanced debug
       if (debug) {
@@ -698,20 +842,18 @@ describe("parseSql", () => {
           "-----------------\n" +
           "   Received\n" +
           "-----------------\n" +
-          formatCst(prettifyCst(result.cst.children)) +
+          receivedCst +
           "\n\n-----------------\n" +
           "   Expected\n" +
           "-----------------\n" +
-          formatCst(expectedCst);
+          expectedCst;
 
         if (previous !== next) {
           fs.writeFileSync("debug.json", next);
         }
       }
 
-      expect(formatCst(prettifyCst(result.cst.children))).toEqual(
-        formatCst(expectedCst)
-      );
+      expect(receivedCst).toEqual(expectedCst);
     });
   });
 });
