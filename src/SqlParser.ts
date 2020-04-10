@@ -116,6 +116,12 @@ const Outer = createToken({
   longer_alt: Identifier
 });
 
+const Inner = createToken({
+  name: "Inner",
+  pattern: /INNER/i,
+  longer_alt: Identifier
+});
+
 const Cross = createToken({
   name: "Cross",
   pattern: /CROSS/i,
@@ -267,6 +273,7 @@ const allTokens = [
   Right,
   Full,
   Outer,
+  Inner,
   Cross,
   Apply,
   Join,
@@ -650,7 +657,7 @@ class SqlParser extends CstParser {
   /**
    * tableExpression:
    *      tableReference [, tableReference ]*
-   *  |   tableExpression [ NATURAL ] [ ( LEFT | RIGHT | FULL ) [ OUTER ] ] JOIN tableExpression [ joinCondition ]
+   *  |   tableExpression [ NATURAL ] [ INNER | (( LEFT | RIGHT | FULL ) [ OUTER ]) ] JOIN tableExpression [ joinCondition ]
    *  |   tableExpression CROSS JOIN tableExpression
    *  |   tableExpression [ CROSS | OUTER ] APPLY tableExpression
    */
@@ -664,16 +671,27 @@ class SqlParser extends CstParser {
     this.OPTION(() => {
       this.OR([
         {
-          // [ NATURAL ] [ ( LEFT | RIGHT | FULL ) [ OUTER ] ] JOIN tableExpression [ joinCondition ]
+          // [ NATURAL ] [ INNER | (( LEFT | RIGHT | FULL ) [ OUTER ]) ] JOIN tableExpression [ joinCondition ]
           ALT: () => {
             this.OPTION1(() => this.CONSUME(Natural));
             this.OPTION2(() => {
               this.OR1([
-                { ALT: () => this.CONSUME(Left) },
-                { ALT: () => this.CONSUME(Right) },
-                { ALT: () => this.CONSUME(Full) }
+                {
+                  ALT: () => {
+                    this.CONSUME(Inner);
+                  }
+                },
+                {
+                  ALT: () => {
+                    this.OR2([
+                      { ALT: () => this.CONSUME(Left) },
+                      { ALT: () => this.CONSUME(Right) },
+                      { ALT: () => this.CONSUME(Full) }
+                    ]);
+                    this.OPTION3(() => this.CONSUME(Outer));
+                  }
+                }
               ]);
-              this.OPTION3(() => this.CONSUME(Outer));
             });
             this.CONSUME(Join);
             this.SUBRULE1(this.tableExpression);
@@ -691,7 +709,7 @@ class SqlParser extends CstParser {
         {
           // [ CROSS | OUTER ] APPLY tableExpression
           ALT: () => {
-            this.OR2([
+            this.OR3([
               { ALT: () => this.CONSUME1(Cross) },
               { ALT: () => this.CONSUME1(Outer) }
             ]);
