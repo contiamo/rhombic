@@ -156,7 +156,8 @@ describe("rhombic", () => {
             startLine: 1
           },
           schemaName: "myschema",
-          tableName: "mytable"
+          tableName: "mytable",
+          alias: "a"
         },
         {
           location: {
@@ -165,7 +166,8 @@ describe("rhombic", () => {
             startColumn: 47,
             startLine: 1
           },
-          tableName: "mytable2"
+          tableName: "mytable2",
+          alias: "b"
         }
       ]);
     });

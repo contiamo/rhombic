@@ -69,6 +69,7 @@ export interface TablePrimary {
   catalogName?: string;
   schemaName?: string;
   tableName: string;
+  alias?: string;
   location: Location;
 }
 
