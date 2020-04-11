@@ -375,12 +375,29 @@ const parsedSql = (sql: string): ParsedSql => {
         const projectionItemsBehindAsterisk =
           (columns.length - nonAsteriskItemsCount) / visitor.asteriskCount;
 
+        // Extract tableAlias
+        const tablePrimaries = this.getTablePrimaries();
+        const tableAliases = tablePrimaries.reduce(
+          (mem, i) => (i.alias ? [...mem, i.alias] : mem),
+          [] as string[]
+        );
+
         const nextSql = replaceText(
           sql,
           columns
             .slice(asteriskIndex, asteriskIndex + projectionItemsBehindAsterisk)
             .map((c, i) => {
               if (i + asteriskIndex === index) return value;
+
+              // Deal with tableAlias, `a.my_column` should not be espaced!
+              const aliasCase = tableAliases.reduce((mem, alias) => {
+                if (c.startsWith(`${alias}.`)) {
+                  c = c.slice(`${alias}.`.length);
+                  return `${alias}.${needToBeEscaped(c) ? `"${c}"` : c}`;
+                }
+                return mem;
+              }, "");
+              if (aliasCase) return aliasCase;
               return needToBeEscaped(c) ? `"${c}"` : c;
             })
             .join(", "),
