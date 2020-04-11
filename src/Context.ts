@@ -205,18 +205,23 @@ export interface ProjectionItemsContext {
 
 export type ProjectionItemContext =
   | {
+      Identifier?: IToken[];
+      Period?: IToken[];
+      Asterisk: IToken[];
+    }
+  | {
       expression: Array<{
         name: "expression";
         children: ExpressionContext;
       }>;
       As?: IToken[];
       Identifier?: IToken[];
-    }
-  | { Asterisk: IToken[] };
+    };
 
 export type TableExpressionContext =
   | {
       Natural?: IToken[];
+      Inner?: IToken[];
       Left?: IToken[];
       Right?: IToken[];
       Full?: IToken[];
