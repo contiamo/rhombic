@@ -1,5 +1,5 @@
 import { parser } from "../SqlParser";
-import { TablePrimaryContext } from "../Context";
+import { TablePrimaryContext, TableReferenceContext } from "../Context";
 import { TablePrimary } from "..";
 import { getLocation } from "../utils/getLocation";
 
@@ -21,6 +21,15 @@ export class TablePrimaryVisitor extends Visitor {
       .split(".")
       .map(sanitizeTableName)
       .join(".");
+  }
+
+  protected tableReference(ctx: TableReferenceContext) {
+    this.tablePrimary(ctx.tablePrimary[0].children);
+
+    // Add alias information
+    if (ctx.As && ctx.Identifier) {
+      this.tables[this.tables.length - 1].alias = ctx.Identifier[0].image;
+    }
   }
 
   protected tablePrimary(ctx: TablePrimaryContext) {

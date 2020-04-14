@@ -980,12 +980,44 @@ export const serializedGrammar = [
     type: "Rule",
     name: "projectionItem",
     orgText:
-      "function () {\r\n            _this.OR([\r\n                {\r\n                    ALT: function () {\r\n                        _this.SUBRULE(_this.expression);\r\n                        _this.OPTION(function () {\r\n                            _this.CONSUME(As);\r\n                            _this.CONSUME(Identifier);\r\n                        });\r\n                    }\r\n                },\r\n                { ALT: function () { return _this.CONSUME(Asterisk); } }\r\n                // Need to learn how to backtrack to resolve ambiguous alternatives with the first rule\r\n                // {\r\n                //   ALT: () => {\r\n                //     this.CONSUME1(Identifier);\r\n                //     this.CONSUME(Period);\r\n                //     this.CONSUME1(Asterisk);\r\n                //   }\r\n                // }\r\n            ]);\r\n        }",
+      "function () {\r\n            _this.OR([\r\n                {\r\n                    ALT: function () {\r\n                        _this.OPTION1(function () {\r\n                            _this.CONSUME1(Identifier);\r\n                            _this.CONSUME(Period);\r\n                        });\r\n                        _this.CONSUME(Asterisk);\r\n                    }\r\n                },\r\n                {\r\n                    ALT: function () {\r\n                        _this.SUBRULE(_this.expression);\r\n                        _this.OPTION(function () {\r\n                            _this.CONSUME(As);\r\n                            _this.CONSUME(Identifier);\r\n                        });\r\n                    }\r\n                }\r\n            ]);\r\n        }",
     definition: [
       {
         type: "Alternation",
         idx: 0,
         definition: [
+          {
+            type: "Flat",
+            definition: [
+              {
+                type: "Option",
+                idx: 1,
+                definition: [
+                  {
+                    type: "Terminal",
+                    name: "Identifier",
+                    label: "Identifier",
+                    idx: 1,
+                    pattern: '[a-zA-Z][\\w]*|"[^"]*"'
+                  },
+                  {
+                    type: "Terminal",
+                    name: "Period",
+                    label: "Period",
+                    idx: 0,
+                    pattern: "\\."
+                  }
+                ]
+              },
+              {
+                type: "Terminal",
+                name: "Asterisk",
+                label: "Asterisk",
+                idx: 0,
+                pattern: "\\*"
+              }
+            ]
+          },
           {
             type: "Flat",
             definition: [
@@ -1015,18 +1047,6 @@ export const serializedGrammar = [
                 ]
               }
             ]
-          },
-          {
-            type: "Flat",
-            definition: [
-              {
-                type: "Terminal",
-                name: "Asterisk",
-                label: "Asterisk",
-                idx: 0,
-                pattern: "\\*"
-              }
-            ]
           }
         ]
       }
@@ -1036,7 +1056,7 @@ export const serializedGrammar = [
     type: "Rule",
     name: "tableExpression",
     orgText:
-      "function () {\r\n            // tableReference [, tableReference ]*\r\n            _this.MANY_SEP({\r\n                SEP: Comma,\r\n                DEF: function () { return _this.SUBRULE(_this.tableReference); }\r\n            });\r\n            _this.OPTION(function () {\r\n                _this.OR([\r\n                    {\r\n                        // [ NATURAL ] [ ( LEFT | RIGHT | FULL ) [ OUTER ] ] JOIN tableExpression [ joinCondition ]\r\n                        ALT: function () {\r\n                            _this.OPTION1(function () { return _this.CONSUME(Natural); });\r\n                            _this.OPTION2(function () {\r\n                                _this.OR1([\r\n                                    { ALT: function () { return _this.CONSUME(Left); } },\r\n                                    { ALT: function () { return _this.CONSUME(Right); } },\r\n                                    { ALT: function () { return _this.CONSUME(Full); } }\r\n                                ]);\r\n                                _this.OPTION3(function () { return _this.CONSUME(Outer); });\r\n                            });\r\n                            _this.CONSUME(Join);\r\n                            _this.SUBRULE1(_this.tableExpression);\r\n                            _this.OPTION4(function () { return _this.SUBRULE2(_this.joinCondition); });\r\n                        }\r\n                    },\r\n                    {\r\n                        // CROSS JOIN tableExpression\r\n                        ALT: function () {\r\n                            _this.CONSUME(Cross);\r\n                            _this.CONSUME2(Join);\r\n                            _this.SUBRULE2(_this.tableExpression);\r\n                        }\r\n                    },\r\n                    {\r\n                        // [ CROSS | OUTER ] APPLY tableExpression\r\n                        ALT: function () {\r\n                            _this.OR2([\r\n                                { ALT: function () { return _this.CONSUME1(Cross); } },\r\n                                { ALT: function () { return _this.CONSUME1(Outer); } }\r\n                            ]);\r\n                            _this.CONSUME(Apply);\r\n                            _this.SUBRULE3(_this.tableExpression);\r\n                        }\r\n                    }\r\n                ]);\r\n            });\r\n        }",
+      "function () {\r\n            // tableReference [, tableReference ]*\r\n            _this.MANY_SEP({\r\n                SEP: Comma,\r\n                DEF: function () { return _this.SUBRULE(_this.tableReference); }\r\n            });\r\n            _this.OPTION(function () {\r\n                _this.OR([\r\n                    {\r\n                        // [ NATURAL ] [ INNER | (( LEFT | RIGHT | FULL ) [ OUTER ]) ] JOIN tableExpression [ joinCondition ]\r\n                        ALT: function () {\r\n                            _this.OPTION1(function () { return _this.CONSUME(Natural); });\r\n                            _this.OPTION2(function () {\r\n                                _this.OR1([\r\n                                    {\r\n                                        ALT: function () {\r\n                                            _this.CONSUME(Inner);\r\n                                        }\r\n                                    },\r\n                                    {\r\n                                        ALT: function () {\r\n                                            _this.OR2([\r\n                                                { ALT: function () { return _this.CONSUME(Left); } },\r\n                                                { ALT: function () { return _this.CONSUME(Right); } },\r\n                                                { ALT: function () { return _this.CONSUME(Full); } }\r\n                                            ]);\r\n                                            _this.OPTION3(function () { return _this.CONSUME(Outer); });\r\n                                        }\r\n                                    }\r\n                                ]);\r\n                            });\r\n                            _this.CONSUME(Join);\r\n                            _this.SUBRULE1(_this.tableExpression);\r\n                            _this.OPTION4(function () { return _this.SUBRULE2(_this.joinCondition); });\r\n                        }\r\n                    },\r\n                    {\r\n                        // CROSS JOIN tableExpression\r\n                        ALT: function () {\r\n                            _this.CONSUME(Cross);\r\n                            _this.CONSUME2(Join);\r\n                            _this.SUBRULE2(_this.tableExpression);\r\n                        }\r\n                    },\r\n                    {\r\n                        // [ CROSS | OUTER ] APPLY tableExpression\r\n                        ALT: function () {\r\n                            _this.OR3([\r\n                                { ALT: function () { return _this.CONSUME1(Cross); } },\r\n                                { ALT: function () { return _this.CONSUME1(Outer); } }\r\n                            ]);\r\n                            _this.CONSUME(Apply);\r\n                            _this.SUBRULE3(_this.tableExpression);\r\n                        }\r\n                    }\r\n                ]);\r\n            });\r\n        }",
     definition: [
       {
         type: "RepetitionWithSeparator",
@@ -1093,10 +1113,10 @@ export const serializedGrammar = [
                             definition: [
                               {
                                 type: "Terminal",
-                                name: "Left",
-                                label: "Left",
+                                name: "Inner",
+                                label: "Inner",
                                 idx: 0,
-                                pattern: "LEFT"
+                                pattern: "INNER"
                               }
                             ]
                           },
@@ -1104,38 +1124,61 @@ export const serializedGrammar = [
                             type: "Flat",
                             definition: [
                               {
-                                type: "Terminal",
-                                name: "Right",
-                                label: "Right",
-                                idx: 0,
-                                pattern: "RIGHT"
-                              }
-                            ]
-                          },
-                          {
-                            type: "Flat",
-                            definition: [
+                                type: "Alternation",
+                                idx: 2,
+                                definition: [
+                                  {
+                                    type: "Flat",
+                                    definition: [
+                                      {
+                                        type: "Terminal",
+                                        name: "Left",
+                                        label: "Left",
+                                        idx: 0,
+                                        pattern: "LEFT"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    type: "Flat",
+                                    definition: [
+                                      {
+                                        type: "Terminal",
+                                        name: "Right",
+                                        label: "Right",
+                                        idx: 0,
+                                        pattern: "RIGHT"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    type: "Flat",
+                                    definition: [
+                                      {
+                                        type: "Terminal",
+                                        name: "Full",
+                                        label: "Full",
+                                        idx: 0,
+                                        pattern: "FULL"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
                               {
-                                type: "Terminal",
-                                name: "Full",
-                                label: "Full",
-                                idx: 0,
-                                pattern: "FULL"
+                                type: "Option",
+                                idx: 3,
+                                definition: [
+                                  {
+                                    type: "Terminal",
+                                    name: "Outer",
+                                    label: "Outer",
+                                    idx: 0,
+                                    pattern: "OUTER"
+                                  }
+                                ]
                               }
                             ]
-                          }
-                        ]
-                      },
-                      {
-                        type: "Option",
-                        idx: 3,
-                        definition: [
-                          {
-                            type: "Terminal",
-                            name: "Outer",
-                            label: "Outer",
-                            idx: 0,
-                            pattern: "OUTER"
                           }
                         ]
                       }
@@ -1195,7 +1238,7 @@ export const serializedGrammar = [
                 definition: [
                   {
                     type: "Alternation",
-                    idx: 2,
+                    idx: 3,
                     definition: [
                       {
                         type: "Flat",

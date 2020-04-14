@@ -29,6 +29,13 @@ try {
 
 Thanks to the amazing [Chevrotain](https://sap.github.io/chevrotain), we generate an AST from any Calcite SQL statements. After this first parsing phase, we "just" apply modifiers to the AST to perform any wanted operations or analysis.
 
+## PostgreSQL compatibility
+
+This project was built to support Contiamo® workbench editor (a fancy SQL editor) based on CalciteSQL.
+Our product evolved to switch to PostgreSQL instead of CalciteSQL, as result, Rhombic supports CalciteSQL and PostgreSQL!
+
+To achieve this, the grammar implemented in Rhombic will go in favor of the more generic version to support all features of both SQL implementations. This should be totally transparent, since the input of rhombic is a SQL query. Just be careful to not use some CalciteSQL/PostgreSQL specific feature when you mutate a SQL query.
+
 ## Why this name?
 
 > Soft enough to be easily scratched by a nail, calcite crystals can also be identified by their rhombic cleavage.

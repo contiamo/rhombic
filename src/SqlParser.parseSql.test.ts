@@ -813,6 +813,32 @@ describe("parseSql", () => {
           )
         )
       )`
+    },
+    {
+      title: "tableAlias.*",
+      sql: "SELECT a.* FROM table as a",
+      expected: `query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(
+              Identifier("a")
+              Period(".")
+              Asterisk("*")
+            )
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier("table")
+              )
+              As("as")
+              Identifier("a")
+            )
+          )
+        )
+      )`
     }
   ];
 

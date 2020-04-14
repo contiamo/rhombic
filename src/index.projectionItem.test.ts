@@ -263,6 +263,41 @@ describe("projectionItem", () => {
       );
     });
 
+    it("should deal with tableAlias.* in query", () => {
+      const query = rhombic
+        .parse("SELECT a.* FROM my_table AS a")
+        .updateProjectionItem({
+          columns: ["a.column01", "a.column02", "a.column03", "a.column04"],
+          index: 0,
+          value: "a.column01 AS oh_yeah"
+        })
+        .toString();
+
+      expect(query).toEqual(
+        "SELECT a.column01 AS oh_yeah, a.column02, a.column03, a.column04 FROM my_table AS a"
+      );
+    });
+
+    it("should escaped tableAlias column name correctly", () => {
+      const query = rhombic
+        .parse("SELECT a.* FROM my_table AS a")
+        .updateProjectionItem({
+          columns: [
+            "a.column01",
+            "a.need to be escaped",
+            "a.column03",
+            "a.column04"
+          ],
+          index: 0,
+          value: "a.column01 AS oh_yeah"
+        })
+        .toString();
+
+      expect(query).toEqual(
+        'SELECT a.column01 AS oh_yeah, a."need to be escaped", a.column03, a.column04 FROM my_table AS a'
+      );
+    });
+
     it("should update the ORDER BY statement if related to the projectionItem", () => {
       const query = rhombic
         .parse(
@@ -727,44 +762,44 @@ FROM
         .getProjectionItems(["mischa", "slava", "chicken", "imogen", "fabien"]);
 
       expect(projectionItems).toMatchInlineSnapshot(`
-        Array [
-          Object {
-            "alias": undefined,
-            "cast": undefined,
-            "expression": "mischa",
-            "fn": undefined,
-            "sort": undefined,
-          },
-          Object {
-            "alias": undefined,
-            "cast": undefined,
-            "expression": "slava",
-            "fn": undefined,
-            "sort": undefined,
-          },
-          Object {
-            "alias": "chicken",
-            "cast": undefined,
-            "expression": "tejas",
-            "fn": undefined,
-            "sort": undefined,
-          },
-          Object {
-            "alias": undefined,
-            "cast": undefined,
-            "expression": "imogen",
-            "fn": undefined,
-            "sort": undefined,
-          },
-          Object {
-            "alias": undefined,
-            "cast": undefined,
-            "expression": "fabien",
-            "fn": undefined,
-            "sort": undefined,
-          },
-        ]
-      `);
+                Array [
+                  Object {
+                    "alias": undefined,
+                    "cast": undefined,
+                    "expression": "mischa",
+                    "fn": undefined,
+                    "sort": undefined,
+                  },
+                  Object {
+                    "alias": undefined,
+                    "cast": undefined,
+                    "expression": "slava",
+                    "fn": undefined,
+                    "sort": undefined,
+                  },
+                  Object {
+                    "alias": "chicken",
+                    "cast": undefined,
+                    "expression": "tejas",
+                    "fn": undefined,
+                    "sort": undefined,
+                  },
+                  Object {
+                    "alias": undefined,
+                    "cast": undefined,
+                    "expression": "imogen",
+                    "fn": undefined,
+                    "sort": undefined,
+                  },
+                  Object {
+                    "alias": undefined,
+                    "cast": undefined,
+                    "expression": "fabien",
+                    "fn": undefined,
+                    "sort": undefined,
+                  },
+                ]
+            `);
     });
   });
 });
