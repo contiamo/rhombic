@@ -145,6 +145,24 @@ describe("projectionItem", () => {
 
       expect(query).toEqual("SELECT my_table.column01, column02 FROM my_table");
     });
+    it("should deal with alias", () => {
+      const query = rhombic
+        .parse("SELECT a FROM my_table")
+        .addProjectionItem("column02", { alias: "b" })
+        .toString();
+
+      expect(query).toEqual("SELECT a, column02 AS b FROM my_table");
+    });
+    it("should deal with alias that need to be escaped", () => {
+      const query = rhombic
+        .parse("SELECT a FROM my_table")
+        .addProjectionItem("column02", { alias: "this is second column" })
+        .toString();
+
+      expect(query).toEqual(
+        'SELECT a, column02 AS "this is second column" FROM my_table'
+      );
+    });
   });
 
   describe("updateProjectionItem", () => {
