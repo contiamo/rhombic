@@ -156,11 +156,13 @@ describe("projectionItem", () => {
     it("should deal with alias that need to be escaped", () => {
       const query = rhombic
         .parse("SELECT a FROM my_table")
-        .addProjectionItem("column02", { alias: "this is second column" })
+        .addProjectionItem("column02", {
+          alias: "I need to be escaped because I have some spaces"
+        })
         .toString();
 
       expect(query).toEqual(
-        'SELECT a, column02 AS "this is second column" FROM my_table'
+        'SELECT a, column02 AS "I need to be escaped because I have some spaces" FROM my_table'
       );
     });
   });
