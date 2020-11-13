@@ -18,7 +18,7 @@ import { fixOrderItem } from "./utils/fixOrderItem";
 import { removeUnusedOrderItems } from "./utils/removeUnusedOrderItems";
 
 // Utils
-export { needToBeEscaped, printFilter, Location };
+export { needToBeEscaped, printFilter };
 
 const rhombic = {
   /**
