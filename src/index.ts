@@ -134,10 +134,15 @@ export interface ParsedSql {
    * @param options
    * @param options.removeAsterisk Remove `*` from the original query (default: `true`)
    * @param options.escapeReservedKeywords Escape reserved keywords (default: `true`)
+   * @param options.alias Provide an alias to the projection item (`AS {alias}`)
    */
   addProjectionItem(
     projectionItem: string,
-    options?: { removeAsterisk?: boolean; escapeReservedKeywords?: boolean }
+    options?: {
+      removeAsterisk?: boolean;
+      escapeReservedKeywords?: boolean;
+      alias?: string;
+    }
   ): ParsedSql;
 
   /**
@@ -276,14 +281,12 @@ const parsedSql = (sql: string): ParsedSql => {
         const sort = visitor.sort.find(
           i => i.expression === (originalValue || value)
         );
-        if (sort) {
-          delete sort.expression; // Remove internal data
-          delete sort.expressionRange; // Remove internal data
-        }
 
         return {
           expression: originalValue || value,
-          sort: sort ? { order: "asc", ...sort } : undefined
+          sort: sort
+            ? { order: sort.order || "asc", nullsOrder: sort.nullsOrder }
+            : undefined
         };
       } else {
         return {
@@ -325,6 +328,13 @@ const parsedSql = (sql: string): ParsedSql => {
         needToBeEscaped(projectionItem)
       ) {
         projectionItem = `"${projectionItem}"`;
+      }
+
+      // add alias
+      if (options.alias) {
+        projectionItem += needToBeEscaped(options.alias)
+          ? ` AS "${options.alias}"`
+          : ` AS ${options.alias}`;
       }
 
       // multiline query
