@@ -89,6 +89,30 @@ describe("parseSql", () => {
       )`
     },
     {
+      title: "simple SELECT * statement () with comments",
+      sql: `-- This should be ignored
+      SELECT * FROM my_db`,
+      expected: `
+      query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(
+              Asterisk("*")
+            )
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier("my_db")
+              )
+            )
+          )
+        )
+      )`
+    },
+    {
       title: "SELECT with multi-level identifiers",
       sql: "SELECT foo.bar FROM foo.bar",
       expected: `query(

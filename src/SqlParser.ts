@@ -260,9 +260,16 @@ const WhiteSpace = createToken({
   group: Lexer.SKIPPED
 });
 
+const Comment = createToken({
+  name: "Comment",
+  pattern: /--.*/,
+  group: Lexer.SKIPPED
+});
+
 // note we are placing WhiteSpace first as it is very common thus it will speed up the lexer.
 const allTokens = [
   WhiteSpace,
+  Comment,
 
   // "keywords" appear before the Identifier
   Select,
