@@ -5,15 +5,9 @@ import {
   WhereContext
 } from "../Context";
 import { getChildrenRange } from "../utils/getChildrenRange";
+import { Location } from "../utils/getLocation";
 
 const Visitor = parser.getBaseCstVisitorConstructorWithDefaults();
-
-interface Location {
-  startLine: number;
-  endLine: number;
-  startColumn: number;
-  endColumn: number;
-}
 
 /**
  * Visitor to extract information about `WHERE` statement
