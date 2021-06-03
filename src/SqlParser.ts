@@ -381,6 +381,7 @@ class SqlParser extends CstParser {
         }
       }
     ]);
+    this.OPTION2(() => this.CONSUME(SemiColumn));
   });
 
   /**
