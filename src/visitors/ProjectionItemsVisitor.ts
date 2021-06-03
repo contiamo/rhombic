@@ -8,13 +8,14 @@ import {
 } from "../Context";
 import { IToken, CstElement } from "chevrotain";
 import { getImageFromChildren } from "../utils/getImageFromChildren";
-import { getChildrenRange, Range } from "../utils/getChildrenRange";
+import { getChildrenRange } from "../utils/getChildrenRange";
 import { isCstNode } from "../utils/isCstNode";
 import {
   isAsteriskContext,
   isExpressionContext
 } from "../utils/projectionItem";
 import { isFunctionContext } from "../utils/expression";
+import { Range } from "../utils/getRange";
 
 const Visitor = parser.getBaseCstVisitorConstructorWithDefaults();
 

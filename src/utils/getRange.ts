@@ -5,7 +5,7 @@ type Token = Pick<
   "startColumn" | "endColumn" | "startLine" | "endLine"
 >;
 
-export interface Location {
+export interface Range {
   startLine: number;
   endLine: number;
   startColumn: number;
@@ -13,14 +13,14 @@ export interface Location {
 }
 
 /**
- * Returns the location of a token
+ * Returns the range of a token
  *
  * @param tokens
  */
-export const getLocation = (tokens: Token | Token[]): Location => {
+export const getRange = (tokens: Token | Token[]): Range => {
   if (Array.isArray(tokens)) {
-    const startLocation = getLocation(tokens[0]);
-    const endLocation = getLocation(tokens[tokens.length - 1]);
+    const startLocation = getRange(tokens[0]);
+    const endLocation = getRange(tokens[tokens.length - 1]);
 
     return {
       startLine: startLocation.startLine,

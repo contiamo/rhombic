@@ -5,7 +5,7 @@ import { insertText } from "./utils/insertText";
 import { CstNode } from "chevrotain";
 import { TablePrimaryVisitor } from "./visitors/TablePrimaryVisitor";
 import { replaceText } from "./utils/replaceText";
-import { getLocation, Location } from "./utils/getLocation";
+import { getRange, Range } from "./utils/getRange";
 import { needToBeEscaped } from "./utils/needToBeEscaped";
 import { printFilter } from "./utils/printFilter";
 import { getText } from "./utils/getText";
