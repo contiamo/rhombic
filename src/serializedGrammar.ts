@@ -29,7 +29,7 @@ export const serializedGrammar = [
     type: "Rule",
     name: "query",
     orgText:
-      "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.SUBRULE(_this.values); } },\r\n                {\r\n                    ALT: function () {\r\n                        _this.SUBRULE(_this.select);\r\n                        _this.OPTION(function () {\r\n                            _this.SUBRULE(_this.orderBy);\r\n                        });\r\n                        _this.OPTION1(function () {\r\n                            _this.CONSUME(Limit);\r\n                            _this.OR1([\r\n                                { ALT: function () { return _this.CONSUME(IntegerValue); } },\r\n                                { ALT: function () { return _this.CONSUME(All); } }\r\n                            ]);\r\n                        });\r\n                    }\r\n                }\r\n            ]);\r\n        }",
+      "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.SUBRULE(_this.values); } },\r\n                {\r\n                    ALT: function () {\r\n                        _this.SUBRULE(_this.select);\r\n                        _this.OPTION(function () {\r\n                            _this.SUBRULE(_this.orderBy);\r\n                        });\r\n                        _this.OPTION1(function () {\r\n                            _this.CONSUME(Limit);\r\n                            _this.OR1([\r\n                                { ALT: function () { return _this.CONSUME(IntegerValue); } },\r\n                                { ALT: function () { return _this.CONSUME(All); } }\r\n                            ]);\r\n                        });\r\n                    }\r\n                }\r\n            ]);\r\n            _this.OPTION2(function () { return _this.CONSUME(SemiColumn); });\r\n        }",
     definition: [
       {
         type: "Alternation",
@@ -108,6 +108,19 @@ export const serializedGrammar = [
                 ]
               }
             ]
+          }
+        ]
+      },
+      {
+        type: "Option",
+        idx: 2,
+        definition: [
+          {
+            type: "Terminal",
+            name: "SemiColumn",
+            label: "SemiColumn",
+            idx: 0,
+            pattern: ";"
           }
         ]
       }

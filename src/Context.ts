@@ -8,7 +8,7 @@ export interface StatementContext {
   }>;
 }
 
-export type QueryContext =
+export type QueryContext = (
   | {
       values: Array<{
         name: "values";
@@ -27,7 +27,9 @@ export type QueryContext =
       Limit?: IToken[];
       IntegerValue?: IToken[];
       All?: IToken[];
-    };
+    }) & {
+  SemiColumn?: IToken[];
+};
 
 export type ExpressionContext =
   | {
