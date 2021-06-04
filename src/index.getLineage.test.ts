@@ -36,6 +36,12 @@ describe("getLineage", () => {
             {
               id: "account_type",
               label: "account_type",
+              range: {
+                endColumn: 19,
+                endLine: 1,
+                startColumn: 8,
+                startLine: 1
+              },
               data: {
                 id: "account_type",
                 tableId: "account"
@@ -44,6 +50,12 @@ describe("getLineage", () => {
             {
               id: "account_id",
               label: "account_id",
+              range: {
+                endColumn: 31,
+                endLine: 1,
+                startColumn: 22,
+                startLine: 1
+              },
               data: {
                 id: "account_id",
                 tableId: "account"

@@ -667,7 +667,7 @@ const parsedSql = (sql: string): ParsedSql => {
           columns: this.getProjectionItems(columns.map(c => c.id)).map(
             column => ({
               id: column.expression,
-              // location: getLocation(column),
+              range: column.range,
               label: column.expression,
               data: columns.find(i => i.id === column.expression)
             })
