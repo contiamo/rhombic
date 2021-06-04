@@ -16,6 +16,7 @@ import { WhereVisitor } from "./visitors/WhereVisitor";
 import { getImageFromChildren } from "./utils/getImageFromChildren";
 import { fixOrderItem } from "./utils/fixOrderItem";
 import { removeUnusedOrderItems } from "./utils/removeUnusedOrderItems";
+import { Lineage } from "./Lineage";
 
 // Utils
 export { needToBeEscaped, printFilter };
@@ -70,7 +71,7 @@ export interface TablePrimary {
   schemaName?: string;
   tableName: string;
   alias?: string;
-  location: Location;
+  range: Range;
 }
 
 // Note: Because we have a recursion, we can't rely on typescript inference
@@ -201,6 +202,20 @@ export interface ParsedSql {
    * @param filter
    */
   updateFilter(filter: FilterTree | string): ParsedSql;
+
+  /**
+   * Get lineage data.
+   *
+   * @param getTable Get table metadata
+   * @param getColumn Get column metadata
+   */
+  getLineage<
+    TableData extends { id: string },
+    ColumnData extends { id: string }
+  >(
+    getTable: (tableId: string) => TableData,
+    getColumns: (tableId: string) => ColumnData[]
+  ): Lineage<TableData, ColumnData>;
 }
 
 /**
@@ -411,13 +426,13 @@ const parsedSql = (sql: string): ParsedSql => {
               return needToBeEscaped(c) ? `"${c}"` : c;
             })
             .join(", "),
-          getLocation(projectionItems[asteriskIndex])
+          getRange(projectionItems[asteriskIndex])
         );
 
         return parsedSql(nextSql);
       } else {
         const targetNode = projectionItems[index];
-        const nextSql = replaceText(sql, value, getLocation(targetNode));
+        const nextSql = replaceText(sql, value, getRange(targetNode));
 
         // Check if we need to rename an order item
         const needToFixOrderItem =
@@ -459,7 +474,7 @@ const parsedSql = (sql: string): ParsedSql => {
               )
               .filter((_, i) => i + asteriskIndex !== index)
               .join(", "),
-            getLocation(projectionItems[asteriskIndex])
+            getRange(projectionItems[asteriskIndex])
           );
           if (hasSort) {
             return parsedSql(
@@ -474,7 +489,7 @@ const parsedSql = (sql: string): ParsedSql => {
 
       if (visitor.commas.length > 0) {
         // Include the commas in the selection to remove
-        const comma = getLocation(
+        const comma = getRange(
           visitor.commas[Math.min(visitor.commas.length - 1, index)]
         );
         if (
@@ -502,7 +517,7 @@ const parsedSql = (sql: string): ParsedSql => {
       let nextSql = replaceText(
         sql,
         isLastProjectionItem ? "*" : "",
-        getLocation(targetNode)
+        getRange(targetNode)
       );
 
       // Remove resulting emtpy line
@@ -552,7 +567,7 @@ const parsedSql = (sql: string): ParsedSql => {
             ).toUpperCase()}${
               nextNullsOrders ? ` NULLS ${nextNullsOrders.toUpperCase()}` : ""
             }`,
-            getLocation(existingOrderItem)
+            getRange(existingOrderItem)
           );
 
           return parsedSql(nextSql);
@@ -568,7 +583,7 @@ const parsedSql = (sql: string): ParsedSql => {
           const nextSql = replaceText(
             sql,
             orderByItem,
-            getLocation({
+            getRange({
               startLine: firstItem.startLine,
               startColumn: firstItem.startColumn,
               endLine: lastItem.endLine,
@@ -609,17 +624,48 @@ const parsedSql = (sql: string): ParsedSql => {
       const nextSql = replaceText(
         sql,
         hasWhere ? computedFilter : ` WHERE ${computedFilter} `,
-        hasWhere ? visitor.booleanExpressionLocation! : visitor.tableLocation!
+        hasWhere ? visitor.booleanExpressionRange! : visitor.tableRange!
       ).trim();
-      if (computedFilter === "" && visitor.whereLocation) {
+      if (computedFilter === "" && visitor.whereRange) {
         return parsedSql(
           replaceText(sql, "", {
-            ...visitor.whereLocation,
-            startColumn: visitor.whereLocation.startColumn - 1 // Remove the space before WHERE
+            ...visitor.whereRange,
+            startColumn: visitor.whereRange.startColumn - 1 // Remove the space before WHERE
           }).trim()
         );
       }
       return parsedSql(nextSql);
+    },
+
+    getLineage<
+      TableData extends { id: string },
+      ColumnData extends { id: string }
+    >(
+      getTable: (tableId: string) => TableData,
+      getColumns: (tableId: string) => ColumnData[]
+    ) {
+      const tables = this.getTablePrimaries();
+      const lineage: Lineage<TableData, ColumnData> = [];
+
+      tables.forEach(table => {
+        const columns = getColumns(table.tableName);
+        lineage.push({
+          type: "table",
+          id: table.tableName,
+          label: table.tableName,
+          range: table.range,
+          data: getTable(table.tableName),
+          columns: this.getProjectionItems(columns.map(c => c.id)).map(
+            column => ({
+              id: column.expression,
+              // location: getLocation(column),
+              label: column.expression,
+              data: columns.find(i => i.id === column.expression)
+            })
+          )
+        });
+      });
+      return lineage;
     }
   };
 };
