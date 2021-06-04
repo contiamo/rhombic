@@ -33,10 +33,7 @@ function isCastNode(
  */
 export class ProjectionItemsVisitor extends Visitor {
   public output: Array<{
-    startLine: number;
-    endLine: number;
-    startColumn: number;
-    endColumn: number;
+    range: Range;
     isAsterisk: boolean;
     expression: string;
     alias?: string;
@@ -160,7 +157,7 @@ export class ProjectionItemsVisitor extends Visitor {
     }
 
     this.output.push({
-      ...getChildrenRange(ctx),
+      range: getChildrenRange(ctx),
       isAsterisk,
       alias,
       cast,

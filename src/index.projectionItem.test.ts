@@ -548,7 +548,13 @@ FROM
         .getProjectionItem({ columns: ["hello"], index: 0 });
 
       expect(projectionItem).toEqual({
-        expression: "hello"
+        expression: "hello",
+        range: {
+          endColumn: 12,
+          endLine: 1,
+          startColumn: 8,
+          startLine: 1
+        }
       });
     });
 
@@ -564,7 +570,13 @@ FROM
 
       expect(projectionItem).toEqual({
         expression: "tejas",
-        alias: "chicken"
+        alias: "chicken",
+        range: {
+          endColumn: 38,
+          endLine: 1,
+          startColumn: 23,
+          startLine: 1
+        }
       });
     });
 
@@ -584,6 +596,12 @@ FROM
         fn: {
           identifier: "avg",
           value: "tejas"
+        },
+        range: {
+          endColumn: 43,
+          endLine: 1,
+          startColumn: 23,
+          startLine: 1
         }
       });
     });
@@ -604,6 +622,12 @@ FROM
         fn: {
           identifier: "avg",
           value: "tejas"
+        },
+        range: {
+          endColumn: 45,
+          endLine: 1,
+          startColumn: 23,
+          startLine: 1
         }
       });
     });
@@ -634,6 +658,12 @@ FROM
         fn: {
           identifier: "avg",
           value: "mischa"
+        },
+        range: {
+          endColumn: 18,
+          endLine: 1,
+          startColumn: 8,
+          startLine: 1
         }
       });
     });
@@ -685,6 +715,12 @@ FROM
         cast: {
           value: "address",
           type: "CHAR"
+        },
+        range: {
+          endColumn: 28,
+          endLine: 1,
+          startColumn: 8,
+          startLine: 1
         }
       });
     });
@@ -704,6 +740,12 @@ FROM
         cast: {
           value: "address",
           type: "CHAR"
+        },
+        range: {
+          endColumn: 31,
+          endLine: 1,
+          startColumn: 8,
+          startLine: 1
         }
       });
     });
@@ -720,6 +762,12 @@ FROM
         expression: "foo",
         sort: {
           order: "asc"
+        },
+        range: {
+          endColumn: 10,
+          endLine: 1,
+          startColumn: 8,
+          startLine: 1
         }
       });
     });
@@ -739,6 +787,12 @@ FROM
         alias: "chocapic",
         sort: {
           order: "asc"
+        },
+        range: {
+          endColumn: 22,
+          endLine: 1,
+          startColumn: 8,
+          startLine: 1
         }
       });
     });
@@ -782,44 +836,74 @@ FROM
         .getProjectionItems(["mischa", "slava", "chicken", "imogen", "fabien"]);
 
       expect(projectionItems).toMatchInlineSnapshot(`
-                Array [
-                  Object {
-                    "alias": undefined,
-                    "cast": undefined,
-                    "expression": "mischa",
-                    "fn": undefined,
-                    "sort": undefined,
-                  },
-                  Object {
-                    "alias": undefined,
-                    "cast": undefined,
-                    "expression": "slava",
-                    "fn": undefined,
-                    "sort": undefined,
-                  },
-                  Object {
-                    "alias": "chicken",
-                    "cast": undefined,
-                    "expression": "tejas",
-                    "fn": undefined,
-                    "sort": undefined,
-                  },
-                  Object {
-                    "alias": undefined,
-                    "cast": undefined,
-                    "expression": "imogen",
-                    "fn": undefined,
-                    "sort": undefined,
-                  },
-                  Object {
-                    "alias": undefined,
-                    "cast": undefined,
-                    "expression": "fabien",
-                    "fn": undefined,
-                    "sort": undefined,
-                  },
-                ]
-            `);
+        Array [
+          Object {
+            "alias": undefined,
+            "cast": undefined,
+            "expression": "mischa",
+            "fn": undefined,
+            "range": Object {
+              "endColumn": 13,
+              "endLine": 1,
+              "startColumn": 8,
+              "startLine": 1,
+            },
+            "sort": undefined,
+          },
+          Object {
+            "alias": undefined,
+            "cast": undefined,
+            "expression": "slava",
+            "fn": undefined,
+            "range": Object {
+              "endColumn": 20,
+              "endLine": 1,
+              "startColumn": 16,
+              "startLine": 1,
+            },
+            "sort": undefined,
+          },
+          Object {
+            "alias": "chicken",
+            "cast": undefined,
+            "expression": "tejas",
+            "fn": undefined,
+            "range": Object {
+              "endColumn": 38,
+              "endLine": 1,
+              "startColumn": 23,
+              "startLine": 1,
+            },
+            "sort": undefined,
+          },
+          Object {
+            "alias": undefined,
+            "cast": undefined,
+            "expression": "imogen",
+            "fn": undefined,
+            "range": Object {
+              "endColumn": 46,
+              "endLine": 1,
+              "startColumn": 41,
+              "startLine": 1,
+            },
+            "sort": undefined,
+          },
+          Object {
+            "alias": undefined,
+            "cast": undefined,
+            "expression": "fabien",
+            "fn": undefined,
+            "range": Object {
+              "endColumn": 54,
+              "endLine": 1,
+              "startColumn": 49,
+              "startLine": 1,
+            },
+            "sort": undefined,
+          },
+        ]
+      `);
     });
   });
 });

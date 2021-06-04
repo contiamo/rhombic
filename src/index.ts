@@ -64,6 +64,7 @@ export interface ProjectionItemMetadata {
     order: "asc" | "desc";
     nullsOrder?: "first" | "last";
   };
+  range?: Range;
 }
 
 export interface TablePrimary {
@@ -276,7 +277,8 @@ const parsedSql = (sql: string): ParsedSql => {
             alias: projectionItems[index].alias,
             cast: projectionItems[index].cast,
             fn: projectionItems[index].fn,
-            sort: projectionItems[index].sort
+            sort: projectionItems[index].sort,
+            range: projectionItems[index].range
           };
         }
 
@@ -309,7 +311,8 @@ const parsedSql = (sql: string): ParsedSql => {
           alias: projectionItems[index].alias,
           cast: projectionItems[index].cast,
           fn: projectionItems[index].fn,
-          sort: projectionItems[index].sort
+          sort: projectionItems[index].sort,
+          range: projectionItems[index].range
         };
       }
     },
@@ -357,14 +360,17 @@ const parsedSql = (sql: string): ParsedSql => {
         const previousProjectionItem =
           visitor.output[visitor.output.length - 2];
         const isMultiline =
-          previousProjectionItem.endLine !== lastProjectionItem.endLine;
+          previousProjectionItem.range.endLine !==
+          lastProjectionItem.range.endLine;
 
         if (isMultiline) {
-          const spaces = " ".repeat((lastProjectionItem.startColumn || 1) - 1);
+          const spaces = " ".repeat(
+            (lastProjectionItem.range.startColumn || 1) - 1
+          );
 
           let nextSql = insertText(sql, `,\n${spaces}${projectionItem}`, {
-            line: lastProjectionItem.endLine || 1,
-            column: lastProjectionItem.endColumn || 0
+            line: lastProjectionItem.range.endLine || 1,
+            column: lastProjectionItem.range.endColumn || 0
           });
 
           if (options.removeAsterisk && hasAsterisk) {
@@ -376,8 +382,8 @@ const parsedSql = (sql: string): ParsedSql => {
 
       // one line case insertion
       let nextSql = insertText(sql, `, ${projectionItem}`, {
-        line: lastProjectionItem.endLine || 1,
-        column: lastProjectionItem.endColumn || 0
+        line: lastProjectionItem.range.endLine || 1,
+        column: lastProjectionItem.range.endColumn || 0
       });
 
       if (options.removeAsterisk && hasAsterisk) {
@@ -426,13 +432,13 @@ const parsedSql = (sql: string): ParsedSql => {
               return needToBeEscaped(c) ? `"${c}"` : c;
             })
             .join(", "),
-          getRange(projectionItems[asteriskIndex])
+          projectionItems[asteriskIndex].range
         );
 
         return parsedSql(nextSql);
       } else {
         const targetNode = projectionItems[index];
-        const nextSql = replaceText(sql, value, getRange(targetNode));
+        const nextSql = replaceText(sql, value, targetNode.range);
 
         // Check if we need to rename an order item
         const needToFixOrderItem =
@@ -474,7 +480,7 @@ const parsedSql = (sql: string): ParsedSql => {
               )
               .filter((_, i) => i + asteriskIndex !== index)
               .join(", "),
-            getRange(projectionItems[asteriskIndex])
+            projectionItems[asteriskIndex].range
           );
           if (hasSort) {
             return parsedSql(
@@ -493,22 +499,25 @@ const parsedSql = (sql: string): ParsedSql => {
           visitor.commas[Math.min(visitor.commas.length - 1, index)]
         );
         if (
-          comma.startLine < targetNode.startLine ||
-          comma.startColumn < targetNode.startColumn
+          comma.startLine < targetNode.range.startLine ||
+          comma.startColumn < targetNode.range.startColumn
         ) {
-          targetNode.startLine = comma.startLine || targetNode.startLine;
-          targetNode.startColumn = comma.startColumn || targetNode.startColumn;
+          targetNode.range.startLine =
+            comma.startLine || targetNode.range.startLine;
+          targetNode.range.startColumn =
+            comma.startColumn || targetNode.range.startColumn;
         } else {
-          targetNode.endLine = comma.endLine || targetNode.endLine;
-          targetNode.endColumn = comma.endColumn || targetNode.endColumn;
+          targetNode.range.endLine = comma.endLine || targetNode.range.endLine;
+          targetNode.range.endColumn =
+            comma.endColumn || targetNode.range.endColumn;
 
           // Remove extra space
           const textToRemove = getText(sql, {
-            ...targetNode,
-            endColumn: targetNode.endColumn + 1
+            ...targetNode.range,
+            endColumn: targetNode.range.endColumn + 1
           });
           if (textToRemove[textToRemove.length - 1] === " ") {
-            targetNode.endColumn++;
+            targetNode.range.endColumn++;
           }
         }
       }
@@ -517,11 +526,11 @@ const parsedSql = (sql: string): ParsedSql => {
       let nextSql = replaceText(
         sql,
         isLastProjectionItem ? "*" : "",
-        getRange(targetNode)
+        targetNode.range
       );
 
       // Remove resulting emtpy line
-      const removedLine = targetNode.startLine - 1;
+      const removedLine = targetNode.range.startLine - 1;
       if (!nextSql.split("\n")[removedLine].trim()) {
         nextSql = [
           ...nextSql.split("\n").slice(0, removedLine),

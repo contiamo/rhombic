@@ -19,14 +19,14 @@ export interface Range {
  */
 export const getRange = (tokens: Token | Token[]): Range => {
   if (Array.isArray(tokens)) {
-    const startLocation = getRange(tokens[0]);
-    const endLocation = getRange(tokens[tokens.length - 1]);
+    const { startLine, startColumn } = getRange(tokens[0]);
+    const { endLine, endColumn } = getRange(tokens[tokens.length - 1]);
 
     return {
-      startLine: startLocation.startLine,
-      startColumn: startLocation.startColumn,
-      endLine: endLocation.endLine,
-      endColumn: endLocation.endColumn
+      startLine,
+      startColumn,
+      endLine,
+      endColumn
     };
   }
 
