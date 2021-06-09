@@ -17,6 +17,7 @@ import { getImageFromChildren } from "./utils/getImageFromChildren";
 import { fixOrderItem } from "./utils/fixOrderItem";
 import { removeUnusedOrderItems } from "./utils/removeUnusedOrderItems";
 import { Lineage } from "./Lineage";
+import { flatten } from "lodash";
 
 // Utils
 export { needToBeEscaped, printFilter };
@@ -656,24 +657,80 @@ const parsedSql = (sql: string): ParsedSql => {
       const tables = this.getTablePrimaries();
       const lineage: Lineage<TableData, ColumnData> = [];
 
+      const projectionItemsVisitor = new ProjectionItemsVisitor();
+      projectionItemsVisitor.visit(cst);
+      const resultColumns = projectionItemsVisitor.output;
+
+      // Get columns metadata
+      const columnsMetadata = tables.reduce(
+        (mem, table) => {
+          return {
+            ...mem,
+            [table.tableName]: getColumns(table.tableName)
+          };
+        },
+        {} as { [tableName: string]: ColumnData[] }
+      );
+
+      // Create source tables
       tables.forEach(table => {
-        const columns = getColumns(table.tableName);
+        const columns = columnsMetadata[table.tableName];
+        const columnIds = columns.map(c => c.id);
         lineage.push({
           type: "table",
           id: table.tableName,
           label: table.tableName,
           range: table.range,
           data: getTable(table.tableName),
-          columns: this.getProjectionItems(columns.map(c => c.id)).map(
-            column => ({
+          columns: resultColumns
+            .filter(column => columnIds.includes(column.expression))
+            .map(column => ({
               id: column.expression,
               range: column.range,
               label: column.expression,
               data: columns.find(i => i.id === column.expression)
-            })
-          )
+            }))
         });
       });
+
+      // Create result table
+      const columns = flatten(Object.values(columnsMetadata));
+      lineage.push({
+        type: "table",
+        id: "result",
+        label: "[result]",
+        // range: ???
+        // modifiers: ???
+        columns: resultColumns.map(column => ({
+          id: column.expression,
+          range: column.range,
+          label: column.expression,
+          data: columns.find(i => i.id === column.expression)
+        }))
+      });
+
+      // Create edges
+      resultColumns.forEach(resultColumn => {
+        tables.forEach(table => {
+          const columns = columnsMetadata[table.tableName];
+          columns
+            .filter(column => column.id === resultColumn.expression)
+            .forEach(c => {
+              lineage.push({
+                type: "edge",
+                source: {
+                  tableId: table.tableName,
+                  columnId: c.id
+                },
+                target: {
+                  tableId: "result",
+                  columnId: c.id
+                }
+              });
+            });
+        });
+      });
+
       return lineage;
     }
   };
