@@ -304,7 +304,7 @@ describe("getLineage", () => {
 
   cases.forEach(({ data, name, only, sql, debug }) => {
     (only ? it.only : it)(`should parse ${name}`, () => {
-      const lineage = rhombic.parse(sql).getLineage(getTable, getColumns);
+      const lineage = rhombic.parse(sql).getLineage({ getTable, getColumns });
       if (debug) {
         const previous = fs.existsSync("debug.json")
           ? fs.readFileSync("debug.json", "utf-8")

@@ -208,16 +208,16 @@ export interface ParsedSql {
   /**
    * Get lineage data.
    *
-   * @param getTable Get table metadata
-   * @param getColumn Get column metadata
+   * @param getters.getTable Get table metadata
+   * @param getters.getColumn Get column metadata
    */
   getLineage<
     TableData extends { id: string },
     ColumnData extends { id: string }
-  >(
-    getTable: (tableId: string) => TableData,
-    getColumns: (tableId: string) => ColumnData[]
-  ): Lineage<TableData, ColumnData>;
+  >(getters: {
+    getTable: (tableId: string) => TableData;
+    getColumns: (tableId: string) => ColumnData[];
+  }): Lineage<TableData, ColumnData>;
 }
 
 /**
@@ -650,10 +650,13 @@ const parsedSql = (sql: string): ParsedSql => {
     getLineage<
       TableData extends { id: string },
       ColumnData extends { id: string }
-    >(
-      getTable: (tableId: string) => TableData,
-      getColumns: (tableId: string) => ColumnData[]
-    ) {
+    >({
+      getTable,
+      getColumns
+    }: {
+      getTable: (tableId: string) => TableData;
+      getColumns: (tableId: string) => ColumnData[];
+    }) {
       const tables = this.getTablePrimaries();
       const lineage: Lineage<TableData, ColumnData> = [];
 
