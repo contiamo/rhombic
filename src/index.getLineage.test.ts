@@ -6,7 +6,7 @@ import * as fs from "fs";
 type ColumnId = string;
 const columnsMapping: { [tableId: string]: ColumnId[] } = {
   account: ["account_type", "account_id"],
-  employee: ["employee_id", "gender"],
+  employee: ["employee_id", "gender", "first_name"],
   salary: ["employee_id", "vacation_used", "salary_paid"]
 };
 
@@ -82,6 +82,7 @@ describe("getLineage", () => {
           type: "table",
           id: "result",
           label: "[result]",
+          modifiers: [],
           columns: [
             {
               id: "account_type",
@@ -220,6 +221,7 @@ describe("getLineage", () => {
           type: "table",
           id: "result",
           label: "[result]",
+          modifiers: [],
           columns: [
             {
               id: "vacation_used",
@@ -296,6 +298,85 @@ describe("getLineage", () => {
           target: {
             tableId: "result",
             columnId: "gender"
+          }
+        }
+      ]
+    },
+    {
+      name: "where",
+      sql: "SELECT first_name FROM  employee WHERE department_id = 1",
+      data: [
+        {
+          type: "table",
+          id: "employee",
+          label: "employee",
+          range: {
+            startLine: 1,
+            startColumn: 25,
+            endLine: 1,
+            endColumn: 32
+          },
+          data: {
+            id: "employee"
+          },
+          columns: [
+            {
+              id: "first_name",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 8,
+                endColumn: 17
+              },
+              label: "first_name",
+              data: {
+                id: "first_name",
+                tableId: "employee"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result",
+          label: "[result]",
+          modifiers: [
+            {
+              type: "filter",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 34,
+                endColumn: 56
+              }
+            }
+          ],
+          columns: [
+            {
+              id: "first_name",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 8,
+                endColumn: 17
+              },
+              label: "first_name",
+              data: {
+                id: "first_name",
+                tableId: "employee"
+              }
+            }
+          ]
+        },
+        {
+          type: "edge",
+          source: {
+            tableId: "employee",
+            columnId: "first_name"
+          },
+          target: {
+            tableId: "result",
+            columnId: "first_name"
           }
         }
       ]

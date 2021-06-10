@@ -4,6 +4,11 @@ export type Lineage<TableData, ColumnData> = Array<
   Table<TableData, ColumnData> | Edge
 >;
 
+export interface TableModifier {
+  type: "filter" | "groupBy";
+  range: Range;
+}
+
 export interface Table<TableData, ColumnData> {
   type: "table";
   id: string;
@@ -11,7 +16,7 @@ export interface Table<TableData, ColumnData> {
   range?: Range;
   data?: TableData;
   columns: Column<ColumnData>[];
-  modifiers?: Array<{ type: "filter" | "groupBy"; range: Range }>;
+  modifiers?: TableModifier[];
 }
 
 export interface Edge {

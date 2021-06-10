@@ -16,7 +16,7 @@ import { WhereVisitor } from "./visitors/WhereVisitor";
 import { getImageFromChildren } from "./utils/getImageFromChildren";
 import { fixOrderItem } from "./utils/fixOrderItem";
 import { removeUnusedOrderItems } from "./utils/removeUnusedOrderItems";
-import { Lineage } from "./Lineage";
+import { Lineage, TableModifier } from "./Lineage";
 import { flatten } from "lodash";
 
 // Utils
@@ -659,10 +659,22 @@ const parsedSql = (sql: string): ParsedSql => {
     }) {
       const tables = this.getTablePrimaries();
       const lineage: Lineage<TableData, ColumnData> = [];
+      const modifiers: TableModifier[] = [];
 
       const projectionItemsVisitor = new ProjectionItemsVisitor();
       projectionItemsVisitor.visit(cst);
       const resultColumns = projectionItemsVisitor.output;
+
+      const whereVisitor = new WhereVisitor();
+      whereVisitor.visit(cst);
+      const hasWhere = Boolean(whereVisitor.booleanExpressionNode);
+
+      if (hasWhere && whereVisitor.whereRange) {
+        modifiers.push({
+          type: "filter",
+          range: whereVisitor.whereRange
+        });
+      }
 
       // Get columns metadata
       const columnsMetadata = tables.reduce(
@@ -702,8 +714,7 @@ const parsedSql = (sql: string): ParsedSql => {
         type: "table",
         id: "result",
         label: "[result]",
-        // range: ???
-        // modifiers: ???
+        modifiers,
         columns: resultColumns.map(column => ({
           id: column.expression,
           range: column.range,
