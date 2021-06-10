@@ -32,7 +32,7 @@ describe("getLineage", () => {
   }> = [
     {
       name: "simple",
-      sql: "SELECT account_type, account_id FROM account;",
+      sql: "SELECT account_type as type, account_id FROM account;",
       data: [
         {
           type: "table",
@@ -40,9 +40,9 @@ describe("getLineage", () => {
           label: "account",
           range: {
             startLine: 1,
-            startColumn: 38,
+            startColumn: 46,
             endLine: 1,
-            endColumn: 44
+            endColumn: 52
           },
           data: {
             id: "account"
@@ -54,7 +54,7 @@ describe("getLineage", () => {
                 startLine: 1,
                 endLine: 1,
                 startColumn: 8,
-                endColumn: 19
+                endColumn: 27
               },
               label: "account_type",
               data: {
@@ -67,8 +67,8 @@ describe("getLineage", () => {
               range: {
                 startLine: 1,
                 endLine: 1,
-                startColumn: 22,
-                endColumn: 31
+                startColumn: 30,
+                endColumn: 39
               },
               label: "account_id",
               data: {
@@ -89,9 +89,9 @@ describe("getLineage", () => {
                 startLine: 1,
                 endLine: 1,
                 startColumn: 8,
-                endColumn: 19
+                endColumn: 27
               },
-              label: "account_type",
+              label: "type",
               data: {
                 id: "account_type",
                 tableId: "account"
@@ -102,8 +102,8 @@ describe("getLineage", () => {
               range: {
                 startLine: 1,
                 endLine: 1,
-                startColumn: 22,
-                endColumn: 31
+                startColumn: 30,
+                endColumn: 39
               },
               label: "account_id",
               data: {
@@ -243,7 +243,7 @@ describe("getLineage", () => {
                 startColumn: 23,
                 endColumn: 43
               },
-              label: "salary_paid",
+              label: "salary",
               data: {
                 id: "salary_paid",
                 tableId: "salary"

@@ -707,7 +707,7 @@ const parsedSql = (sql: string): ParsedSql => {
         columns: resultColumns.map(column => ({
           id: column.expression,
           range: column.range,
-          label: column.expression,
+          label: column.alias || column.expression,
           data: columns.find(i => i.id === column.expression)
         }))
       });
