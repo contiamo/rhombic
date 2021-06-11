@@ -285,6 +285,26 @@ describe("Sql Lexer", () => {
         "APPLY => Apply",
         "INNER => Inner"
       ]
+    },
+    {
+      title: "concat",
+      sql:
+        "SELECT concat(first_name, ' ', last_name) as full_name FROM employee",
+      expected: [
+        "SELECT => Select",
+        "concat => Identifier",
+        "( => LParen",
+        "first_name => Identifier",
+        ", => Comma",
+        "' ' => StringValue",
+        ", => Comma",
+        "last_name => Identifier",
+        ") => RParen",
+        "as => As",
+        "full_name => Identifier",
+        "FROM => From",
+        "employee => Identifier"
+      ]
     }
   ];
 

@@ -130,7 +130,7 @@ export const serializedGrammar = [
     type: "Rule",
     name: "expression",
     orgText:
-      "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.CONSUME(IntegerValue); } },\r\n                { ALT: function () { return _this.CONSUME(StringValue); } },\r\n                { ALT: function () { return _this.CONSUME(Null); } },\r\n                {\r\n                    ALT: function () {\r\n                        _this.CONSUME(LParen);\r\n                        _this.MANY_SEP({\r\n                            SEP: Comma,\r\n                            DEF: function () { return _this.SUBRULE(_this.expression); }\r\n                        });\r\n                        _this.CONSUME(RParen);\r\n                    }\r\n                },\r\n                {\r\n                    ALT: function () { return _this.SUBRULE(_this.columnPrimary); }\r\n                },\r\n                {\r\n                    ALT: function () {\r\n                        _this.CONSUME(FunctionIdentifier), _this.CONSUME1(LParen);\r\n                        _this.SUBRULE1(_this.expression);\r\n                        _this.CONSUME1(RParen);\r\n                    }\r\n                },\r\n                {\r\n                    ALT: function () { return _this.SUBRULE(_this.cast); }\r\n                }\r\n            ]);\r\n        }",
+      "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.CONSUME(IntegerValue); } },\r\n                { ALT: function () { return _this.CONSUME(StringValue); } },\r\n                { ALT: function () { return _this.CONSUME(Null); } },\r\n                {\r\n                    ALT: function () {\r\n                        _this.CONSUME(LParen);\r\n                        _this.MANY_SEP({\r\n                            SEP: Comma,\r\n                            DEF: function () { return _this.SUBRULE(_this.expression); }\r\n                        });\r\n                        _this.CONSUME(RParen);\r\n                    }\r\n                },\r\n                {\r\n                    ALT: function () { return _this.SUBRULE(_this.columnPrimary); }\r\n                },\r\n                {\r\n                    ALT: function () {\r\n                        _this.CONSUME(FunctionIdentifier), _this.CONSUME1(LParen);\r\n                        _this.MANY_SEP1({\r\n                            SEP: Comma,\r\n                            DEF: function () { return _this.SUBRULE1(_this.expression); }\r\n                        });\r\n                        _this.CONSUME1(RParen);\r\n                    }\r\n                },\r\n                {\r\n                    ALT: function () { return _this.SUBRULE(_this.cast); }\r\n                }\r\n            ]);\r\n        }",
     definition: [
       {
         type: "Alternation",
@@ -237,9 +237,22 @@ export const serializedGrammar = [
                 pattern: "\\("
               },
               {
-                type: "NonTerminal",
-                name: "expression",
-                idx: 1
+                type: "RepetitionWithSeparator",
+                idx: 1,
+                separator: {
+                  type: "Terminal",
+                  name: "Comma",
+                  label: "Comma",
+                  idx: 1,
+                  pattern: ","
+                },
+                definition: [
+                  {
+                    type: "NonTerminal",
+                    name: "expression",
+                    idx: 1
+                  }
+                ]
               },
               {
                 type: "Terminal",

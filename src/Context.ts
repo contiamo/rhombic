@@ -44,15 +44,7 @@ export type ExpressionContext =
         children: ColumnPrimaryContext;
       }>;
     }
-  | {
-      FunctionIdentifier: IToken[];
-      LParen: IToken[];
-      expression: Array<{
-        name: "expression";
-        children: ExpressionContext;
-      }>;
-      RParen: IToken[];
-    }
+  | { FunctionIdentifier: IToken[]; LParen: IToken[]; RParen: IToken[] }
   | {
       cast: Array<{
         name: "cast";

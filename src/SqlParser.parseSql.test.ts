@@ -274,6 +274,51 @@ describe("parseSql", () => {
       )`
     },
     {
+      title: "SELECT with concat",
+      sql:
+        "SELECT concat(first_name, ' ', last_name) as full_name FROM employee",
+      expected: `
+      query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(
+              expression(
+                FunctionIdentifier("concat")
+                LParen("(")
+                expression(
+                  columnPrimary(
+                    Identifier("first_name")
+                  )
+                )
+                expression(
+                  StringValue("' '")
+                )
+                expression(
+                  columnPrimary(
+                    Identifier("last_name")
+                  )
+                )
+                Comma(",", ",")
+                RParen(")")
+              )
+              As("as")
+              Identifier("full_name")
+            )
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier("employee")
+              )
+            )
+          )
+        )
+      )
+      `
+    },
+    {
       title: "SELECT with cast",
       sql: "SELECT CAST(column01 AS INT) FROM my_db",
       expected: `

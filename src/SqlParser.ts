@@ -410,7 +410,10 @@ class SqlParser extends CstParser {
       {
         ALT: () => {
           this.CONSUME(FunctionIdentifier), this.CONSUME1(LParen);
-          this.SUBRULE1(this.expression);
+          this.MANY_SEP1({
+            SEP: Comma,
+            DEF: () => this.SUBRULE1(this.expression)
+          });
           this.CONSUME1(RParen);
         }
       },
