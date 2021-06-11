@@ -6,7 +6,7 @@ import * as fs from "fs";
 type ColumnId = string;
 const columnsMapping: { [tableId: string]: ColumnId[] } = {
   account: ["account_type", "account_id"],
-  employee: ["employee_id", "gender", "first_name"],
+  employee: ["employee_id", "gender", "first_name", "last_name"],
   salary: ["employee_id", "vacation_used", "salary_paid"]
 };
 
@@ -380,6 +380,102 @@ describe("getLineage", () => {
           }
         }
       ]
+    },
+    {
+      name: "concat",
+      sql:
+        "SELECT concat(first_name, ' ', last_name) as full_name FROM employee",
+      data: [
+        {
+          type: "table",
+          id: "employee",
+          label: "employee",
+          range: {
+            startLine: 1,
+            startColumn: 61,
+            endLine: 1,
+            endColumn: 68
+          },
+          data: {
+            id: "employee"
+          },
+          columns: [
+            {
+              id: "first_name",
+              range: {
+                // This can be improved
+                startLine: 1,
+                endLine: 1,
+                startColumn: 8,
+                endColumn: 54
+              },
+              label: "first_name",
+              data: {
+                id: "first_name",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "last_name",
+              range: {
+                // This can be improved
+                startLine: 1,
+                endLine: 1,
+                startColumn: 8,
+                endColumn: 54
+              },
+              label: "last_name",
+              data: {
+                id: "last_name",
+                tableId: "employee"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result",
+          label: "[result]",
+          modifiers: [],
+          columns: [
+            {
+              id: "concat(first_name, ' ', last_name)",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 8,
+                endColumn: 54
+              },
+              label: "full_name"
+            }
+          ]
+        },
+        {
+          type: "edge",
+          label: "concat",
+          source: {
+            tableId: "employee",
+            columnId: "first_name"
+          },
+          target: {
+            tableId: "result",
+            columnId: "concat(first_name, ' ', last_name)"
+          }
+        },
+        {
+          type: "edge",
+          label: "concat",
+          source: {
+            tableId: "employee",
+            columnId: "last_name"
+          },
+          target: {
+            tableId: "result",
+            columnId: "concat(first_name, ' ', last_name)"
+          }
+        }
+      ],
+      debug: true
     }
   ];
 

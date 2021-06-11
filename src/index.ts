@@ -60,7 +60,7 @@ export interface ProjectionItemMetadata {
   expression: string;
   alias?: string;
   cast?: { value: string; type: string };
-  fn?: { identifier: string; value: string };
+  fn?: { identifier: string; values: string[] };
   sort?: {
     order: "asc" | "desc";
     nullsOrder?: "first" | "last";
@@ -285,13 +285,10 @@ const parsedSql = (sql: string): ParsedSql => {
 
         // Check for duplicate projection names
         const value = columns[index];
-        const otherNames = projectionItems.reduce(
-          (mem, i) => {
-            if (i.isAsterisk) return mem;
-            return [...mem, i.alias || i.expression];
-          },
-          [] as string[]
-        );
+        const otherNames = projectionItems.reduce((mem, i) => {
+          if (i.isAsterisk) return mem;
+          return [...mem, i.alias || i.expression];
+        }, [] as string[]);
         const candidates = otherNames
           .filter(i => value.startsWith(i))
           .sort((a, b) => b.length - a.length);
@@ -677,15 +674,12 @@ const parsedSql = (sql: string): ParsedSql => {
       }
 
       // Get columns metadata
-      const columnsMetadata = tables.reduce(
-        (mem, table) => {
-          return {
-            ...mem,
-            [table.tableName]: getColumns(table.tableName)
-          };
-        },
-        {} as { [tableName: string]: ColumnData[] }
-      );
+      const columnsMetadata = tables.reduce((mem, table) => {
+        return {
+          ...mem,
+          [table.tableName]: getColumns(table.tableName)
+        };
+      }, {} as { [tableName: string]: ColumnData[] });
 
       // Create source tables
       tables.forEach(table => {
@@ -698,6 +692,19 @@ const parsedSql = (sql: string): ParsedSql => {
           range: table.range,
           data: getTable(table.tableName),
           columns: resultColumns
+            .reduce((mem, column) => {
+              if (column.fn) {
+                return [
+                  ...mem,
+                  ...column.fn.values.map(value => ({
+                    ...column,
+                    expression: value
+                  }))
+                ];
+              } else {
+                return [...mem, column];
+              }
+            }, [] as typeof resultColumns)
             .filter(column => columnIds.includes(column.expression))
             .map(column => ({
               id: column.expression,
@@ -728,17 +735,23 @@ const parsedSql = (sql: string): ParsedSql => {
         tables.forEach(table => {
           const columns = columnsMetadata[table.tableName];
           columns
-            .filter(column => column.id === resultColumn.expression)
+            .filter(column => {
+              if (resultColumn.fn) {
+                return resultColumn.fn.values.includes(column.id);
+              }
+              return column.id === resultColumn.expression;
+            })
             .forEach(c => {
               lineage.push({
                 type: "edge",
+                label: resultColumn.fn?.identifier,
                 source: {
                   tableId: table.tableName,
                   columnId: c.id
                 },
                 target: {
                   tableId: "result",
-                  columnId: c.id
+                  columnId: resultColumn.expression
                 }
               });
             });

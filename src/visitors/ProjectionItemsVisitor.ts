@@ -41,7 +41,7 @@ export class ProjectionItemsVisitor extends Visitor {
       value: string;
       type: string;
     };
-    fn?: { identifier: string; value: string };
+    fn?: { identifier: string; values: string[] };
     sort?: {
       order: "asc" | "desc";
       nullsOrder?: "first" | "last";
@@ -117,7 +117,7 @@ export class ProjectionItemsVisitor extends Visitor {
   projectionItem(ctx: ProjectionItemContext) {
     let isAsterisk = false;
     let cast: { value: string; type: string } | undefined;
-    let fn: { identifier: string; value: string } | undefined;
+    let fn: { identifier: string; values: string[] } | undefined;
     let expression = "";
     let alias: string | undefined;
 
@@ -127,7 +127,9 @@ export class ProjectionItemsVisitor extends Visitor {
         if (isFunctionContext(i.children)) {
           fn = {
             identifier: i.children.FunctionIdentifier[0].image,
-            value: getImageFromChildren(i.children.expression[0].children)
+            values: i.children.expression.map(exp =>
+              getImageFromChildren(exp.children)
+            )
           };
         }
 

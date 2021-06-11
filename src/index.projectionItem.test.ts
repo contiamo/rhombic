@@ -595,7 +595,7 @@ FROM
         alias: "chicken",
         fn: {
           identifier: "avg",
-          value: "tejas"
+          values: ["tejas"]
         },
         range: {
           endColumn: 43,
@@ -603,6 +603,34 @@ FROM
           startColumn: 23,
           startLine: 1
         }
+      });
+    });
+
+    it("should retrieve items inside functions", () => {
+      const projectionItem = rhombic
+        .parse(
+          "SELECT concat(first_name, ' ', last_name) as full_name FROM employee"
+        )
+        .getProjectionItem({
+          columns: ["full_name"],
+          index: 0
+        });
+
+      expect(projectionItem).toEqual({
+        alias: "full_name",
+        cast: undefined,
+        expression: "concat(first_name, ' ', last_name)",
+        fn: {
+          identifier: "concat",
+          values: ["first_name", "' '", "last_name"]
+        },
+        range: {
+          endColumn: 54,
+          endLine: 1,
+          startColumn: 8,
+          startLine: 1
+        },
+        sort: undefined
       });
     });
 
@@ -621,7 +649,7 @@ FROM
         alias: "chicken",
         fn: {
           identifier: "avg",
-          value: "tejas"
+          values: ["tejas"]
         },
         range: {
           endColumn: 45,
@@ -657,7 +685,7 @@ FROM
         expression: "avg(mischa)",
         fn: {
           identifier: "avg",
-          value: "mischa"
+          values: ["mischa"]
         },
         range: {
           endColumn: 18,
