@@ -92,6 +92,18 @@ const Group = createToken({
   longer_alt: Identifier
 });
 
+const Cube = createToken({
+  name: "Cube",
+  pattern: /CUBE/i,
+  longer_alt: Identifier
+});
+
+const Rollup = createToken({
+  name: "Rollup",
+  pattern: /ROLLUP/i,
+  longer_alt: Identifier
+});
+
 const By = createToken({
   name: "By",
   pattern: /BY/i,
@@ -288,6 +300,8 @@ const allTokens = [
   From,
   Where,
   Group,
+  Cube,
+  Rollup,
   By,
   Natural,
   Left,
@@ -641,9 +655,9 @@ class SqlParser extends CstParser {
   public groupBy = this.RULE("groupBy", () => {
     this.CONSUME(Group);
     this.CONSUME(By);
-    this.MANY_SEP({
+    this.AT_LEAST_ONE_SEP({
       SEP: Comma,
-      DEF: () => this.CONSUME(Identifier)
+      DEF: () => this.SUBRULE(this.groupItem)
     });
   });
 
@@ -891,7 +905,25 @@ class SqlParser extends CstParser {
    *  |   ROLLUP '(' expression [, expression ]* ')'
    *  |   GROUPING SETS '(' groupItem [, groupItem ]* ')'
    */
-  public groupItem = this.RULE("groupItem", () => {});
+  public groupItem = this.RULE("groupItem", () => {
+    this.OPTION(() => {
+      this.OR1([
+        { ALT: () => this.CONSUME(Cube) },
+        { ALT: () => this.CONSUME1(Rollup) }
+      ]);
+    });
+    this.OPTION1(() => {
+      this.CONSUME2(LParen);
+    });
+    this.MANY_SEP({
+      SEP: Comma,
+      DEF: () => this.SUBRULE1(this.expression)
+    });
+    this.OPTION2(() => {
+      this.CONSUME3(RParen);
+    });
+    // TODO: Deal with `GROUPING SETS`
+  });
 
   /**
    * window:

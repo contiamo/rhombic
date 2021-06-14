@@ -971,7 +971,7 @@ export const serializedGrammar = [
     type: "Rule",
     name: "groupBy",
     orgText:
-      "function () {\r\n            _this.CONSUME(Group);\r\n            _this.CONSUME(By);\r\n            _this.MANY_SEP({\r\n                SEP: Comma,\r\n                DEF: function () { return _this.CONSUME(Identifier); }\r\n            });\r\n        }",
+      "function () {\r\n            _this.CONSUME(Group);\r\n            _this.CONSUME(By);\r\n            _this.AT_LEAST_ONE_SEP({\r\n                SEP: Comma,\r\n                DEF: function () { return _this.SUBRULE(_this.groupItem); }\r\n            });\r\n        }",
     definition: [
       {
         type: "Terminal",
@@ -988,7 +988,7 @@ export const serializedGrammar = [
         pattern: "BY"
       },
       {
-        type: "RepetitionWithSeparator",
+        type: "RepetitionMandatoryWithSeparator",
         idx: 0,
         separator: {
           type: "Terminal",
@@ -999,11 +999,9 @@ export const serializedGrammar = [
         },
         definition: [
           {
-            type: "Terminal",
-            name: "Identifier",
-            label: "Identifier",
-            idx: 0,
-            pattern: '[a-zA-Z][\\w]*|"[^"]*"'
+            type: "NonTerminal",
+            name: "groupItem",
+            idx: 0
           }
         ]
       }
@@ -1683,8 +1681,90 @@ export const serializedGrammar = [
   {
     type: "Rule",
     name: "groupItem",
-    orgText: "function () { }",
-    definition: []
+    orgText:
+      "function () {\r\n            _this.OPTION(function () {\r\n                _this.OR1([\r\n                    { ALT: function () { return _this.CONSUME(Cube); } },\r\n                    { ALT: function () { return _this.CONSUME1(Rollup); } }\r\n                ]);\r\n            });\r\n            _this.OPTION1(function () {\r\n                _this.CONSUME2(LParen);\r\n            });\r\n            _this.MANY_SEP({\r\n                SEP: Comma,\r\n                DEF: function () { return _this.SUBRULE1(_this.expression); }\r\n            });\r\n            _this.OPTION2(function () {\r\n                _this.CONSUME3(RParen);\r\n            });\r\n            // TODO: Deal with `GROUPING SETS`\r\n        }",
+    definition: [
+      {
+        type: "Option",
+        idx: 0,
+        definition: [
+          {
+            type: "Alternation",
+            idx: 1,
+            definition: [
+              {
+                type: "Flat",
+                definition: [
+                  {
+                    type: "Terminal",
+                    name: "Cube",
+                    label: "Cube",
+                    idx: 0,
+                    pattern: "CUBE"
+                  }
+                ]
+              },
+              {
+                type: "Flat",
+                definition: [
+                  {
+                    type: "Terminal",
+                    name: "Rollup",
+                    label: "Rollup",
+                    idx: 1,
+                    pattern: "ROLLUP"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        type: "Option",
+        idx: 1,
+        definition: [
+          {
+            type: "Terminal",
+            name: "LParen",
+            label: "LParen",
+            idx: 2,
+            pattern: "\\("
+          }
+        ]
+      },
+      {
+        type: "RepetitionWithSeparator",
+        idx: 0,
+        separator: {
+          type: "Terminal",
+          name: "Comma",
+          label: "Comma",
+          idx: 1,
+          pattern: ","
+        },
+        definition: [
+          {
+            type: "NonTerminal",
+            name: "expression",
+            idx: 1
+          }
+        ]
+      },
+      {
+        type: "Option",
+        idx: 2,
+        definition: [
+          {
+            type: "Terminal",
+            name: "RParen",
+            label: "RParen",
+            idx: 3,
+            pattern: "\\)"
+          }
+        ]
+      }
+    ]
   },
   {
     type: "Rule",

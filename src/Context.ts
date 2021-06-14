@@ -190,6 +190,11 @@ export interface SelectContext {
 export interface GroupByContext {
   Group: IToken[];
   By: IToken[];
+  groupItem: Array<{
+    name: "groupItem";
+    children: GroupItemContext;
+  }>;
+  Comma?: IToken[];
 }
 
 export interface WhereContext {
@@ -310,7 +315,12 @@ export interface ValuesContext {
   Comma?: IToken[];
 }
 
-export interface GroupItemContext {}
+export interface GroupItemContext {
+  Cube?: IToken[];
+  Rollup?: IToken[];
+  LParen?: IToken[];
+  RParen?: IToken[];
+}
 
 export interface WindowContext {}
 

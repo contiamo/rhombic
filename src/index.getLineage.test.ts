@@ -479,6 +479,7 @@ describe("getLineage", () => {
     {
       name: "group by",
       sql: "SELECT gender, AVG(salary) FROM employee GROUP BY gender",
+      debug: true,
       data: [
         {
           type: "table",

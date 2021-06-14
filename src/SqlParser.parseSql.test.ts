@@ -359,7 +359,13 @@ describe("parseSql", () => {
           groupBy(
             Group("GROUP")
             By("BY")
-            Identifier("role")
+            groupItem(
+              expression(
+                columnPrimary(
+                  Identifier("role")
+                )
+              )
+            )
           )
         )
       )`
