@@ -862,7 +862,7 @@ export const serializedGrammar = [
     type: "Rule",
     name: "select",
     orgText:
-      "function () {\r\n            _this.CONSUME(Select);\r\n            _this.OPTION(function () { return _this.CONSUME(Stream); });\r\n            _this.OPTION1(function () {\r\n                _this.OR([\r\n                    { ALT: function () { return _this.CONSUME(All); } },\r\n                    { ALT: function () { return _this.CONSUME(Distinct); } }\r\n                ]);\r\n            });\r\n            _this.SUBRULE(_this.projectionItems);\r\n            // Everything is wrap into `OPTION` to deal with selectWithoutFrom case\r\n            _this.OPTION3(function () {\r\n                _this.CONSUME(From);\r\n                _this.SUBRULE(_this.tableExpression);\r\n            });\r\n            _this.OPTION4(function () {\r\n                _this.SUBRULE(_this.where);\r\n            });\r\n        }",
+      "function () {\r\n            _this.CONSUME(Select);\r\n            _this.OPTION(function () { return _this.CONSUME(Stream); });\r\n            _this.OPTION1(function () {\r\n                _this.OR([\r\n                    { ALT: function () { return _this.CONSUME(All); } },\r\n                    { ALT: function () { return _this.CONSUME(Distinct); } }\r\n                ]);\r\n            });\r\n            _this.SUBRULE(_this.projectionItems);\r\n            // Everything is wrap into `OPTION` to deal with selectWithoutFrom case\r\n            _this.OPTION3(function () {\r\n                _this.CONSUME(From);\r\n                _this.SUBRULE(_this.tableExpression);\r\n            });\r\n            _this.OPTION4(function () {\r\n                _this.SUBRULE(_this.where);\r\n            });\r\n            _this.OPTION5(function () {\r\n                _this.SUBRULE(_this.groupBy);\r\n            });\r\n        }",
     definition: [
       {
         type: "Terminal",
@@ -951,6 +951,59 @@ export const serializedGrammar = [
             type: "NonTerminal",
             name: "where",
             idx: 0
+          }
+        ]
+      },
+      {
+        type: "Option",
+        idx: 5,
+        definition: [
+          {
+            type: "NonTerminal",
+            name: "groupBy",
+            idx: 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    type: "Rule",
+    name: "groupBy",
+    orgText:
+      "function () {\r\n            _this.CONSUME(Group);\r\n            _this.CONSUME(By);\r\n            _this.MANY_SEP({\r\n                SEP: Comma,\r\n                DEF: function () { return _this.CONSUME(Identifier); }\r\n            });\r\n        }",
+    definition: [
+      {
+        type: "Terminal",
+        name: "Group",
+        label: "Group",
+        idx: 0,
+        pattern: "GROUP"
+      },
+      {
+        type: "Terminal",
+        name: "By",
+        label: "By",
+        idx: 0,
+        pattern: "BY"
+      },
+      {
+        type: "RepetitionWithSeparator",
+        idx: 0,
+        separator: {
+          type: "Terminal",
+          name: "Comma",
+          label: "Comma",
+          idx: 1,
+          pattern: ","
+        },
+        definition: [
+          {
+            type: "Terminal",
+            name: "Identifier",
+            label: "Identifier",
+            idx: 0,
+            pattern: '[a-zA-Z][\\w]*|"[^"]*"'
           }
         ]
       }

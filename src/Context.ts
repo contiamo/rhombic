@@ -27,7 +27,8 @@ export type QueryContext = (
       Limit?: IToken[];
       IntegerValue?: IToken[];
       All?: IToken[];
-    }) & {
+    }
+) & {
   SemiColumn?: IToken[];
 };
 
@@ -104,7 +105,8 @@ export type BooleanExpressionContext = (
         name: "booleanExpressionValue";
         children: BooleanExpressionValueContext;
       }>;
-    }) & {
+    }
+) & {
   Or?: IToken[];
   And?: IToken[];
   booleanExpression?: Array<{
@@ -179,6 +181,15 @@ export interface SelectContext {
     name: "where";
     children: WhereContext;
   }>;
+  groupBy?: Array<{
+    name: "groupBy";
+    children: GroupByContext;
+  }>;
+}
+
+export interface GroupByContext {
+  Group: IToken[];
+  By: IToken[];
 }
 
 export interface WhereContext {
@@ -317,6 +328,7 @@ export type IContext =
   | BooleanExpressionValueContext
   | OrderItemContext
   | SelectContext
+  | GroupByContext
   | WhereContext
   | ProjectionItemsContext
   | ProjectionItemContext

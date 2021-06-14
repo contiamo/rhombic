@@ -305,6 +305,25 @@ describe("Sql Lexer", () => {
         "FROM => From",
         "employee => Identifier"
       ]
+    },
+    {
+      title: "group by",
+      sql:
+        "SELECT COUNT(created_at), role FROM manager_collection_query_connections GROUP BY role",
+      expected: [
+        "SELECT => Select",
+        "COUNT => FunctionIdentifier",
+        "( => LParen",
+        "created_at => Identifier",
+        ") => RParen",
+        ", => Comma",
+        "role => Identifier",
+        "FROM => From",
+        "manager_collection_query_connections => Identifier",
+        "GROUP => Group",
+        "BY => By",
+        "role => Identifier"
+      ]
     }
   ];
 

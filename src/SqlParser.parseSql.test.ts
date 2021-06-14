@@ -319,6 +319,52 @@ describe("parseSql", () => {
       `
     },
     {
+      title: "SELECT with group by",
+      sql:
+        "SELECT COUNT(created_at), role FROM manager_collection_query_connections GROUP BY role",
+      expected: `
+      query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(
+              expression(
+                FunctionIdentifier("COUNT")
+                LParen("(")
+                expression(
+                  columnPrimary(
+                    Identifier("created_at")
+                  )
+                )
+                RParen(")")
+              )
+            )
+            projectionItem(
+              expression(
+                columnPrimary(
+                  Identifier("role")
+                )
+              )
+            )
+            Comma(",")
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier("manager_collection_query_connections")
+              )
+            )
+          )
+          groupBy(
+            Group("GROUP")
+            By("BY")
+            Identifier("role")
+          )
+        )
+      )`
+    },
+    {
       title: "SELECT with cast",
       sql: "SELECT CAST(column01 AS INT) FROM my_db",
       expected: `

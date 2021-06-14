@@ -18,6 +18,7 @@ import { fixOrderItem } from "./utils/fixOrderItem";
 import { removeUnusedOrderItems } from "./utils/removeUnusedOrderItems";
 import { Lineage, TableModifier } from "./Lineage";
 import { flatten } from "lodash";
+import { GroupByVisitor } from "./visitors/GroupByVisitor";
 
 // Utils
 export { needToBeEscaped, printFilter };
@@ -662,6 +663,8 @@ const parsedSql = (sql: string): ParsedSql => {
       projectionItemsVisitor.visit(cst);
       const resultColumns = projectionItemsVisitor.output;
 
+      // Modifiers
+      // -- `WHERE`
       const whereVisitor = new WhereVisitor();
       whereVisitor.visit(cst);
       const hasWhere = Boolean(whereVisitor.booleanExpressionNode);
@@ -670,6 +673,16 @@ const parsedSql = (sql: string): ParsedSql => {
         modifiers.push({
           type: "filter",
           range: whereVisitor.whereRange
+        });
+      }
+
+      // -- `GROUP BY`
+      const groupByVisitor = new GroupByVisitor();
+      groupByVisitor.visit(cst);
+      if (groupByVisitor.groupByRange) {
+        modifiers.push({
+          type: "groupBy",
+          range: groupByVisitor.groupByRange
         });
       }
 

@@ -86,6 +86,18 @@ const Where = createToken({
   longer_alt: Identifier
 });
 
+const Group = createToken({
+  name: "Group",
+  pattern: /GROUP/i,
+  longer_alt: Identifier
+});
+
+const By = createToken({
+  name: "By",
+  pattern: /BY/i,
+  longer_alt: Identifier
+});
+
 const Natural = createToken({
   name: "Natural",
   pattern: /NATURAL/i,
@@ -275,6 +287,8 @@ const allTokens = [
   Select,
   From,
   Where,
+  Group,
+  By,
   Natural,
   Left,
   Right,
@@ -614,6 +628,22 @@ class SqlParser extends CstParser {
 
     this.OPTION4(() => {
       this.SUBRULE(this.where);
+    });
+
+    this.OPTION5(() => {
+      this.SUBRULE(this.groupBy);
+    });
+  });
+
+  /**
+   * Group by statement
+   */
+  public groupBy = this.RULE("groupBy", () => {
+    this.CONSUME(Group);
+    this.CONSUME(By);
+    this.MANY_SEP({
+      SEP: Comma,
+      DEF: () => this.CONSUME(Identifier)
     });
   });
 

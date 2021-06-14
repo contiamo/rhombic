@@ -6,7 +6,7 @@ import * as fs from "fs";
 type ColumnId = string;
 const columnsMapping: { [tableId: string]: ColumnId[] } = {
   account: ["account_type", "account_id"],
-  employee: ["employee_id", "gender", "first_name", "last_name"],
+  employee: ["employee_id", "gender", "first_name", "last_name", "salary"],
   salary: ["employee_id", "vacation_used", "salary_paid"]
 };
 
@@ -474,8 +474,122 @@ describe("getLineage", () => {
             columnId: "concat(first_name, ' ', last_name)"
           }
         }
-      ],
-      debug: true
+      ]
+    },
+    {
+      name: "group by",
+      sql: "SELECT gender, AVG(salary) FROM employee GROUP BY gender",
+      data: [
+        {
+          type: "table",
+          id: "employee",
+          label: "employee",
+          range: {
+            startLine: 1,
+            startColumn: 33,
+            endLine: 1,
+            endColumn: 40
+          },
+          data: {
+            id: "employee"
+          },
+          columns: [
+            {
+              id: "gender",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 8,
+                endColumn: 13
+              },
+              label: "gender",
+              data: {
+                id: "gender",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "salary",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 16,
+                endColumn: 26
+              },
+              label: "salary",
+              data: {
+                id: "salary",
+                tableId: "employee"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result",
+          label: "[result]",
+          modifiers: [
+            {
+              type: "groupBy",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 42,
+                endColumn: 56
+              }
+            }
+          ],
+          columns: [
+            {
+              id: "gender",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 8,
+                endColumn: 13
+              },
+              label: "gender",
+              data: {
+                id: "gender",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "AVG(salary)",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 16,
+                endColumn: 26
+              },
+              label: "AVG(salary)"
+            }
+          ]
+        },
+        {
+          type: "edge",
+          source: {
+            tableId: "employee",
+            columnId: "gender"
+          },
+          target: {
+            tableId: "result",
+            columnId: "gender"
+          }
+        },
+        {
+          type: "edge",
+          label: "AVG",
+          source: {
+            tableId: "employee",
+            columnId: "salary"
+          },
+          target: {
+            tableId: "result",
+            columnId: "AVG(salary)"
+          }
+        }
+      ]
     }
   ];
 
