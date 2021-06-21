@@ -61,10 +61,27 @@ export interface ProjectionItemMetadata {
   expression: string;
   alias?: string;
   cast?: { value: string; type: string };
-  fn?: { identifier: string; values: string[] };
+  fn?: {
+    identifier: string;
+    values: {
+      expression: string;
+      path?: {
+        catalogName?: string;
+        schemaName?: string;
+        tableName?: string;
+        columnName: string;
+      };
+    }[];
+  };
   sort?: {
     order: "asc" | "desc";
     nullsOrder?: "first" | "last";
+  };
+  path?: {
+    catalogName?: string;
+    schemaName?: string;
+    tableName?: string;
+    columnName: string;
   };
   range?: Range;
 }
@@ -276,6 +293,7 @@ const parsedSql = (sql: string): ParsedSql => {
         if (projectionItems[index] && !projectionItems[index].isAsterisk) {
           return {
             expression: projectionItems[index].expression,
+            path: projectionItems[index].path,
             alias: projectionItems[index].alias,
             cast: projectionItems[index].cast,
             fn: projectionItems[index].fn,
@@ -300,6 +318,7 @@ const parsedSql = (sql: string): ParsedSql => {
 
         return {
           expression: originalValue || value,
+          path: { columnName: originalValue || value },
           sort: sort
             ? { order: sort.order || "asc", nullsOrder: sort.nullsOrder }
             : undefined
@@ -307,6 +326,7 @@ const parsedSql = (sql: string): ParsedSql => {
       } else {
         return {
           expression: projectionItems[index].expression,
+          path: projectionItems[index].path,
           alias: projectionItems[index].alias,
           cast: projectionItems[index].cast,
           fn: projectionItems[index].fn,
@@ -711,14 +731,34 @@ const parsedSql = (sql: string): ParsedSql => {
                   ...mem,
                   ...column.fn.values.map(value => ({
                     ...column,
-                    expression: value
+                    expression: value.path?.columnName || value.expression
                   }))
                 ];
               } else {
-                return [...mem, column];
+                return [
+                  ...mem,
+                  {
+                    ...column,
+                    expression: column.path?.columnName || column.expression
+                  }
+                ];
               }
             }, [] as typeof resultColumns)
-            .filter(column => columnIds.includes(column.expression))
+            .filter(column => {
+              if (column.path) {
+                return columnIds.includes(column.path.columnName);
+              }
+              if (column.fn) {
+                const fnValue = column.fn.values.find(
+                  i => i.path?.columnName === column.expression
+                );
+
+                if (fnValue?.path?.columnName === undefined) return false;
+
+                return columnIds.includes(fnValue.path?.columnName);
+              }
+              return false;
+            })
             .map(column => ({
               id: column.expression,
               range: column.range,
@@ -750,9 +790,14 @@ const parsedSql = (sql: string): ParsedSql => {
           columns
             .filter(column => {
               if (resultColumn.fn) {
-                return resultColumn.fn.values.includes(column.id);
+                return resultColumn.fn.values
+                  .map(c => c.path?.columnName)
+                  .includes(column.id);
               }
-              return column.id === resultColumn.expression;
+              return (
+                column.id ===
+                (resultColumn.path?.columnName || resultColumn.expression)
+              );
             })
             .forEach(c => {
               lineage.push({

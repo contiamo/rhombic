@@ -5,9 +5,42 @@ import * as fs from "fs";
 // Accessors mocks
 type ColumnId = string;
 const columnsMapping: { [tableId: string]: ColumnId[] } = {
-  account: ["account_type", "account_id"],
-  employee: ["employee_id", "gender", "first_name", "last_name", "salary"],
-  salary: ["employee_id", "vacation_used", "salary_paid"]
+  account: [
+    "account_type",
+    "account_id",
+    "account_description",
+    "account_parent",
+    "account_rollup"
+  ],
+  employee: [
+    "birth_date",
+    "department_id",
+    "education_level",
+    "employee_id",
+    "end_date",
+    "first_name",
+    "full_name",
+    "gender",
+    "hire_date",
+    "last_name",
+    "management_role",
+    "marital_status",
+    "position_id",
+    "position_title",
+    "salary",
+    "store_id",
+    "supervisor_id"
+  ],
+  salary: [
+    "currency_id",
+    "department_id",
+    "employee_id",
+    "overtime_paid",
+    "pay_date",
+    "salary_paid",
+    "vacation_accrued",
+    "vacation_used"
+  ]
 };
 
 const getTable = (id: string) => ({
@@ -383,6 +416,7 @@ describe("getLineage", () => {
     },
     {
       name: "concat",
+      debug: true,
       sql:
         "SELECT concat(first_name, ' ', last_name) as full_name FROM employee",
       data: [
@@ -479,7 +513,6 @@ describe("getLineage", () => {
     {
       name: "group by",
       sql: "SELECT gender, AVG(salary) FROM employee GROUP BY gender",
-      debug: true,
       data: [
         {
           type: "table",
@@ -588,6 +621,170 @@ describe("getLineage", () => {
           target: {
             tableId: "result",
             columnId: "AVG(salary)"
+          }
+        }
+      ]
+    },
+    {
+      name: "group by & join (namespaced projectionItems)",
+      sql:
+        "SELECT employee.gender, AVG(salary.overtime_paid) as overtime, AVG(employee.salary) as salary FROM employee JOIN salary ON employee.employee_id = salary.employee_id GROUP BY employee.gender",
+      data: [
+        {
+          type: "table",
+          id: "employee",
+          label: "employee",
+          range: {
+            startLine: 1,
+            startColumn: 100,
+            endLine: 1,
+            endColumn: 107
+          },
+          data: {
+            id: "employee"
+          },
+          columns: [
+            {
+              id: "gender",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 8,
+                endColumn: 22
+              },
+              label: "gender",
+              data: {
+                id: "gender",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "salary",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 64,
+                endColumn: 93
+              },
+              label: "salary",
+              data: {
+                id: "salary",
+                tableId: "employee"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "salary",
+          label: "salary",
+          range: {
+            startLine: 1,
+            startColumn: 114,
+            endLine: 1,
+            endColumn: 119
+          },
+          data: {
+            id: "salary"
+          },
+          columns: [
+            {
+              id: "overtime_paid",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 25,
+                endColumn: 61
+              },
+              label: "overtime_paid",
+              data: {
+                id: "overtime_paid",
+                tableId: "salary"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result",
+          label: "[result]",
+          modifiers: [
+            {
+              type: "groupBy",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 166,
+                endColumn: 189
+              }
+            }
+          ],
+          columns: [
+            {
+              id: "employee.gender",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 8,
+                endColumn: 22
+              },
+              label: "employee.gender"
+            },
+            {
+              id: "AVG(salary.overtime_paid)",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 25,
+                endColumn: 61
+              },
+              label: "overtime"
+            },
+            {
+              id: "AVG(employee.salary)",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 64,
+                endColumn: 93
+              },
+              label: "salary"
+            }
+          ]
+        },
+        {
+          type: "edge",
+          source: {
+            tableId: "employee",
+            columnId: "gender"
+          },
+          target: {
+            tableId: "result",
+            columnId: "employee.gender"
+          }
+        },
+        {
+          type: "edge",
+          label: "AVG",
+          source: {
+            tableId: "salary",
+            columnId: "overtime_paid"
+          },
+          target: {
+            tableId: "result",
+            columnId: "AVG(salary.overtime_paid)"
+          }
+        },
+        {
+          type: "edge",
+          label: "AVG",
+          source: {
+            tableId: "employee",
+            columnId: "salary"
+          },
+          target: {
+            tableId: "result",
+            columnId: "AVG(employee.salary)"
           }
         }
       ]
