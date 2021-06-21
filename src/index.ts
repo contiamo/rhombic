@@ -746,6 +746,12 @@ const parsedSql = (sql: string): ParsedSql => {
             }, [] as typeof resultColumns)
             .filter(column => {
               if (column.path) {
+                if (
+                  column.path.tableName &&
+                  column.path.tableName !== table.tableName
+                ) {
+                  return false;
+                }
                 return columnIds.includes(column.path.columnName);
               }
               if (column.fn) {
@@ -786,6 +792,13 @@ const parsedSql = (sql: string): ParsedSql => {
       // Create edges
       resultColumns.forEach(resultColumn => {
         tables.forEach(table => {
+          if (
+            resultColumn.path?.tableName &&
+            resultColumn.path.tableName !== table.tableName
+          ) {
+            return;
+          }
+
           const columns = columnsMetadata[table.tableName];
           columns
             .filter(column => {

@@ -788,6 +788,123 @@ describe("getLineage", () => {
           }
         }
       ]
+    },
+    {
+      name: "column name conflict",
+      sql:
+        "SELECT employee.employee_id, salary.employee_id FROM employee NATURAL JOIN salary",
+      data: [
+        {
+          type: "table",
+          id: "employee",
+          label: "employee",
+          range: {
+            startLine: 1,
+            startColumn: 54,
+            endLine: 1,
+            endColumn: 61
+          },
+          data: {
+            id: "employee"
+          },
+          columns: [
+            {
+              id: "employee_id",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 8,
+                endColumn: 27
+              },
+              label: "employee_id",
+              data: {
+                id: "employee_id",
+                tableId: "employee"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "salary",
+          label: "salary",
+          range: {
+            startLine: 1,
+            startColumn: 76,
+            endLine: 1,
+            endColumn: 81
+          },
+          data: {
+            id: "salary"
+          },
+          columns: [
+            {
+              id: "employee_id",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 30,
+                endColumn: 47
+              },
+              label: "employee_id",
+              data: {
+                id: "employee_id",
+                tableId: "salary"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result",
+          label: "[result]",
+          modifiers: [],
+          columns: [
+            {
+              id: "employee.employee_id",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 8,
+                endColumn: 27
+              },
+              label: "employee.employee_id"
+            },
+            {
+              id: "salary.employee_id",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 30,
+                endColumn: 47
+              },
+              label: "salary.employee_id"
+            }
+          ]
+        },
+        {
+          type: "edge",
+          source: {
+            tableId: "employee",
+            columnId: "employee_id"
+          },
+          target: {
+            tableId: "result",
+            columnId: "employee.employee_id"
+          }
+        },
+        {
+          type: "edge",
+          source: {
+            tableId: "salary",
+            columnId: "employee_id"
+          },
+          target: {
+            tableId: "result",
+            columnId: "salary.employee_id"
+          }
+        }
+      ]
     }
   ];
 
