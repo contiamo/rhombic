@@ -4,17 +4,20 @@ import {
   ProjectionItemsContext,
   CastContext,
   OrderItemContext,
-  OrderByContext
+  OrderByContext,
+  ColumnPrimaryContext,
+  ExpressionContext
 } from "../Context";
 import { IToken, CstElement } from "chevrotain";
 import { getImageFromChildren } from "../utils/getImageFromChildren";
-import { getChildrenRange, Range } from "../utils/getChildrenRange";
+import { getChildrenRange } from "../utils/getChildrenRange";
 import { isCstNode } from "../utils/isCstNode";
 import {
   isAsteriskContext,
   isExpressionContext
 } from "../utils/projectionItem";
 import { isFunctionContext } from "../utils/expression";
+import { Range } from "../utils/getRange";
 
 const Visitor = parser.getBaseCstVisitorConstructorWithDefaults();
 
@@ -27,23 +30,86 @@ function isCastNode(
   return isCstNode(node) && node.name === "cast";
 }
 
+function isExpressionContextColumnBranch(
+  ctx: ExpressionContext
+): ctx is {
+  columnPrimary: Array<{
+    name: "columnPrimary";
+    children: ColumnPrimaryContext;
+  }>;
+} {
+  return Boolean((ctx as any).columnPrimary);
+}
+
+function isColumnPrimary(
+  node: any
+): node is {
+  name: "columnPrimary";
+  children: ColumnPrimaryContext;
+} {
+  return isCstNode(node) && node.name === "columnPrimary";
+}
+
+function getColumnPrimaryPath(columnPrimary: {
+  name: "columnPrimary";
+  children: ColumnPrimaryContext;
+}) {
+  switch (columnPrimary.children.Identifier.length) {
+    case 1:
+      return { columnName: columnPrimary.children.Identifier[0].image };
+    case 2:
+      return {
+        tableName: columnPrimary.children.Identifier[0].image,
+        columnName: columnPrimary.children.Identifier[1].image
+      };
+    case 3:
+      return {
+        schemaName: columnPrimary.children.Identifier[0].image,
+        tableName: columnPrimary.children.Identifier[1].image,
+        columnName: columnPrimary.children.Identifier[2].image
+      };
+    case 4:
+      return {
+        catalogName: columnPrimary.children.Identifier[0].image,
+        schemaName: columnPrimary.children.Identifier[1].image,
+        tableName: columnPrimary.children.Identifier[2].image,
+        columnName: columnPrimary.children.Identifier[3].image
+      };
+  }
+  throw new Error("columnPrimary can't be parsed");
+}
+
 /**
  * Visitor to extract `projectionItem` list
  */
 export class ProjectionItemsVisitor extends Visitor {
   public output: Array<{
-    startLine: number;
-    endLine: number;
-    startColumn: number;
-    endColumn: number;
+    range: Range;
     isAsterisk: boolean;
     expression: string;
+    path?: {
+      catalogName?: string;
+      schemaName?: string;
+      tableName?: string;
+      columnName: string;
+    };
     alias?: string;
     cast?: {
       value: string;
       type: string;
     };
-    fn?: { identifier: string; value: string };
+    fn?: {
+      identifier: string;
+      values: {
+        expression: string;
+        path?: {
+          catalogName?: string;
+          schemaName?: string;
+          tableName?: string;
+          columnName: string;
+        };
+      }[];
+    };
     sort?: {
       order: "asc" | "desc";
       nullsOrder?: "first" | "last";
@@ -119,8 +185,29 @@ export class ProjectionItemsVisitor extends Visitor {
   projectionItem(ctx: ProjectionItemContext) {
     let isAsterisk = false;
     let cast: { value: string; type: string } | undefined;
-    let fn: { identifier: string; value: string } | undefined;
+    let fn:
+      | {
+          identifier: string;
+          values: {
+            expression: string;
+            path?: {
+              catalogName?: string;
+              schemaName?: string;
+              tableName?: string;
+              columnName: string;
+            };
+          }[];
+        }
+      | undefined;
     let expression = "";
+    let path:
+      | {
+          catalogName?: string;
+          schemaName?: string;
+          tableName?: string;
+          columnName: string;
+        }
+      | undefined;
     let alias: string | undefined;
 
     if (isExpressionContext(ctx)) {
@@ -129,15 +216,31 @@ export class ProjectionItemsVisitor extends Visitor {
         if (isFunctionContext(i.children)) {
           fn = {
             identifier: i.children.FunctionIdentifier[0].image,
-            value: getImageFromChildren(i.children.expression[0].children)
+            values: i.children.expression.map(exp => ({
+              path: isExpressionContextColumnBranch(exp.children)
+                ? getColumnPrimaryPath(exp.children.columnPrimary[0])
+                : undefined,
+              expression: getImageFromChildren(exp.children)
+            }))
           };
         }
 
         Object.values(i.children).forEach(j => {
           j.map((token: CstElement) => {
             if (isCastNode(token)) {
-              // Extract `cast` information
               cast = this.cast(token.children);
+              fn = {
+                identifier: token.children.Cast[0].image,
+                values: token.children.expression.map(exp => ({
+                  path: isExpressionContextColumnBranch(exp.children)
+                    ? getColumnPrimaryPath(exp.children.columnPrimary[0])
+                    : undefined,
+                  expression: getImageFromChildren(exp.children)
+                }))
+              };
+            }
+            if (isColumnPrimary(token)) {
+              path = getColumnPrimaryPath(token);
             }
           });
         });
@@ -159,12 +262,13 @@ export class ProjectionItemsVisitor extends Visitor {
     }
 
     this.output.push({
-      ...getChildrenRange(ctx),
+      range: getChildrenRange(ctx),
       isAsterisk,
       alias,
       cast,
       fn,
-      expression
+      expression,
+      path
     });
   }
 }

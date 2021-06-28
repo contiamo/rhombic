@@ -86,6 +86,30 @@ const Where = createToken({
   longer_alt: Identifier
 });
 
+const Group = createToken({
+  name: "Group",
+  pattern: /GROUP/i,
+  longer_alt: Identifier
+});
+
+const Cube = createToken({
+  name: "Cube",
+  pattern: /CUBE/i,
+  longer_alt: Identifier
+});
+
+const Rollup = createToken({
+  name: "Rollup",
+  pattern: /ROLLUP/i,
+  longer_alt: Identifier
+});
+
+const By = createToken({
+  name: "By",
+  pattern: /BY/i,
+  longer_alt: Identifier
+});
+
 const Natural = createToken({
   name: "Natural",
   pattern: /NATURAL/i,
@@ -275,6 +299,10 @@ const allTokens = [
   Select,
   From,
   Where,
+  Group,
+  Cube,
+  Rollup,
+  By,
   Natural,
   Left,
   Right,
@@ -381,6 +409,7 @@ class SqlParser extends CstParser {
         }
       }
     ]);
+    this.OPTION2(() => this.CONSUME(SemiColumn));
   });
 
   /**
@@ -409,7 +438,10 @@ class SqlParser extends CstParser {
       {
         ALT: () => {
           this.CONSUME(FunctionIdentifier), this.CONSUME1(LParen);
-          this.SUBRULE1(this.expression);
+          this.MANY_SEP1({
+            SEP: Comma,
+            DEF: () => this.SUBRULE1(this.expression)
+          });
           this.CONSUME1(RParen);
         }
       },
@@ -610,6 +642,22 @@ class SqlParser extends CstParser {
 
     this.OPTION4(() => {
       this.SUBRULE(this.where);
+    });
+
+    this.OPTION5(() => {
+      this.SUBRULE(this.groupBy);
+    });
+  });
+
+  /**
+   * Group by statement
+   */
+  public groupBy = this.RULE("groupBy", () => {
+    this.CONSUME(Group);
+    this.CONSUME(By);
+    this.AT_LEAST_ONE_SEP({
+      SEP: Comma,
+      DEF: () => this.SUBRULE(this.groupItem)
     });
   });
 
@@ -857,7 +905,25 @@ class SqlParser extends CstParser {
    *  |   ROLLUP '(' expression [, expression ]* ')'
    *  |   GROUPING SETS '(' groupItem [, groupItem ]* ')'
    */
-  public groupItem = this.RULE("groupItem", () => {});
+  public groupItem = this.RULE("groupItem", () => {
+    this.OPTION(() => {
+      this.OR1([
+        { ALT: () => this.CONSUME(Cube) },
+        { ALT: () => this.CONSUME1(Rollup) }
+      ]);
+    });
+    this.OPTION1(() => {
+      this.CONSUME2(LParen);
+    });
+    this.MANY_SEP({
+      SEP: Comma,
+      DEF: () => this.SUBRULE1(this.expression)
+    });
+    this.OPTION2(() => {
+      this.CONSUME3(RParen);
+    });
+    // TODO: Deal with `GROUPING SETS`
+  });
 
   /**
    * window:

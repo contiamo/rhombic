@@ -548,7 +548,16 @@ FROM
         .getProjectionItem({ columns: ["hello"], index: 0 });
 
       expect(projectionItem).toEqual({
-        expression: "hello"
+        expression: "hello",
+        path: {
+          columnName: "hello"
+        },
+        range: {
+          endColumn: 12,
+          endLine: 1,
+          startColumn: 8,
+          startLine: 1
+        }
       });
     });
 
@@ -564,7 +573,16 @@ FROM
 
       expect(projectionItem).toEqual({
         expression: "tejas",
-        alias: "chicken"
+        path: {
+          columnName: "tejas"
+        },
+        alias: "chicken",
+        range: {
+          endColumn: 38,
+          endLine: 1,
+          startColumn: 23,
+          startLine: 1
+        }
       });
     });
 
@@ -583,7 +601,60 @@ FROM
         alias: "chicken",
         fn: {
           identifier: "avg",
-          value: "tejas"
+          values: [
+            {
+              expression: "tejas",
+              path: {
+                columnName: "tejas"
+              }
+            }
+          ]
+        },
+        range: {
+          endColumn: 43,
+          endLine: 1,
+          startColumn: 23,
+          startLine: 1
+        }
+      });
+    });
+
+    it("should retrieve items inside functions", () => {
+      const projectionItem = rhombic
+        .parse(
+          "SELECT concat(first_name, ' ', last_name) as full_name FROM employee"
+        )
+        .getProjectionItem({
+          columns: ["full_name"],
+          index: 0
+        });
+
+      expect(projectionItem).toEqual({
+        alias: "full_name",
+        expression: "concat(first_name, ' ', last_name)",
+        fn: {
+          identifier: "concat",
+          values: [
+            {
+              expression: "first_name",
+              path: {
+                columnName: "first_name"
+              }
+            },
+            { expression: "' '" },
+            {
+              expression: "last_name",
+              path: {
+                columnName: "last_name"
+              }
+            }
+          ]
+        },
+        range: {
+          endColumn: 54,
+          endLine: 1,
+          startColumn: 8,
+          startLine: 1
         }
       });
     });
@@ -603,7 +674,20 @@ FROM
         alias: "chicken",
         fn: {
           identifier: "avg",
-          value: "tejas"
+          values: [
+            {
+              expression: "tejas",
+              path: {
+                columnName: "tejas"
+              }
+            }
+          ]
+        },
+        range: {
+          endColumn: 45,
+          endLine: 1,
+          startColumn: 23,
+          startLine: 1
         }
       });
     });
@@ -617,7 +701,10 @@ FROM
         });
 
       expect(projectionItem).toEqual({
-        expression: "tejas"
+        expression: "tejas",
+        path: {
+          columnName: "tejas"
+        }
       });
     });
 
@@ -633,7 +720,20 @@ FROM
         expression: "avg(mischa)",
         fn: {
           identifier: "avg",
-          value: "mischa"
+          values: [
+            {
+              expression: "mischa",
+              path: {
+                columnName: "mischa"
+              }
+            }
+          ]
+        },
+        range: {
+          endColumn: 18,
+          endLine: 1,
+          startColumn: 8,
+          startLine: 1
         }
       });
     });
@@ -647,7 +747,10 @@ FROM
         });
 
       expect(projectionItem).toEqual({
-        expression: "mischa"
+        expression: "mischa",
+        path: {
+          columnName: "mischa"
+        }
       });
     });
 
@@ -668,7 +771,10 @@ FROM
         });
 
       expect(projectionItem).toEqual({
-        expression: "address1"
+        expression: "address1",
+        path: {
+          columnName: "address1"
+        }
       });
     });
 
@@ -685,6 +791,23 @@ FROM
         cast: {
           value: "address",
           type: "CHAR"
+        },
+        fn: {
+          identifier: "CAST",
+          values: [
+            {
+              expression: "address",
+              path: {
+                columnName: "address"
+              }
+            }
+          ]
+        },
+        range: {
+          endColumn: 28,
+          endLine: 1,
+          startColumn: 8,
+          startLine: 1
         }
       });
     });
@@ -704,6 +827,23 @@ FROM
         cast: {
           value: "address",
           type: "CHAR"
+        },
+        fn: {
+          identifier: "CAST",
+          values: [
+            {
+              expression: "address",
+              path: {
+                columnName: "address"
+              }
+            }
+          ]
+        },
+        range: {
+          endColumn: 31,
+          endLine: 1,
+          startColumn: 8,
+          startLine: 1
         }
       });
     });
@@ -718,8 +858,17 @@ FROM
 
       expect(projectionItem).toEqual({
         expression: "foo",
+        path: {
+          columnName: "foo"
+        },
         sort: {
           order: "asc"
+        },
+        range: {
+          endColumn: 10,
+          endLine: 1,
+          startColumn: 8,
+          startLine: 1
         }
       });
     });
@@ -736,9 +885,18 @@ FROM
 
       expect(projectionItem).toEqual({
         expression: "foo",
+        path: {
+          columnName: "foo"
+        },
         alias: "chocapic",
         sort: {
           order: "asc"
+        },
+        range: {
+          endColumn: 22,
+          endLine: 1,
+          startColumn: 8,
+          startLine: 1
         }
       });
     });
@@ -753,6 +911,9 @@ FROM
 
       expect(projectionItem).toEqual({
         expression: "foo",
+        path: {
+          columnName: "foo"
+        },
         sort: {
           order: "asc"
         }
@@ -768,7 +929,10 @@ FROM
         });
 
       expect(projectionItem).toEqual({
-        expression: "bar"
+        expression: "bar",
+        path: {
+          columnName: "bar"
+        }
       });
     });
   });
@@ -782,44 +946,89 @@ FROM
         .getProjectionItems(["mischa", "slava", "chicken", "imogen", "fabien"]);
 
       expect(projectionItems).toMatchInlineSnapshot(`
-                Array [
-                  Object {
-                    "alias": undefined,
-                    "cast": undefined,
-                    "expression": "mischa",
-                    "fn": undefined,
-                    "sort": undefined,
-                  },
-                  Object {
-                    "alias": undefined,
-                    "cast": undefined,
-                    "expression": "slava",
-                    "fn": undefined,
-                    "sort": undefined,
-                  },
-                  Object {
-                    "alias": "chicken",
-                    "cast": undefined,
-                    "expression": "tejas",
-                    "fn": undefined,
-                    "sort": undefined,
-                  },
-                  Object {
-                    "alias": undefined,
-                    "cast": undefined,
-                    "expression": "imogen",
-                    "fn": undefined,
-                    "sort": undefined,
-                  },
-                  Object {
-                    "alias": undefined,
-                    "cast": undefined,
-                    "expression": "fabien",
-                    "fn": undefined,
-                    "sort": undefined,
-                  },
-                ]
-            `);
+Array [
+  Object {
+    "alias": undefined,
+    "cast": undefined,
+    "expression": "mischa",
+    "fn": undefined,
+    "path": Object {
+      "columnName": "mischa",
+    },
+    "range": Object {
+      "endColumn": 13,
+      "endLine": 1,
+      "startColumn": 8,
+      "startLine": 1,
+    },
+    "sort": undefined,
+  },
+  Object {
+    "alias": undefined,
+    "cast": undefined,
+    "expression": "slava",
+    "fn": undefined,
+    "path": Object {
+      "columnName": "slava",
+    },
+    "range": Object {
+      "endColumn": 20,
+      "endLine": 1,
+      "startColumn": 16,
+      "startLine": 1,
+    },
+    "sort": undefined,
+  },
+  Object {
+    "alias": "chicken",
+    "cast": undefined,
+    "expression": "tejas",
+    "fn": undefined,
+    "path": Object {
+      "columnName": "tejas",
+    },
+    "range": Object {
+      "endColumn": 38,
+      "endLine": 1,
+      "startColumn": 23,
+      "startLine": 1,
+    },
+    "sort": undefined,
+  },
+  Object {
+    "alias": undefined,
+    "cast": undefined,
+    "expression": "imogen",
+    "fn": undefined,
+    "path": Object {
+      "columnName": "imogen",
+    },
+    "range": Object {
+      "endColumn": 46,
+      "endLine": 1,
+      "startColumn": 41,
+      "startLine": 1,
+    },
+    "sort": undefined,
+  },
+  Object {
+    "alias": undefined,
+    "cast": undefined,
+    "expression": "fabien",
+    "fn": undefined,
+    "path": Object {
+      "columnName": "fabien",
+    },
+    "range": Object {
+      "endColumn": 54,
+      "endLine": 1,
+      "startColumn": 49,
+      "startLine": 1,
+    },
+    "sort": undefined,
+  },
+]
+`);
     });
   });
 });

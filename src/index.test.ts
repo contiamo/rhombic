@@ -91,7 +91,7 @@ describe("rhombic", () => {
       expect(tables).toEqual([
         {
           tableName: "my_db",
-          location: {
+          range: {
             startLine: 1,
             endLine: 1,
             startColumn: 15,
@@ -110,7 +110,7 @@ describe("rhombic", () => {
         {
           tableName: "my_db",
           schemaName: "my_schema",
-          location: {
+          range: {
             startLine: 1,
             endLine: 1,
             startColumn: 15,
@@ -130,7 +130,7 @@ describe("rhombic", () => {
           tableName: "my_db",
           schemaName: "my_schema",
           catalogName: "my_catalog",
-          location: {
+          range: {
             startLine: 1,
             endLine: 1,
             startColumn: 15,
@@ -149,7 +149,7 @@ describe("rhombic", () => {
 
       expect(tables).toEqual([
         {
-          location: {
+          range: {
             endColumn: 30,
             endLine: 1,
             startColumn: 15,
@@ -160,7 +160,7 @@ describe("rhombic", () => {
           alias: "a"
         },
         {
-          location: {
+          range: {
             endColumn: 54,
             endLine: 1,
             startColumn: 47,

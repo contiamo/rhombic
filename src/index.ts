@@ -5,7 +5,7 @@ import { insertText } from "./utils/insertText";
 import { CstNode } from "chevrotain";
 import { TablePrimaryVisitor } from "./visitors/TablePrimaryVisitor";
 import { replaceText } from "./utils/replaceText";
-import { getLocation, Location } from "./utils/getLocation";
+import { getRange, Range } from "./utils/getRange";
 import { needToBeEscaped } from "./utils/needToBeEscaped";
 import { printFilter } from "./utils/printFilter";
 import { getText } from "./utils/getText";
@@ -16,6 +16,9 @@ import { WhereVisitor } from "./visitors/WhereVisitor";
 import { getImageFromChildren } from "./utils/getImageFromChildren";
 import { fixOrderItem } from "./utils/fixOrderItem";
 import { removeUnusedOrderItems } from "./utils/removeUnusedOrderItems";
+import { Lineage, TableModifier } from "./Lineage";
+import { flatten } from "lodash";
+import { GroupByVisitor } from "./visitors/GroupByVisitor";
 
 // Utils
 export { needToBeEscaped, printFilter };
@@ -58,11 +61,29 @@ export interface ProjectionItemMetadata {
   expression: string;
   alias?: string;
   cast?: { value: string; type: string };
-  fn?: { identifier: string; value: string };
+  fn?: {
+    identifier: string;
+    values: {
+      expression: string;
+      path?: {
+        catalogName?: string;
+        schemaName?: string;
+        tableName?: string;
+        columnName: string;
+      };
+    }[];
+  };
   sort?: {
     order: "asc" | "desc";
     nullsOrder?: "first" | "last";
   };
+  path?: {
+    catalogName?: string;
+    schemaName?: string;
+    tableName?: string;
+    columnName: string;
+  };
+  range?: Range;
 }
 
 export interface TablePrimary {
@@ -70,7 +91,7 @@ export interface TablePrimary {
   schemaName?: string;
   tableName: string;
   alias?: string;
-  location: Location;
+  range: Range;
 }
 
 // Note: Because we have a recursion, we can't rely on typescript inference
@@ -201,6 +222,20 @@ export interface ParsedSql {
    * @param filter
    */
   updateFilter(filter: FilterTree | string): ParsedSql;
+
+  /**
+   * Get lineage data.
+   *
+   * @param getters.getTable Get table metadata
+   * @param getters.getColumn Get column metadata
+   */
+  getLineage<
+    TableData extends { id: string },
+    ColumnData extends { id: string }
+  >(getters: {
+    getTable: (tableId: string) => TableData;
+    getColumns: (tableId: string) => ColumnData[];
+  }): Lineage<TableData, ColumnData>;
 }
 
 /**
@@ -258,22 +293,21 @@ const parsedSql = (sql: string): ParsedSql => {
         if (projectionItems[index] && !projectionItems[index].isAsterisk) {
           return {
             expression: projectionItems[index].expression,
+            path: projectionItems[index].path,
             alias: projectionItems[index].alias,
             cast: projectionItems[index].cast,
             fn: projectionItems[index].fn,
-            sort: projectionItems[index].sort
+            sort: projectionItems[index].sort,
+            range: projectionItems[index].range
           };
         }
 
         // Check for duplicate projection names
         const value = columns[index];
-        const otherNames = projectionItems.reduce(
-          (mem, i) => {
-            if (i.isAsterisk) return mem;
-            return [...mem, i.alias || i.expression];
-          },
-          [] as string[]
-        );
+        const otherNames = projectionItems.reduce((mem, i) => {
+          if (i.isAsterisk) return mem;
+          return [...mem, i.alias || i.expression];
+        }, [] as string[]);
         const candidates = otherNames
           .filter(i => value.startsWith(i))
           .sort((a, b) => b.length - a.length);
@@ -284,6 +318,7 @@ const parsedSql = (sql: string): ParsedSql => {
 
         return {
           expression: originalValue || value,
+          path: { columnName: originalValue || value },
           sort: sort
             ? { order: sort.order || "asc", nullsOrder: sort.nullsOrder }
             : undefined
@@ -291,10 +326,12 @@ const parsedSql = (sql: string): ParsedSql => {
       } else {
         return {
           expression: projectionItems[index].expression,
+          path: projectionItems[index].path,
           alias: projectionItems[index].alias,
           cast: projectionItems[index].cast,
           fn: projectionItems[index].fn,
-          sort: projectionItems[index].sort
+          sort: projectionItems[index].sort,
+          range: projectionItems[index].range
         };
       }
     },
@@ -342,14 +379,17 @@ const parsedSql = (sql: string): ParsedSql => {
         const previousProjectionItem =
           visitor.output[visitor.output.length - 2];
         const isMultiline =
-          previousProjectionItem.endLine !== lastProjectionItem.endLine;
+          previousProjectionItem.range.endLine !==
+          lastProjectionItem.range.endLine;
 
         if (isMultiline) {
-          const spaces = " ".repeat((lastProjectionItem.startColumn || 1) - 1);
+          const spaces = " ".repeat(
+            (lastProjectionItem.range.startColumn || 1) - 1
+          );
 
           let nextSql = insertText(sql, `,\n${spaces}${projectionItem}`, {
-            line: lastProjectionItem.endLine || 1,
-            column: lastProjectionItem.endColumn || 0
+            line: lastProjectionItem.range.endLine || 1,
+            column: lastProjectionItem.range.endColumn || 0
           });
 
           if (options.removeAsterisk && hasAsterisk) {
@@ -361,8 +401,8 @@ const parsedSql = (sql: string): ParsedSql => {
 
       // one line case insertion
       let nextSql = insertText(sql, `, ${projectionItem}`, {
-        line: lastProjectionItem.endLine || 1,
-        column: lastProjectionItem.endColumn || 0
+        line: lastProjectionItem.range.endLine || 1,
+        column: lastProjectionItem.range.endColumn || 0
       });
 
       if (options.removeAsterisk && hasAsterisk) {
@@ -411,13 +451,13 @@ const parsedSql = (sql: string): ParsedSql => {
               return needToBeEscaped(c) ? `"${c}"` : c;
             })
             .join(", "),
-          getLocation(projectionItems[asteriskIndex])
+          projectionItems[asteriskIndex].range
         );
 
         return parsedSql(nextSql);
       } else {
         const targetNode = projectionItems[index];
-        const nextSql = replaceText(sql, value, getLocation(targetNode));
+        const nextSql = replaceText(sql, value, targetNode.range);
 
         // Check if we need to rename an order item
         const needToFixOrderItem =
@@ -459,7 +499,7 @@ const parsedSql = (sql: string): ParsedSql => {
               )
               .filter((_, i) => i + asteriskIndex !== index)
               .join(", "),
-            getLocation(projectionItems[asteriskIndex])
+            projectionItems[asteriskIndex].range
           );
           if (hasSort) {
             return parsedSql(
@@ -474,26 +514,29 @@ const parsedSql = (sql: string): ParsedSql => {
 
       if (visitor.commas.length > 0) {
         // Include the commas in the selection to remove
-        const comma = getLocation(
+        const comma = getRange(
           visitor.commas[Math.min(visitor.commas.length - 1, index)]
         );
         if (
-          comma.startLine < targetNode.startLine ||
-          comma.startColumn < targetNode.startColumn
+          comma.startLine < targetNode.range.startLine ||
+          comma.startColumn < targetNode.range.startColumn
         ) {
-          targetNode.startLine = comma.startLine || targetNode.startLine;
-          targetNode.startColumn = comma.startColumn || targetNode.startColumn;
+          targetNode.range.startLine =
+            comma.startLine || targetNode.range.startLine;
+          targetNode.range.startColumn =
+            comma.startColumn || targetNode.range.startColumn;
         } else {
-          targetNode.endLine = comma.endLine || targetNode.endLine;
-          targetNode.endColumn = comma.endColumn || targetNode.endColumn;
+          targetNode.range.endLine = comma.endLine || targetNode.range.endLine;
+          targetNode.range.endColumn =
+            comma.endColumn || targetNode.range.endColumn;
 
           // Remove extra space
           const textToRemove = getText(sql, {
-            ...targetNode,
-            endColumn: targetNode.endColumn + 1
+            ...targetNode.range,
+            endColumn: targetNode.range.endColumn + 1
           });
           if (textToRemove[textToRemove.length - 1] === " ") {
-            targetNode.endColumn++;
+            targetNode.range.endColumn++;
           }
         }
       }
@@ -502,11 +545,11 @@ const parsedSql = (sql: string): ParsedSql => {
       let nextSql = replaceText(
         sql,
         isLastProjectionItem ? "*" : "",
-        getLocation(targetNode)
+        targetNode.range
       );
 
       // Remove resulting emtpy line
-      const removedLine = targetNode.startLine - 1;
+      const removedLine = targetNode.range.startLine - 1;
       if (!nextSql.split("\n")[removedLine].trim()) {
         nextSql = [
           ...nextSql.split("\n").slice(0, removedLine),
@@ -552,7 +595,7 @@ const parsedSql = (sql: string): ParsedSql => {
             ).toUpperCase()}${
               nextNullsOrders ? ` NULLS ${nextNullsOrders.toUpperCase()}` : ""
             }`,
-            getLocation(existingOrderItem)
+            getRange(existingOrderItem)
           );
 
           return parsedSql(nextSql);
@@ -568,7 +611,7 @@ const parsedSql = (sql: string): ParsedSql => {
           const nextSql = replaceText(
             sql,
             orderByItem,
-            getLocation({
+            getRange({
               startLine: firstItem.startLine,
               startColumn: firstItem.startColumn,
               endLine: lastItem.endLine,
@@ -609,17 +652,184 @@ const parsedSql = (sql: string): ParsedSql => {
       const nextSql = replaceText(
         sql,
         hasWhere ? computedFilter : ` WHERE ${computedFilter} `,
-        hasWhere ? visitor.booleanExpressionLocation! : visitor.tableLocation!
+        hasWhere ? visitor.booleanExpressionRange! : visitor.tableRange!
       ).trim();
-      if (computedFilter === "" && visitor.whereLocation) {
+      if (computedFilter === "" && visitor.whereRange) {
         return parsedSql(
           replaceText(sql, "", {
-            ...visitor.whereLocation,
-            startColumn: visitor.whereLocation.startColumn - 1 // Remove the space before WHERE
+            ...visitor.whereRange,
+            startColumn: visitor.whereRange.startColumn - 1 // Remove the space before WHERE
           }).trim()
         );
       }
       return parsedSql(nextSql);
+    },
+
+    getLineage<
+      TableData extends { id: string },
+      ColumnData extends { id: string }
+    >({
+      getTable,
+      getColumns
+    }: {
+      getTable: (tableId: string) => TableData;
+      getColumns: (tableId: string) => ColumnData[];
+    }) {
+      const tables = this.getTablePrimaries();
+      const lineage: Lineage<TableData, ColumnData> = [];
+      const modifiers: TableModifier[] = [];
+
+      const projectionItemsVisitor = new ProjectionItemsVisitor();
+      projectionItemsVisitor.visit(cst);
+      const resultColumns = projectionItemsVisitor.output;
+
+      // Modifiers
+      // -- `WHERE`
+      const whereVisitor = new WhereVisitor();
+      whereVisitor.visit(cst);
+      const hasWhere = Boolean(whereVisitor.booleanExpressionNode);
+
+      if (hasWhere && whereVisitor.whereRange) {
+        modifiers.push({
+          type: "filter",
+          range: whereVisitor.whereRange
+        });
+      }
+
+      // -- `GROUP BY`
+      const groupByVisitor = new GroupByVisitor();
+      groupByVisitor.visit(cst);
+      if (groupByVisitor.groupByRange) {
+        modifiers.push({
+          type: "groupBy",
+          range: groupByVisitor.groupByRange
+        });
+      }
+
+      // Get columns metadata
+      const columnsMetadata = tables.reduce((mem, table) => {
+        return {
+          ...mem,
+          [table.tableName]: getColumns(table.tableName)
+        };
+      }, {} as { [tableName: string]: ColumnData[] });
+
+      // Create source tables
+      tables.forEach(table => {
+        const columns = columnsMetadata[table.tableName];
+        const columnIds = columns.map(c => c.id);
+        lineage.push({
+          type: "table",
+          id: table.tableName,
+          label: table.tableName,
+          range: table.range,
+          data: getTable(table.tableName),
+          columns: resultColumns
+            .reduce((mem, column) => {
+              if (column.fn) {
+                return [
+                  ...mem,
+                  ...column.fn.values.map(value => ({
+                    ...column,
+                    expression: value.path?.columnName || value.expression
+                  }))
+                ];
+              } else {
+                return [
+                  ...mem,
+                  {
+                    ...column,
+                    expression: column.path?.columnName || column.expression
+                  }
+                ];
+              }
+            }, [] as typeof resultColumns)
+            .filter(column => {
+              if (column.path) {
+                if (
+                  column.path.tableName &&
+                  column.path.tableName !== table.tableName
+                ) {
+                  return false;
+                }
+                return columnIds.includes(column.path.columnName);
+              }
+              if (column.fn) {
+                const fnValue = column.fn.values.find(
+                  i => i.path?.columnName === column.expression
+                );
+
+                if (fnValue?.path?.columnName === undefined) return false;
+
+                return columnIds.includes(fnValue.path?.columnName);
+              }
+              return false;
+            })
+            .map(column => ({
+              id: column.expression,
+              range: column.range,
+              label: column.expression,
+              data: columns.find(i => i.id === column.expression)
+            }))
+        });
+      });
+
+      // Create result table
+      const columns = flatten(Object.values(columnsMetadata));
+      lineage.push({
+        type: "table",
+        id: "result",
+        label: "[result]",
+        modifiers,
+        columns: resultColumns.map(column => ({
+          id: column.expression,
+          range: column.range,
+          label: column.alias || column.expression,
+          data: columns.find(i => i.id === column.expression)
+        }))
+      });
+
+      // Create edges
+      resultColumns.forEach(resultColumn => {
+        tables.forEach(table => {
+          if (
+            resultColumn.path?.tableName &&
+            resultColumn.path.tableName !== table.tableName
+          ) {
+            return;
+          }
+
+          const columns = columnsMetadata[table.tableName];
+          columns
+            .filter(column => {
+              if (resultColumn.fn) {
+                return resultColumn.fn.values
+                  .map(c => c.path?.columnName)
+                  .includes(column.id);
+              }
+              return (
+                column.id ===
+                (resultColumn.path?.columnName || resultColumn.expression)
+              );
+            })
+            .forEach(c => {
+              lineage.push({
+                type: "edge",
+                label: resultColumn.fn?.identifier,
+                source: {
+                  tableId: table.tableName,
+                  columnId: c.id
+                },
+                target: {
+                  tableId: "result",
+                  columnId: resultColumn.expression
+                }
+              });
+            });
+        });
+      });
+
+      return lineage;
     }
   };
 };

@@ -5,23 +5,17 @@ import {
   WhereContext
 } from "../Context";
 import { getChildrenRange } from "../utils/getChildrenRange";
+import { Range } from "../utils/getRange";
 
 const Visitor = parser.getBaseCstVisitorConstructorWithDefaults();
-
-interface Location {
-  startLine: number;
-  endLine: number;
-  startColumn: number;
-  endColumn: number;
-}
 
 /**
  * Visitor to extract information about `WHERE` statement
  */
 export class WhereVisitor extends Visitor {
-  public tableLocation?: Location;
-  public booleanExpressionLocation?: Location;
-  public whereLocation?: Location;
+  public tableRange?: Range;
+  public booleanExpressionRange?: Range;
+  public whereRange?: Range;
 
   public booleanExpressionNode?: BooleanExpressionContext;
 
@@ -31,9 +25,9 @@ export class WhereVisitor extends Visitor {
   }
 
   tableExpression(ctx: TableExpressionContext) {
-    // Register end of tableExpression as location as fallback
+    // Register end of tableExpression as range as fallback
     const tableRange = getChildrenRange(ctx);
-    this.tableLocation = {
+    this.tableRange = {
       startLine: tableRange.endLine,
       startColumn: tableRange.endColumn + 1,
       endColumn: tableRange.endColumn + 1,
@@ -42,12 +36,12 @@ export class WhereVisitor extends Visitor {
   }
 
   booleanExpression(ctx: BooleanExpressionContext) {
-    this.booleanExpressionLocation = getChildrenRange(ctx);
+    this.booleanExpressionRange = getChildrenRange(ctx);
     this.booleanExpressionNode = ctx;
   }
 
   where(ctx: WhereContext) {
-    this.whereLocation = getChildrenRange(ctx);
+    this.whereRange = getChildrenRange(ctx);
     ctx.booleanExpression.map(i => this.booleanExpression(i.children));
   }
 }

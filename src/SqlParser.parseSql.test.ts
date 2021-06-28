@@ -274,6 +274,103 @@ describe("parseSql", () => {
       )`
     },
     {
+      title: "SELECT with concat",
+      sql:
+        "SELECT concat(first_name, ' ', last_name) as full_name FROM employee",
+      expected: `
+      query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(
+              expression(
+                FunctionIdentifier("concat")
+                LParen("(")
+                expression(
+                  columnPrimary(
+                    Identifier("first_name")
+                  )
+                )
+                expression(
+                  StringValue("' '")
+                )
+                expression(
+                  columnPrimary(
+                    Identifier("last_name")
+                  )
+                )
+                Comma(",", ",")
+                RParen(")")
+              )
+              As("as")
+              Identifier("full_name")
+            )
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier("employee")
+              )
+            )
+          )
+        )
+      )
+      `
+    },
+    {
+      title: "SELECT with group by",
+      sql:
+        "SELECT COUNT(created_at), role FROM manager_collection_query_connections GROUP BY role",
+      expected: `
+      query(
+        select(
+          Select("SELECT")
+          projectionItems(
+            projectionItem(
+              expression(
+                FunctionIdentifier("COUNT")
+                LParen("(")
+                expression(
+                  columnPrimary(
+                    Identifier("created_at")
+                  )
+                )
+                RParen(")")
+              )
+            )
+            projectionItem(
+              expression(
+                columnPrimary(
+                  Identifier("role")
+                )
+              )
+            )
+            Comma(",")
+          )
+          From("FROM")
+          tableExpression(
+            tableReference(
+              tablePrimary(
+                Identifier("manager_collection_query_connections")
+              )
+            )
+          )
+          groupBy(
+            Group("GROUP")
+            By("BY")
+            groupItem(
+              expression(
+                columnPrimary(
+                  Identifier("role")
+                )
+              )
+            )
+          )
+        )
+      )`
+    },
+    {
       title: "SELECT with cast",
       sql: "SELECT CAST(column01 AS INT) FROM my_db",
       expected: `

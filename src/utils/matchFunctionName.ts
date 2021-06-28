@@ -13,6 +13,7 @@ const functionNames = [
   "ANY_VALUE",
   "BIT_AND",
   "BIT_OR",
+  "CONCAT",
   "STDDEV_POP",
   "STDDEV_SAMP",
   "STDDEV",

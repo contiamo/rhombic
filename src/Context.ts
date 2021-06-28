@@ -8,7 +8,7 @@ export interface StatementContext {
   }>;
 }
 
-export type QueryContext =
+export type QueryContext = (
   | {
       values: Array<{
         name: "values";
@@ -27,7 +27,10 @@ export type QueryContext =
       Limit?: IToken[];
       IntegerValue?: IToken[];
       All?: IToken[];
-    };
+    }
+) & {
+  SemiColumn?: IToken[];
+};
 
 export type ExpressionContext =
   | {
@@ -42,15 +45,7 @@ export type ExpressionContext =
         children: ColumnPrimaryContext;
       }>;
     }
-  | {
-      FunctionIdentifier: IToken[];
-      LParen: IToken[];
-      expression: Array<{
-        name: "expression";
-        children: ExpressionContext;
-      }>;
-      RParen: IToken[];
-    }
+  | { FunctionIdentifier: IToken[]; LParen: IToken[]; RParen: IToken[] }
   | {
       cast: Array<{
         name: "cast";
@@ -110,7 +105,8 @@ export type BooleanExpressionContext = (
         name: "booleanExpressionValue";
         children: BooleanExpressionValueContext;
       }>;
-    }) & {
+    }
+) & {
   Or?: IToken[];
   And?: IToken[];
   booleanExpression?: Array<{
@@ -185,6 +181,20 @@ export interface SelectContext {
     name: "where";
     children: WhereContext;
   }>;
+  groupBy?: Array<{
+    name: "groupBy";
+    children: GroupByContext;
+  }>;
+}
+
+export interface GroupByContext {
+  Group: IToken[];
+  By: IToken[];
+  groupItem: Array<{
+    name: "groupItem";
+    children: GroupItemContext;
+  }>;
+  Comma?: IToken[];
 }
 
 export interface WhereContext {
@@ -305,7 +315,12 @@ export interface ValuesContext {
   Comma?: IToken[];
 }
 
-export interface GroupItemContext {}
+export interface GroupItemContext {
+  Cube?: IToken[];
+  Rollup?: IToken[];
+  LParen?: IToken[];
+  RParen?: IToken[];
+}
 
 export interface WindowContext {}
 
@@ -323,6 +338,7 @@ export type IContext =
   | BooleanExpressionValueContext
   | OrderItemContext
   | SelectContext
+  | GroupByContext
   | WhereContext
   | ProjectionItemsContext
   | ProjectionItemContext

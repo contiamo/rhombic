@@ -1,13 +1,7 @@
 import { CstChildrenDictionary } from "chevrotain";
 import { isCstNode } from "./isCstNode";
 import { IContext } from "../Context";
-
-export interface Range {
-  startLine: number;
-  endLine: number;
-  startColumn: number;
-  endColumn: number;
-}
+import { Range } from "./getRange";
 
 const extractRange = (children: CstChildrenDictionary, range: Range) => {
   Object.values(children).forEach(tokens => {
