@@ -25,7 +25,7 @@
       type: "Rule",
       name: "statement",
       orgText:
-        "function () {\r\n            _this.OR([{ ALT: function () { return _this.SUBRULE(_this.query); } }]);\r\n        }",
+        "function () {\n            _this.OR([{ ALT: function () { return _this.SUBRULE(_this.query); } }]);\n        }",
       definition: [
         {
           type: "Alternation",
@@ -49,7 +49,7 @@
       type: "Rule",
       name: "query",
       orgText:
-        "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.SUBRULE(_this.values); } },\r\n                {\r\n                    ALT: function () {\r\n                        _this.SUBRULE(_this.select);\r\n                        _this.OPTION(function () {\r\n                            _this.SUBRULE(_this.orderBy);\r\n                        });\r\n                        _this.OPTION1(function () {\r\n                            _this.CONSUME(Limit);\r\n                            _this.OR1([\r\n                                { ALT: function () { return _this.CONSUME(IntegerValue); } },\r\n                                { ALT: function () { return _this.CONSUME(All); } }\r\n                            ]);\r\n                        });\r\n                    }\r\n                }\r\n            ]);\r\n            _this.OPTION2(function () { return _this.CONSUME(SemiColumn); });\r\n        }",
+        "function () {\n            _this.OR([\n                { ALT: function () { return _this.SUBRULE(_this.values); } },\n                {\n                    ALT: function () {\n                        _this.SUBRULE(_this.select);\n                        _this.OPTION(function () {\n                            _this.SUBRULE(_this.orderBy);\n                        });\n                        _this.OPTION1(function () {\n                            _this.CONSUME(Limit);\n                            _this.OR1([\n                                { ALT: function () { return _this.CONSUME(IntegerValue); } },\n                                { ALT: function () { return _this.CONSUME(All); } }\n                            ]);\n                        });\n                    }\n                }\n            ]);\n            _this.OPTION2(function () { return _this.CONSUME(SemiColon); });\n        }",
       definition: [
         {
           type: "Alternation",
@@ -137,8 +137,8 @@
           definition: [
             {
               type: "Terminal",
-              name: "SemiColumn",
-              label: "SemiColumn",
+              name: "SemiColon",
+              label: "SemiColon",
               idx: 0,
               pattern: ";"
             }
@@ -150,7 +150,7 @@
       type: "Rule",
       name: "expression",
       orgText:
-        "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.CONSUME(IntegerValue); } },\r\n                { ALT: function () { return _this.CONSUME(StringValue); } },\r\n                { ALT: function () { return _this.CONSUME(Null); } },\r\n                {\r\n                    ALT: function () {\r\n                        _this.CONSUME(LParen);\r\n                        _this.MANY_SEP({\r\n                            SEP: Comma,\r\n                            DEF: function () { return _this.SUBRULE(_this.expression); }\r\n                        });\r\n                        _this.CONSUME(RParen);\r\n                    }\r\n                },\r\n                {\r\n                    ALT: function () { return _this.SUBRULE(_this.columnPrimary); }\r\n                },\r\n                {\r\n                    ALT: function () {\r\n                        _this.CONSUME(FunctionIdentifier), _this.CONSUME1(LParen);\r\n                        _this.MANY_SEP1({\r\n                            SEP: Comma,\r\n                            DEF: function () { return _this.SUBRULE1(_this.expression); }\r\n                        });\r\n                        _this.CONSUME1(RParen);\r\n                    }\r\n                },\r\n                {\r\n                    ALT: function () { return _this.SUBRULE(_this.cast); }\r\n                }\r\n            ]);\r\n        }",
+        "function () {\n            _this.OR([\n                { ALT: function () { return _this.CONSUME(IntegerValue); } },\n                { ALT: function () { return _this.CONSUME(StringValue); } },\n                { ALT: function () { return _this.CONSUME(Null); } },\n                {\n                    ALT: function () {\n                        _this.CONSUME(LParen);\n                        _this.MANY_SEP({\n                            SEP: Comma,\n                            DEF: function () { return _this.SUBRULE(_this.expression); }\n                        });\n                        _this.CONSUME(RParen);\n                    }\n                },\n                {\n                    ALT: function () { return _this.SUBRULE(_this.columnPrimary); }\n                },\n                {\n                    ALT: function () {\n                        _this.CONSUME(FunctionIdentifier), _this.CONSUME1(LParen);\n                        _this.MANY_SEP1({\n                            SEP: Comma,\n                            DEF: function () { return _this.SUBRULE1(_this.expression); }\n                        });\n                        _this.CONSUME1(RParen);\n                    }\n                },\n                {\n                    ALT: function () { return _this.SUBRULE(_this.cast); }\n                }\n            ]);\n        }",
       definition: [
         {
           type: "Alternation",
@@ -301,7 +301,7 @@
       type: "Rule",
       name: "cast",
       orgText:
-        "function () {\r\n            _this.CONSUME(Cast);\r\n            _this.CONSUME(LParen);\r\n            _this.SUBRULE(_this.expression);\r\n            _this.CONSUME(As);\r\n            _this.SUBRULE(_this.type);\r\n            _this.OPTION(function () {\r\n                _this.CONSUME1(LParen);\r\n                _this.CONSUME(IntegerValue); // precision\r\n                _this.OPTION1(function () {\r\n                    _this.CONSUME(Comma);\r\n                    _this.CONSUME1(IntegerValue); // scale\r\n                });\r\n                _this.CONSUME1(RParen);\r\n            });\r\n            _this.CONSUME(RParen);\r\n        }",
+        "function () {\n            _this.CONSUME(Cast);\n            _this.CONSUME(LParen);\n            _this.SUBRULE(_this.expression);\n            _this.CONSUME(As);\n            _this.SUBRULE(_this.type);\n            _this.OPTION(function () {\n                _this.CONSUME1(LParen);\n                _this.CONSUME(IntegerValue); // precision\n                _this.OPTION1(function () {\n                    _this.CONSUME(Comma);\n                    _this.CONSUME1(IntegerValue); // scale\n                });\n                _this.CONSUME1(RParen);\n            });\n            _this.CONSUME(RParen);\n        }",
       definition: [
         {
           type: "Terminal",
@@ -394,7 +394,7 @@
       type: "Rule",
       name: "orderBy",
       orgText:
-        "function () {\r\n            _this.CONSUME(OrderBy);\r\n            _this.AT_LEAST_ONE_SEP({\r\n                SEP: Comma,\r\n                DEF: function () { return _this.SUBRULE(_this.orderItem); }\r\n            });\r\n        }",
+        "function () {\n            _this.CONSUME(OrderBy);\n            _this.AT_LEAST_ONE_SEP({\n                SEP: Comma,\n                DEF: function () { return _this.SUBRULE(_this.orderItem); }\n            });\n        }",
       definition: [
         {
           type: "Terminal",
@@ -427,7 +427,7 @@
       type: "Rule",
       name: "type",
       orgText:
-        "function () {\r\n            _this.OR([{ ALT: function () { return _this.CONSUME(SqlTypeName); } }]);\r\n            _this.OPTION(function () {\r\n                _this.MANY(function () {\r\n                    _this.CONSUME(CollectionTypeName);\r\n                });\r\n            });\r\n        }",
+        "function () {\n            _this.OR([{ ALT: function () { return _this.CONSUME(SqlTypeName); } }]);\n            _this.OPTION(function () {\n                _this.MANY(function () {\n                    _this.CONSUME(CollectionTypeName);\n                });\n            });\n        }",
       definition: [
         {
           type: "Alternation",
@@ -473,7 +473,7 @@
       type: "Rule",
       name: "valueExpression",
       orgText:
-        "function () {\r\n            _this.OR([\r\n                { ALT: function () { return _this.CONSUME(IntegerValue); } },\r\n                { ALT: function () { return _this.CONSUME(StringValue); } },\r\n                { ALT: function () { return _this.CONSUME(BooleanValue); } },\r\n                { ALT: function () { return _this.CONSUME(DateValue); } }\r\n            ]);\r\n        }",
+        "function () {\n            _this.OR([\n                { ALT: function () { return _this.CONSUME(IntegerValue); } },\n                { ALT: function () { return _this.CONSUME(StringValue); } },\n                { ALT: function () { return _this.CONSUME(BooleanValue); } },\n                { ALT: function () { return _this.CONSUME(DateValue); } }\n            ]);\n        }",
       definition: [
         {
           type: "Alternation",
@@ -537,7 +537,7 @@
       type: "Rule",
       name: "booleanExpression",
       orgText:
-        "function () {\r\n            _this.OR([\r\n                {\r\n                    ALT: function () {\r\n                        _this.CONSUME(LParen);\r\n                        _this.SUBRULE(_this.booleanExpression);\r\n                        _this.CONSUME(RParen);\r\n                    }\r\n                },\r\n                {\r\n                    ALT: function () { return _this.SUBRULE1(_this.booleanExpressionValue); }\r\n                }\r\n            ]);\r\n            _this.OPTION(function () {\r\n                _this.OR1([\r\n                    { ALT: function () { return _this.CONSUME(Or); } },\r\n                    { ALT: function () { return _this.CONSUME(And); } }\r\n                ]);\r\n                _this.SUBRULE2(_this.booleanExpression);\r\n            });\r\n        }",
+        "function () {\n            _this.OR([\n                {\n                    ALT: function () {\n                        _this.CONSUME(LParen);\n                        _this.SUBRULE(_this.booleanExpression);\n                        _this.CONSUME(RParen);\n                    }\n                },\n                {\n                    ALT: function () { return _this.SUBRULE1(_this.booleanExpressionValue); }\n                }\n            ]);\n            _this.OPTION(function () {\n                _this.OR1([\n                    { ALT: function () { return _this.CONSUME(Or); } },\n                    { ALT: function () { return _this.CONSUME(And); } }\n                ]);\n                _this.SUBRULE2(_this.booleanExpression);\n            });\n        }",
       definition: [
         {
           type: "Alternation",
@@ -626,7 +626,7 @@
       type: "Rule",
       name: "booleanExpressionValue",
       orgText:
-        "function () {\r\n            _this.SUBRULE(_this.columnPrimary);\r\n            _this.OR([\r\n                {\r\n                    ALT: function () {\r\n                        // Binary operation\r\n                        _this.CONSUME(BinaryOperator);\r\n                        _this.OR1([\r\n                            { ALT: function () { return _this.SUBRULE1(_this.valueExpression); } },\r\n                            { ALT: function () { return _this.SUBRULE2(_this.columnPrimary); } }\r\n                        ]);\r\n                    }\r\n                },\r\n                {\r\n                    ALT: function () {\r\n                        // Multival operation\r\n                        _this.CONSUME(MultivalOperator);\r\n                        _this.CONSUME1(LParen);\r\n                        _this.AT_LEAST_ONE_SEP({\r\n                            SEP: Comma,\r\n                            DEF: function () {\r\n                                _this.OR2([\r\n                                    { ALT: function () { return _this.SUBRULE3(_this.valueExpression); } },\r\n                                    { ALT: function () { return _this.SUBRULE4(_this.columnPrimary); } }\r\n                                ]);\r\n                            }\r\n                        });\r\n                        _this.CONSUME1(RParen);\r\n                    }\r\n                },\r\n                {\r\n                    ALT: function () {\r\n                        // Unary operation\r\n                        _this.OR3([\r\n                            { ALT: function () { return _this.CONSUME(IsNull); } },\r\n                            { ALT: function () { return _this.CONSUME(IsNotNull); } }\r\n                        ]);\r\n                    }\r\n                }\r\n            ]);\r\n        }",
+        "function () {\n            _this.SUBRULE(_this.columnPrimary);\n            _this.OR([\n                {\n                    ALT: function () {\n                        // Binary operation\n                        _this.CONSUME(BinaryOperator);\n                        _this.OR1([\n                            { ALT: function () { return _this.SUBRULE1(_this.valueExpression); } },\n                            { ALT: function () { return _this.SUBRULE2(_this.columnPrimary); } }\n                        ]);\n                    }\n                },\n                {\n                    ALT: function () {\n                        // Multival operation\n                        _this.CONSUME(MultivalOperator);\n                        _this.CONSUME1(LParen);\n                        _this.AT_LEAST_ONE_SEP({\n                            SEP: Comma,\n                            DEF: function () {\n                                _this.OR2([\n                                    { ALT: function () { return _this.SUBRULE3(_this.valueExpression); } },\n                                    { ALT: function () { return _this.SUBRULE4(_this.columnPrimary); } }\n                                ]);\n                            }\n                        });\n                        _this.CONSUME1(RParen);\n                    }\n                },\n                {\n                    ALT: function () {\n                        // Unary operation\n                        _this.OR3([\n                            { ALT: function () { return _this.CONSUME(IsNull); } },\n                            { ALT: function () { return _this.CONSUME(IsNotNull); } }\n                        ]);\n                    }\n                }\n            ]);\n        }",
       definition: [
         {
           type: "NonTerminal",
@@ -783,7 +783,7 @@
       type: "Rule",
       name: "orderItem",
       orgText:
-        "function () {\r\n            _this.SUBRULE(_this.expression);\r\n            _this.OPTION(function () {\r\n                _this.OR([\r\n                    { ALT: function () { return _this.CONSUME(Asc); } },\r\n                    { ALT: function () { return _this.CONSUME(Desc); } }\r\n                ]);\r\n            });\r\n            _this.OPTION1(function () {\r\n                _this.OR1([\r\n                    {\r\n                        ALT: function () {\r\n                            _this.CONSUME(Nulls);\r\n                            _this.CONSUME(First);\r\n                        }\r\n                    },\r\n                    {\r\n                        ALT: function () {\r\n                            _this.CONSUME1(Nulls);\r\n                            _this.CONSUME(Last);\r\n                        }\r\n                    }\r\n                ]);\r\n            });\r\n        }",
+        "function () {\n            _this.SUBRULE(_this.expression);\n            _this.OPTION(function () {\n                _this.OR([\n                    { ALT: function () { return _this.CONSUME(Asc); } },\n                    { ALT: function () { return _this.CONSUME(Desc); } }\n                ]);\n            });\n            _this.OPTION1(function () {\n                _this.OR1([\n                    {\n                        ALT: function () {\n                            _this.CONSUME(Nulls);\n                            _this.CONSUME(First);\n                        }\n                    },\n                    {\n                        ALT: function () {\n                            _this.CONSUME1(Nulls);\n                            _this.CONSUME(Last);\n                        }\n                    }\n                ]);\n            });\n        }",
       definition: [
         {
           type: "NonTerminal",
@@ -882,7 +882,7 @@
       type: "Rule",
       name: "select",
       orgText:
-        "function () {\r\n            _this.CONSUME(Select);\r\n            _this.OPTION(function () { return _this.CONSUME(Stream); });\r\n            _this.OPTION1(function () {\r\n                _this.OR([\r\n                    { ALT: function () { return _this.CONSUME(All); } },\r\n                    { ALT: function () { return _this.CONSUME(Distinct); } }\r\n                ]);\r\n            });\r\n            _this.SUBRULE(_this.projectionItems);\r\n            // Everything is wrap into `OPTION` to deal with selectWithoutFrom case\r\n            _this.OPTION3(function () {\r\n                _this.CONSUME(From);\r\n                _this.SUBRULE(_this.tableExpression);\r\n            });\r\n            _this.OPTION4(function () {\r\n                _this.SUBRULE(_this.where);\r\n            });\r\n            _this.OPTION5(function () {\r\n                _this.SUBRULE(_this.groupBy);\r\n            });\r\n        }",
+        "function () {\n            _this.CONSUME(Select);\n            _this.OPTION(function () { return _this.CONSUME(Stream); });\n            _this.OPTION1(function () {\n                _this.OR([\n                    { ALT: function () { return _this.CONSUME(All); } },\n                    { ALT: function () { return _this.CONSUME(Distinct); } }\n                ]);\n            });\n            _this.SUBRULE(_this.projectionItems);\n            // Everything is wrap into `OPTION` to deal with selectWithoutFrom case\n            _this.OPTION3(function () {\n                _this.CONSUME(From);\n                _this.SUBRULE(_this.tableExpression);\n            });\n            _this.OPTION4(function () {\n                _this.SUBRULE(_this.where);\n            });\n            _this.OPTION5(function () {\n                _this.SUBRULE(_this.groupBy);\n            });\n        }",
       definition: [
         {
           type: "Terminal",
@@ -991,7 +991,7 @@
       type: "Rule",
       name: "groupBy",
       orgText:
-        "function () {\r\n            _this.CONSUME(Group);\r\n            _this.CONSUME(By);\r\n            _this.AT_LEAST_ONE_SEP({\r\n                SEP: Comma,\r\n                DEF: function () { return _this.SUBRULE(_this.groupItem); }\r\n            });\r\n        }",
+        "function () {\n            _this.CONSUME(Group);\n            _this.CONSUME(By);\n            _this.AT_LEAST_ONE_SEP({\n                SEP: Comma,\n                DEF: function () { return _this.SUBRULE(_this.groupItem); }\n            });\n        }",
       definition: [
         {
           type: "Terminal",
@@ -1031,7 +1031,7 @@
       type: "Rule",
       name: "where",
       orgText:
-        "function () {\r\n            _this.CONSUME(Where);\r\n            _this.SUBRULE(_this.booleanExpression);\r\n        }",
+        "function () {\n            _this.CONSUME(Where);\n            _this.SUBRULE(_this.booleanExpression);\n        }",
       definition: [
         {
           type: "Terminal",
@@ -1051,7 +1051,7 @@
       type: "Rule",
       name: "projectionItems",
       orgText:
-        "function () {\r\n            _this.AT_LEAST_ONE_SEP({\r\n                SEP: Comma,\r\n                DEF: function () { return _this.SUBRULE(_this.projectionItem); }\r\n            });\r\n        }",
+        "function () {\n            _this.AT_LEAST_ONE_SEP({\n                SEP: Comma,\n                DEF: function () { return _this.SUBRULE(_this.projectionItem); }\n            });\n        }",
       definition: [
         {
           type: "RepetitionMandatoryWithSeparator",
@@ -1077,7 +1077,7 @@
       type: "Rule",
       name: "projectionItem",
       orgText:
-        "function () {\r\n            _this.OR([\r\n                {\r\n                    ALT: function () {\r\n                        _this.OPTION1(function () {\r\n                            _this.CONSUME1(Identifier);\r\n                            _this.CONSUME(Period);\r\n                        });\r\n                        _this.CONSUME(Asterisk);\r\n                    }\r\n                },\r\n                {\r\n                    ALT: function () {\r\n                        _this.SUBRULE(_this.expression);\r\n                        _this.OPTION(function () {\r\n                            _this.CONSUME(As);\r\n                            _this.CONSUME(Identifier);\r\n                        });\r\n                    }\r\n                }\r\n            ]);\r\n        }",
+        "function () {\n            _this.OR([\n                {\n                    ALT: function () {\n                        _this.OPTION1(function () {\n                            _this.CONSUME1(Identifier);\n                            _this.CONSUME(Period);\n                        });\n                        _this.CONSUME(Asterisk);\n                    }\n                },\n                {\n                    ALT: function () {\n                        _this.SUBRULE(_this.expression);\n                        _this.OPTION(function () {\n                            _this.CONSUME(As);\n                            _this.CONSUME(Identifier);\n                        });\n                    }\n                }\n            ]);\n        }",
       definition: [
         {
           type: "Alternation",
@@ -1153,7 +1153,7 @@
       type: "Rule",
       name: "tableExpression",
       orgText:
-        "function () {\r\n            // tableReference [, tableReference ]*\r\n            _this.MANY_SEP({\r\n                SEP: Comma,\r\n                DEF: function () { return _this.SUBRULE(_this.tableReference); }\r\n            });\r\n            _this.OPTION(function () {\r\n                _this.OR([\r\n                    {\r\n                        // [ NATURAL ] [ INNER | (( LEFT | RIGHT | FULL ) [ OUTER ]) ] JOIN tableExpression [ joinCondition ]\r\n                        ALT: function () {\r\n                            _this.OPTION1(function () { return _this.CONSUME(Natural); });\r\n                            _this.OPTION2(function () {\r\n                                _this.OR1([\r\n                                    {\r\n                                        ALT: function () {\r\n                                            _this.CONSUME(Inner);\r\n                                        }\r\n                                    },\r\n                                    {\r\n                                        ALT: function () {\r\n                                            _this.OR2([\r\n                                                { ALT: function () { return _this.CONSUME(Left); } },\r\n                                                { ALT: function () { return _this.CONSUME(Right); } },\r\n                                                { ALT: function () { return _this.CONSUME(Full); } }\r\n                                            ]);\r\n                                            _this.OPTION3(function () { return _this.CONSUME(Outer); });\r\n                                        }\r\n                                    }\r\n                                ]);\r\n                            });\r\n                            _this.CONSUME(Join);\r\n                            _this.SUBRULE1(_this.tableExpression);\r\n                            _this.OPTION4(function () { return _this.SUBRULE2(_this.joinCondition); });\r\n                        }\r\n                    },\r\n                    {\r\n                        // CROSS JOIN tableExpression\r\n                        ALT: function () {\r\n                            _this.CONSUME(Cross);\r\n                            _this.CONSUME2(Join);\r\n                            _this.SUBRULE2(_this.tableExpression);\r\n                        }\r\n                    },\r\n                    {\r\n                        // [ CROSS | OUTER ] APPLY tableExpression\r\n                        ALT: function () {\r\n                            _this.OR3([\r\n                                { ALT: function () { return _this.CONSUME1(Cross); } },\r\n                                { ALT: function () { return _this.CONSUME1(Outer); } }\r\n                            ]);\r\n                            _this.CONSUME(Apply);\r\n                            _this.SUBRULE3(_this.tableExpression);\r\n                        }\r\n                    }\r\n                ]);\r\n            });\r\n        }",
+        "function () {\n            // tableReference [, tableReference ]*\n            _this.MANY_SEP({\n                SEP: Comma,\n                DEF: function () { return _this.SUBRULE(_this.tableReference); }\n            });\n            _this.OPTION(function () {\n                _this.OR([\n                    {\n                        // [ NATURAL ] [ INNER | (( LEFT | RIGHT | FULL ) [ OUTER ]) ] JOIN tableExpression [ joinCondition ]\n                        ALT: function () {\n                            _this.OPTION1(function () { return _this.CONSUME(Natural); });\n                            _this.OPTION2(function () {\n                                _this.OR1([\n                                    {\n                                        ALT: function () {\n                                            _this.CONSUME(Inner);\n                                        }\n                                    },\n                                    {\n                                        ALT: function () {\n                                            _this.OR2([\n                                                { ALT: function () { return _this.CONSUME(Left); } },\n                                                { ALT: function () { return _this.CONSUME(Right); } },\n                                                { ALT: function () { return _this.CONSUME(Full); } }\n                                            ]);\n                                            _this.OPTION3(function () { return _this.CONSUME(Outer); });\n                                        }\n                                    }\n                                ]);\n                            });\n                            _this.CONSUME(Join);\n                            _this.SUBRULE1(_this.tableExpression);\n                            _this.OPTION4(function () { return _this.SUBRULE2(_this.joinCondition); });\n                        }\n                    },\n                    {\n                        // CROSS JOIN tableExpression\n                        ALT: function () {\n                            _this.CONSUME(Cross);\n                            _this.CONSUME2(Join);\n                            _this.SUBRULE2(_this.tableExpression);\n                        }\n                    },\n                    {\n                        // [ CROSS | OUTER ] APPLY tableExpression\n                        ALT: function () {\n                            _this.OR3([\n                                { ALT: function () { return _this.CONSUME1(Cross); } },\n                                { ALT: function () { return _this.CONSUME1(Outer); } }\n                            ]);\n                            _this.CONSUME(Apply);\n                            _this.SUBRULE3(_this.tableExpression);\n                        }\n                    }\n                ]);\n            });\n        }",
       definition: [
         {
           type: "RepetitionWithSeparator",
@@ -1387,7 +1387,7 @@
       type: "Rule",
       name: "joinCondition",
       orgText:
-        "function () {\r\n            _this.OR([\r\n                {\r\n                    ALT: function () {\r\n                        _this.CONSUME(On);\r\n                        _this.SUBRULE(_this.booleanExpression);\r\n                    }\r\n                },\r\n                {\r\n                    ALT: function () {\r\n                        _this.CONSUME(Using);\r\n                        _this.CONSUME(LParen);\r\n                        _this.SUBRULE(_this.projectionItems);\r\n                        _this.CONSUME(RParen);\r\n                    }\r\n                }\r\n            ]);\r\n        }",
+        "function () {\n            _this.OR([\n                {\n                    ALT: function () {\n                        _this.CONSUME(On);\n                        _this.SUBRULE(_this.booleanExpression);\n                    }\n                },\n                {\n                    ALT: function () {\n                        _this.CONSUME(Using);\n                        _this.CONSUME(LParen);\n                        _this.SUBRULE(_this.projectionItems);\n                        _this.CONSUME(RParen);\n                    }\n                }\n            ]);\n        }",
       definition: [
         {
           type: "Alternation",
@@ -1449,7 +1449,7 @@
       type: "Rule",
       name: "tableReference",
       orgText:
-        "function () {\r\n            _this.SUBRULE(_this.tablePrimary);\r\n            _this.OPTION(function () {\r\n                _this.CONSUME(As);\r\n                _this.CONSUME(Identifier); // alias\r\n                _this.OPTION1(function () {\r\n                    _this.CONSUME(LParen);\r\n                    _this.AT_LEAST_ONE_SEP({\r\n                        SEP: Comma,\r\n                        DEF: function () { return _this.CONSUME1(Identifier); } // columnAlias\r\n                    });\r\n                    _this.CONSUME(RParen);\r\n                });\r\n            });\r\n        }",
+        "function () {\n            _this.SUBRULE(_this.tablePrimary);\n            _this.OPTION(function () {\n                _this.CONSUME(As);\n                _this.CONSUME(Identifier); // alias\n                _this.OPTION1(function () {\n                    _this.CONSUME(LParen);\n                    _this.AT_LEAST_ONE_SEP({\n                        SEP: Comma,\n                        DEF: function () { return _this.CONSUME1(Identifier); } // columnAlias\n                    });\n                    _this.CONSUME(RParen);\n                });\n            });\n        }",
       definition: [
         {
           type: "NonTerminal",
@@ -1522,7 +1522,7 @@
       type: "Rule",
       name: "tablePrimary",
       orgText:
-        "function () {\r\n            _this.OR([\r\n                {\r\n                    ALT: function () {\r\n                        // CatalogName\r\n                        _this.OPTION(function () {\r\n                            _this.CONSUME1(Identifier);\r\n                            _this.CONSUME(Period);\r\n                        });\r\n                        // schemaName\r\n                        _this.OPTION1(function () {\r\n                            _this.CONSUME3(Identifier);\r\n                            _this.CONSUME2(Period);\r\n                        });\r\n                        // tableName\r\n                        _this.CONSUME4(Identifier);\r\n                    }\r\n                }\r\n            ]);\r\n        }",
+        "function () {\n            _this.OR([\n                {\n                    ALT: function () {\n                        // CatalogName\n                        _this.OPTION(function () {\n                            _this.CONSUME1(Identifier);\n                            _this.CONSUME(Period);\n                        });\n                        // schemaName\n                        _this.OPTION1(function () {\n                            _this.CONSUME3(Identifier);\n                            _this.CONSUME2(Period);\n                        });\n                        // tableName\n                        _this.CONSUME4(Identifier);\n                    }\n                }\n            ]);\n        }",
       definition: [
         {
           type: "Alternation",
@@ -1588,7 +1588,7 @@
       type: "Rule",
       name: "columnPrimary",
       orgText:
-        "function () {\r\n            // CatalogName\r\n            _this.OPTION(function () {\r\n                _this.CONSUME(Identifier);\r\n                _this.CONSUME(Period);\r\n            });\r\n            // schemaName\r\n            _this.OPTION1(function () {\r\n                _this.CONSUME1(Identifier);\r\n                _this.CONSUME1(Period);\r\n            });\r\n            // tableName\r\n            _this.OPTION2(function () {\r\n                _this.CONSUME2(Identifier);\r\n                _this.CONSUME2(Period);\r\n            });\r\n            // columnName\r\n            _this.CONSUME3(Identifier);\r\n        }",
+        "function () {\n            // CatalogName\n            _this.OPTION(function () {\n                _this.CONSUME(Identifier);\n                _this.CONSUME(Period);\n            });\n            // schemaName\n            _this.OPTION1(function () {\n                _this.CONSUME1(Identifier);\n                _this.CONSUME1(Period);\n            });\n            // tableName\n            _this.OPTION2(function () {\n                _this.CONSUME2(Identifier);\n                _this.CONSUME2(Period);\n            });\n            // columnName\n            _this.CONSUME3(Identifier);\n        }",
       definition: [
         {
           type: "Option",
@@ -1669,7 +1669,7 @@
       type: "Rule",
       name: "values",
       orgText:
-        "function () {\r\n            _this.CONSUME(Values);\r\n            _this.AT_LEAST_ONE_SEP({\r\n                SEP: Comma,\r\n                DEF: function () { return _this.SUBRULE(_this.expression); }\r\n            });\r\n        }",
+        "function () {\n            _this.CONSUME(Values);\n            _this.AT_LEAST_ONE_SEP({\n                SEP: Comma,\n                DEF: function () { return _this.SUBRULE(_this.expression); }\n            });\n        }",
       definition: [
         {
           type: "Terminal",
@@ -1702,7 +1702,7 @@
       type: "Rule",
       name: "groupItem",
       orgText:
-        "function () {\r\n            _this.OPTION(function () {\r\n                _this.OR1([\r\n                    { ALT: function () { return _this.CONSUME(Cube); } },\r\n                    { ALT: function () { return _this.CONSUME1(Rollup); } }\r\n                ]);\r\n            });\r\n            _this.OPTION1(function () {\r\n                _this.CONSUME2(LParen);\r\n            });\r\n            _this.MANY_SEP({\r\n                SEP: Comma,\r\n                DEF: function () { return _this.SUBRULE1(_this.expression); }\r\n            });\r\n            _this.OPTION2(function () {\r\n                _this.CONSUME3(RParen);\r\n            });\r\n            // TODO: Deal with `GROUPING SETS`\r\n        }",
+        "function () {\n            _this.OPTION(function () {\n                _this.OR1([\n                    { ALT: function () { return _this.CONSUME(Cube); } },\n                    { ALT: function () { return _this.CONSUME1(Rollup); } }\n                ]);\n            });\n            _this.OPTION1(function () {\n                _this.CONSUME2(LParen);\n            });\n            _this.MANY_SEP({\n                SEP: Comma,\n                DEF: function () { return _this.SUBRULE1(_this.expression); }\n            });\n            _this.OPTION2(function () {\n                _this.CONSUME3(RParen);\n            });\n            // TODO: Deal with `GROUPING SETS`\n        }",
       definition: [
         {
           type: "Option",
