@@ -29,7 +29,7 @@ export type QueryContext = (
       All?: IToken[];
     }
 ) & {
-  SemiColumn?: IToken[];
+  SemiColon?: IToken[];
 };
 
 export type ExpressionContext =

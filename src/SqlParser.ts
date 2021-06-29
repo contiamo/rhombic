@@ -244,8 +244,8 @@ const LSquare = createToken({ name: "LSquare", pattern: /\[/ });
 const RSquare = createToken({ name: "RSquare", pattern: /]/ });
 const LParen = createToken({ name: "LParen", pattern: /\(/ });
 const RParen = createToken({ name: "RParen", pattern: /\)/ });
-const Column = createToken({ name: "Column", pattern: /:/ });
-const SemiColumn = createToken({ name: "SemiColumn", pattern: /;/ });
+const Colon = createToken({ name: "Colon", pattern: /:/ });
+const SemiColon = createToken({ name: "SemiColon", pattern: /;/ });
 
 const BinaryOperator = createToken({
   name: "BinaryOperator",
@@ -346,8 +346,8 @@ const allTokens = [
   StringValue,
 
   Asterisk,
-  Column,
-  SemiColumn,
+  Colon,
+  SemiColon,
   LSquare,
   RSquare,
   LParen,
@@ -409,7 +409,7 @@ class SqlParser extends CstParser {
         }
       }
     ]);
-    this.OPTION2(() => this.CONSUME(SemiColumn));
+    this.OPTION2(() => this.CONSUME(SemiColon));
   });
 
   /**
