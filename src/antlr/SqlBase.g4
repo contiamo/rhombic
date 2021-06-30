@@ -21,18 +21,18 @@ grammar SqlBase;
    * When false, INTERSECT is given the greater precedence over the other set
    * operations (UNION, EXCEPT and MINUS) as per the SQL standard.
    */
-  public boolean legacy_setops_precedence_enabled = false;
+  // public boolean legacy_setops_precedence_enabled = false;
 
   /**
    * When false, a literal with an exponent would be converted into
    * double type rather than decimal type.
    */
-  public boolean legacy_exponent_literal_as_decimal_enabled = false;
+  // public boolean legacy_exponent_literal_as_decimal_enabled = false;
 
   /**
    * When true, the behavior of keywords follows ANSI SQL standard.
    */
-  public boolean SQL_standard_keyword_behavior = false;
+  // public boolean SQL_standard_keyword_behavior = false;
 }
 
 @lexer::members {
@@ -48,15 +48,15 @@ grammar SqlBase;
    * by a space. 34.E2 is a valid decimal token because it is followed by symbol '+'
    * which is not a digit or letter or underscore.
    */
-  public boolean isValidDecimal() {
-    int nextChar = _input.LA(1);
-    if (nextChar >= 'A' && nextChar <= 'Z' || nextChar >= '0' && nextChar <= '9' ||
-      nextChar == '_') {
-      return false;
-    } else {
-      return true;
-    }
-  }
+//   public boolean isValidDecimal() {
+//     int nextChar = _input.LA(1);
+//     if (nextChar >= 'A' && nextChar <= 'Z' || nextChar >= '0' && nextChar <= '9' ||
+//       nextChar == '_') {
+//       return false;
+//     } else {
+//       return true;
+//     }
+//   }
 
   /**
    * This method will be called when we see '/*' and try to match it as a bracketed comment.
@@ -65,14 +65,14 @@ grammar SqlBase;
    *
    * Returns true if the next character is '+'.
    */
-  public boolean isHint() {
-    int nextChar = _input.LA(1);
-    if (nextChar == '+') {
-      return true;
-    } else {
-      return false;
-    }
-  }
+//   public boolean isHint() {
+//     int nextChar = _input.LA(1);
+//     if (nextChar == '+') {
+//       return true;
+//     } else {
+//       return false;
+//     }
+//   }
 }
 
 singleStatement
@@ -745,7 +745,7 @@ tableIdentifier
     ;
 
 functionIdentifier
-    : (db=errorCapturingIdentifier '.')? function=errorCapturingIdentifier
+    : (db=errorCapturingIdentifier '.')? funcName=errorCapturingIdentifier
     ;
 
 namedExpression

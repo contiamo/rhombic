@@ -11,3 +11,9 @@ curl -O http://www.antlr.org/download/antlr-4.9.2-complete.jar
 ```
 alias antlr4='java -jar {directory_with_antlr}/antlr-4.9.2-complete.jar'
 ```
+
+- Generate lexer and parser:
+
+```
+antlr4 -Dlanguage=JavaScript SqlBase.g4
+```
