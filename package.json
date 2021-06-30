@@ -26,6 +26,7 @@
   "author": "Fabien Bernard <fabien@contiamo.com>",
   "license": "MIT",
   "dependencies": {
+    "antlr4": "^4.9.2",
     "chevrotain": "^4.8.1"
   },
   "devDependencies": {
