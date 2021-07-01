@@ -1258,15 +1258,16 @@ export class SqlBaseLexer extends Lexer {
    * by a space. 34.E2 is a valid decimal token because it is followed by symbol '+'
    * which is not a digit or letter or underscore.
    */
-  //   public boolean isValidDecimal() {
-  //     int nextChar = _input.LA(1);
-  //     if (nextChar >= 'A' && nextChar <= 'Z' || nextChar >= '0' && nextChar <= '9' ||
-  //       nextChar == '_') {
-  //       return false;
-  //     } else {
-  //       return true;
-  //     }
-  //   }
+  public isValidDecimal(): boolean {
+    return true;
+    //     int nextChar = _input.LA(1);
+    //     if (nextChar >= 'A' && nextChar <= 'Z' || nextChar >= '0' && nextChar <= '9' ||
+    //       nextChar == '_') {
+    //       return false;
+    //     } else {
+    //       return true;
+    //     }
+  }
 
   /**
    * This method will be called when we see '/*' and try to match it as a bracketed comment.
@@ -1275,14 +1276,15 @@ export class SqlBaseLexer extends Lexer {
    *
    * Returns true if the next character is '+'.
    */
-  //   public boolean isHint() {
-  //     int nextChar = _input.LA(1);
-  //     if (nextChar == '+') {
-  //       return true;
-  //     } else {
-  //       return false;
-  //     }
-  //   }
+  public isHint(): boolean {
+    return false;
+    //     int nextChar = _input.LA(1);
+    //     if (nextChar == '+') {
+    //       return true;
+    //     } else {
+    //       return false;
+    //     }
+  }
 
   constructor(input: CharStream) {
     super(input);
@@ -1347,7 +1349,7 @@ export class SqlBaseLexer extends Lexer {
   ): boolean {
     switch (predIndex) {
       case 0:
-        return isValidDecimal();
+        return this.isValidDecimal();
     }
     return true;
   }
@@ -1357,7 +1359,7 @@ export class SqlBaseLexer extends Lexer {
   ): boolean {
     switch (predIndex) {
       case 1:
-        return isValidDecimal();
+        return this.isValidDecimal();
     }
     return true;
   }
@@ -1367,7 +1369,7 @@ export class SqlBaseLexer extends Lexer {
   ): boolean {
     switch (predIndex) {
       case 2:
-        return isValidDecimal();
+        return this.isValidDecimal();
     }
     return true;
   }
@@ -1377,7 +1379,7 @@ export class SqlBaseLexer extends Lexer {
   ): boolean {
     switch (predIndex) {
       case 3:
-        return isValidDecimal();
+        return this.isValidDecimal();
     }
     return true;
   }
@@ -1387,7 +1389,7 @@ export class SqlBaseLexer extends Lexer {
   ): boolean {
     switch (predIndex) {
       case 4:
-        return isValidDecimal();
+        return this.isValidDecimal();
     }
     return true;
   }
@@ -1397,7 +1399,7 @@ export class SqlBaseLexer extends Lexer {
   ): boolean {
     switch (predIndex) {
       case 5:
-        return !isHint();
+        return !this.isHint();
     }
     return true;
   }

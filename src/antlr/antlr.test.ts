@@ -11,6 +11,6 @@ describe("antlr", () => {
     const parser = new SqlBaseParser(tokens);
     parser.buildParseTree = true;
     const tree = parser.statement();
-    expect(tree.toStringTree).toBe("");
+    expect(tree.toStringTree()).toBe("");
   });
 });

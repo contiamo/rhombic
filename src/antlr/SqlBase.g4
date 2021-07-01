@@ -21,18 +21,18 @@ grammar SqlBase;
    * When false, INTERSECT is given the greater precedence over the other set
    * operations (UNION, EXCEPT and MINUS) as per the SQL standard.
    */
-  // public boolean legacy_setops_precedence_enabled = false;
+  public legacy_setops_precedence_enabled: boolean = false;
 
   /**
    * When false, a literal with an exponent would be converted into
    * double type rather than decimal type.
    */
-  // public boolean legacy_exponent_literal_as_decimal_enabled = false;
+  public legacy_exponent_literal_as_decimal_enabled: boolean = false;
 
   /**
    * When true, the behavior of keywords follows ANSI SQL standard.
    */
-  // public boolean SQL_standard_keyword_behavior = false;
+  public SQL_standard_keyword_behavior: boolean = true;
 }
 
 @lexer::members {
@@ -48,7 +48,8 @@ grammar SqlBase;
    * by a space. 34.E2 is a valid decimal token because it is followed by symbol '+'
    * which is not a digit or letter or underscore.
    */
-//   public boolean isValidDecimal() {
+  public isValidDecimal(): boolean {
+      return true;
 //     int nextChar = _input.LA(1);
 //     if (nextChar >= 'A' && nextChar <= 'Z' || nextChar >= '0' && nextChar <= '9' ||
 //       nextChar == '_') {
@@ -56,7 +57,7 @@ grammar SqlBase;
 //     } else {
 //       return true;
 //     }
-//   }
+  }
 
   /**
    * This method will be called when we see '/*' and try to match it as a bracketed comment.
@@ -65,14 +66,15 @@ grammar SqlBase;
    *
    * Returns true if the next character is '+'.
    */
-//   public boolean isHint() {
+  public isHint(): boolean {
+      return false;
 //     int nextChar = _input.LA(1);
 //     if (nextChar == '+') {
 //       return true;
 //     } else {
 //       return false;
 //     }
-//   }
+  }
 }
 
 singleStatement
@@ -469,11 +471,11 @@ multiInsertQueryBody
 
 queryTerm
     : queryPrimary                                                                       #queryTermDefault
-    | left=queryTerm {legacy_setops_precedence_enabled}?
+    | left=queryTerm {this.legacy_setops_precedence_enabled}?
         operator=(INTERSECT | UNION | EXCEPT | SETMINUS) setQuantifier? right=queryTerm  #setOperation
-    | left=queryTerm {!legacy_setops_precedence_enabled}?
+    | left=queryTerm {!this.legacy_setops_precedence_enabled}?
         operator=INTERSECT setQuantifier? right=queryTerm                                #setOperation
-    | left=queryTerm {!legacy_setops_precedence_enabled}?
+    | left=queryTerm {!this.legacy_setops_precedence_enabled}?
         operator=(UNION | EXCEPT | SETMINUS) setQuantifier? right=queryTerm              #setOperation
     ;
 
@@ -958,10 +960,10 @@ windowSpec
     ;
 
 windowFrame
-    : frameType=RANGE start=frameBound
-    | frameType=ROWS start=frameBound
-    | frameType=RANGE BETWEEN start=frameBound AND end=frameBound
-    | frameType=ROWS BETWEEN start=frameBound AND end=frameBound
+    : frameType=RANGE startBound=frameBound
+    | frameType=ROWS startBound=frameBound
+    | frameType=RANGE BETWEEN startBound=frameBound AND endBound=frameBound
+    | frameType=ROWS BETWEEN startBound=frameBound AND endBound=frameBound
     ;
 
 frameBound
@@ -1000,14 +1002,14 @@ errorCapturingIdentifierExtra
 
 identifier
     : strictIdentifier
-    | {!SQL_standard_keyword_behavior}? strictNonReserved
+    | {!this.SQL_standard_keyword_behavior}? strictNonReserved
     ;
 
 strictIdentifier
     : IDENTIFIER              #unquotedIdentifier
     | quotedIdentifier        #quotedIdentifierAlternative
-    | {SQL_standard_keyword_behavior}? ansiNonReserved #unquotedIdentifier
-    | {!SQL_standard_keyword_behavior}? nonReserved    #unquotedIdentifier
+    | {this.SQL_standard_keyword_behavior}? ansiNonReserved #unquotedIdentifier
+    | {!this.SQL_standard_keyword_behavior}? nonReserved    #unquotedIdentifier
     ;
 
 quotedIdentifier
@@ -1015,9 +1017,9 @@ quotedIdentifier
     ;
 
 number
-    : {!legacy_exponent_literal_as_decimal_enabled}? MINUS? EXPONENT_VALUE #exponentLiteral
-    | {!legacy_exponent_literal_as_decimal_enabled}? MINUS? DECIMAL_VALUE  #decimalLiteral
-    | {legacy_exponent_literal_as_decimal_enabled}? MINUS? (EXPONENT_VALUE | DECIMAL_VALUE) #legacyDecimalLiteral
+    : {!this.legacy_exponent_literal_as_decimal_enabled}? MINUS? EXPONENT_VALUE #exponentLiteral
+    | {!this.legacy_exponent_literal_as_decimal_enabled}? MINUS? DECIMAL_VALUE  #decimalLiteral
+    | {this.legacy_exponent_literal_as_decimal_enabled}? MINUS? (EXPONENT_VALUE | DECIMAL_VALUE) #legacyDecimalLiteral
     | MINUS? INTEGER_VALUE            #integerLiteral
     | MINUS? BIGINT_LITERAL           #bigIntLiteral
     | MINUS? SMALLINT_LITERAL         #smallIntLiteral
@@ -1825,26 +1827,26 @@ INTEGER_VALUE
 
 EXPONENT_VALUE
     : DIGIT+ EXPONENT
-    | DECIMAL_DIGITS EXPONENT {isValidDecimal()}?
+    | DECIMAL_DIGITS EXPONENT {this.isValidDecimal()}?
     ;
 
 DECIMAL_VALUE
-    : DECIMAL_DIGITS {isValidDecimal()}?
+    : DECIMAL_DIGITS {this.isValidDecimal()}?
     ;
 
 FLOAT_LITERAL
     : DIGIT+ EXPONENT? 'F'
-    | DECIMAL_DIGITS EXPONENT? 'F' {isValidDecimal()}?
+    | DECIMAL_DIGITS EXPONENT? 'F' {this.isValidDecimal()}?
     ;
 
 DOUBLE_LITERAL
     : DIGIT+ EXPONENT? 'D'
-    | DECIMAL_DIGITS EXPONENT? 'D' {isValidDecimal()}?
+    | DECIMAL_DIGITS EXPONENT? 'D' {this.isValidDecimal()}?
     ;
 
 BIGDECIMAL_LITERAL
     : DIGIT+ EXPONENT? 'BD'
-    | DECIMAL_DIGITS EXPONENT? 'BD' {isValidDecimal()}?
+    | DECIMAL_DIGITS EXPONENT? 'BD' {this.isValidDecimal()}?
     ;
 
 IDENTIFIER
@@ -1877,7 +1879,7 @@ SIMPLE_COMMENT
     ;
 
 BRACKETED_COMMENT
-    : '/*' {!isHint()}? (BRACKETED_COMMENT|.)*? '*/' -> channel(HIDDEN)
+    : '/*' {!this.isHint()}? (BRACKETED_COMMENT|.)*? '*/' -> channel(HIDDEN)
     ;
 
 WS

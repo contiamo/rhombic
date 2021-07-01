@@ -1254,18 +1254,18 @@ export class SqlBaseParser extends Parser {
    * When false, INTERSECT is given the greater precedence over the other set
    * operations (UNION, EXCEPT and MINUS) as per the SQL standard.
    */
-  // public boolean legacy_setops_precedence_enabled = false;
+  public legacy_setops_precedence_enabled: boolean = false;
 
   /**
    * When false, a literal with an exponent would be converted into
    * double type rather than decimal type.
    */
-  // public boolean legacy_exponent_literal_as_decimal_enabled = false;
+  public legacy_exponent_literal_as_decimal_enabled: boolean = false;
 
   /**
    * When true, the behavior of keywords follows ANSI SQL standard.
    */
-  // public boolean SQL_standard_keyword_behavior = false;
+  public SQL_standard_keyword_behavior: boolean = true;
 
   constructor(input: TokenStream) {
     super(input);
@@ -7287,9 +7287,9 @@ export class SqlBaseParser extends Parser {
                       );
                     }
                     this.state = 1627;
-                    if (!legacy_setops_precedence_enabled) {
+                    if (!this.legacy_setops_precedence_enabled) {
                       throw this.createFailedPredicateException(
-                        "legacy_setops_precedence_enabled"
+                        "this.legacy_setops_precedence_enabled"
                       );
                     }
                     this.state = 1628;
@@ -7354,9 +7354,9 @@ export class SqlBaseParser extends Parser {
                       );
                     }
                     this.state = 1634;
-                    if (!!legacy_setops_precedence_enabled) {
+                    if (!!this.legacy_setops_precedence_enabled) {
                       throw this.createFailedPredicateException(
-                        "!legacy_setops_precedence_enabled"
+                        "!this.legacy_setops_precedence_enabled"
                       );
                     }
                     this.state = 1635;
@@ -7401,9 +7401,9 @@ export class SqlBaseParser extends Parser {
                       );
                     }
                     this.state = 1641;
-                    if (!!legacy_setops_precedence_enabled) {
+                    if (!!this.legacy_setops_precedence_enabled) {
                       throw this.createFailedPredicateException(
-                        "!legacy_setops_precedence_enabled"
+                        "!this.legacy_setops_precedence_enabled"
                       );
                     }
                     this.state = 1642;
@@ -14572,7 +14572,7 @@ export class SqlBaseParser extends Parser {
             this.state = 3005;
             _localctx._frameType = this.match(SqlBaseParser.RANGE);
             this.state = 3006;
-            _localctx._start = this.frameBound();
+            _localctx._startBound = this.frameBound();
           }
           break;
 
@@ -14582,7 +14582,7 @@ export class SqlBaseParser extends Parser {
             this.state = 3007;
             _localctx._frameType = this.match(SqlBaseParser.ROWS);
             this.state = 3008;
-            _localctx._start = this.frameBound();
+            _localctx._startBound = this.frameBound();
           }
           break;
 
@@ -14594,11 +14594,11 @@ export class SqlBaseParser extends Parser {
             this.state = 3010;
             this.match(SqlBaseParser.BETWEEN);
             this.state = 3011;
-            _localctx._start = this.frameBound();
+            _localctx._startBound = this.frameBound();
             this.state = 3012;
             this.match(SqlBaseParser.AND);
             this.state = 3013;
-            _localctx._end = this.frameBound();
+            _localctx._endBound = this.frameBound();
           }
           break;
 
@@ -14610,11 +14610,11 @@ export class SqlBaseParser extends Parser {
             this.state = 3016;
             this.match(SqlBaseParser.BETWEEN);
             this.state = 3017;
-            _localctx._start = this.frameBound();
+            _localctx._startBound = this.frameBound();
             this.state = 3018;
             this.match(SqlBaseParser.AND);
             this.state = 3019;
-            _localctx._end = this.frameBound();
+            _localctx._endBound = this.frameBound();
           }
           break;
       }
@@ -14983,9 +14983,9 @@ export class SqlBaseParser extends Parser {
           this.enterOuterAlt(_localctx, 2);
           {
             this.state = 3067;
-            if (!!SQL_standard_keyword_behavior) {
+            if (!!this.SQL_standard_keyword_behavior) {
               throw this.createFailedPredicateException(
-                "!SQL_standard_keyword_behavior"
+                "!this.SQL_standard_keyword_behavior"
               );
             }
             this.state = 3068;
@@ -15040,9 +15040,9 @@ export class SqlBaseParser extends Parser {
           this.enterOuterAlt(_localctx, 3);
           {
             this.state = 3073;
-            if (!SQL_standard_keyword_behavior) {
+            if (!this.SQL_standard_keyword_behavior) {
               throw this.createFailedPredicateException(
-                "SQL_standard_keyword_behavior"
+                "this.SQL_standard_keyword_behavior"
               );
             }
             this.state = 3074;
@@ -15055,9 +15055,9 @@ export class SqlBaseParser extends Parser {
           this.enterOuterAlt(_localctx, 4);
           {
             this.state = 3075;
-            if (!!SQL_standard_keyword_behavior) {
+            if (!!this.SQL_standard_keyword_behavior) {
               throw this.createFailedPredicateException(
-                "!SQL_standard_keyword_behavior"
+                "!this.SQL_standard_keyword_behavior"
               );
             }
             this.state = 3076;
@@ -15118,9 +15118,9 @@ export class SqlBaseParser extends Parser {
           this.enterOuterAlt(_localctx, 1);
           {
             this.state = 3081;
-            if (!!legacy_exponent_literal_as_decimal_enabled) {
+            if (!!this.legacy_exponent_literal_as_decimal_enabled) {
               throw this.createFailedPredicateException(
-                "!legacy_exponent_literal_as_decimal_enabled"
+                "!this.legacy_exponent_literal_as_decimal_enabled"
               );
             }
             this.state = 3083;
@@ -15143,9 +15143,9 @@ export class SqlBaseParser extends Parser {
           this.enterOuterAlt(_localctx, 2);
           {
             this.state = 3086;
-            if (!!legacy_exponent_literal_as_decimal_enabled) {
+            if (!!this.legacy_exponent_literal_as_decimal_enabled) {
               throw this.createFailedPredicateException(
-                "!legacy_exponent_literal_as_decimal_enabled"
+                "!this.legacy_exponent_literal_as_decimal_enabled"
               );
             }
             this.state = 3088;
@@ -15168,9 +15168,9 @@ export class SqlBaseParser extends Parser {
           this.enterOuterAlt(_localctx, 3);
           {
             this.state = 3091;
-            if (!legacy_exponent_literal_as_decimal_enabled) {
+            if (!this.legacy_exponent_literal_as_decimal_enabled) {
               throw this.createFailedPredicateException(
-                "legacy_exponent_literal_as_decimal_enabled"
+                "this.legacy_exponent_literal_as_decimal_enabled"
               );
             }
             this.state = 3093;
@@ -16101,19 +16101,19 @@ export class SqlBaseParser extends Parser {
         return this.precpred(this._ctx, 3);
 
       case 1:
-        return legacy_setops_precedence_enabled;
+        return this.legacy_setops_precedence_enabled;
 
       case 2:
         return this.precpred(this._ctx, 2);
 
       case 3:
-        return !legacy_setops_precedence_enabled;
+        return !this.legacy_setops_precedence_enabled;
 
       case 4:
         return this.precpred(this._ctx, 1);
 
       case 5:
-        return !legacy_setops_precedence_enabled;
+        return !this.legacy_setops_precedence_enabled;
     }
     return true;
   }
@@ -16174,7 +16174,7 @@ export class SqlBaseParser extends Parser {
   ): boolean {
     switch (predIndex) {
       case 16:
-        return !SQL_standard_keyword_behavior;
+        return !this.SQL_standard_keyword_behavior;
     }
     return true;
   }
@@ -16184,23 +16184,23 @@ export class SqlBaseParser extends Parser {
   ): boolean {
     switch (predIndex) {
       case 17:
-        return SQL_standard_keyword_behavior;
+        return this.SQL_standard_keyword_behavior;
 
       case 18:
-        return !SQL_standard_keyword_behavior;
+        return !this.SQL_standard_keyword_behavior;
     }
     return true;
   }
   private number_sempred(_localctx: NumberContext, predIndex: number): boolean {
     switch (predIndex) {
       case 19:
-        return !legacy_exponent_literal_as_decimal_enabled;
+        return !this.legacy_exponent_literal_as_decimal_enabled;
 
       case 20:
-        return !legacy_exponent_literal_as_decimal_enabled;
+        return !this.legacy_exponent_literal_as_decimal_enabled;
 
       case 21:
-        return legacy_exponent_literal_as_decimal_enabled;
+        return this.legacy_exponent_literal_as_decimal_enabled;
     }
     return true;
   }
@@ -29820,8 +29820,8 @@ export class WindowDefContext extends WindowSpecContext {
 
 export class WindowFrameContext extends ParserRuleContext {
   public _frameType!: Token;
-  public _start!: FrameBoundContext;
-  public _end!: FrameBoundContext;
+  public _startBound!: FrameBoundContext;
+  public _endBound!: FrameBoundContext;
   public RANGE(): TerminalNode | undefined {
     return this.tryGetToken(SqlBaseParser.RANGE, 0);
   }
