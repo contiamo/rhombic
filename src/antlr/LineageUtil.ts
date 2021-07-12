@@ -30,7 +30,7 @@ export function getLineage<
   let lineage = listener.lineage;
   let outerRel = listener.relationsStack.pop();
   if (outerRel) {
-    lineage.push(outerRel.toLineage());
+    lineage.push(outerRel.toLineage("[final result]"));
   }
   return lineage;
 }

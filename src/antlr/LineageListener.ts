@@ -5,6 +5,8 @@ import { Clause, LineageContext, Relation } from "./LineageContext";
 import { SqlBaseListener } from "./SqlBaseListener";
 import {
   AliasedQueryContext,
+  ColumnReferenceContext,
+  DereferenceContext,
   FromClauseContext,
   NamedExpressionContext,
   QueryContext,
@@ -24,10 +26,12 @@ export class LineageListener<
   relationsStack: Array<Relation<TableData, ColumnData>> = new Array();
   lineage: Lineage<TableData, ColumnData> = new Array();
 
-  // setting up phony lineage context, each query will open it's own
-  lineageContext: LineageContext<TableData, ColumnData> = new LineageContext(
-    undefined
-  );
+  lineageContext?: LineageContext<TableData, ColumnData>;
+
+  // valid only after initialization
+  get ctx(): LineageContext<TableData, ColumnData> {
+    return this.lineageContext!;
+  }
 
   constructor(getters: {
     getTable: (tableId: string) => TableData;
@@ -36,7 +40,7 @@ export class LineageListener<
     this.getters = getters;
   }
 
-  private nextRelationId(): string {
+  private get nextRelationId(): string {
     this.relationSeq++;
     return "result_" + this.relationSeq;
   }
@@ -47,20 +51,15 @@ export class LineageListener<
   }
 
   exitQuery(ctx: QueryContext): void {
-    this.lineage = this.lineage.concat(
-      this.lineageContext.getRelationsLineage()
-    );
+    this.lineage = this.lineage.concat(this.ctx.getRelationsLineage());
+
     // to be consumed later
     this.relationsStack.push(
-      this.lineageContext.toRelation(
-        this.nextRelationId(),
-        this.rangeFromContext(ctx)
-      )
+      this.ctx.toRelation(this.nextRelationId, this.rangeFromContext(ctx))
     );
-    this.lineageContext = this.lineageContext.parent!;
+
+    this.lineageContext = this.ctx.parent;
     console.log("Query exited: " + ctx.text);
-    // result of the query is relation
-    // need to build relation and pass it somehow to the parent
   }
 
   // enterFromClause(ctx: FromClauseContext): void {
@@ -72,24 +71,58 @@ export class LineageListener<
   //   this.lineageContext.currentClause = Clause.Other;
   // }
 
+  enterDereference(ctx: DereferenceContext): void {
+    if (!this.ctx.resolvedDereference) {
+      let primary = ctx.primaryExpression();
+      if (primary instanceof ColumnReferenceContext) {
+        let tableName = primary.identifier().text;
+        let colName = ctx.identifier().text;
+        let col = this.ctx.resolveColumn(colName, tableName);
+        if (col) {
+          this.ctx.resolvedDereference = ctx;
+          this.ctx.columnReferences.push(col);
+        }
+      }
+    }
+    // try to resolve reference
+    // if resolved - set dereference is resolved with this ctx
+    // add resolved id to the list
+  }
+
+  exitDereference(ctx: DereferenceContext): void {
+    // if saved dereference context is this one then unset saved dereference
+  }
+
+  exitColumnReference(ctx: ColumnReferenceContext): void {
+    // if !resolved - try to resolve column
+  }
+
   exitTableName(ctx: TableNameContext): void {
     let tableName = ctx.multipartIdentifier().text;
+    let tableData = this.getters.getTable(tableName);
     let columns = this.getters.getColumns(tableName).map(c => ({
       id: c.id,
       label: c.id,
       data: c
     }));
-
-    this.lineageContext.relations.set(
-      ctx.tableAlias().strictIdentifier()?.text ?? tableName,
-      new Relation(tableName, columns, this.rangeFromContext(ctx))
+    let alias = ctx.tableAlias().strictIdentifier()?.text ?? tableName;
+    this.ctx.relations.set(
+      alias,
+      new Relation(
+        this.nextRelationId,
+        columns,
+        this.ctx.level + 1,
+        this.rangeFromContext(ctx),
+        tableData,
+        tableName
+      )
     );
   }
 
   exitAliasedQuery(ctx: AliasedQueryContext): void {
     // expecting query relation to be in stack
     let relation = this.relationsStack.pop()!;
-    this.lineageContext.relations.set(
+    this.ctx.relations.set(
       ctx.tableAlias().strictIdentifier()?.text ?? relation.id,
       relation
     );
@@ -114,16 +147,31 @@ export class LineageListener<
     };
   }
 
+  enterNamedExpression(ctx: NamedExpressionContext): void {
+    // clear array to start accumulating new references
+    this.ctx.columnReferences.length = 0;
+  }
+
   exitNamedExpression(ctx: NamedExpressionContext): void {
     let columnId =
       ctx.errorCapturingIdentifier()?.identifier()?.text ??
-      this.lineageContext.getNextColumnId();
+      this.ctx.nextColumnId;
     let range = this.rangeFromContext(ctx);
     let column = {
       id: columnId,
       label: columnId,
       range: range
     };
-    this.lineageContext.columns.push(column);
+    this.ctx.columns.push(column);
+    for (let c of this.ctx.columnReferences) {
+      this.lineage.push({
+        type: "edge",
+        source: c,
+        target: {
+          tableId: "table_1", // TODO this.ctx.id
+          columnId: columnId
+        }
+      });
+    }
   }
 }
