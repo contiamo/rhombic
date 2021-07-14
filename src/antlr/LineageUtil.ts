@@ -1,11 +1,10 @@
 import { CharStreams, CommonTokenStream } from "antlr4ts";
 import { Lineage } from "../Lineage";
-import { LineageListener } from "./LineageListener";
+import { QueryVisitor } from "./QueryVisitor";
 import { SqlBaseLexer } from "./SqlBaseLexer";
 import { SqlBaseParser } from "./SqlBaseParser";
 import { UppercaseCharStream } from "./UppercaseCharStream";
-import { ParseTreeWalker } from "antlr4ts/tree/ParseTreeWalker";
-import { ParseTreeListener } from "antlr4ts/tree/ParseTreeListener";
+import { LineageContext } from "./LineageContext";
 
 export function getLineage<
   TableData extends { id: string },
@@ -24,13 +23,35 @@ export function getLineage<
   parser.buildParseTree = true;
   let tree = parser.statement();
 
-  const listener = new LineageListener<TableData, ColumnData>(getters);
-  // Use the entry point for listeners
-  ParseTreeWalker.DEFAULT.walk(listener as ParseTreeListener, tree);
-  let lineage = listener.lineage;
-  let outerRel = listener.relationsStack.pop();
+  let globals = new LineageContext(getters);
+  const visitor = new QueryVisitor<TableData, ColumnData>(globals);
+  let lineage = tree.accept(visitor);
+  let outerRel = globals.relationsStack.pop();
   if (outerRel) {
-    lineage.push(outerRel.toLineage("[final result]"));
+    lineage = visitor.aggregateResult(lineage, [
+      outerRel.toLineage("[final result]")
+    ]);
   }
-  return lineage;
+  if (lineage) {
+    let maxLevel = 0;
+    let tables: Lineage<TableData, ColumnData> = [];
+    let edges: Lineage<TableData, ColumnData> = [];
+    lineage.forEach(e => {
+      if (e.type == "table") {
+        if (e.level !== undefined && e.level > maxLevel) {
+          maxLevel = e.level;
+        }
+        tables.push(e);
+      } else {
+        edges.push(e);
+      }
+    });
+    tables.forEach(e => {
+      if (e.type == "table") e.level = maxLevel - e.level!;
+    });
+
+    return tables.concat(edges);
+  } else {
+    return [];
+  }
 }
