@@ -8,12 +8,16 @@ import {
   AliasedQueryContext,
   ColumnReferenceContext,
   DereferenceContext,
+  ExpressionContext,
   FromClauseContext,
   NamedExpressionContext,
+  PredicatedContext,
+  PrimaryExpressionContext,
   QueryContext,
   QuerySpecificationContext,
   RegularQuerySpecificationContext,
-  TableNameContext
+  TableNameContext,
+  ValueExpressionDefaultContext
 } from "./SqlBaseParser";
 import { LineageContext } from "./LineageContext";
 
@@ -119,6 +123,37 @@ export class QueryVisitor<
     return undefined;
   }
 
+  protected extractTableAndColumn(
+    ctx: PrimaryExpressionContext
+  ): { table?: string; column: string } | undefined {
+    if (ctx instanceof ColumnReferenceContext) {
+      return { column: ctx.identifier().text };
+    } else if (ctx instanceof DereferenceContext) {
+      let primary = ctx.primaryExpression();
+      if (primary instanceof ColumnReferenceContext) {
+        return {
+          table: primary.identifier().text,
+          column: ctx.identifier().text
+        };
+      }
+    }
+    return undefined;
+  }
+
+  protected deriveColumnName(ctx: ExpressionContext): string | undefined {
+    let boolExpr = ctx.booleanExpression();
+    if (boolExpr instanceof PredicatedContext) {
+      let valExpr = boolExpr.valueExpression();
+      if (valExpr instanceof ValueExpressionDefaultContext) {
+        let tableCol = this.extractTableAndColumn(valExpr.primaryExpression());
+        if (tableCol !== undefined) {
+          return tableCol.column;
+        }
+      }
+    }
+    return undefined;
+  }
+
   aggregateResult(
     aggregate: Lineage<TableData, ColumnData> | undefined,
     nextResult: Lineage<TableData, ColumnData> | undefined
@@ -203,7 +238,11 @@ export class QueryVisitor<
     let result = this.visitChildren(ctx);
 
     let columnId = this.nextColumnId;
-    let label = ctx.errorCapturingIdentifier()?.identifier()?.text ?? columnId;
+    let label =
+      ctx.errorCapturingIdentifier()?.identifier()?.text ??
+      this.deriveColumnName(ctx.expression()) ??
+      columnId;
+
     let range = this.rangeFromContext(ctx);
     let column = {
       id: columnId,
@@ -226,31 +265,30 @@ export class QueryVisitor<
     return this.aggregateResult(result, lineage);
   }
 
-  visitDereference(
-    ctx: DereferenceContext
-  ): Lineage<TableData, ColumnData> | undefined {
-    let primary = ctx.primaryExpression();
-    if (primary instanceof ColumnReferenceContext) {
-      let tableName = primary.identifier().text;
-      let colName = ctx.identifier().text;
-      let col = this.resolveColumn(colName, tableName);
-      if (col) {
-        this.columnReferences.push(col);
-        return undefined;
-      }
-    }
-
-    return this.visitChildren(ctx);
-  }
-
   visitColumnReference(
     ctx: ColumnReferenceContext
   ): Lineage<TableData, ColumnData> | undefined {
-    let colName = ctx.identifier().text;
-    let col = this.resolveColumn(colName);
-    if (col) {
-      this.columnReferences.push(col);
+    return this.visitPrimaryExpression(ctx);
+  }
+
+  visitDereference(
+    ctx: DereferenceContext
+  ): Lineage<TableData, ColumnData> | undefined {
+    return this.visitPrimaryExpression(ctx);
+  }
+
+  visitPrimaryExpression(
+    ctx: PrimaryExpressionContext
+  ): Lineage<TableData, ColumnData> | undefined {
+    let tableCol = this.extractTableAndColumn(ctx);
+    if (tableCol !== undefined) {
+      let col = this.resolveColumn(tableCol.column, tableCol.table);
+      if (col) {
+        this.columnReferences.push(col);
+      }
+      return undefined;
+    } else {
+      return this.visitChildren(ctx);
     }
-    return undefined;
   }
 }

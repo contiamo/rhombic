@@ -1,4 +1,4 @@
-// Generated from src/antlr/SqlBase.g4 by ANTLR 4.9.0-SNAPSHOT
+// Generated from ./SqlBase.g4 by ANTLR 4.9.0-SNAPSHOT
 
 import { ParseTreeVisitor } from "antlr4ts/tree/ParseTreeVisitor";
 
@@ -56,6 +56,7 @@ import { LambdaContext } from "./SqlBaseParser";
 import { SubscriptContext } from "./SqlBaseParser";
 import { ColumnReferenceContext } from "./SqlBaseParser";
 import { DereferenceContext } from "./SqlBaseParser";
+import { PostgresCastContext } from "./SqlBaseParser";
 import { ParenthesizedExpressionContext } from "./SqlBaseParser";
 import { ExtractContext } from "./SqlBaseParser";
 import { SubstringContext } from "./SqlBaseParser";
@@ -743,6 +744,14 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
    * @return the visitor result
    */
   visitDereference?: (ctx: DereferenceContext) => Result;
+
+  /**
+   * Visit a parse tree produced by the `postgresCast`
+   * labeled alternative in `SqlBaseParser.primaryExpression`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitPostgresCast?: (ctx: PostgresCastContext) => Result;
 
   /**
    * Visit a parse tree produced by the `parenthesizedExpression`

@@ -18,8 +18,10 @@ export function getLineage<
 ): Lineage<TableData, ColumnData> {
   let inputStream = new UppercaseCharStream(CharStreams.fromString(sql));
   let lexer = new SqlBaseLexer(inputStream);
+  lexer.doublequoted_identifier = true;
   let tokens = new CommonTokenStream(lexer);
   let parser = new SqlBaseParser(tokens);
+  parser.doublequoted_identifier = true;
   parser.buildParseTree = true;
   let tree = parser.statement();
 

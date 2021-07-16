@@ -17,6 +17,9 @@
 grammar SqlBase;
 
 @parser::members {
+  public backquoted_identifier = true;
+  public doublequoted_identifier = false;
+
   /**
    * When false, INTERSECT is given the greater precedence over the other set
    * operations (UNION, EXCEPT and MINUS) as per the SQL standard.
@@ -36,6 +39,8 @@ grammar SqlBase;
 }
 
 @lexer::members {
+  public doublequoted_identifier = false;
+  
   /**
    * Verify whether current token is a valid decimal token (which contains dot).
    * Returns true if the character that follows the token is not a digit or letter or underscore.
@@ -839,6 +844,7 @@ primaryExpression
     | value=primaryExpression '[' index=valueExpression ']'                                    #subscript
     | identifier                                                                               #columnReference
     | base=primaryExpression '.' fieldName=identifier                                          #dereference
+    | value=primaryExpression DOUBLE_COLON dataType                                            #postgresCast
     | '(' expression ')'                                                                       #parenthesizedExpression
     | EXTRACT '(' field=identifier FROM source=valueExpression ')'                             #extract
     | (SUBSTR | SUBSTRING) '(' str=valueExpression (FROM | ',') pos=valueExpression
@@ -1013,7 +1019,8 @@ strictIdentifier
     ;
 
 quotedIdentifier
-    : BACKQUOTED_IDENTIFIER
+    : {this.backquoted_identifier}? BACKQUOTED_IDENTIFIER
+    | {this.doublequoted_identifier}? DOUBLEQUOTED_IDENTIFIER
     ;
 
 number
@@ -1804,9 +1811,11 @@ PIPE: '|';
 CONCAT_PIPE: '||';
 HAT: '^';
 
+DOUBLE_COLON: '::';
+
 STRING
     : '\'' ( ~('\''|'\\') | ('\\' .) )* '\''
-    | '"' ( ~('"'|'\\') | ('\\' .) )* '"'
+    | '"' ( ~('"'|'\\') | ('\\' .) )* '"' {!this.doublequoted_identifier}?
     ;
 
 BIGINT_LITERAL
@@ -1855,6 +1864,10 @@ IDENTIFIER
 
 BACKQUOTED_IDENTIFIER
     : '`' ( ~'`' | '``' )* '`'
+    ;
+
+DOUBLEQUOTED_IDENTIFIER
+    : '"' ( ~'"' | '""' )* '"'
     ;
 
 fragment DECIMAL_DIGITS

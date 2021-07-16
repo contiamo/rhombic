@@ -1,4 +1,4 @@
-// Generated from src/antlr/SqlBase.g4 by ANTLR 4.9.0-SNAPSHOT
+// Generated from ./SqlBase.g4 by ANTLR 4.9.0-SNAPSHOT
 
 import { ParseTreeListener } from "antlr4ts/tree/ParseTreeListener";
 
@@ -56,6 +56,7 @@ import { LambdaContext } from "./SqlBaseParser";
 import { SubscriptContext } from "./SqlBaseParser";
 import { ColumnReferenceContext } from "./SqlBaseParser";
 import { DereferenceContext } from "./SqlBaseParser";
+import { PostgresCastContext } from "./SqlBaseParser";
 import { ParenthesizedExpressionContext } from "./SqlBaseParser";
 import { ExtractContext } from "./SqlBaseParser";
 import { SubstringContext } from "./SqlBaseParser";
@@ -1010,6 +1011,19 @@ export interface SqlBaseListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitDereference?: (ctx: DereferenceContext) => void;
+
+  /**
+   * Enter a parse tree produced by the `postgresCast`
+   * labeled alternative in `SqlBaseParser.primaryExpression`.
+   * @param ctx the parse tree
+   */
+  enterPostgresCast?: (ctx: PostgresCastContext) => void;
+  /**
+   * Exit a parse tree produced by the `postgresCast`
+   * labeled alternative in `SqlBaseParser.primaryExpression`.
+   * @param ctx the parse tree
+   */
+  exitPostgresCast?: (ctx: PostgresCastContext) => void;
 
   /**
    * Enter a parse tree produced by the `parenthesizedExpression`

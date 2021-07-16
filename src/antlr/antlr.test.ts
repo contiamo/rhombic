@@ -56,6 +56,11 @@ const getColumns = (tableId: string) => {
   }));
 };
 
+let metadataProvider = {
+  getTable: getTable,
+  getColumns: getColumns
+};
+
 describe("antlr", () => {
   it("should build parse tree", () => {
     const input = "select * from emp";
@@ -75,10 +80,30 @@ describe("antlr", () => {
       "select sq.account_id as account_id, e.employee_id as employee_id \n" +
       "from (select account_id as account_id, account_type as account_type from account as d) as sq, \n" +
       "   employee as e";
-    let metadataProvider = {
-      getTable: getTable,
-      getColumns: getColumns
-    };
+    console.log(
+      JSON.stringify(getLineage(sql, metadataProvider), undefined, 2)
+    );
+  });
+
+  it("should deduce column names", () => {
+    const sql =
+      "select sq.account_id, account_type \n" +
+      "from (select account_id, account.account_type from account) as sq, \n" +
+      "   employee as e";
+    console.log(
+      JSON.stringify(getLineage(sql, metadataProvider), undefined, 2)
+    );
+  });
+
+  it("should support PostgreSQL cast", () => {
+    const sql = "select account_id::varchar " + "from account";
+    console.log(
+      JSON.stringify(getLineage(sql, metadataProvider), undefined, 2)
+    );
+  });
+
+  it("should support double-quoted identifiers", () => {
+    const sql = 'select "account_id", 1 as "one "" " ' + "from account";
     console.log(
       JSON.stringify(getLineage(sql, metadataProvider), undefined, 2)
     );
