@@ -12,6 +12,12 @@ module.exports = {
       rules: {
         "@typescript-eslint/no-unused-vars": "off"
       }
+    },
+    {
+      files: ["src/antlr/SqlBaseParser.ts"],
+      rules: {
+        "no-empty": "off"
+      }
     }
   ]
 };
