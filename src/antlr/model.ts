@@ -55,3 +55,5 @@ export class Relation<TableData, ColumnData> {
 }
 
 export type ColumnRef = { tableId: string; columnId: string };
+
+export type QuotableIdentifier = { name: string; quoted: boolean };
