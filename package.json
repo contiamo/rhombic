@@ -14,7 +14,8 @@
     "build": "tsc",
     "gen": "ts-node src/scripts/generate.ts",
     "prepare": "npm run build",
-    "antlr4ts": "antlr4ts -visitor src/antlr/SqlBase.g4"
+    "antlr4ts": "antlr4ts -visitor src/antlr/SqlBase.g4",
+    "format": "eslint src/**/*.ts --fix && prettier **/*.{ts,json} --write"
   },
   "keywords": [
     "sql",
@@ -37,12 +38,16 @@
     "@types/jest": "^26.0.23",
     "@types/lodash": "^4.14.136",
     "@types/node": "^12.0.10",
+    "@typescript-eslint/eslint-plugin": "^4.28.3",
+    "@typescript-eslint/parser": "^4.28.3",
     "adr": "^1.1.2",
     "antlr4ts-cli": "^0.5.0-alpha.4",
     "case": "^1.6.2",
     "chalk": "^2.4.2",
     "chokidar": "^3.0.1",
     "commander": "^2.20.0",
+    "eslint": "^7.31.0",
+    "eslint-config-prettier": "^8.3.0",
     "husky": "^3.0.0",
     "jest": "^27.0.4",
     "lodash": "^4.17.21",
@@ -50,7 +55,7 @@
     "pretty-quick": "^1.11.1",
     "ts-jest": "^27.0.3",
     "ts-node": "^8.3.0",
-    "typescript": "^4.3.2"
+    "typescript": "^4.3.5"
   },
   "husky": {
     "hooks": {
@@ -58,7 +63,11 @@
     }
   },
   "prettier": {
-    "trailingComma": "none"
+    "semi": true,
+    "printWidth": 120,
+    "trailingComma": "none",
+    "arrowParens": "avoid",
+    "tabWidth": 2
   },
   "jest": {
     "preset": "ts-jest",

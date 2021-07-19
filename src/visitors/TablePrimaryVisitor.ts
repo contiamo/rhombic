@@ -14,7 +14,7 @@ export class TablePrimaryVisitor extends Visitor {
 
   private name: string;
 
-  constructor(name: string = "") {
+  constructor(name = "") {
     super();
     this.validateVisitor();
     this.name = name

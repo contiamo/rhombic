@@ -21,35 +21,30 @@ import {
 } from "./SqlBaseParser";
 import { LineageContext } from "./LineageContext";
 
-export class QueryVisitor<
-  TableData extends { id: string },
-  ColumnData extends { id: string }
-> extends AbstractParseTreeVisitor<Lineage<TableData, ColumnData> | undefined>
+export class QueryVisitor<TableData extends { id: string }, ColumnData extends { id: string }>
+  extends AbstractParseTreeVisitor<Lineage<TableData, ColumnData> | undefined>
   implements SqlBaseVisitor<Lineage<TableData, ColumnData> | undefined> {
   private id;
 
   private topQuery = true;
 
   // sequence generator for columns in this context
-  private columnIdSeq: number = 0;
+  private columnIdSeq = 0;
 
   // columns for this query extracted from SELECT
-  columns: Array<Column<ColumnData>> = new Array();
+  columns: Array<Column<ColumnData>> = [];
 
   // relations for this context extracted from FROM
   relations: Map<string, Relation<TableData, ColumnData>> = new Map();
 
-  columnReferences: Array<ColumnRef> = new Array();
+  columnReferences: Array<ColumnRef> = [];
 
   globals: LineageContext<TableData, ColumnData>;
 
   // parent reference, used for name resolution
   readonly parent?: QueryVisitor<TableData, ColumnData>;
 
-  constructor(
-    globals: LineageContext<TableData, ColumnData>,
-    parent?: QueryVisitor<TableData, ColumnData>
-  ) {
+  constructor(globals: LineageContext<TableData, ColumnData>, parent?: QueryVisitor<TableData, ColumnData>) {
     super();
     this.globals = globals;
     this.parent = parent;
@@ -57,13 +52,12 @@ export class QueryVisitor<
   }
 
   rangeFromContext(ctx: ParserRuleContext): Range {
-    let stop = ctx.stop ?? ctx.start;
+    const stop = ctx.stop ?? ctx.start;
     return {
       startLine: ctx.start.line,
       endLine: stop.line,
       startColumn: ctx.start.charPositionInLine,
-      endColumn:
-        stop.charPositionInLine + (stop.stopIndex - stop.startIndex + 1)
+      endColumn: stop.charPositionInLine + (stop.stopIndex - stop.startIndex + 1)
     };
   }
 
@@ -80,7 +74,7 @@ export class QueryVisitor<
   findRelation(tableName: string): Relation<TableData, ColumnData> | undefined {
     let cur: QueryVisitor<TableData, ColumnData> | undefined = this;
     while (cur != undefined) {
-      let table = cur.relations.get(tableName);
+      const table = cur.relations.get(tableName);
       if (table !== undefined) return table;
       cur = cur.parent;
     }
@@ -89,14 +83,14 @@ export class QueryVisitor<
 
   resolveColumn(columnName: string, tableName?: string): ColumnRef | undefined {
     if (tableName !== undefined) {
-      let table = this.findRelation(tableName);
-      let col = table?.columns.find(c => c.label == columnName);
+      const table = this.findRelation(tableName);
+      const col = table?.columns.find(c => c.label == columnName);
       if (table && col) {
         return { tableId: table.id, columnId: col.id };
       }
     } else {
-      for (let r of this.relations) {
-        let col = r[1].columns.find(c => c.label == columnName);
+      for (const r of this.relations) {
+        const col = r[1].columns.find(c => c.label == columnName);
         if (col) {
           return { tableId: r[1].id, columnId: col.id };
         }
@@ -106,12 +100,7 @@ export class QueryVisitor<
   }
 
   toRelation(range?: Range): Relation<TableData, ColumnData> {
-    return new Relation<TableData, ColumnData>(
-      this.id,
-      this.columns,
-      this.level,
-      range
-    );
+    return new Relation<TableData, ColumnData>(this.id, this.columns, this.level, range);
   }
 
   get nextColumnId(): string {
@@ -123,13 +112,11 @@ export class QueryVisitor<
     return undefined;
   }
 
-  protected extractTableAndColumn(
-    ctx: PrimaryExpressionContext
-  ): { table?: string; column: string } | undefined {
+  protected extractTableAndColumn(ctx: PrimaryExpressionContext): { table?: string; column: string } | undefined {
     if (ctx instanceof ColumnReferenceContext) {
       return { column: ctx.identifier().text };
     } else if (ctx instanceof DereferenceContext) {
-      let primary = ctx.primaryExpression();
+      const primary = ctx.primaryExpression();
       if (primary instanceof ColumnReferenceContext) {
         return {
           table: primary.identifier().text,
@@ -141,11 +128,11 @@ export class QueryVisitor<
   }
 
   protected deriveColumnName(ctx: ExpressionContext): string | undefined {
-    let boolExpr = ctx.booleanExpression();
+    const boolExpr = ctx.booleanExpression();
     if (boolExpr instanceof PredicatedContext) {
-      let valExpr = boolExpr.valueExpression();
+      const valExpr = boolExpr.valueExpression();
       if (valExpr instanceof ValueExpressionDefaultContext) {
-        let tableCol = this.extractTableAndColumn(valExpr.primaryExpression());
+        const tableCol = this.extractTableAndColumn(valExpr.primaryExpression());
         if (tableCol !== undefined) {
           return tableCol.column;
         }
@@ -168,24 +155,20 @@ export class QueryVisitor<
   visitQuery(ctx: QueryContext): Lineage<TableData, ColumnData> | undefined {
     if (this.topQuery) {
       this.topQuery = false;
-      let result = this.visitChildren(ctx);
+      const result = this.visitChildren(ctx);
 
       // to be consumed later
-      this.globals.relationsStack.push(
-        this.toRelation(this.rangeFromContext(ctx))
-      );
+      this.globals.relationsStack.push(this.toRelation(this.rangeFromContext(ctx)));
 
       return result;
     } else {
-      let visitor = new QueryVisitor(this.globals, this);
+      const visitor = new QueryVisitor(this.globals, this);
       return ctx.accept(visitor);
     }
   }
 
-  visitRegularQuerySpecification(
-    ctx: RegularQuerySpecificationContext
-  ): Lineage<TableData, ColumnData> | undefined {
-    var lineage = ctx.fromClause()?.accept(this);
+  visitRegularQuerySpecification(ctx: RegularQuerySpecificationContext): Lineage<TableData, ColumnData> | undefined {
+    let lineage = ctx.fromClause()?.accept(this);
     ctx.children?.forEach(c => {
       if (!(c instanceof FromClauseContext)) {
         lineage = this.aggregateResult(lineage, c.accept(this));
@@ -194,18 +177,16 @@ export class QueryVisitor<
     return lineage;
   }
 
-  visitTableName(
-    ctx: TableNameContext
-  ): Lineage<TableData, ColumnData> | undefined {
-    let tableName = ctx.multipartIdentifier().text;
-    let tableData = this.globals.getters.getTable(tableName);
-    let columns = this.globals.getters.getColumns(tableName).map(c => ({
+  visitTableName(ctx: TableNameContext): Lineage<TableData, ColumnData> | undefined {
+    const tableName = ctx.multipartIdentifier().text;
+    const tableData = this.globals.getters.getTable(tableName);
+    const columns = this.globals.getters.getColumns(tableName).map(c => ({
       id: c.id,
       label: c.id,
       data: c
     }));
-    let alias = ctx.tableAlias().strictIdentifier()?.text ?? tableName;
-    let relation = new Relation(
+    const alias = ctx.tableAlias().strictIdentifier()?.text ?? tableName;
+    const relation = new Relation(
       this.globals.nextRelationId,
       columns,
       this.level + 1,
@@ -218,40 +199,34 @@ export class QueryVisitor<
     return [relation.toLineage(alias)];
   }
 
-  visitAliasedQuery(
-    ctx: AliasedQueryContext
-  ): Lineage<TableData, ColumnData> | undefined {
-    let lineage = this.visitChildren(ctx);
+  visitAliasedQuery(ctx: AliasedQueryContext): Lineage<TableData, ColumnData> | undefined {
+    const lineage = this.visitChildren(ctx);
     // expecting query relation to be in stack
-    let relation = this.globals.relationsStack.pop()!;
-    let alias = ctx.tableAlias().strictIdentifier()?.text ?? relation.id;
+    const relation = this.globals.relationsStack.pop()!;
+    const alias = ctx.tableAlias().strictIdentifier()?.text ?? relation.id;
     this.relations.set(alias, relation);
     return this.aggregateResult(lineage, [relation.toLineage(alias)]);
   }
 
-  visitNamedExpression(
-    ctx: NamedExpressionContext
-  ): Lineage<TableData, ColumnData> | undefined {
+  visitNamedExpression(ctx: NamedExpressionContext): Lineage<TableData, ColumnData> | undefined {
     // clear array to start accumulating new references
     this.columnReferences.length = 0;
 
-    let result = this.visitChildren(ctx);
+    const result = this.visitChildren(ctx);
 
-    let columnId = this.nextColumnId;
-    let label =
-      ctx.errorCapturingIdentifier()?.identifier()?.text ??
-      this.deriveColumnName(ctx.expression()) ??
-      columnId;
+    const columnId = this.nextColumnId;
+    const label =
+      ctx.errorCapturingIdentifier()?.identifier()?.text ?? this.deriveColumnName(ctx.expression()) ?? columnId;
 
-    let range = this.rangeFromContext(ctx);
-    let column = {
+    const range = this.rangeFromContext(ctx);
+    const column = {
       id: columnId,
       label: label,
       range: range
     };
     this.columns.push(column);
-    let lineage = new Array();
-    for (let c of this.columnReferences) {
+    const lineage = [];
+    for (const c of this.columnReferences) {
       lineage.push({
         type: "edge",
         source: c,
@@ -265,24 +240,18 @@ export class QueryVisitor<
     return this.aggregateResult(result, lineage);
   }
 
-  visitColumnReference(
-    ctx: ColumnReferenceContext
-  ): Lineage<TableData, ColumnData> | undefined {
+  visitColumnReference(ctx: ColumnReferenceContext): Lineage<TableData, ColumnData> | undefined {
     return this.visitPrimaryExpression(ctx);
   }
 
-  visitDereference(
-    ctx: DereferenceContext
-  ): Lineage<TableData, ColumnData> | undefined {
+  visitDereference(ctx: DereferenceContext): Lineage<TableData, ColumnData> | undefined {
     return this.visitPrimaryExpression(ctx);
   }
 
-  visitPrimaryExpression(
-    ctx: PrimaryExpressionContext
-  ): Lineage<TableData, ColumnData> | undefined {
-    let tableCol = this.extractTableAndColumn(ctx);
+  visitPrimaryExpression(ctx: PrimaryExpressionContext): Lineage<TableData, ColumnData> | undefined {
+    const tableCol = this.extractTableAndColumn(ctx);
     if (tableCol !== undefined) {
-      let col = this.resolveColumn(tableCol.column, tableCol.table);
+      const col = this.resolveColumn(tableCol.column, tableCol.table);
       if (col) {
         this.columnReferences.push(col);
       }

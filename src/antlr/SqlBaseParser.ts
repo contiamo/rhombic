@@ -1248,10 +1248,7 @@ export class SqlBaseParser extends Parser {
     return SqlBaseParser._serializedATN;
   }
 
-  protected createFailedPredicateException(
-    predicate?: string,
-    message?: string
-  ): FailedPredicateException {
+  protected createFailedPredicateException(predicate?: string, message?: string): FailedPredicateException {
     return new FailedPredicateException(this, predicate, message);
   }
 
@@ -1262,18 +1259,18 @@ export class SqlBaseParser extends Parser {
    * When false, INTERSECT is given the greater precedence over the other set
    * operations (UNION, EXCEPT and MINUS) as per the SQL standard.
    */
-  public legacy_setops_precedence_enabled: boolean = false;
+  public legacy_setops_precedence_enabled = false;
 
   /**
    * When false, a literal with an exponent would be converted into
    * double type rather than decimal type.
    */
-  public legacy_exponent_literal_as_decimal_enabled: boolean = false;
+  public legacy_exponent_literal_as_decimal_enabled = false;
 
   /**
    * When true, the behavior of keywords follows ANSI SQL standard.
    */
-  public SQL_standard_keyword_behavior: boolean = true;
+  public SQL_standard_keyword_behavior = true;
 
   constructor(input: TokenStream) {
     super(input);
@@ -1281,10 +1278,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public singleStatement(): SingleStatementContext {
-    let _localctx: SingleStatementContext = new SingleStatementContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: SingleStatementContext = new SingleStatementContext(this._ctx, this.state);
     this.enterRule(_localctx, 0, SqlBaseParser.RULE_singleStatement);
     let _la: number;
     try {
@@ -1324,10 +1318,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public singleExpression(): SingleExpressionContext {
-    let _localctx: SingleExpressionContext = new SingleExpressionContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: SingleExpressionContext = new SingleExpressionContext(this._ctx, this.state);
     this.enterRule(_localctx, 2, SqlBaseParser.RULE_singleExpression);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -1352,10 +1343,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public singleTableIdentifier(): SingleTableIdentifierContext {
-    let _localctx: SingleTableIdentifierContext = new SingleTableIdentifierContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: SingleTableIdentifierContext = new SingleTableIdentifierContext(this._ctx, this.state);
     this.enterRule(_localctx, 4, SqlBaseParser.RULE_singleTableIdentifier);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -1380,10 +1368,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public singleMultipartIdentifier(): SingleMultipartIdentifierContext {
-    let _localctx: SingleMultipartIdentifierContext = new SingleMultipartIdentifierContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: SingleMultipartIdentifierContext = new SingleMultipartIdentifierContext(this._ctx, this.state);
     this.enterRule(_localctx, 6, SqlBaseParser.RULE_singleMultipartIdentifier);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -1408,10 +1393,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public singleFunctionIdentifier(): SingleFunctionIdentifierContext {
-    let _localctx: SingleFunctionIdentifierContext = new SingleFunctionIdentifierContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: SingleFunctionIdentifierContext = new SingleFunctionIdentifierContext(this._ctx, this.state);
     this.enterRule(_localctx, 8, SqlBaseParser.RULE_singleFunctionIdentifier);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -1436,10 +1418,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public singleDataType(): SingleDataTypeContext {
-    let _localctx: SingleDataTypeContext = new SingleDataTypeContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: SingleDataTypeContext = new SingleDataTypeContext(this._ctx, this.state);
     this.enterRule(_localctx, 10, SqlBaseParser.RULE_singleDataType);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -1464,10 +1443,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public singleTableSchema(): SingleTableSchemaContext {
-    let _localctx: SingleTableSchemaContext = new SingleTableSchemaContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: SingleTableSchemaContext = new SingleTableSchemaContext(this._ctx, this.state);
     this.enterRule(_localctx, 12, SqlBaseParser.RULE_singleTableSchema);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -1492,10 +1468,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public statement(): StatementContext {
-    let _localctx: StatementContext = new StatementContext(
-      this._ctx,
-      this.state
-    );
+    let _localctx: StatementContext = new StatementContext(this._ctx, this.state);
     this.enterRule(_localctx, 14, SqlBaseParser.RULE_statement);
     let _la: number;
     try {
@@ -1539,9 +1512,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.USE);
             this.state = 320;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 2, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 2, this._ctx)) {
               case 1:
                 {
                   this.state = 319;
@@ -1564,9 +1535,7 @@ export class SqlBaseParser extends Parser {
             this.namespace();
             this.state = 328;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 3, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 3, this._ctx)) {
               case 1:
                 {
                   this.state = 325;
@@ -1583,11 +1552,7 @@ export class SqlBaseParser extends Parser {
             this.state = 338;
             this._errHandler.sync(this);
             _la = this._input.LA(1);
-            while (
-              _la === SqlBaseParser.COMMENT ||
-              _la === SqlBaseParser.LOCATION ||
-              _la === SqlBaseParser.WITH
-            ) {
+            while (_la === SqlBaseParser.COMMENT || _la === SqlBaseParser.LOCATION || _la === SqlBaseParser.WITH) {
               {
                 this.state = 336;
                 this._errHandler.sync(this);
@@ -1611,12 +1576,7 @@ export class SqlBaseParser extends Parser {
                         this.match(SqlBaseParser.WITH);
                         this.state = 334;
                         _la = this._input.LA(1);
-                        if (
-                          !(
-                            _la === SqlBaseParser.DBPROPERTIES ||
-                            _la === SqlBaseParser.PROPERTIES
-                          )
-                        ) {
+                        if (!(_la === SqlBaseParser.DBPROPERTIES || _la === SqlBaseParser.PROPERTIES)) {
                           this._errHandler.recoverInline(this);
                         } else {
                           if (this._input.LA(1) === Token.EOF) {
@@ -1656,12 +1616,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.SET);
             this.state = 345;
             _la = this._input.LA(1);
-            if (
-              !(
-                _la === SqlBaseParser.DBPROPERTIES ||
-                _la === SqlBaseParser.PROPERTIES
-              )
-            ) {
+            if (!(_la === SqlBaseParser.DBPROPERTIES || _la === SqlBaseParser.PROPERTIES)) {
               this._errHandler.recoverInline(this);
             } else {
               if (this._input.LA(1) === Token.EOF) {
@@ -1703,9 +1658,7 @@ export class SqlBaseParser extends Parser {
             this.namespace();
             this.state = 358;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 6, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 6, this._ctx)) {
               case 1:
                 {
                   this.state = 356;
@@ -1720,19 +1673,11 @@ export class SqlBaseParser extends Parser {
             this.state = 362;
             this._errHandler.sync(this);
             _la = this._input.LA(1);
-            if (
-              _la === SqlBaseParser.CASCADE ||
-              _la === SqlBaseParser.RESTRICT
-            ) {
+            if (_la === SqlBaseParser.CASCADE || _la === SqlBaseParser.RESTRICT) {
               {
                 this.state = 361;
                 _la = this._input.LA(1);
-                if (
-                  !(
-                    _la === SqlBaseParser.CASCADE ||
-                    _la === SqlBaseParser.RESTRICT
-                  )
-                ) {
+                if (!(_la === SqlBaseParser.CASCADE || _la === SqlBaseParser.RESTRICT)) {
                   this._errHandler.recoverInline(this);
                 } else {
                   if (this._input.LA(1) === Token.EOF) {
@@ -1755,12 +1700,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.SHOW);
             this.state = 365;
             _la = this._input.LA(1);
-            if (
-              !(
-                _la === SqlBaseParser.DATABASES ||
-                _la === SqlBaseParser.NAMESPACES
-              )
-            ) {
+            if (!(_la === SqlBaseParser.DATABASES || _la === SqlBaseParser.NAMESPACES)) {
               this._errHandler.recoverInline(this);
             } else {
               if (this._input.LA(1) === Token.EOF) {
@@ -1808,9 +1748,7 @@ export class SqlBaseParser extends Parser {
                 }
 
                 this.state = 373;
-                (_localctx as ShowNamespacesContext)._pattern = this.match(
-                  SqlBaseParser.STRING
-                );
+                (_localctx as ShowNamespacesContext)._pattern = this.match(SqlBaseParser.STRING);
               }
             }
           }
@@ -1824,9 +1762,7 @@ export class SqlBaseParser extends Parser {
             this.createTableHeader();
             this.state = 381;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 11, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 11, this._ctx)) {
               case 1:
                 {
                   this.state = 377;
@@ -1892,9 +1828,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.TABLE);
             this.state = 398;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 15, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 15, this._ctx)) {
               case 1:
                 {
                   this.state = 395;
@@ -1982,9 +1916,7 @@ export class SqlBaseParser extends Parser {
             this.replaceTableHeader();
             this.state = 419;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 18, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 18, this._ctx)) {
               case 1:
                 {
                   this.state = 415;
@@ -2066,9 +1998,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.STATISTICS);
             this.state = 446;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 23, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 23, this._ctx)) {
               case 1:
                 {
                   this.state = 439;
@@ -2137,9 +2067,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.STATISTICS);
             this.state = 457;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 25, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 25, this._ctx)) {
               case 1:
                 {
                   this.state = 456;
@@ -2164,9 +2092,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.ADD);
             this.state = 463;
             _la = this._input.LA(1);
-            if (
-              !(_la === SqlBaseParser.COLUMN || _la === SqlBaseParser.COLUMNS)
-            ) {
+            if (!(_la === SqlBaseParser.COLUMN || _la === SqlBaseParser.COLUMNS)) {
               this._errHandler.recoverInline(this);
             } else {
               if (this._input.LA(1) === Token.EOF) {
@@ -2195,9 +2121,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.ADD);
             this.state = 470;
             _la = this._input.LA(1);
-            if (
-              !(_la === SqlBaseParser.COLUMN || _la === SqlBaseParser.COLUMNS)
-            ) {
+            if (!(_la === SqlBaseParser.COLUMN || _la === SqlBaseParser.COLUMNS)) {
               this._errHandler.recoverInline(this);
             } else {
               if (this._input.LA(1) === Token.EOF) {
@@ -2253,9 +2177,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.DROP);
             this.state = 488;
             _la = this._input.LA(1);
-            if (
-              !(_la === SqlBaseParser.COLUMN || _la === SqlBaseParser.COLUMNS)
-            ) {
+            if (!(_la === SqlBaseParser.COLUMN || _la === SqlBaseParser.COLUMNS)) {
               this._errHandler.recoverInline(this);
             } else {
               if (this._input.LA(1) === Token.EOF) {
@@ -2288,9 +2210,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.DROP);
             this.state = 497;
             _la = this._input.LA(1);
-            if (
-              !(_la === SqlBaseParser.COLUMN || _la === SqlBaseParser.COLUMNS)
-            ) {
+            if (!(_la === SqlBaseParser.COLUMN || _la === SqlBaseParser.COLUMNS)) {
               this._errHandler.recoverInline(this);
             } else {
               if (this._input.LA(1) === Token.EOF) {
@@ -2416,9 +2336,7 @@ export class SqlBaseParser extends Parser {
             (_localctx as AlterTableAlterColumnContext)._table = this.multipartIdentifier();
             this.state = 528;
             _la = this._input.LA(1);
-            if (
-              !(_la === SqlBaseParser.ALTER || _la === SqlBaseParser.CHANGE)
-            ) {
+            if (!(_la === SqlBaseParser.ALTER || _la === SqlBaseParser.CHANGE)) {
               this._errHandler.recoverInline(this);
             } else {
               if (this._input.LA(1) === Token.EOF) {
@@ -2430,9 +2348,7 @@ export class SqlBaseParser extends Parser {
             }
             this.state = 530;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 27, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 27, this._ctx)) {
               case 1:
                 {
                   this.state = 529;
@@ -2485,9 +2401,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.CHANGE);
             this.state = 544;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 30, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 30, this._ctx)) {
               case 1:
                 {
                   this.state = 543;
@@ -2807,9 +2721,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.TABLE);
             this.state = 647;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 42, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 42, this._ctx)) {
               case 1:
                 {
                   this.state = 645;
@@ -2843,9 +2755,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.VIEW);
             this.state = 657;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 44, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 44, this._ctx)) {
               case 1:
                 {
                   this.state = 655;
@@ -2881,10 +2791,7 @@ export class SqlBaseParser extends Parser {
             this.state = 669;
             this._errHandler.sync(this);
             _la = this._input.LA(1);
-            if (
-              _la === SqlBaseParser.GLOBAL ||
-              _la === SqlBaseParser.TEMPORARY
-            ) {
+            if (_la === SqlBaseParser.GLOBAL || _la === SqlBaseParser.TEMPORARY) {
               {
                 this.state = 666;
                 this._errHandler.sync(this);
@@ -2905,9 +2812,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.VIEW);
             this.state = 675;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 48, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 48, this._ctx)) {
               case 1:
                 {
                   this.state = 672;
@@ -3107,9 +3012,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.FUNCTION);
             this.state = 737;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 59, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 59, this._ctx)) {
               case 1:
                 {
                   this.state = 734;
@@ -3126,9 +3029,7 @@ export class SqlBaseParser extends Parser {
             this.state = 740;
             this.match(SqlBaseParser.AS);
             this.state = 741;
-            (_localctx as CreateFunctionContext)._className = this.match(
-              SqlBaseParser.STRING
-            );
+            (_localctx as CreateFunctionContext)._className = this.match(SqlBaseParser.STRING);
             this.state = 751;
             this._errHandler.sync(this);
             _la = this._input.LA(1);
@@ -3179,9 +3080,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.FUNCTION);
             this.state = 760;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 63, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 63, this._ctx)) {
               case 1:
                 {
                   this.state = 758;
@@ -3287,9 +3186,7 @@ export class SqlBaseParser extends Parser {
                 }
 
                 this.state = 777;
-                (_localctx as ShowTablesContext)._pattern = this.match(
-                  SqlBaseParser.STRING
-                );
+                (_localctx as ShowTablesContext)._pattern = this.match(SqlBaseParser.STRING);
               }
             }
           }
@@ -3330,9 +3227,7 @@ export class SqlBaseParser extends Parser {
             this.state = 787;
             this.match(SqlBaseParser.LIKE);
             this.state = 788;
-            (_localctx as ShowTableExtendedContext)._pattern = this.match(
-              SqlBaseParser.STRING
-            );
+            (_localctx as ShowTableExtendedContext)._pattern = this.match(SqlBaseParser.STRING);
             this.state = 790;
             this._errHandler.sync(this);
             _la = this._input.LA(1);
@@ -3463,9 +3358,7 @@ export class SqlBaseParser extends Parser {
                 }
 
                 this.state = 818;
-                (_localctx as ShowViewsContext)._pattern = this.match(
-                  SqlBaseParser.STRING
-                );
+                (_localctx as ShowViewsContext)._pattern = this.match(SqlBaseParser.STRING);
               }
             }
           }
@@ -3501,9 +3394,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.SHOW);
             this.state = 829;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 76, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 76, this._ctx)) {
               case 1:
                 {
                   this.state = 828;
@@ -3515,16 +3406,12 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.FUNCTIONS);
             this.state = 839;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 79, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 79, this._ctx)) {
               case 1:
                 {
                   this.state = 833;
                   this._errHandler.sync(this);
-                  switch (
-                    this.interpreter.adaptivePredict(this._input, 77, this._ctx)
-                  ) {
+                  switch (this.interpreter.adaptivePredict(this._input, 77, this._ctx)) {
                     case 1:
                       {
                         this.state = 832;
@@ -3534,9 +3421,7 @@ export class SqlBaseParser extends Parser {
                   }
                   this.state = 837;
                   this._errHandler.sync(this);
-                  switch (
-                    this.interpreter.adaptivePredict(this._input, 78, this._ctx)
-                  ) {
+                  switch (this.interpreter.adaptivePredict(this._input, 78, this._ctx)) {
                     case 1:
                       {
                         this.state = 835;
@@ -3547,9 +3432,7 @@ export class SqlBaseParser extends Parser {
                     case 2:
                       {
                         this.state = 836;
-                        (_localctx as ShowFunctionsContext)._pattern = this.match(
-                          SqlBaseParser.STRING
-                        );
+                        (_localctx as ShowFunctionsContext)._pattern = this.match(SqlBaseParser.STRING);
                       }
                       break;
                   }
@@ -3604,9 +3487,7 @@ export class SqlBaseParser extends Parser {
           {
             this.state = 852;
             _la = this._input.LA(1);
-            if (
-              !(_la === SqlBaseParser.DESC || _la === SqlBaseParser.DESCRIBE)
-            ) {
+            if (!(_la === SqlBaseParser.DESC || _la === SqlBaseParser.DESCRIBE)) {
               this._errHandler.recoverInline(this);
             } else {
               if (this._input.LA(1) === Token.EOF) {
@@ -3620,9 +3501,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.FUNCTION);
             this.state = 855;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 81, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 81, this._ctx)) {
               case 1:
                 {
                   this.state = 854;
@@ -3641,9 +3520,7 @@ export class SqlBaseParser extends Parser {
           {
             this.state = 858;
             _la = this._input.LA(1);
-            if (
-              !(_la === SqlBaseParser.DESC || _la === SqlBaseParser.DESCRIBE)
-            ) {
+            if (!(_la === SqlBaseParser.DESC || _la === SqlBaseParser.DESCRIBE)) {
               this._errHandler.recoverInline(this);
             } else {
               if (this._input.LA(1) === Token.EOF) {
@@ -3657,9 +3534,7 @@ export class SqlBaseParser extends Parser {
             this.namespace();
             this.state = 861;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 82, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 82, this._ctx)) {
               case 1:
                 {
                   this.state = 860;
@@ -3678,9 +3553,7 @@ export class SqlBaseParser extends Parser {
           {
             this.state = 865;
             _la = this._input.LA(1);
-            if (
-              !(_la === SqlBaseParser.DESC || _la === SqlBaseParser.DESCRIBE)
-            ) {
+            if (!(_la === SqlBaseParser.DESC || _la === SqlBaseParser.DESCRIBE)) {
               this._errHandler.recoverInline(this);
             } else {
               if (this._input.LA(1) === Token.EOF) {
@@ -3692,9 +3565,7 @@ export class SqlBaseParser extends Parser {
             }
             this.state = 867;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 83, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 83, this._ctx)) {
               case 1:
                 {
                   this.state = 866;
@@ -3704,25 +3575,14 @@ export class SqlBaseParser extends Parser {
             }
             this.state = 870;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 84, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 84, this._ctx)) {
               case 1:
                 {
                   this.state = 869;
-                  (_localctx as DescribeRelationContext)._option = this._input.LT(
-                    1
-                  );
+                  (_localctx as DescribeRelationContext)._option = this._input.LT(1);
                   _la = this._input.LA(1);
-                  if (
-                    !(
-                      _la === SqlBaseParser.EXTENDED ||
-                      _la === SqlBaseParser.FORMATTED
-                    )
-                  ) {
-                    (_localctx as DescribeRelationContext)._option = this._errHandler.recoverInline(
-                      this
-                    );
+                  if (!(_la === SqlBaseParser.EXTENDED || _la === SqlBaseParser.FORMATTED)) {
+                    (_localctx as DescribeRelationContext)._option = this._errHandler.recoverInline(this);
                   } else {
                     if (this._input.LA(1) === Token.EOF) {
                       this.matchedEOF = true;
@@ -3738,9 +3598,7 @@ export class SqlBaseParser extends Parser {
             this.multipartIdentifier();
             this.state = 874;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 85, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 85, this._ctx)) {
               case 1:
                 {
                   this.state = 873;
@@ -3750,9 +3608,7 @@ export class SqlBaseParser extends Parser {
             }
             this.state = 877;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 86, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 86, this._ctx)) {
               case 1:
                 {
                   this.state = 876;
@@ -3769,9 +3625,7 @@ export class SqlBaseParser extends Parser {
           {
             this.state = 879;
             _la = this._input.LA(1);
-            if (
-              !(_la === SqlBaseParser.DESC || _la === SqlBaseParser.DESCRIBE)
-            ) {
+            if (!(_la === SqlBaseParser.DESC || _la === SqlBaseParser.DESCRIBE)) {
               this._errHandler.recoverInline(this);
             } else {
               if (this._input.LA(1) === Token.EOF) {
@@ -3814,9 +3668,7 @@ export class SqlBaseParser extends Parser {
             (_localctx as CommentNamespaceContext)._comment = this._input.LT(1);
             _la = this._input.LA(1);
             if (!(_la === SqlBaseParser.NULL || _la === SqlBaseParser.STRING)) {
-              (_localctx as CommentNamespaceContext)._comment = this._errHandler.recoverInline(
-                this
-              );
+              (_localctx as CommentNamespaceContext)._comment = this._errHandler.recoverInline(this);
             } else {
               if (this._input.LA(1) === Token.EOF) {
                 this.matchedEOF = true;
@@ -3846,9 +3698,7 @@ export class SqlBaseParser extends Parser {
             (_localctx as CommentTableContext)._comment = this._input.LT(1);
             _la = this._input.LA(1);
             if (!(_la === SqlBaseParser.NULL || _la === SqlBaseParser.STRING)) {
-              (_localctx as CommentTableContext)._comment = this._errHandler.recoverInline(
-                this
-              );
+              (_localctx as CommentTableContext)._comment = this._errHandler.recoverInline(this);
             } else {
               if (this._input.LA(1) === Token.EOF) {
                 this.matchedEOF = true;
@@ -3894,9 +3744,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.REFRESH);
             this.state = 912;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 89, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 89, this._ctx)) {
               case 1:
                 {
                   this.state = 905;
@@ -3908,11 +3756,7 @@ export class SqlBaseParser extends Parser {
                 {
                   this.state = 909;
                   this._errHandler.sync(this);
-                  _alt = this.interpreter.adaptivePredict(
-                    this._input,
-                    88,
-                    this._ctx
-                  );
+                  _alt = this.interpreter.adaptivePredict(this._input, 88, this._ctx);
                   while (_alt !== 1 && _alt !== ATN.INVALID_ALT_NUMBER) {
                     if (_alt === 1 + 1) {
                       {
@@ -3924,11 +3768,7 @@ export class SqlBaseParser extends Parser {
                     }
                     this.state = 911;
                     this._errHandler.sync(this);
-                    _alt = this.interpreter.adaptivePredict(
-                      this._input,
-                      88,
-                      this._ctx
-                    );
+                    _alt = this.interpreter.adaptivePredict(this._input, 88, this._ctx);
                   }
                 }
                 break;
@@ -4010,9 +3850,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.TABLE);
             this.state = 934;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 94, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 94, this._ctx)) {
               case 1:
                 {
                   this.state = 932;
@@ -4059,9 +3897,7 @@ export class SqlBaseParser extends Parser {
             this.state = 944;
             this.match(SqlBaseParser.INPATH);
             this.state = 945;
-            (_localctx as LoadDataContext)._path = this.match(
-              SqlBaseParser.STRING
-            );
+            (_localctx as LoadDataContext)._path = this.match(SqlBaseParser.STRING);
             this.state = 947;
             this._errHandler.sync(this);
             _la = this._input.LA(1);
@@ -4127,25 +3963,13 @@ export class SqlBaseParser extends Parser {
             this.state = 967;
             this._errHandler.sync(this);
             _la = this._input.LA(1);
-            if (
-              _la === SqlBaseParser.ADD ||
-              _la === SqlBaseParser.DROP ||
-              _la === SqlBaseParser.SYNC
-            ) {
+            if (_la === SqlBaseParser.ADD || _la === SqlBaseParser.DROP || _la === SqlBaseParser.SYNC) {
               {
                 this.state = 965;
                 (_localctx as RepairTableContext)._option = this._input.LT(1);
                 _la = this._input.LA(1);
-                if (
-                  !(
-                    _la === SqlBaseParser.ADD ||
-                    _la === SqlBaseParser.DROP ||
-                    _la === SqlBaseParser.SYNC
-                  )
-                ) {
-                  (_localctx as RepairTableContext)._option = this._errHandler.recoverInline(
-                    this
-                  );
+                if (!(_la === SqlBaseParser.ADD || _la === SqlBaseParser.DROP || _la === SqlBaseParser.SYNC)) {
+                  (_localctx as RepairTableContext)._option = this._errHandler.recoverInline(this);
                 } else {
                   if (this._input.LA(1) === Token.EOF) {
                     this.matchedEOF = true;
@@ -4169,9 +3993,7 @@ export class SqlBaseParser extends Parser {
             (_localctx as ManageResourceContext)._op = this._input.LT(1);
             _la = this._input.LA(1);
             if (!(_la === SqlBaseParser.ADD || _la === SqlBaseParser.LIST)) {
-              (_localctx as ManageResourceContext)._op = this._errHandler.recoverInline(
-                this
-              );
+              (_localctx as ManageResourceContext)._op = this._errHandler.recoverInline(this);
             } else {
               if (this._input.LA(1) === Token.EOF) {
                 this.matchedEOF = true;
@@ -4184,11 +4006,7 @@ export class SqlBaseParser extends Parser {
             this.identifier();
             this.state = 974;
             this._errHandler.sync(this);
-            _alt = this.interpreter.adaptivePredict(
-              this._input,
-              100,
-              this._ctx
-            );
+            _alt = this.interpreter.adaptivePredict(this._input, 100, this._ctx);
             while (_alt !== 1 && _alt !== ATN.INVALID_ALT_NUMBER) {
               if (_alt === 1 + 1) {
                 {
@@ -4200,11 +4018,7 @@ export class SqlBaseParser extends Parser {
               }
               this.state = 976;
               this._errHandler.sync(this);
-              _alt = this.interpreter.adaptivePredict(
-                this._input,
-                100,
-                this._ctx
-              );
+              _alt = this.interpreter.adaptivePredict(this._input, 100, this._ctx);
             }
           }
           break;
@@ -4219,11 +4033,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.ROLE);
             this.state = 982;
             this._errHandler.sync(this);
-            _alt = this.interpreter.adaptivePredict(
-              this._input,
-              101,
-              this._ctx
-            );
+            _alt = this.interpreter.adaptivePredict(this._input, 101, this._ctx);
             while (_alt !== 1 && _alt !== ATN.INVALID_ALT_NUMBER) {
               if (_alt === 1 + 1) {
                 {
@@ -4235,11 +4045,7 @@ export class SqlBaseParser extends Parser {
               }
               this.state = 984;
               this._errHandler.sync(this);
-              _alt = this.interpreter.adaptivePredict(
-                this._input,
-                101,
-                this._ctx
-              );
+              _alt = this.interpreter.adaptivePredict(this._input, 101, this._ctx);
             }
           }
           break;
@@ -4272,12 +4078,8 @@ export class SqlBaseParser extends Parser {
             this.state = 992;
             (_localctx as SetTimeZoneContext)._timezone = this._input.LT(1);
             _la = this._input.LA(1);
-            if (
-              !(_la === SqlBaseParser.LOCAL || _la === SqlBaseParser.STRING)
-            ) {
-              (_localctx as SetTimeZoneContext)._timezone = this._errHandler.recoverInline(
-                this
-              );
+            if (!(_la === SqlBaseParser.LOCAL || _la === SqlBaseParser.STRING)) {
+              (_localctx as SetTimeZoneContext)._timezone = this._errHandler.recoverInline(this);
             } else {
               if (this._input.LA(1) === Token.EOF) {
                 this.matchedEOF = true;
@@ -4301,11 +4103,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.ZONE);
             this.state = 999;
             this._errHandler.sync(this);
-            _alt = this.interpreter.adaptivePredict(
-              this._input,
-              102,
-              this._ctx
-            );
+            _alt = this.interpreter.adaptivePredict(this._input, 102, this._ctx);
             while (_alt !== 1 && _alt !== ATN.INVALID_ALT_NUMBER) {
               if (_alt === 1 + 1) {
                 {
@@ -4317,11 +4115,7 @@ export class SqlBaseParser extends Parser {
               }
               this.state = 1001;
               this._errHandler.sync(this);
-              _alt = this.interpreter.adaptivePredict(
-                this._input,
-                102,
-                this._ctx
-              );
+              _alt = this.interpreter.adaptivePredict(this._input, 102, this._ctx);
             }
           }
           break;
@@ -4358,11 +4152,7 @@ export class SqlBaseParser extends Parser {
                 this.match(SqlBaseParser.EQ);
                 this.state = 1013;
                 this._errHandler.sync(this);
-                _alt = this.interpreter.adaptivePredict(
-                  this._input,
-                  103,
-                  this._ctx
-                );
+                _alt = this.interpreter.adaptivePredict(this._input, 103, this._ctx);
                 while (_alt !== 1 && _alt !== ATN.INVALID_ALT_NUMBER) {
                   if (_alt === 1 + 1) {
                     {
@@ -4374,11 +4164,7 @@ export class SqlBaseParser extends Parser {
                   }
                   this.state = 1015;
                   this._errHandler.sync(this);
-                  _alt = this.interpreter.adaptivePredict(
-                    this._input,
-                    103,
-                    this._ctx
-                  );
+                  _alt = this.interpreter.adaptivePredict(this._input, 103, this._ctx);
                 }
               }
             }
@@ -4393,11 +4179,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.SET);
             this.state = 1022;
             this._errHandler.sync(this);
-            _alt = this.interpreter.adaptivePredict(
-              this._input,
-              105,
-              this._ctx
-            );
+            _alt = this.interpreter.adaptivePredict(this._input, 105, this._ctx);
             while (_alt !== 1 && _alt !== ATN.INVALID_ALT_NUMBER) {
               if (_alt === 1 + 1) {
                 {
@@ -4409,11 +4191,7 @@ export class SqlBaseParser extends Parser {
               }
               this.state = 1024;
               this._errHandler.sync(this);
-              _alt = this.interpreter.adaptivePredict(
-                this._input,
-                105,
-                this._ctx
-              );
+              _alt = this.interpreter.adaptivePredict(this._input, 105, this._ctx);
             }
             this.state = 1025;
             this.match(SqlBaseParser.EQ);
@@ -4430,11 +4208,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.SET);
             this.state = 1031;
             this._errHandler.sync(this);
-            _alt = this.interpreter.adaptivePredict(
-              this._input,
-              106,
-              this._ctx
-            );
+            _alt = this.interpreter.adaptivePredict(this._input, 106, this._ctx);
             while (_alt !== 1 && _alt !== ATN.INVALID_ALT_NUMBER) {
               if (_alt === 1 + 1) {
                 {
@@ -4446,11 +4220,7 @@ export class SqlBaseParser extends Parser {
               }
               this.state = 1033;
               this._errHandler.sync(this);
-              _alt = this.interpreter.adaptivePredict(
-                this._input,
-                106,
-                this._ctx
-              );
+              _alt = this.interpreter.adaptivePredict(this._input, 106, this._ctx);
             }
           }
           break;
@@ -4474,11 +4244,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.RESET);
             this.state = 1040;
             this._errHandler.sync(this);
-            _alt = this.interpreter.adaptivePredict(
-              this._input,
-              107,
-              this._ctx
-            );
+            _alt = this.interpreter.adaptivePredict(this._input, 107, this._ctx);
             while (_alt !== 1 && _alt !== ATN.INVALID_ALT_NUMBER) {
               if (_alt === 1 + 1) {
                 {
@@ -4490,11 +4256,7 @@ export class SqlBaseParser extends Parser {
               }
               this.state = 1042;
               this._errHandler.sync(this);
-              _alt = this.interpreter.adaptivePredict(
-                this._input,
-                107,
-                this._ctx
-              );
+              _alt = this.interpreter.adaptivePredict(this._input, 107, this._ctx);
             }
           }
           break;
@@ -4507,11 +4269,7 @@ export class SqlBaseParser extends Parser {
             this.unsupportedHiveNativeCommands();
             this.state = 1047;
             this._errHandler.sync(this);
-            _alt = this.interpreter.adaptivePredict(
-              this._input,
-              108,
-              this._ctx
-            );
+            _alt = this.interpreter.adaptivePredict(this._input, 108, this._ctx);
             while (_alt !== 1 && _alt !== ATN.INVALID_ALT_NUMBER) {
               if (_alt === 1 + 1) {
                 {
@@ -4523,11 +4281,7 @@ export class SqlBaseParser extends Parser {
               }
               this.state = 1049;
               this._errHandler.sync(this);
-              _alt = this.interpreter.adaptivePredict(
-                this._input,
-                108,
-                this._ctx
-              );
+              _alt = this.interpreter.adaptivePredict(this._input, 108, this._ctx);
             }
           }
           break;
@@ -4547,10 +4301,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public configKey(): ConfigKeyContext {
-    let _localctx: ConfigKeyContext = new ConfigKeyContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: ConfigKeyContext = new ConfigKeyContext(this._ctx, this.state);
     this.enterRule(_localctx, 16, SqlBaseParser.RULE_configKey);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -4573,10 +4324,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public configValue(): ConfigValueContext {
-    let _localctx: ConfigValueContext = new ConfigValueContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: ConfigValueContext = new ConfigValueContext(this._ctx, this.state);
     this.enterRule(_localctx, 18, SqlBaseParser.RULE_configValue);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -4599,15 +4347,11 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public unsupportedHiveNativeCommands(): UnsupportedHiveNativeCommandsContext {
-    let _localctx: UnsupportedHiveNativeCommandsContext = new UnsupportedHiveNativeCommandsContext(
+    const _localctx: UnsupportedHiveNativeCommandsContext = new UnsupportedHiveNativeCommandsContext(
       this._ctx,
       this.state
     );
-    this.enterRule(
-      _localctx,
-      20,
-      SqlBaseParser.RULE_unsupportedHiveNativeCommands
-    );
+    this.enterRule(_localctx, 20, SqlBaseParser.RULE_unsupportedHiveNativeCommands);
     let _la: number;
     try {
       this.state = 1224;
@@ -4640,9 +4384,7 @@ export class SqlBaseParser extends Parser {
             _localctx._kw1 = this.match(SqlBaseParser.GRANT);
             this.state = 1062;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 110, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 110, this._ctx)) {
               case 1:
                 {
                   this.state = 1061;
@@ -4660,9 +4402,7 @@ export class SqlBaseParser extends Parser {
             _localctx._kw1 = this.match(SqlBaseParser.REVOKE);
             this.state = 1066;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 111, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 111, this._ctx)) {
               case 1:
                 {
                   this.state = 1065;
@@ -4692,9 +4432,7 @@ export class SqlBaseParser extends Parser {
             _localctx._kw2 = this.match(SqlBaseParser.ROLE);
             this.state = 1073;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 112, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 112, this._ctx)) {
               case 1:
                 {
                   this.state = 1072;
@@ -5232,10 +4970,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public createTableHeader(): CreateTableHeaderContext {
-    let _localctx: CreateTableHeaderContext = new CreateTableHeaderContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: CreateTableHeaderContext = new CreateTableHeaderContext(this._ctx, this.state);
     this.enterRule(_localctx, 22, SqlBaseParser.RULE_createTableHeader);
     let _la: number;
     try {
@@ -5297,10 +5032,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public replaceTableHeader(): ReplaceTableHeaderContext {
-    let _localctx: ReplaceTableHeaderContext = new ReplaceTableHeaderContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: ReplaceTableHeaderContext = new ReplaceTableHeaderContext(this._ctx, this.state);
     this.enterRule(_localctx, 24, SqlBaseParser.RULE_replaceTableHeader);
     let _la: number;
     try {
@@ -5340,10 +5072,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public bucketSpec(): BucketSpecContext {
-    let _localctx: BucketSpecContext = new BucketSpecContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: BucketSpecContext = new BucketSpecContext(this._ctx, this.state);
     this.enterRule(_localctx, 26, SqlBaseParser.RULE_bucketSpec);
     let _la: number;
     try {
@@ -5391,7 +5120,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public skewSpec(): SkewSpecContext {
-    let _localctx: SkewSpecContext = new SkewSpecContext(this._ctx, this.state);
+    const _localctx: SkewSpecContext = new SkewSpecContext(this._ctx, this.state);
     this.enterRule(_localctx, 28, SqlBaseParser.RULE_skewSpec);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -5451,10 +5180,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public locationSpec(): LocationSpecContext {
-    let _localctx: LocationSpecContext = new LocationSpecContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: LocationSpecContext = new LocationSpecContext(this._ctx, this.state);
     this.enterRule(_localctx, 30, SqlBaseParser.RULE_locationSpec);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -5479,10 +5205,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public commentSpec(): CommentSpecContext {
-    let _localctx: CommentSpecContext = new CommentSpecContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: CommentSpecContext = new CommentSpecContext(this._ctx, this.state);
     this.enterRule(_localctx, 32, SqlBaseParser.RULE_commentSpec);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -5507,7 +5230,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public query(): QueryContext {
-    let _localctx: QueryContext = new QueryContext(this._ctx, this.state);
+    const _localctx: QueryContext = new QueryContext(this._ctx, this.state);
     this.enterRule(_localctx, 34, SqlBaseParser.RULE_query);
     let _la: number;
     try {
@@ -5543,10 +5266,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public insertInto(): InsertIntoContext {
-    let _localctx: InsertIntoContext = new InsertIntoContext(
-      this._ctx,
-      this.state
-    );
+    let _localctx: InsertIntoContext = new InsertIntoContext(this._ctx, this.state);
     this.enterRule(_localctx, 36, SqlBaseParser.RULE_insertInto);
     let _la: number;
     try {
@@ -5563,9 +5283,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.OVERWRITE);
             this.state = 1289;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 126, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 126, this._ctx)) {
               case 1:
                 {
                   this.state = 1288;
@@ -5600,9 +5318,7 @@ export class SqlBaseParser extends Parser {
 
             this.state = 1301;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 129, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 129, this._ctx)) {
               case 1:
                 {
                   this.state = 1300;
@@ -5623,9 +5339,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.INTO);
             this.state = 1306;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 130, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 130, this._ctx)) {
               case 1:
                 {
                   this.state = 1305;
@@ -5661,9 +5375,7 @@ export class SqlBaseParser extends Parser {
 
             this.state = 1318;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 133, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 133, this._ctx)) {
               case 1:
                 {
                   this.state = 1317;
@@ -5695,9 +5407,7 @@ export class SqlBaseParser extends Parser {
             this.state = 1325;
             this.match(SqlBaseParser.DIRECTORY);
             this.state = 1326;
-            (_localctx as InsertOverwriteHiveDirContext)._path = this.match(
-              SqlBaseParser.STRING
-            );
+            (_localctx as InsertOverwriteHiveDirContext)._path = this.match(SqlBaseParser.STRING);
             this.state = 1328;
             this._errHandler.sync(this);
             _la = this._input.LA(1);
@@ -5746,9 +5456,7 @@ export class SqlBaseParser extends Parser {
             if (_la === SqlBaseParser.STRING) {
               {
                 this.state = 1339;
-                (_localctx as InsertOverwriteDirContext)._path = this.match(
-                  SqlBaseParser.STRING
-                );
+                (_localctx as InsertOverwriteDirContext)._path = this.match(SqlBaseParser.STRING);
               }
             }
 
@@ -5783,10 +5491,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public partitionSpecLocation(): PartitionSpecLocationContext {
-    let _localctx: PartitionSpecLocationContext = new PartitionSpecLocationContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: PartitionSpecLocationContext = new PartitionSpecLocationContext(this._ctx, this.state);
     this.enterRule(_localctx, 38, SqlBaseParser.RULE_partitionSpecLocation);
     let _la: number;
     try {
@@ -5819,10 +5524,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public partitionSpec(): PartitionSpecContext {
-    let _localctx: PartitionSpecContext = new PartitionSpecContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: PartitionSpecContext = new PartitionSpecContext(this._ctx, this.state);
     this.enterRule(_localctx, 40, SqlBaseParser.RULE_partitionSpec);
     let _la: number;
     try {
@@ -5868,10 +5570,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public partitionVal(): PartitionValContext {
-    let _localctx: PartitionValContext = new PartitionValContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: PartitionValContext = new PartitionValContext(this._ctx, this.state);
     this.enterRule(_localctx, 42, SqlBaseParser.RULE_partitionVal);
     let _la: number;
     try {
@@ -5906,10 +5605,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public namespace(): NamespaceContext {
-    let _localctx: NamespaceContext = new NamespaceContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: NamespaceContext = new NamespaceContext(this._ctx, this.state);
     this.enterRule(_localctx, 44, SqlBaseParser.RULE_namespace);
     let _la: number;
     try {
@@ -5917,13 +5613,7 @@ export class SqlBaseParser extends Parser {
       {
         this.state = 1370;
         _la = this._input.LA(1);
-        if (
-          !(
-            _la === SqlBaseParser.DATABASE ||
-            _la === SqlBaseParser.NAMESPACE ||
-            _la === SqlBaseParser.SCHEMA
-          )
-        ) {
+        if (!(_la === SqlBaseParser.DATABASE || _la === SqlBaseParser.NAMESPACE || _la === SqlBaseParser.SCHEMA)) {
           this._errHandler.recoverInline(this);
         } else {
           if (this._input.LA(1) === Token.EOF) {
@@ -5949,10 +5639,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public describeFuncName(): DescribeFuncNameContext {
-    let _localctx: DescribeFuncNameContext = new DescribeFuncNameContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: DescribeFuncNameContext = new DescribeFuncNameContext(this._ctx, this.state);
     this.enterRule(_localctx, 46, SqlBaseParser.RULE_describeFuncName);
     try {
       this.state = 1377;
@@ -6013,10 +5700,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public describeColName(): DescribeColNameContext {
-    let _localctx: DescribeColNameContext = new DescribeColNameContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: DescribeColNameContext = new DescribeColNameContext(this._ctx, this.state);
     this.enterRule(_localctx, 48, SqlBaseParser.RULE_describeColName);
     let _la: number;
     try {
@@ -6058,7 +5742,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public ctes(): CtesContext {
-    let _localctx: CtesContext = new CtesContext(this._ctx, this.state);
+    const _localctx: CtesContext = new CtesContext(this._ctx, this.state);
     this.enterRule(_localctx, 50, SqlBaseParser.RULE_ctes);
     let _la: number;
     try {
@@ -6100,10 +5784,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public namedQuery(): NamedQueryContext {
-    let _localctx: NamedQueryContext = new NamedQueryContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: NamedQueryContext = new NamedQueryContext(this._ctx, this.state);
     this.enterRule(_localctx, 52, SqlBaseParser.RULE_namedQuery);
     let _la: number;
     try {
@@ -6153,10 +5834,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public tableProvider(): TableProviderContext {
-    let _localctx: TableProviderContext = new TableProviderContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: TableProviderContext = new TableProviderContext(this._ctx, this.state);
     this.enterRule(_localctx, 54, SqlBaseParser.RULE_tableProvider);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -6181,10 +5859,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public createTableClauses(): CreateTableClausesContext {
-    let _localctx: CreateTableClausesContext = new CreateTableClausesContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: CreateTableClausesContext = new CreateTableClausesContext(this._ctx, this.state);
     this.enterRule(_localctx, 56, SqlBaseParser.RULE_createTableClauses);
     let _la: number;
     try {
@@ -6303,10 +5978,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public tablePropertyList(): TablePropertyListContext {
-    let _localctx: TablePropertyListContext = new TablePropertyListContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: TablePropertyListContext = new TablePropertyListContext(this._ctx, this.state);
     this.enterRule(_localctx, 58, SqlBaseParser.RULE_tablePropertyList);
     let _la: number;
     try {
@@ -6350,10 +6022,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public tableProperty(): TablePropertyContext {
-    let _localctx: TablePropertyContext = new TablePropertyContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: TablePropertyContext = new TablePropertyContext(this._ctx, this.state);
     this.enterRule(_localctx, 60, SqlBaseParser.RULE_tableProperty);
     let _la: number;
     try {
@@ -6406,10 +6075,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public tablePropertyKey(): TablePropertyKeyContext {
-    let _localctx: TablePropertyKeyContext = new TablePropertyKeyContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: TablePropertyKeyContext = new TablePropertyKeyContext(this._ctx, this.state);
     this.enterRule(_localctx, 62, SqlBaseParser.RULE_tablePropertyKey);
     let _la: number;
     try {
@@ -6463,10 +6129,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public tablePropertyValue(): TablePropertyValueContext {
-    let _localctx: TablePropertyValueContext = new TablePropertyValueContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: TablePropertyValueContext = new TablePropertyValueContext(this._ctx, this.state);
     this.enterRule(_localctx, 64, SqlBaseParser.RULE_tablePropertyValue);
     try {
       this.state = 1461;
@@ -6519,10 +6182,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public constantList(): ConstantListContext {
-    let _localctx: ConstantListContext = new ConstantListContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: ConstantListContext = new ConstantListContext(this._ctx, this.state);
     this.enterRule(_localctx, 66, SqlBaseParser.RULE_constantList);
     let _la: number;
     try {
@@ -6566,10 +6226,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public nestedConstantList(): NestedConstantListContext {
-    let _localctx: NestedConstantListContext = new NestedConstantListContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: NestedConstantListContext = new NestedConstantListContext(this._ctx, this.state);
     this.enterRule(_localctx, 68, SqlBaseParser.RULE_nestedConstantList);
     let _la: number;
     try {
@@ -6613,10 +6270,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public createFileFormat(): CreateFileFormatContext {
-    let _localctx: CreateFileFormatContext = new CreateFileFormatContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: CreateFileFormatContext = new CreateFileFormatContext(this._ctx, this.state);
     this.enterRule(_localctx, 70, SqlBaseParser.RULE_createFileFormat);
     try {
       this.state = 1491;
@@ -6661,10 +6315,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public fileFormat(): FileFormatContext {
-    let _localctx: FileFormatContext = new FileFormatContext(
-      this._ctx,
-      this.state
-    );
+    let _localctx: FileFormatContext = new FileFormatContext(this._ctx, this.state);
     this.enterRule(_localctx, 72, SqlBaseParser.RULE_fileFormat);
     try {
       this.state = 1498;
@@ -6677,15 +6328,11 @@ export class SqlBaseParser extends Parser {
             this.state = 1493;
             this.match(SqlBaseParser.INPUTFORMAT);
             this.state = 1494;
-            (_localctx as TableFileFormatContext)._inFmt = this.match(
-              SqlBaseParser.STRING
-            );
+            (_localctx as TableFileFormatContext)._inFmt = this.match(SqlBaseParser.STRING);
             this.state = 1495;
             this.match(SqlBaseParser.OUTPUTFORMAT);
             this.state = 1496;
-            (_localctx as TableFileFormatContext)._outFmt = this.match(
-              SqlBaseParser.STRING
-            );
+            (_localctx as TableFileFormatContext)._outFmt = this.match(SqlBaseParser.STRING);
           }
           break;
 
@@ -6713,10 +6360,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public storageHandler(): StorageHandlerContext {
-    let _localctx: StorageHandlerContext = new StorageHandlerContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: StorageHandlerContext = new StorageHandlerContext(this._ctx, this.state);
     this.enterRule(_localctx, 74, SqlBaseParser.RULE_storageHandler);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -6753,7 +6397,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public resource(): ResourceContext {
-    let _localctx: ResourceContext = new ResourceContext(this._ctx, this.state);
+    const _localctx: ResourceContext = new ResourceContext(this._ctx, this.state);
     this.enterRule(_localctx, 76, SqlBaseParser.RULE_resource);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -6778,10 +6422,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public dmlStatementNoWith(): DmlStatementNoWithContext {
-    let _localctx: DmlStatementNoWithContext = new DmlStatementNoWithContext(
-      this._ctx,
-      this.state
-    );
+    let _localctx: DmlStatementNoWithContext = new DmlStatementNoWithContext(this._ctx, this.state);
     this.enterRule(_localctx, 78, SqlBaseParser.RULE_dmlStatementNoWith);
     let _la: number;
     try {
@@ -6885,9 +6526,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.USING);
             this.state = 1543;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 165, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 165, this._ctx)) {
               case 1:
                 {
                   this.state = 1538;
@@ -6911,16 +6550,10 @@ export class SqlBaseParser extends Parser {
             this.state = 1546;
             this.match(SqlBaseParser.ON);
             this.state = 1547;
-            (_localctx as MergeIntoTableContext)._mergeCondition = this.booleanExpression(
-              0
-            );
+            (_localctx as MergeIntoTableContext)._mergeCondition = this.booleanExpression(0);
             this.state = 1551;
             this._errHandler.sync(this);
-            _alt = this.interpreter.adaptivePredict(
-              this._input,
-              166,
-              this._ctx
-            );
+            _alt = this.interpreter.adaptivePredict(this._input, 166, this._ctx);
             while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
               if (_alt === 1) {
                 {
@@ -6932,11 +6565,7 @@ export class SqlBaseParser extends Parser {
               }
               this.state = 1553;
               this._errHandler.sync(this);
-              _alt = this.interpreter.adaptivePredict(
-                this._input,
-                166,
-                this._ctx
-              );
+              _alt = this.interpreter.adaptivePredict(this._input, 166, this._ctx);
             }
             this.state = 1557;
             this._errHandler.sync(this);
@@ -6972,10 +6601,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public queryOrganization(): QueryOrganizationContext {
-    let _localctx: QueryOrganizationContext = new QueryOrganizationContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: QueryOrganizationContext = new QueryOrganizationContext(this._ctx, this.state);
     this.enterRule(_localctx, 80, SqlBaseParser.RULE_queryOrganization);
     try {
       let _alt: number;
@@ -6995,11 +6621,7 @@ export class SqlBaseParser extends Parser {
               _localctx._order.push(_localctx._sortItem);
               this.state = 1569;
               this._errHandler.sync(this);
-              _alt = this.interpreter.adaptivePredict(
-                this._input,
-                169,
-                this._ctx
-              );
+              _alt = this.interpreter.adaptivePredict(this._input, 169, this._ctx);
               while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
                 if (_alt === 1) {
                   {
@@ -7014,11 +6636,7 @@ export class SqlBaseParser extends Parser {
                 }
                 this.state = 1571;
                 this._errHandler.sync(this);
-                _alt = this.interpreter.adaptivePredict(
-                  this._input,
-                  169,
-                  this._ctx
-                );
+                _alt = this.interpreter.adaptivePredict(this._input, 169, this._ctx);
               }
             }
             break;
@@ -7037,11 +6655,7 @@ export class SqlBaseParser extends Parser {
               _localctx._clusterBy.push(_localctx._expression);
               this.state = 1581;
               this._errHandler.sync(this);
-              _alt = this.interpreter.adaptivePredict(
-                this._input,
-                171,
-                this._ctx
-              );
+              _alt = this.interpreter.adaptivePredict(this._input, 171, this._ctx);
               while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
                 if (_alt === 1) {
                   {
@@ -7056,11 +6670,7 @@ export class SqlBaseParser extends Parser {
                 }
                 this.state = 1583;
                 this._errHandler.sync(this);
-                _alt = this.interpreter.adaptivePredict(
-                  this._input,
-                  171,
-                  this._ctx
-                );
+                _alt = this.interpreter.adaptivePredict(this._input, 171, this._ctx);
               }
             }
             break;
@@ -7079,11 +6689,7 @@ export class SqlBaseParser extends Parser {
               _localctx._distributeBy.push(_localctx._expression);
               this.state = 1593;
               this._errHandler.sync(this);
-              _alt = this.interpreter.adaptivePredict(
-                this._input,
-                173,
-                this._ctx
-              );
+              _alt = this.interpreter.adaptivePredict(this._input, 173, this._ctx);
               while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
                 if (_alt === 1) {
                   {
@@ -7098,11 +6704,7 @@ export class SqlBaseParser extends Parser {
                 }
                 this.state = 1595;
                 this._errHandler.sync(this);
-                _alt = this.interpreter.adaptivePredict(
-                  this._input,
-                  173,
-                  this._ctx
-                );
+                _alt = this.interpreter.adaptivePredict(this._input, 173, this._ctx);
               }
             }
             break;
@@ -7121,11 +6723,7 @@ export class SqlBaseParser extends Parser {
               _localctx._sort.push(_localctx._sortItem);
               this.state = 1605;
               this._errHandler.sync(this);
-              _alt = this.interpreter.adaptivePredict(
-                this._input,
-                175,
-                this._ctx
-              );
+              _alt = this.interpreter.adaptivePredict(this._input, 175, this._ctx);
               while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
                 if (_alt === 1) {
                   {
@@ -7140,11 +6738,7 @@ export class SqlBaseParser extends Parser {
                 }
                 this.state = 1607;
                 this._errHandler.sync(this);
-                _alt = this.interpreter.adaptivePredict(
-                  this._input,
-                  175,
-                  this._ctx
-                );
+                _alt = this.interpreter.adaptivePredict(this._input, 175, this._ctx);
               }
             }
             break;
@@ -7168,9 +6762,7 @@ export class SqlBaseParser extends Parser {
               this.match(SqlBaseParser.LIMIT);
               this.state = 1616;
               this._errHandler.sync(this);
-              switch (
-                this.interpreter.adaptivePredict(this._input, 178, this._ctx)
-              ) {
+              switch (this.interpreter.adaptivePredict(this._input, 178, this._ctx)) {
                 case 1:
                   {
                     this.state = 1614;
@@ -7204,10 +6796,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public multiInsertQueryBody(): MultiInsertQueryBodyContext {
-    let _localctx: MultiInsertQueryBodyContext = new MultiInsertQueryBodyContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: MultiInsertQueryBodyContext = new MultiInsertQueryBodyContext(this._ctx, this.state);
     this.enterRule(_localctx, 82, SqlBaseParser.RULE_multiInsertQueryBody);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -7239,14 +6828,11 @@ export class SqlBaseParser extends Parser {
       _p = 0;
     }
 
-    let _parentctx: ParserRuleContext = this._ctx;
-    let _parentState: number = this.state;
-    let _localctx: QueryTermContext = new QueryTermContext(
-      this._ctx,
-      _parentState
-    );
+    const _parentctx: ParserRuleContext = this._ctx;
+    const _parentState: number = this.state;
+    let _localctx: QueryTermContext = new QueryTermContext(this._ctx, _parentState);
     let _prevctx: QueryTermContext = _localctx;
-    let _startState: number = 84;
+    const _startState = 84;
     this.enterRecursionRule(_localctx, 84, SqlBaseParser.RULE_queryTerm, _p);
     let _la: number;
     try {
@@ -7274,36 +6860,22 @@ export class SqlBaseParser extends Parser {
             {
               this.state = 1647;
               this._errHandler.sync(this);
-              switch (
-                this.interpreter.adaptivePredict(this._input, 183, this._ctx)
-              ) {
+              switch (this.interpreter.adaptivePredict(this._input, 183, this._ctx)) {
                 case 1:
                   {
-                    _localctx = new SetOperationContext(
-                      new QueryTermContext(_parentctx, _parentState)
-                    );
+                    _localctx = new SetOperationContext(new QueryTermContext(_parentctx, _parentState));
                     (_localctx as SetOperationContext)._left = _prevctx;
-                    this.pushNewRecursionContext(
-                      _localctx,
-                      _startState,
-                      SqlBaseParser.RULE_queryTerm
-                    );
+                    this.pushNewRecursionContext(_localctx, _startState, SqlBaseParser.RULE_queryTerm);
                     this.state = 1626;
                     if (!this.precpred(this._ctx, 3)) {
-                      throw this.createFailedPredicateException(
-                        "this.precpred(this._ctx, 3)"
-                      );
+                      throw this.createFailedPredicateException("this.precpred(this._ctx, 3)");
                     }
                     this.state = 1627;
                     if (!this.legacy_setops_precedence_enabled) {
-                      throw this.createFailedPredicateException(
-                        "this.legacy_setops_precedence_enabled"
-                      );
+                      throw this.createFailedPredicateException("this.legacy_setops_precedence_enabled");
                     }
                     this.state = 1628;
-                    (_localctx as SetOperationContext)._operator = this._input.LT(
-                      1
-                    );
+                    (_localctx as SetOperationContext)._operator = this._input.LT(1);
                     _la = this._input.LA(1);
                     if (
                       !(
@@ -7313,9 +6885,7 @@ export class SqlBaseParser extends Parser {
                         _la === SqlBaseParser.UNION
                       )
                     ) {
-                      (_localctx as SetOperationContext)._operator = this._errHandler.recoverInline(
-                        this
-                      );
+                      (_localctx as SetOperationContext)._operator = this._errHandler.recoverInline(this);
                     } else {
                       if (this._input.LA(1) === Token.EOF) {
                         this.matchedEOF = true;
@@ -7327,10 +6897,7 @@ export class SqlBaseParser extends Parser {
                     this.state = 1630;
                     this._errHandler.sync(this);
                     _la = this._input.LA(1);
-                    if (
-                      _la === SqlBaseParser.ALL ||
-                      _la === SqlBaseParser.DISTINCT
-                    ) {
+                    if (_la === SqlBaseParser.ALL || _la === SqlBaseParser.DISTINCT) {
                       {
                         this.state = 1629;
                         this.setQuantifier();
@@ -7338,46 +6905,29 @@ export class SqlBaseParser extends Parser {
                     }
 
                     this.state = 1632;
-                    (_localctx as SetOperationContext)._right = this.queryTerm(
-                      4
-                    );
+                    (_localctx as SetOperationContext)._right = this.queryTerm(4);
                   }
                   break;
 
                 case 2:
                   {
-                    _localctx = new SetOperationContext(
-                      new QueryTermContext(_parentctx, _parentState)
-                    );
+                    _localctx = new SetOperationContext(new QueryTermContext(_parentctx, _parentState));
                     (_localctx as SetOperationContext)._left = _prevctx;
-                    this.pushNewRecursionContext(
-                      _localctx,
-                      _startState,
-                      SqlBaseParser.RULE_queryTerm
-                    );
+                    this.pushNewRecursionContext(_localctx, _startState, SqlBaseParser.RULE_queryTerm);
                     this.state = 1633;
                     if (!this.precpred(this._ctx, 2)) {
-                      throw this.createFailedPredicateException(
-                        "this.precpred(this._ctx, 2)"
-                      );
+                      throw this.createFailedPredicateException("this.precpred(this._ctx, 2)");
                     }
                     this.state = 1634;
-                    if (!!this.legacy_setops_precedence_enabled) {
-                      throw this.createFailedPredicateException(
-                        "!this.legacy_setops_precedence_enabled"
-                      );
+                    if (this.legacy_setops_precedence_enabled) {
+                      throw this.createFailedPredicateException("!this.legacy_setops_precedence_enabled");
                     }
                     this.state = 1635;
-                    (_localctx as SetOperationContext)._operator = this.match(
-                      SqlBaseParser.INTERSECT
-                    );
+                    (_localctx as SetOperationContext)._operator = this.match(SqlBaseParser.INTERSECT);
                     this.state = 1637;
                     this._errHandler.sync(this);
                     _la = this._input.LA(1);
-                    if (
-                      _la === SqlBaseParser.ALL ||
-                      _la === SqlBaseParser.DISTINCT
-                    ) {
+                    if (_la === SqlBaseParser.ALL || _la === SqlBaseParser.DISTINCT) {
                       {
                         this.state = 1636;
                         this.setQuantifier();
@@ -7385,50 +6935,30 @@ export class SqlBaseParser extends Parser {
                     }
 
                     this.state = 1639;
-                    (_localctx as SetOperationContext)._right = this.queryTerm(
-                      3
-                    );
+                    (_localctx as SetOperationContext)._right = this.queryTerm(3);
                   }
                   break;
 
                 case 3:
                   {
-                    _localctx = new SetOperationContext(
-                      new QueryTermContext(_parentctx, _parentState)
-                    );
+                    _localctx = new SetOperationContext(new QueryTermContext(_parentctx, _parentState));
                     (_localctx as SetOperationContext)._left = _prevctx;
-                    this.pushNewRecursionContext(
-                      _localctx,
-                      _startState,
-                      SqlBaseParser.RULE_queryTerm
-                    );
+                    this.pushNewRecursionContext(_localctx, _startState, SqlBaseParser.RULE_queryTerm);
                     this.state = 1640;
                     if (!this.precpred(this._ctx, 1)) {
-                      throw this.createFailedPredicateException(
-                        "this.precpred(this._ctx, 1)"
-                      );
+                      throw this.createFailedPredicateException("this.precpred(this._ctx, 1)");
                     }
                     this.state = 1641;
-                    if (!!this.legacy_setops_precedence_enabled) {
-                      throw this.createFailedPredicateException(
-                        "!this.legacy_setops_precedence_enabled"
-                      );
+                    if (this.legacy_setops_precedence_enabled) {
+                      throw this.createFailedPredicateException("!this.legacy_setops_precedence_enabled");
                     }
                     this.state = 1642;
-                    (_localctx as SetOperationContext)._operator = this._input.LT(
-                      1
-                    );
+                    (_localctx as SetOperationContext)._operator = this._input.LT(1);
                     _la = this._input.LA(1);
                     if (
-                      !(
-                        _la === SqlBaseParser.EXCEPT ||
-                        _la === SqlBaseParser.SETMINUS ||
-                        _la === SqlBaseParser.UNION
-                      )
+                      !(_la === SqlBaseParser.EXCEPT || _la === SqlBaseParser.SETMINUS || _la === SqlBaseParser.UNION)
                     ) {
-                      (_localctx as SetOperationContext)._operator = this._errHandler.recoverInline(
-                        this
-                      );
+                      (_localctx as SetOperationContext)._operator = this._errHandler.recoverInline(this);
                     } else {
                       if (this._input.LA(1) === Token.EOF) {
                         this.matchedEOF = true;
@@ -7440,10 +6970,7 @@ export class SqlBaseParser extends Parser {
                     this.state = 1644;
                     this._errHandler.sync(this);
                     _la = this._input.LA(1);
-                    if (
-                      _la === SqlBaseParser.ALL ||
-                      _la === SqlBaseParser.DISTINCT
-                    ) {
+                    if (_la === SqlBaseParser.ALL || _la === SqlBaseParser.DISTINCT) {
                       {
                         this.state = 1643;
                         this.setQuantifier();
@@ -7451,9 +6978,7 @@ export class SqlBaseParser extends Parser {
                     }
 
                     this.state = 1646;
-                    (_localctx as SetOperationContext)._right = this.queryTerm(
-                      2
-                    );
+                    (_localctx as SetOperationContext)._right = this.queryTerm(2);
                   }
                   break;
               }
@@ -7479,10 +7004,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public queryPrimary(): QueryPrimaryContext {
-    let _localctx: QueryPrimaryContext = new QueryPrimaryContext(
-      this._ctx,
-      this.state
-    );
+    let _localctx: QueryPrimaryContext = new QueryPrimaryContext(this._ctx, this.state);
     this.enterRule(_localctx, 86, SqlBaseParser.RULE_queryPrimary);
     try {
       this.state = 1661;
@@ -7554,7 +7076,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public sortItem(): SortItemContext {
-    let _localctx: SortItemContext = new SortItemContext(this._ctx, this.state);
+    const _localctx: SortItemContext = new SortItemContext(this._ctx, this.state);
     this.enterRule(_localctx, 88, SqlBaseParser.RULE_sortItem);
     let _la: number;
     try {
@@ -7593,9 +7115,7 @@ export class SqlBaseParser extends Parser {
               this.state = 1668;
               _localctx._nullOrder = this._input.LT(1);
               _la = this._input.LA(1);
-              if (
-                !(_la === SqlBaseParser.FIRST || _la === SqlBaseParser.LAST)
-              ) {
+              if (!(_la === SqlBaseParser.FIRST || _la === SqlBaseParser.LAST)) {
                 _localctx._nullOrder = this._errHandler.recoverInline(this);
               } else {
                 if (this._input.LA(1) === Token.EOF) {
@@ -7624,10 +7144,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public fromStatement(): FromStatementContext {
-    let _localctx: FromStatementContext = new FromStatementContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: FromStatementContext = new FromStatementContext(this._ctx, this.state);
     this.enterRule(_localctx, 90, SqlBaseParser.RULE_fromStatement);
     try {
       let _alt: number;
@@ -7671,10 +7188,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public fromStatementBody(): FromStatementBodyContext {
-    let _localctx: FromStatementBodyContext = new FromStatementBodyContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: FromStatementBodyContext = new FromStatementBodyContext(this._ctx, this.state);
     this.enterRule(_localctx, 92, SqlBaseParser.RULE_fromStatementBody);
     try {
       let _alt: number;
@@ -7688,9 +7202,7 @@ export class SqlBaseParser extends Parser {
             this.transformClause();
             this.state = 1679;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 189, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 189, this._ctx)) {
               case 1:
                 {
                   this.state = 1678;
@@ -7710,11 +7222,7 @@ export class SqlBaseParser extends Parser {
             this.selectClause();
             this.state = 1687;
             this._errHandler.sync(this);
-            _alt = this.interpreter.adaptivePredict(
-              this._input,
-              190,
-              this._ctx
-            );
+            _alt = this.interpreter.adaptivePredict(this._input, 190, this._ctx);
             while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
               if (_alt === 1) {
                 {
@@ -7726,17 +7234,11 @@ export class SqlBaseParser extends Parser {
               }
               this.state = 1689;
               this._errHandler.sync(this);
-              _alt = this.interpreter.adaptivePredict(
-                this._input,
-                190,
-                this._ctx
-              );
+              _alt = this.interpreter.adaptivePredict(this._input, 190, this._ctx);
             }
             this.state = 1691;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 191, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 191, this._ctx)) {
               case 1:
                 {
                   this.state = 1690;
@@ -7746,9 +7248,7 @@ export class SqlBaseParser extends Parser {
             }
             this.state = 1694;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 192, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 192, this._ctx)) {
               case 1:
                 {
                   this.state = 1693;
@@ -7758,9 +7258,7 @@ export class SqlBaseParser extends Parser {
             }
             this.state = 1697;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 193, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 193, this._ctx)) {
               case 1:
                 {
                   this.state = 1696;
@@ -7770,9 +7268,7 @@ export class SqlBaseParser extends Parser {
             }
             this.state = 1700;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 194, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 194, this._ctx)) {
               case 1:
                 {
                   this.state = 1699;
@@ -7800,10 +7296,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public querySpecification(): QuerySpecificationContext {
-    let _localctx: QuerySpecificationContext = new QuerySpecificationContext(
-      this._ctx,
-      this.state
-    );
+    let _localctx: QuerySpecificationContext = new QuerySpecificationContext(this._ctx, this.state);
     this.enterRule(_localctx, 94, SqlBaseParser.RULE_querySpecification);
     try {
       let _alt: number;
@@ -7818,9 +7311,7 @@ export class SqlBaseParser extends Parser {
             this.transformClause();
             this.state = 1708;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 196, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 196, this._ctx)) {
               case 1:
                 {
                   this.state = 1707;
@@ -7830,11 +7321,7 @@ export class SqlBaseParser extends Parser {
             }
             this.state = 1713;
             this._errHandler.sync(this);
-            _alt = this.interpreter.adaptivePredict(
-              this._input,
-              197,
-              this._ctx
-            );
+            _alt = this.interpreter.adaptivePredict(this._input, 197, this._ctx);
             while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
               if (_alt === 1) {
                 {
@@ -7846,17 +7333,11 @@ export class SqlBaseParser extends Parser {
               }
               this.state = 1715;
               this._errHandler.sync(this);
-              _alt = this.interpreter.adaptivePredict(
-                this._input,
-                197,
-                this._ctx
-              );
+              _alt = this.interpreter.adaptivePredict(this._input, 197, this._ctx);
             }
             this.state = 1717;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 198, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 198, this._ctx)) {
               case 1:
                 {
                   this.state = 1716;
@@ -7866,9 +7347,7 @@ export class SqlBaseParser extends Parser {
             }
             this.state = 1720;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 199, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 199, this._ctx)) {
               case 1:
                 {
                   this.state = 1719;
@@ -7878,9 +7357,7 @@ export class SqlBaseParser extends Parser {
             }
             this.state = 1723;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 200, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 200, this._ctx)) {
               case 1:
                 {
                   this.state = 1722;
@@ -7890,9 +7367,7 @@ export class SqlBaseParser extends Parser {
             }
             this.state = 1726;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 201, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 201, this._ctx)) {
               case 1:
                 {
                   this.state = 1725;
@@ -7911,9 +7386,7 @@ export class SqlBaseParser extends Parser {
             this.selectClause();
             this.state = 1730;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 202, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 202, this._ctx)) {
               case 1:
                 {
                   this.state = 1729;
@@ -7923,11 +7396,7 @@ export class SqlBaseParser extends Parser {
             }
             this.state = 1735;
             this._errHandler.sync(this);
-            _alt = this.interpreter.adaptivePredict(
-              this._input,
-              203,
-              this._ctx
-            );
+            _alt = this.interpreter.adaptivePredict(this._input, 203, this._ctx);
             while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
               if (_alt === 1) {
                 {
@@ -7939,17 +7408,11 @@ export class SqlBaseParser extends Parser {
               }
               this.state = 1737;
               this._errHandler.sync(this);
-              _alt = this.interpreter.adaptivePredict(
-                this._input,
-                203,
-                this._ctx
-              );
+              _alt = this.interpreter.adaptivePredict(this._input, 203, this._ctx);
             }
             this.state = 1739;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 204, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 204, this._ctx)) {
               case 1:
                 {
                   this.state = 1738;
@@ -7959,9 +7422,7 @@ export class SqlBaseParser extends Parser {
             }
             this.state = 1742;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 205, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 205, this._ctx)) {
               case 1:
                 {
                   this.state = 1741;
@@ -7971,9 +7432,7 @@ export class SqlBaseParser extends Parser {
             }
             this.state = 1745;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 206, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 206, this._ctx)) {
               case 1:
                 {
                   this.state = 1744;
@@ -7983,9 +7442,7 @@ export class SqlBaseParser extends Parser {
             }
             this.state = 1748;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 207, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 207, this._ctx)) {
               case 1:
                 {
                   this.state = 1747;
@@ -8011,10 +7468,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public transformClause(): TransformClauseContext {
-    let _localctx: TransformClauseContext = new TransformClauseContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: TransformClauseContext = new TransformClauseContext(this._ctx, this.state);
     this.enterRule(_localctx, 96, SqlBaseParser.RULE_transformClause);
     let _la: number;
     try {
@@ -8033,9 +7487,7 @@ export class SqlBaseParser extends Parser {
               this.match(SqlBaseParser.T__1);
               this.state = 1756;
               this._errHandler.sync(this);
-              switch (
-                this.interpreter.adaptivePredict(this._input, 209, this._ctx)
-              ) {
+              switch (this.interpreter.adaptivePredict(this._input, 209, this._ctx)) {
                 case 1:
                   {
                     this.state = 1755;
@@ -8055,9 +7507,7 @@ export class SqlBaseParser extends Parser {
               _localctx._kind = this.match(SqlBaseParser.MAP);
               this.state = 1763;
               this._errHandler.sync(this);
-              switch (
-                this.interpreter.adaptivePredict(this._input, 210, this._ctx)
-              ) {
+              switch (this.interpreter.adaptivePredict(this._input, 210, this._ctx)) {
                 case 1:
                   {
                     this.state = 1762;
@@ -8075,9 +7525,7 @@ export class SqlBaseParser extends Parser {
               _localctx._kind = this.match(SqlBaseParser.REDUCE);
               this.state = 1768;
               this._errHandler.sync(this);
-              switch (
-                this.interpreter.adaptivePredict(this._input, 211, this._ctx)
-              ) {
+              switch (this.interpreter.adaptivePredict(this._input, 211, this._ctx)) {
                 case 1:
                   {
                     this.state = 1767;
@@ -8127,9 +7575,7 @@ export class SqlBaseParser extends Parser {
               this.match(SqlBaseParser.AS);
               this.state = 1792;
               this._errHandler.sync(this);
-              switch (
-                this.interpreter.adaptivePredict(this._input, 216, this._ctx)
-              ) {
+              switch (this.interpreter.adaptivePredict(this._input, 216, this._ctx)) {
                 case 1:
                   {
                     this.state = 1783;
@@ -8151,13 +7597,7 @@ export class SqlBaseParser extends Parser {
                       this.match(SqlBaseParser.T__1);
                       this.state = 1788;
                       this._errHandler.sync(this);
-                      switch (
-                        this.interpreter.adaptivePredict(
-                          this._input,
-                          215,
-                          this._ctx
-                        )
-                      ) {
+                      switch (this.interpreter.adaptivePredict(this._input, 215, this._ctx)) {
                         case 1:
                           {
                             this.state = 1786;
@@ -8219,10 +7659,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public selectClause(): SelectClauseContext {
-    let _localctx: SelectClauseContext = new SelectClauseContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: SelectClauseContext = new SelectClauseContext(this._ctx, this.state);
     this.enterRule(_localctx, 98, SqlBaseParser.RULE_selectClause);
     try {
       let _alt: number;
@@ -8275,10 +7712,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public setClause(): SetClauseContext {
-    let _localctx: SetClauseContext = new SetClauseContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: SetClauseContext = new SetClauseContext(this._ctx, this.state);
     this.enterRule(_localctx, 100, SqlBaseParser.RULE_setClause);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -8303,10 +7737,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public matchedClause(): MatchedClauseContext {
-    let _localctx: MatchedClauseContext = new MatchedClauseContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: MatchedClauseContext = new MatchedClauseContext(this._ctx, this.state);
     this.enterRule(_localctx, 102, SqlBaseParser.RULE_matchedClause);
     let _la: number;
     try {
@@ -8348,10 +7779,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public notMatchedClause(): NotMatchedClauseContext {
-    let _localctx: NotMatchedClauseContext = new NotMatchedClauseContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: NotMatchedClauseContext = new NotMatchedClauseContext(this._ctx, this.state);
     this.enterRule(_localctx, 104, SqlBaseParser.RULE_notMatchedClause);
     let _la: number;
     try {
@@ -8395,10 +7823,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public matchedAction(): MatchedActionContext {
-    let _localctx: MatchedActionContext = new MatchedActionContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: MatchedActionContext = new MatchedActionContext(this._ctx, this.state);
     this.enterRule(_localctx, 106, SqlBaseParser.RULE_matchedAction);
     try {
       this.state = 1844;
@@ -8451,10 +7876,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public notMatchedAction(): NotMatchedActionContext {
-    let _localctx: NotMatchedActionContext = new NotMatchedActionContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: NotMatchedActionContext = new NotMatchedActionContext(this._ctx, this.state);
     this.enterRule(_localctx, 108, SqlBaseParser.RULE_notMatchedAction);
     let _la: number;
     try {
@@ -8524,10 +7946,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public assignmentList(): AssignmentListContext {
-    let _localctx: AssignmentListContext = new AssignmentListContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: AssignmentListContext = new AssignmentListContext(this._ctx, this.state);
     this.enterRule(_localctx, 110, SqlBaseParser.RULE_assignmentList);
     let _la: number;
     try {
@@ -8567,10 +7986,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public assignment(): AssignmentContext {
-    let _localctx: AssignmentContext = new AssignmentContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: AssignmentContext = new AssignmentContext(this._ctx, this.state);
     this.enterRule(_localctx, 112, SqlBaseParser.RULE_assignment);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -8597,10 +8013,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public whereClause(): WhereClauseContext {
-    let _localctx: WhereClauseContext = new WhereClauseContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: WhereClauseContext = new WhereClauseContext(this._ctx, this.state);
     this.enterRule(_localctx, 114, SqlBaseParser.RULE_whereClause);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -8625,10 +8038,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public havingClause(): HavingClauseContext {
-    let _localctx: HavingClauseContext = new HavingClauseContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: HavingClauseContext = new HavingClauseContext(this._ctx, this.state);
     this.enterRule(_localctx, 116, SqlBaseParser.RULE_havingClause);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -8653,7 +8063,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public hint(): HintContext {
-    let _localctx: HintContext = new HintContext(this._ctx, this.state);
+    const _localctx: HintContext = new HintContext(this._ctx, this.state);
     this.enterRule(_localctx, 118, SqlBaseParser.RULE_hint);
     try {
       let _alt: number;
@@ -8673,9 +8083,7 @@ export class SqlBaseParser extends Parser {
               {
                 this.state = 1887;
                 this._errHandler.sync(this);
-                switch (
-                  this.interpreter.adaptivePredict(this._input, 228, this._ctx)
-                ) {
+                switch (this.interpreter.adaptivePredict(this._input, 228, this._ctx)) {
                   case 1:
                     {
                       this.state = 1886;
@@ -8711,10 +8119,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public hintStatement(): HintStatementContext {
-    let _localctx: HintStatementContext = new HintStatementContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: HintStatementContext = new HintStatementContext(this._ctx, this.state);
     this.enterRule(_localctx, 120, SqlBaseParser.RULE_hintStatement);
     let _la: number;
     try {
@@ -8776,10 +8181,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public fromClause(): FromClauseContext {
-    let _localctx: FromClauseContext = new FromClauseContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: FromClauseContext = new FromClauseContext(this._ctx, this.state);
     this.enterRule(_localctx, 122, SqlBaseParser.RULE_fromClause);
     try {
       let _alt: number;
@@ -8849,10 +8251,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public aggregationClause(): AggregationClauseContext {
-    let _localctx: AggregationClauseContext = new AggregationClauseContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: AggregationClauseContext = new AggregationClauseContext(this._ctx, this.state);
     this.enterRule(_localctx, 124, SqlBaseParser.RULE_aggregationClause);
     let _la: number;
     try {
@@ -8869,16 +8268,10 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.BY);
             this.state = 1932;
             _localctx._groupByClause = this.groupByClause();
-            _localctx._groupingExpressionsWithGroupingAnalytics.push(
-              _localctx._groupByClause
-            );
+            _localctx._groupingExpressionsWithGroupingAnalytics.push(_localctx._groupByClause);
             this.state = 1937;
             this._errHandler.sync(this);
-            _alt = this.interpreter.adaptivePredict(
-              this._input,
-              235,
-              this._ctx
-            );
+            _alt = this.interpreter.adaptivePredict(this._input, 235, this._ctx);
             while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
               if (_alt === 1) {
                 {
@@ -8887,19 +8280,13 @@ export class SqlBaseParser extends Parser {
                     this.match(SqlBaseParser.T__3);
                     this.state = 1934;
                     _localctx._groupByClause = this.groupByClause();
-                    _localctx._groupingExpressionsWithGroupingAnalytics.push(
-                      _localctx._groupByClause
-                    );
+                    _localctx._groupingExpressionsWithGroupingAnalytics.push(_localctx._groupByClause);
                   }
                 }
               }
               this.state = 1939;
               this._errHandler.sync(this);
-              _alt = this.interpreter.adaptivePredict(
-                this._input,
-                235,
-                this._ctx
-              );
+              _alt = this.interpreter.adaptivePredict(this._input, 235, this._ctx);
             }
           }
           break;
@@ -8916,11 +8303,7 @@ export class SqlBaseParser extends Parser {
             _localctx._groupingExpressions.push(_localctx._expression);
             this.state = 1947;
             this._errHandler.sync(this);
-            _alt = this.interpreter.adaptivePredict(
-              this._input,
-              236,
-              this._ctx
-            );
+            _alt = this.interpreter.adaptivePredict(this._input, 236, this._ctx);
             while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
               if (_alt === 1) {
                 {
@@ -8935,17 +8318,11 @@ export class SqlBaseParser extends Parser {
               }
               this.state = 1949;
               this._errHandler.sync(this);
-              _alt = this.interpreter.adaptivePredict(
-                this._input,
-                236,
-                this._ctx
-              );
+              _alt = this.interpreter.adaptivePredict(this._input, 236, this._ctx);
             }
             this.state = 1967;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 238, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 238, this._ctx)) {
               case 1:
                 {
                   this.state = 1950;
@@ -9013,10 +8390,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public groupByClause(): GroupByClauseContext {
-    let _localctx: GroupByClauseContext = new GroupByClauseContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: GroupByClauseContext = new GroupByClauseContext(this._ctx, this.state);
     this.enterRule(_localctx, 126, SqlBaseParser.RULE_groupByClause);
     try {
       this.state = 1973;
@@ -9053,10 +8427,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public groupingAnalytics(): GroupingAnalyticsContext {
-    let _localctx: GroupingAnalyticsContext = new GroupingAnalyticsContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: GroupingAnalyticsContext = new GroupingAnalyticsContext(this._ctx, this.state);
     this.enterRule(_localctx, 128, SqlBaseParser.RULE_groupingAnalytics);
     let _la: number;
     try {
@@ -9152,10 +8523,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public groupingElement(): GroupingElementContext {
-    let _localctx: GroupingElementContext = new GroupingElementContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: GroupingElementContext = new GroupingElementContext(this._ctx, this.state);
     this.enterRule(_localctx, 130, SqlBaseParser.RULE_groupingElement);
     try {
       this.state = 2004;
@@ -9192,10 +8560,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public groupingSet(): GroupingSetContext {
-    let _localctx: GroupingSetContext = new GroupingSetContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: GroupingSetContext = new GroupingSetContext(this._ctx, this.state);
     this.enterRule(_localctx, 132, SqlBaseParser.RULE_groupingSet);
     let _la: number;
     try {
@@ -9209,9 +8574,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.T__1);
             this.state = 2015;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 246, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 246, this._ctx)) {
               case 1:
                 {
                   this.state = 2007;
@@ -9263,10 +8626,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public pivotClause(): PivotClauseContext {
-    let _localctx: PivotClauseContext = new PivotClauseContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: PivotClauseContext = new PivotClauseContext(this._ctx, this.state);
     this.enterRule(_localctx, 134, SqlBaseParser.RULE_pivotClause);
     let _la: number;
     try {
@@ -9326,10 +8686,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public pivotColumn(): PivotColumnContext {
-    let _localctx: PivotColumnContext = new PivotColumnContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: PivotColumnContext = new PivotColumnContext(this._ctx, this.state);
     this.enterRule(_localctx, 136, SqlBaseParser.RULE_pivotColumn);
     let _la: number;
     try {
@@ -9390,10 +8747,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public pivotValue(): PivotValueContext {
-    let _localctx: PivotValueContext = new PivotValueContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: PivotValueContext = new PivotValueContext(this._ctx, this.state);
     this.enterRule(_localctx, 138, SqlBaseParser.RULE_pivotValue);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -9407,9 +8761,7 @@ export class SqlBaseParser extends Parser {
             {
               this.state = 2055;
               this._errHandler.sync(this);
-              switch (
-                this.interpreter.adaptivePredict(this._input, 251, this._ctx)
-              ) {
+              switch (this.interpreter.adaptivePredict(this._input, 251, this._ctx)) {
                 case 1:
                   {
                     this.state = 2054;
@@ -9438,10 +8790,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public lateralView(): LateralViewContext {
-    let _localctx: LateralViewContext = new LateralViewContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: LateralViewContext = new LateralViewContext(this._ctx, this.state);
     this.enterRule(_localctx, 140, SqlBaseParser.RULE_lateralView);
     let _la: number;
     try {
@@ -9503,9 +8852,7 @@ export class SqlBaseParser extends Parser {
             {
               this.state = 2080;
               this._errHandler.sync(this);
-              switch (
-                this.interpreter.adaptivePredict(this._input, 256, this._ctx)
-              ) {
+              switch (this.interpreter.adaptivePredict(this._input, 256, this._ctx)) {
                 case 1:
                   {
                     this.state = 2079;
@@ -9518,11 +8865,7 @@ export class SqlBaseParser extends Parser {
               _localctx._colName.push(_localctx._identifier);
               this.state = 2087;
               this._errHandler.sync(this);
-              _alt = this.interpreter.adaptivePredict(
-                this._input,
-                257,
-                this._ctx
-              );
+              _alt = this.interpreter.adaptivePredict(this._input, 257, this._ctx);
               while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
                 if (_alt === 1) {
                   {
@@ -9537,11 +8880,7 @@ export class SqlBaseParser extends Parser {
                 }
                 this.state = 2089;
                 this._errHandler.sync(this);
-                _alt = this.interpreter.adaptivePredict(
-                  this._input,
-                  257,
-                  this._ctx
-                );
+                _alt = this.interpreter.adaptivePredict(this._input, 257, this._ctx);
               }
             }
             break;
@@ -9562,10 +8901,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public setQuantifier(): SetQuantifierContext {
-    let _localctx: SetQuantifierContext = new SetQuantifierContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: SetQuantifierContext = new SetQuantifierContext(this._ctx, this.state);
     this.enterRule(_localctx, 142, SqlBaseParser.RULE_setQuantifier);
     let _la: number;
     try {
@@ -9599,7 +8935,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public relation(): RelationContext {
-    let _localctx: RelationContext = new RelationContext(this._ctx, this.state);
+    const _localctx: RelationContext = new RelationContext(this._ctx, this.state);
     this.enterRule(_localctx, 144, SqlBaseParser.RULE_relation);
     try {
       let _alt: number;
@@ -9649,10 +8985,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public joinRelation(): JoinRelationContext {
-    let _localctx: JoinRelationContext = new JoinRelationContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: JoinRelationContext = new JoinRelationContext(this._ctx, this.state);
     this.enterRule(_localctx, 146, SqlBaseParser.RULE_joinRelation);
     try {
       this.state = 2121;
@@ -9676,9 +9009,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.JOIN);
             this.state = 2107;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 261, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 261, this._ctx)) {
               case 1:
                 {
                   this.state = 2106;
@@ -9690,9 +9021,7 @@ export class SqlBaseParser extends Parser {
             _localctx._right = this.relationPrimary();
             this.state = 2111;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 262, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 262, this._ctx)) {
               case 1:
                 {
                   this.state = 2110;
@@ -9713,9 +9042,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.JOIN);
             this.state = 2117;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 263, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 263, this._ctx)) {
               case 1:
                 {
                   this.state = 2116;
@@ -9745,7 +9072,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public joinType(): JoinTypeContext {
-    let _localctx: JoinTypeContext = new JoinTypeContext(this._ctx, this.state);
+    const _localctx: JoinTypeContext = new JoinTypeContext(this._ctx, this.state);
     this.enterRule(_localctx, 148, SqlBaseParser.RULE_joinType);
     let _la: number;
     try {
@@ -9877,10 +9204,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public joinCriteria(): JoinCriteriaContext {
-    let _localctx: JoinCriteriaContext = new JoinCriteriaContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: JoinCriteriaContext = new JoinCriteriaContext(this._ctx, this.state);
     this.enterRule(_localctx, 150, SqlBaseParser.RULE_joinCriteria);
     try {
       this.state = 2153;
@@ -9922,7 +9246,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public sample(): SampleContext {
-    let _localctx: SampleContext = new SampleContext(this._ctx, this.state);
+    const _localctx: SampleContext = new SampleContext(this._ctx, this.state);
     this.enterRule(_localctx, 152, SqlBaseParser.RULE_sample);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -9959,10 +9283,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public sampleMethod(): SampleMethodContext {
-    let _localctx: SampleMethodContext = new SampleMethodContext(
-      this._ctx,
-      this.state
-    );
+    let _localctx: SampleMethodContext = new SampleMethodContext(this._ctx, this.state);
     this.enterRule(_localctx, 154, SqlBaseParser.RULE_sampleMethod);
     let _la: number;
     try {
@@ -9979,26 +9300,15 @@ export class SqlBaseParser extends Parser {
             if (_la === SqlBaseParser.MINUS) {
               {
                 this.state = 2162;
-                (_localctx as SampleByPercentileContext)._negativeSign = this.match(
-                  SqlBaseParser.MINUS
-                );
+                (_localctx as SampleByPercentileContext)._negativeSign = this.match(SqlBaseParser.MINUS);
               }
             }
 
             this.state = 2165;
-            (_localctx as SampleByPercentileContext)._percentage = this._input.LT(
-              1
-            );
+            (_localctx as SampleByPercentileContext)._percentage = this._input.LT(1);
             _la = this._input.LA(1);
-            if (
-              !(
-                _la === SqlBaseParser.INTEGER_VALUE ||
-                _la === SqlBaseParser.DECIMAL_VALUE
-              )
-            ) {
-              (_localctx as SampleByPercentileContext)._percentage = this._errHandler.recoverInline(
-                this
-              );
+            if (!(_la === SqlBaseParser.INTEGER_VALUE || _la === SqlBaseParser.DECIMAL_VALUE)) {
+              (_localctx as SampleByPercentileContext)._percentage = this._errHandler.recoverInline(this);
             } else {
               if (this._input.LA(1) === Token.EOF) {
                 this.matchedEOF = true;
@@ -10028,21 +9338,15 @@ export class SqlBaseParser extends Parser {
           this.enterOuterAlt(_localctx, 3);
           {
             this.state = 2170;
-            (_localctx as SampleByBucketContext)._sampleType = this.match(
-              SqlBaseParser.BUCKET
-            );
+            (_localctx as SampleByBucketContext)._sampleType = this.match(SqlBaseParser.BUCKET);
             this.state = 2171;
-            (_localctx as SampleByBucketContext)._numerator = this.match(
-              SqlBaseParser.INTEGER_VALUE
-            );
+            (_localctx as SampleByBucketContext)._numerator = this.match(SqlBaseParser.INTEGER_VALUE);
             this.state = 2172;
             this.match(SqlBaseParser.OUT);
             this.state = 2173;
             this.match(SqlBaseParser.OF);
             this.state = 2174;
-            (_localctx as SampleByBucketContext)._denominator = this.match(
-              SqlBaseParser.INTEGER_VALUE
-            );
+            (_localctx as SampleByBucketContext)._denominator = this.match(SqlBaseParser.INTEGER_VALUE);
             this.state = 2183;
             this._errHandler.sync(this);
             _la = this._input.LA(1);
@@ -10052,9 +9356,7 @@ export class SqlBaseParser extends Parser {
                 this.match(SqlBaseParser.ON);
                 this.state = 2181;
                 this._errHandler.sync(this);
-                switch (
-                  this.interpreter.adaptivePredict(this._input, 275, this._ctx)
-                ) {
+                switch (this.interpreter.adaptivePredict(this._input, 275, this._ctx)) {
                   case 1:
                     {
                       this.state = 2176;
@@ -10102,10 +9404,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public identifierList(): IdentifierListContext {
-    let _localctx: IdentifierListContext = new IdentifierListContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: IdentifierListContext = new IdentifierListContext(this._ctx, this.state);
     this.enterRule(_localctx, 156, SqlBaseParser.RULE_identifierList);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -10132,10 +9431,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public identifierSeq(): IdentifierSeqContext {
-    let _localctx: IdentifierSeqContext = new IdentifierSeqContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: IdentifierSeqContext = new IdentifierSeqContext(this._ctx, this.state);
     this.enterRule(_localctx, 158, SqlBaseParser.RULE_identifierSeq);
     try {
       let _alt: number;
@@ -10179,10 +9475,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public orderedIdentifierList(): OrderedIdentifierListContext {
-    let _localctx: OrderedIdentifierListContext = new OrderedIdentifierListContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: OrderedIdentifierListContext = new OrderedIdentifierListContext(this._ctx, this.state);
     this.enterRule(_localctx, 160, SqlBaseParser.RULE_orderedIdentifierList);
     let _la: number;
     try {
@@ -10226,10 +9519,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public orderedIdentifier(): OrderedIdentifierContext {
-    let _localctx: OrderedIdentifierContext = new OrderedIdentifierContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: OrderedIdentifierContext = new OrderedIdentifierContext(this._ctx, this.state);
     this.enterRule(_localctx, 162, SqlBaseParser.RULE_orderedIdentifier);
     let _la: number;
     try {
@@ -10273,10 +9563,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public identifierCommentList(): IdentifierCommentListContext {
-    let _localctx: IdentifierCommentListContext = new IdentifierCommentListContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: IdentifierCommentListContext = new IdentifierCommentListContext(this._ctx, this.state);
     this.enterRule(_localctx, 164, SqlBaseParser.RULE_identifierCommentList);
     let _la: number;
     try {
@@ -10320,10 +9607,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public identifierComment(): IdentifierCommentContext {
-    let _localctx: IdentifierCommentContext = new IdentifierCommentContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: IdentifierCommentContext = new IdentifierCommentContext(this._ctx, this.state);
     this.enterRule(_localctx, 166, SqlBaseParser.RULE_identifierComment);
     let _la: number;
     try {
@@ -10356,10 +9640,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public relationPrimary(): RelationPrimaryContext {
-    let _localctx: RelationPrimaryContext = new RelationPrimaryContext(
-      this._ctx,
-      this.state
-    );
+    let _localctx: RelationPrimaryContext = new RelationPrimaryContext(this._ctx, this.state);
     this.enterRule(_localctx, 168, SqlBaseParser.RULE_relationPrimary);
     try {
       this.state = 2254;
@@ -10373,9 +9654,7 @@ export class SqlBaseParser extends Parser {
             this.multipartIdentifier();
             this.state = 2232;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 283, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 283, this._ctx)) {
               case 1:
                 {
                   this.state = 2231;
@@ -10400,9 +9679,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.T__2);
             this.state = 2240;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 284, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 284, this._ctx)) {
               case 1:
                 {
                   this.state = 2239;
@@ -10427,9 +9704,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.T__2);
             this.state = 2248;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 285, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 285, this._ctx)) {
               case 1:
                 {
                   this.state = 2247;
@@ -10475,10 +9750,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public inlineTable(): InlineTableContext {
-    let _localctx: InlineTableContext = new InlineTableContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: InlineTableContext = new InlineTableContext(this._ctx, this.state);
     this.enterRule(_localctx, 170, SqlBaseParser.RULE_inlineTable);
     try {
       let _alt: number;
@@ -10524,10 +9796,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public functionTable(): FunctionTableContext {
-    let _localctx: FunctionTableContext = new FunctionTableContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: FunctionTableContext = new FunctionTableContext(this._ctx, this.state);
     this.enterRule(_localctx, 172, SqlBaseParser.RULE_functionTable);
     let _la: number;
     try {
@@ -10583,10 +9852,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public tableAlias(): TableAliasContext {
-    let _localctx: TableAliasContext = new TableAliasContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: TableAliasContext = new TableAliasContext(this._ctx, this.state);
     this.enterRule(_localctx, 174, SqlBaseParser.RULE_tableAlias);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -10598,9 +9864,7 @@ export class SqlBaseParser extends Parser {
             {
               this.state = 2283;
               this._errHandler.sync(this);
-              switch (
-                this.interpreter.adaptivePredict(this._input, 290, this._ctx)
-              ) {
+              switch (this.interpreter.adaptivePredict(this._input, 290, this._ctx)) {
                 case 1:
                   {
                     this.state = 2282;
@@ -10612,9 +9876,7 @@ export class SqlBaseParser extends Parser {
               this.strictIdentifier();
               this.state = 2287;
               this._errHandler.sync(this);
-              switch (
-                this.interpreter.adaptivePredict(this._input, 291, this._ctx)
-              ) {
+              switch (this.interpreter.adaptivePredict(this._input, 291, this._ctx)) {
                 case 1:
                   {
                     this.state = 2286;
@@ -10641,10 +9903,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public rowFormat(): RowFormatContext {
-    let _localctx: RowFormatContext = new RowFormatContext(
-      this._ctx,
-      this.state
-    );
+    let _localctx: RowFormatContext = new RowFormatContext(this._ctx, this.state);
     this.enterRule(_localctx, 176, SqlBaseParser.RULE_rowFormat);
     try {
       this.state = 2340;
@@ -10661,14 +9920,10 @@ export class SqlBaseParser extends Parser {
             this.state = 2293;
             this.match(SqlBaseParser.SERDE);
             this.state = 2294;
-            (_localctx as RowFormatSerdeContext)._name = this.match(
-              SqlBaseParser.STRING
-            );
+            (_localctx as RowFormatSerdeContext)._name = this.match(SqlBaseParser.STRING);
             this.state = 2298;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 293, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 293, this._ctx)) {
               case 1:
                 {
                   this.state = 2295;
@@ -10695,9 +9950,7 @@ export class SqlBaseParser extends Parser {
             this.match(SqlBaseParser.DELIMITED);
             this.state = 2312;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 295, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 295, this._ctx)) {
               case 1:
                 {
                   this.state = 2303;
@@ -10707,18 +9960,10 @@ export class SqlBaseParser extends Parser {
                   this.state = 2305;
                   this.match(SqlBaseParser.BY);
                   this.state = 2306;
-                  (_localctx as RowFormatDelimitedContext)._fieldsTerminatedBy = this.match(
-                    SqlBaseParser.STRING
-                  );
+                  (_localctx as RowFormatDelimitedContext)._fieldsTerminatedBy = this.match(SqlBaseParser.STRING);
                   this.state = 2310;
                   this._errHandler.sync(this);
-                  switch (
-                    this.interpreter.adaptivePredict(
-                      this._input,
-                      294,
-                      this._ctx
-                    )
-                  ) {
+                  switch (this.interpreter.adaptivePredict(this._input, 294, this._ctx)) {
                     case 1:
                       {
                         this.state = 2307;
@@ -10726,9 +9971,7 @@ export class SqlBaseParser extends Parser {
                         this.state = 2308;
                         this.match(SqlBaseParser.BY);
                         this.state = 2309;
-                        (_localctx as RowFormatDelimitedContext)._escapedBy = this.match(
-                          SqlBaseParser.STRING
-                        );
+                        (_localctx as RowFormatDelimitedContext)._escapedBy = this.match(SqlBaseParser.STRING);
                       }
                       break;
                   }
@@ -10737,9 +9980,7 @@ export class SqlBaseParser extends Parser {
             }
             this.state = 2319;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 296, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 296, this._ctx)) {
               case 1:
                 {
                   this.state = 2314;
@@ -10759,9 +10000,7 @@ export class SqlBaseParser extends Parser {
             }
             this.state = 2326;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 297, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 297, this._ctx)) {
               case 1:
                 {
                   this.state = 2321;
@@ -10773,17 +10012,13 @@ export class SqlBaseParser extends Parser {
                   this.state = 2324;
                   this.match(SqlBaseParser.BY);
                   this.state = 2325;
-                  (_localctx as RowFormatDelimitedContext)._keysTerminatedBy = this.match(
-                    SqlBaseParser.STRING
-                  );
+                  (_localctx as RowFormatDelimitedContext)._keysTerminatedBy = this.match(SqlBaseParser.STRING);
                 }
                 break;
             }
             this.state = 2332;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 298, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 298, this._ctx)) {
               case 1:
                 {
                   this.state = 2328;
@@ -10793,17 +10028,13 @@ export class SqlBaseParser extends Parser {
                   this.state = 2330;
                   this.match(SqlBaseParser.BY);
                   this.state = 2331;
-                  (_localctx as RowFormatDelimitedContext)._linesSeparatedBy = this.match(
-                    SqlBaseParser.STRING
-                  );
+                  (_localctx as RowFormatDelimitedContext)._linesSeparatedBy = this.match(SqlBaseParser.STRING);
                 }
                 break;
             }
             this.state = 2338;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 299, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 299, this._ctx)) {
               case 1:
                 {
                   this.state = 2334;
@@ -10813,9 +10044,7 @@ export class SqlBaseParser extends Parser {
                   this.state = 2336;
                   this.match(SqlBaseParser.AS);
                   this.state = 2337;
-                  (_localctx as RowFormatDelimitedContext)._nullDefinedAs = this.match(
-                    SqlBaseParser.STRING
-                  );
+                  (_localctx as RowFormatDelimitedContext)._nullDefinedAs = this.match(SqlBaseParser.STRING);
                 }
                 break;
             }
@@ -10837,10 +10066,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public multipartIdentifierList(): MultipartIdentifierListContext {
-    let _localctx: MultipartIdentifierListContext = new MultipartIdentifierListContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: MultipartIdentifierListContext = new MultipartIdentifierListContext(this._ctx, this.state);
     this.enterRule(_localctx, 178, SqlBaseParser.RULE_multipartIdentifierList);
     let _la: number;
     try {
@@ -10880,10 +10106,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public multipartIdentifier(): MultipartIdentifierContext {
-    let _localctx: MultipartIdentifierContext = new MultipartIdentifierContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: MultipartIdentifierContext = new MultipartIdentifierContext(this._ctx, this.state);
     this.enterRule(_localctx, 180, SqlBaseParser.RULE_multipartIdentifier);
     try {
       let _alt: number;
@@ -10927,10 +10150,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public tableIdentifier(): TableIdentifierContext {
-    let _localctx: TableIdentifierContext = new TableIdentifierContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: TableIdentifierContext = new TableIdentifierContext(this._ctx, this.state);
     this.enterRule(_localctx, 182, SqlBaseParser.RULE_tableIdentifier);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -10965,10 +10185,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public functionIdentifier(): FunctionIdentifierContext {
-    let _localctx: FunctionIdentifierContext = new FunctionIdentifierContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: FunctionIdentifierContext = new FunctionIdentifierContext(this._ctx, this.state);
     this.enterRule(_localctx, 184, SqlBaseParser.RULE_functionIdentifier);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -11003,10 +10220,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public namedExpression(): NamedExpressionContext {
-    let _localctx: NamedExpressionContext = new NamedExpressionContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: NamedExpressionContext = new NamedExpressionContext(this._ctx, this.state);
     this.enterRule(_localctx, 186, SqlBaseParser.RULE_namedExpression);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -11020,9 +10234,7 @@ export class SqlBaseParser extends Parser {
             {
               this.state = 2374;
               this._errHandler.sync(this);
-              switch (
-                this.interpreter.adaptivePredict(this._input, 305, this._ctx)
-              ) {
+              switch (this.interpreter.adaptivePredict(this._input, 305, this._ctx)) {
                 case 1:
                   {
                     this.state = 2373;
@@ -11032,9 +10244,7 @@ export class SqlBaseParser extends Parser {
               }
               this.state = 2378;
               this._errHandler.sync(this);
-              switch (
-                this.interpreter.adaptivePredict(this._input, 306, this._ctx)
-              ) {
+              switch (this.interpreter.adaptivePredict(this._input, 306, this._ctx)) {
                 case 1:
                   {
                     this.state = 2376;
@@ -11068,10 +10278,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public namedExpressionSeq(): NamedExpressionSeqContext {
-    let _localctx: NamedExpressionSeqContext = new NamedExpressionSeqContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: NamedExpressionSeqContext = new NamedExpressionSeqContext(this._ctx, this.state);
     this.enterRule(_localctx, 188, SqlBaseParser.RULE_namedExpressionSeq);
     try {
       let _alt: number;
@@ -11113,10 +10320,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public partitionFieldList(): PartitionFieldListContext {
-    let _localctx: PartitionFieldListContext = new PartitionFieldListContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: PartitionFieldListContext = new PartitionFieldListContext(this._ctx, this.state);
     this.enterRule(_localctx, 190, SqlBaseParser.RULE_partitionFieldList);
     let _la: number;
     try {
@@ -11162,10 +10366,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public partitionField(): PartitionFieldContext {
-    let _localctx: PartitionFieldContext = new PartitionFieldContext(
-      this._ctx,
-      this.state
-    );
+    let _localctx: PartitionFieldContext = new PartitionFieldContext(this._ctx, this.state);
     this.enterRule(_localctx, 192, SqlBaseParser.RULE_partitionField);
     try {
       this.state = 2403;
@@ -11204,10 +10405,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public transform(): TransformContext {
-    let _localctx: TransformContext = new TransformContext(
-      this._ctx,
-      this.state
-    );
+    let _localctx: TransformContext = new TransformContext(this._ctx, this.state);
     this.enterRule(_localctx, 194, SqlBaseParser.RULE_transform);
     let _la: number;
     try {
@@ -11275,10 +10473,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public transformArgument(): TransformArgumentContext {
-    let _localctx: TransformArgumentContext = new TransformArgumentContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: TransformArgumentContext = new TransformArgumentContext(this._ctx, this.state);
     this.enterRule(_localctx, 196, SqlBaseParser.RULE_transformArgument);
     try {
       this.state = 2422;
@@ -11315,10 +10510,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public expression(): ExpressionContext {
-    let _localctx: ExpressionContext = new ExpressionContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: ExpressionContext = new ExpressionContext(this._ctx, this.state);
     this.enterRule(_localctx, 198, SqlBaseParser.RULE_expression);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -11341,10 +10533,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public expressionSeq(): ExpressionSeqContext {
-    let _localctx: ExpressionSeqContext = new ExpressionSeqContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: ExpressionSeqContext = new ExpressionSeqContext(this._ctx, this.state);
     this.enterRule(_localctx, 200, SqlBaseParser.RULE_expressionSeq);
     let _la: number;
     try {
@@ -11391,20 +10580,12 @@ export class SqlBaseParser extends Parser {
       _p = 0;
     }
 
-    let _parentctx: ParserRuleContext = this._ctx;
-    let _parentState: number = this.state;
-    let _localctx: BooleanExpressionContext = new BooleanExpressionContext(
-      this._ctx,
-      _parentState
-    );
+    const _parentctx: ParserRuleContext = this._ctx;
+    const _parentState: number = this.state;
+    let _localctx: BooleanExpressionContext = new BooleanExpressionContext(this._ctx, _parentState);
     let _prevctx: BooleanExpressionContext = _localctx;
-    let _startState: number = 202;
-    this.enterRecursionRule(
-      _localctx,
-      202,
-      SqlBaseParser.RULE_booleanExpression,
-      _p
-    );
+    const _startState = 202;
+    this.enterRecursionRule(_localctx, 202, SqlBaseParser.RULE_booleanExpression, _p);
     try {
       let _alt: number;
       this.enterOuterAlt(_localctx, 1);
@@ -11450,9 +10631,7 @@ export class SqlBaseParser extends Parser {
               this.valueExpression(0);
               this.state = 2444;
               this._errHandler.sync(this);
-              switch (
-                this.interpreter.adaptivePredict(this._input, 315, this._ctx)
-              ) {
+              switch (this.interpreter.adaptivePredict(this._input, 315, this._ctx)) {
                 case 1:
                   {
                     this.state = 2443;
@@ -11476,62 +10655,36 @@ export class SqlBaseParser extends Parser {
             {
               this.state = 2454;
               this._errHandler.sync(this);
-              switch (
-                this.interpreter.adaptivePredict(this._input, 317, this._ctx)
-              ) {
+              switch (this.interpreter.adaptivePredict(this._input, 317, this._ctx)) {
                 case 1:
                   {
-                    _localctx = new LogicalBinaryContext(
-                      new BooleanExpressionContext(_parentctx, _parentState)
-                    );
+                    _localctx = new LogicalBinaryContext(new BooleanExpressionContext(_parentctx, _parentState));
                     (_localctx as LogicalBinaryContext)._left = _prevctx;
-                    this.pushNewRecursionContext(
-                      _localctx,
-                      _startState,
-                      SqlBaseParser.RULE_booleanExpression
-                    );
+                    this.pushNewRecursionContext(_localctx, _startState, SqlBaseParser.RULE_booleanExpression);
                     this.state = 2448;
                     if (!this.precpred(this._ctx, 2)) {
-                      throw this.createFailedPredicateException(
-                        "this.precpred(this._ctx, 2)"
-                      );
+                      throw this.createFailedPredicateException("this.precpred(this._ctx, 2)");
                     }
                     this.state = 2449;
-                    (_localctx as LogicalBinaryContext)._operator = this.match(
-                      SqlBaseParser.AND
-                    );
+                    (_localctx as LogicalBinaryContext)._operator = this.match(SqlBaseParser.AND);
                     this.state = 2450;
-                    (_localctx as LogicalBinaryContext)._right = this.booleanExpression(
-                      3
-                    );
+                    (_localctx as LogicalBinaryContext)._right = this.booleanExpression(3);
                   }
                   break;
 
                 case 2:
                   {
-                    _localctx = new LogicalBinaryContext(
-                      new BooleanExpressionContext(_parentctx, _parentState)
-                    );
+                    _localctx = new LogicalBinaryContext(new BooleanExpressionContext(_parentctx, _parentState));
                     (_localctx as LogicalBinaryContext)._left = _prevctx;
-                    this.pushNewRecursionContext(
-                      _localctx,
-                      _startState,
-                      SqlBaseParser.RULE_booleanExpression
-                    );
+                    this.pushNewRecursionContext(_localctx, _startState, SqlBaseParser.RULE_booleanExpression);
                     this.state = 2451;
                     if (!this.precpred(this._ctx, 1)) {
-                      throw this.createFailedPredicateException(
-                        "this.precpred(this._ctx, 1)"
-                      );
+                      throw this.createFailedPredicateException("this.precpred(this._ctx, 1)");
                     }
                     this.state = 2452;
-                    (_localctx as LogicalBinaryContext)._operator = this.match(
-                      SqlBaseParser.OR
-                    );
+                    (_localctx as LogicalBinaryContext)._operator = this.match(SqlBaseParser.OR);
                     this.state = 2453;
-                    (_localctx as LogicalBinaryContext)._right = this.booleanExpression(
-                      2
-                    );
+                    (_localctx as LogicalBinaryContext)._right = this.booleanExpression(2);
                   }
                   break;
               }
@@ -11557,10 +10710,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public predicate(): PredicateContext {
-    let _localctx: PredicateContext = new PredicateContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: PredicateContext = new PredicateContext(this._ctx, this.state);
     this.enterRule(_localctx, 204, SqlBaseParser.RULE_predicate);
     let _la: number;
     try {
@@ -11693,13 +10843,7 @@ export class SqlBaseParser extends Parser {
             this.state = 2499;
             _localctx._quantifier = this._input.LT(1);
             _la = this._input.LA(1);
-            if (
-              !(
-                _la === SqlBaseParser.ALL ||
-                _la === SqlBaseParser.ANY ||
-                _la === SqlBaseParser.SOME
-              )
-            ) {
+            if (!(_la === SqlBaseParser.ALL || _la === SqlBaseParser.ANY || _la === SqlBaseParser.SOME)) {
               _localctx._quantifier = this._errHandler.recoverInline(this);
             } else {
               if (this._input.LA(1) === Token.EOF) {
@@ -11711,9 +10855,7 @@ export class SqlBaseParser extends Parser {
             }
             this.state = 2513;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 326, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 326, this._ctx)) {
               case 1:
                 {
                   this.state = 2500;
@@ -11772,9 +10914,7 @@ export class SqlBaseParser extends Parser {
             _localctx._pattern = this.valueExpression(0);
             this.state = 2522;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 328, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 328, this._ctx)) {
               case 1:
                 {
                   this.state = 2520;
@@ -11825,13 +10965,7 @@ export class SqlBaseParser extends Parser {
             this.state = 2533;
             _localctx._kind = this._input.LT(1);
             _la = this._input.LA(1);
-            if (
-              !(
-                _la === SqlBaseParser.FALSE ||
-                _la === SqlBaseParser.TRUE ||
-                _la === SqlBaseParser.UNKNOWN
-              )
-            ) {
+            if (!(_la === SqlBaseParser.FALSE || _la === SqlBaseParser.TRUE || _la === SqlBaseParser.UNKNOWN)) {
               _localctx._kind = this._errHandler.recoverInline(this);
             } else {
               if (this._input.LA(1) === Token.EOF) {
@@ -11890,20 +11024,12 @@ export class SqlBaseParser extends Parser {
       _p = 0;
     }
 
-    let _parentctx: ParserRuleContext = this._ctx;
-    let _parentState: number = this.state;
-    let _localctx: ValueExpressionContext = new ValueExpressionContext(
-      this._ctx,
-      _parentState
-    );
+    const _parentctx: ParserRuleContext = this._ctx;
+    const _parentState: number = this.state;
+    let _localctx: ValueExpressionContext = new ValueExpressionContext(this._ctx, _parentState);
     let _prevctx: ValueExpressionContext = _localctx;
-    let _startState: number = 206;
-    this.enterRecursionRule(
-      _localctx,
-      206,
-      SqlBaseParser.RULE_valueExpression,
-      _p
-    );
+    const _startState = 206;
+    this.enterRecursionRule(_localctx, 206, SqlBaseParser.RULE_valueExpression, _p);
     let _la: number;
     try {
       let _alt: number;
@@ -11929,9 +11055,7 @@ export class SqlBaseParser extends Parser {
               this._ctx = _localctx;
               _prevctx = _localctx;
               this.state = 2545;
-              (_localctx as ArithmeticUnaryContext)._operator = this._input.LT(
-                1
-              );
+              (_localctx as ArithmeticUnaryContext)._operator = this._input.LT(1);
               _la = this._input.LA(1);
               if (
                 !(
@@ -11943,9 +11067,7 @@ export class SqlBaseParser extends Parser {
                     0
                 )
               ) {
-                (_localctx as ArithmeticUnaryContext)._operator = this._errHandler.recoverInline(
-                  this
-                );
+                (_localctx as ArithmeticUnaryContext)._operator = this._errHandler.recoverInline(this);
               } else {
                 if (this._input.LA(1) === Token.EOF) {
                   this.matchedEOF = true;
@@ -11972,30 +11094,18 @@ export class SqlBaseParser extends Parser {
             {
               this.state = 2568;
               this._errHandler.sync(this);
-              switch (
-                this.interpreter.adaptivePredict(this._input, 334, this._ctx)
-              ) {
+              switch (this.interpreter.adaptivePredict(this._input, 334, this._ctx)) {
                 case 1:
                   {
-                    _localctx = new ArithmeticBinaryContext(
-                      new ValueExpressionContext(_parentctx, _parentState)
-                    );
+                    _localctx = new ArithmeticBinaryContext(new ValueExpressionContext(_parentctx, _parentState));
                     (_localctx as ArithmeticBinaryContext)._left = _prevctx;
-                    this.pushNewRecursionContext(
-                      _localctx,
-                      _startState,
-                      SqlBaseParser.RULE_valueExpression
-                    );
+                    this.pushNewRecursionContext(_localctx, _startState, SqlBaseParser.RULE_valueExpression);
                     this.state = 2549;
                     if (!this.precpred(this._ctx, 6)) {
-                      throw this.createFailedPredicateException(
-                        "this.precpred(this._ctx, 6)"
-                      );
+                      throw this.createFailedPredicateException("this.precpred(this._ctx, 6)");
                     }
                     this.state = 2550;
-                    (_localctx as ArithmeticBinaryContext)._operator = this._input.LT(
-                      1
-                    );
+                    (_localctx as ArithmeticBinaryContext)._operator = this._input.LT(1);
                     _la = this._input.LA(1);
                     if (
                       !(
@@ -12008,9 +11118,7 @@ export class SqlBaseParser extends Parser {
                             0)
                       )
                     ) {
-                      (_localctx as ArithmeticBinaryContext)._operator = this._errHandler.recoverInline(
-                        this
-                      );
+                      (_localctx as ArithmeticBinaryContext)._operator = this._errHandler.recoverInline(this);
                     } else {
                       if (this._input.LA(1) === Token.EOF) {
                         this.matchedEOF = true;
@@ -12020,33 +11128,21 @@ export class SqlBaseParser extends Parser {
                       this.consume();
                     }
                     this.state = 2551;
-                    (_localctx as ArithmeticBinaryContext)._right = this.valueExpression(
-                      7
-                    );
+                    (_localctx as ArithmeticBinaryContext)._right = this.valueExpression(7);
                   }
                   break;
 
                 case 2:
                   {
-                    _localctx = new ArithmeticBinaryContext(
-                      new ValueExpressionContext(_parentctx, _parentState)
-                    );
+                    _localctx = new ArithmeticBinaryContext(new ValueExpressionContext(_parentctx, _parentState));
                     (_localctx as ArithmeticBinaryContext)._left = _prevctx;
-                    this.pushNewRecursionContext(
-                      _localctx,
-                      _startState,
-                      SqlBaseParser.RULE_valueExpression
-                    );
+                    this.pushNewRecursionContext(_localctx, _startState, SqlBaseParser.RULE_valueExpression);
                     this.state = 2552;
                     if (!this.precpred(this._ctx, 5)) {
-                      throw this.createFailedPredicateException(
-                        "this.precpred(this._ctx, 5)"
-                      );
+                      throw this.createFailedPredicateException("this.precpred(this._ctx, 5)");
                     }
                     this.state = 2553;
-                    (_localctx as ArithmeticBinaryContext)._operator = this._input.LT(
-                      1
-                    );
+                    (_localctx as ArithmeticBinaryContext)._operator = this._input.LT(1);
                     _la = this._input.LA(1);
                     if (
                       !(
@@ -12058,9 +11154,7 @@ export class SqlBaseParser extends Parser {
                           0
                       )
                     ) {
-                      (_localctx as ArithmeticBinaryContext)._operator = this._errHandler.recoverInline(
-                        this
-                      );
+                      (_localctx as ArithmeticBinaryContext)._operator = this._errHandler.recoverInline(this);
                     } else {
                       if (this._input.LA(1) === Token.EOF) {
                         this.matchedEOF = true;
@@ -12070,119 +11164,71 @@ export class SqlBaseParser extends Parser {
                       this.consume();
                     }
                     this.state = 2554;
-                    (_localctx as ArithmeticBinaryContext)._right = this.valueExpression(
-                      6
-                    );
+                    (_localctx as ArithmeticBinaryContext)._right = this.valueExpression(6);
                   }
                   break;
 
                 case 3:
                   {
-                    _localctx = new ArithmeticBinaryContext(
-                      new ValueExpressionContext(_parentctx, _parentState)
-                    );
+                    _localctx = new ArithmeticBinaryContext(new ValueExpressionContext(_parentctx, _parentState));
                     (_localctx as ArithmeticBinaryContext)._left = _prevctx;
-                    this.pushNewRecursionContext(
-                      _localctx,
-                      _startState,
-                      SqlBaseParser.RULE_valueExpression
-                    );
+                    this.pushNewRecursionContext(_localctx, _startState, SqlBaseParser.RULE_valueExpression);
                     this.state = 2555;
                     if (!this.precpred(this._ctx, 4)) {
-                      throw this.createFailedPredicateException(
-                        "this.precpred(this._ctx, 4)"
-                      );
+                      throw this.createFailedPredicateException("this.precpred(this._ctx, 4)");
                     }
                     this.state = 2556;
-                    (_localctx as ArithmeticBinaryContext)._operator = this.match(
-                      SqlBaseParser.AMPERSAND
-                    );
+                    (_localctx as ArithmeticBinaryContext)._operator = this.match(SqlBaseParser.AMPERSAND);
                     this.state = 2557;
-                    (_localctx as ArithmeticBinaryContext)._right = this.valueExpression(
-                      5
-                    );
+                    (_localctx as ArithmeticBinaryContext)._right = this.valueExpression(5);
                   }
                   break;
 
                 case 4:
                   {
-                    _localctx = new ArithmeticBinaryContext(
-                      new ValueExpressionContext(_parentctx, _parentState)
-                    );
+                    _localctx = new ArithmeticBinaryContext(new ValueExpressionContext(_parentctx, _parentState));
                     (_localctx as ArithmeticBinaryContext)._left = _prevctx;
-                    this.pushNewRecursionContext(
-                      _localctx,
-                      _startState,
-                      SqlBaseParser.RULE_valueExpression
-                    );
+                    this.pushNewRecursionContext(_localctx, _startState, SqlBaseParser.RULE_valueExpression);
                     this.state = 2558;
                     if (!this.precpred(this._ctx, 3)) {
-                      throw this.createFailedPredicateException(
-                        "this.precpred(this._ctx, 3)"
-                      );
+                      throw this.createFailedPredicateException("this.precpred(this._ctx, 3)");
                     }
                     this.state = 2559;
-                    (_localctx as ArithmeticBinaryContext)._operator = this.match(
-                      SqlBaseParser.HAT
-                    );
+                    (_localctx as ArithmeticBinaryContext)._operator = this.match(SqlBaseParser.HAT);
                     this.state = 2560;
-                    (_localctx as ArithmeticBinaryContext)._right = this.valueExpression(
-                      4
-                    );
+                    (_localctx as ArithmeticBinaryContext)._right = this.valueExpression(4);
                   }
                   break;
 
                 case 5:
                   {
-                    _localctx = new ArithmeticBinaryContext(
-                      new ValueExpressionContext(_parentctx, _parentState)
-                    );
+                    _localctx = new ArithmeticBinaryContext(new ValueExpressionContext(_parentctx, _parentState));
                     (_localctx as ArithmeticBinaryContext)._left = _prevctx;
-                    this.pushNewRecursionContext(
-                      _localctx,
-                      _startState,
-                      SqlBaseParser.RULE_valueExpression
-                    );
+                    this.pushNewRecursionContext(_localctx, _startState, SqlBaseParser.RULE_valueExpression);
                     this.state = 2561;
                     if (!this.precpred(this._ctx, 2)) {
-                      throw this.createFailedPredicateException(
-                        "this.precpred(this._ctx, 2)"
-                      );
+                      throw this.createFailedPredicateException("this.precpred(this._ctx, 2)");
                     }
                     this.state = 2562;
-                    (_localctx as ArithmeticBinaryContext)._operator = this.match(
-                      SqlBaseParser.PIPE
-                    );
+                    (_localctx as ArithmeticBinaryContext)._operator = this.match(SqlBaseParser.PIPE);
                     this.state = 2563;
-                    (_localctx as ArithmeticBinaryContext)._right = this.valueExpression(
-                      3
-                    );
+                    (_localctx as ArithmeticBinaryContext)._right = this.valueExpression(3);
                   }
                   break;
 
                 case 6:
                   {
-                    _localctx = new ComparisonContext(
-                      new ValueExpressionContext(_parentctx, _parentState)
-                    );
+                    _localctx = new ComparisonContext(new ValueExpressionContext(_parentctx, _parentState));
                     (_localctx as ComparisonContext)._left = _prevctx;
-                    this.pushNewRecursionContext(
-                      _localctx,
-                      _startState,
-                      SqlBaseParser.RULE_valueExpression
-                    );
+                    this.pushNewRecursionContext(_localctx, _startState, SqlBaseParser.RULE_valueExpression);
                     this.state = 2564;
                     if (!this.precpred(this._ctx, 1)) {
-                      throw this.createFailedPredicateException(
-                        "this.precpred(this._ctx, 1)"
-                      );
+                      throw this.createFailedPredicateException("this.precpred(this._ctx, 1)");
                     }
                     this.state = 2565;
                     this.comparisonOperator();
                     this.state = 2566;
-                    (_localctx as ComparisonContext)._right = this.valueExpression(
-                      2
-                    );
+                    (_localctx as ComparisonContext)._right = this.valueExpression(2);
                   }
                   break;
               }
@@ -12215,20 +11261,12 @@ export class SqlBaseParser extends Parser {
       _p = 0;
     }
 
-    let _parentctx: ParserRuleContext = this._ctx;
-    let _parentState: number = this.state;
-    let _localctx: PrimaryExpressionContext = new PrimaryExpressionContext(
-      this._ctx,
-      _parentState
-    );
+    const _parentctx: ParserRuleContext = this._ctx;
+    const _parentState: number = this.state;
+    let _localctx: PrimaryExpressionContext = new PrimaryExpressionContext(this._ctx, _parentState);
     let _prevctx: PrimaryExpressionContext = _localctx;
-    let _startState: number = 208;
-    this.enterRecursionRule(
-      _localctx,
-      208,
-      SqlBaseParser.RULE_primaryExpression,
-      _p
-    );
+    const _startState = 208;
+    this.enterRecursionRule(_localctx, 208, SqlBaseParser.RULE_primaryExpression, _p);
     let _la: number;
     try {
       let _alt: number;
@@ -12256,9 +11294,7 @@ export class SqlBaseParser extends Parser {
                     0
                 )
               ) {
-                (_localctx as CurrentLikeContext)._name = this._errHandler.recoverInline(
-                  this
-                );
+                (_localctx as CurrentLikeContext)._name = this._errHandler.recoverInline(this);
               } else {
                 if (this._input.LA(1) === Token.EOF) {
                   this.matchedEOF = true;
@@ -12356,12 +11392,8 @@ export class SqlBaseParser extends Parser {
               this.state = 2600;
               (_localctx as CastContext)._name = this._input.LT(1);
               _la = this._input.LA(1);
-              if (
-                !(_la === SqlBaseParser.CAST || _la === SqlBaseParser.TRY_CAST)
-              ) {
-                (_localctx as CastContext)._name = this._errHandler.recoverInline(
-                  this
-                );
+              if (!(_la === SqlBaseParser.CAST || _la === SqlBaseParser.TRY_CAST)) {
+                (_localctx as CastContext)._name = this._errHandler.recoverInline(this);
               } else {
                 if (this._input.LA(1) === Token.EOF) {
                   this.matchedEOF = true;
@@ -12394,16 +11426,12 @@ export class SqlBaseParser extends Parser {
               this.match(SqlBaseParser.T__1);
               this.state = 2617;
               this._errHandler.sync(this);
-              switch (
-                this.interpreter.adaptivePredict(this._input, 341, this._ctx)
-              ) {
+              switch (this.interpreter.adaptivePredict(this._input, 341, this._ctx)) {
                 case 1:
                   {
                     this.state = 2609;
                     (_localctx as StructContext)._namedExpression = this.namedExpression();
-                    (_localctx as StructContext)._argument.push(
-                      (_localctx as StructContext)._namedExpression
-                    );
+                    (_localctx as StructContext)._argument.push((_localctx as StructContext)._namedExpression);
                     this.state = 2614;
                     this._errHandler.sync(this);
                     _la = this._input.LA(1);
@@ -12414,9 +11442,7 @@ export class SqlBaseParser extends Parser {
                           this.match(SqlBaseParser.T__3);
                           this.state = 2611;
                           (_localctx as StructContext)._namedExpression = this.namedExpression();
-                          (_localctx as StructContext)._argument.push(
-                            (_localctx as StructContext)._namedExpression
-                          );
+                          (_localctx as StructContext)._argument.push((_localctx as StructContext)._namedExpression);
                         }
                       }
                       this.state = 2616;
@@ -12596,20 +11622,12 @@ export class SqlBaseParser extends Parser {
               this.match(SqlBaseParser.T__1);
               this.state = 2678;
               this._errHandler.sync(this);
-              switch (
-                this.interpreter.adaptivePredict(this._input, 347, this._ctx)
-              ) {
+              switch (this.interpreter.adaptivePredict(this._input, 347, this._ctx)) {
                 case 1:
                   {
                     this.state = 2668;
                     this._errHandler.sync(this);
-                    switch (
-                      this.interpreter.adaptivePredict(
-                        this._input,
-                        345,
-                        this._ctx
-                      )
-                    ) {
+                    switch (this.interpreter.adaptivePredict(this._input, 345, this._ctx)) {
                       case 1:
                         {
                           this.state = 2667;
@@ -12619,9 +11637,7 @@ export class SqlBaseParser extends Parser {
                     }
                     this.state = 2670;
                     (_localctx as FunctionCallContext)._expression = this.expression();
-                    (_localctx as FunctionCallContext)._argument.push(
-                      (_localctx as FunctionCallContext)._expression
-                    );
+                    (_localctx as FunctionCallContext)._argument.push((_localctx as FunctionCallContext)._expression);
                     this.state = 2675;
                     this._errHandler.sync(this);
                     _la = this._input.LA(1);
@@ -12648,9 +11664,7 @@ export class SqlBaseParser extends Parser {
               this.match(SqlBaseParser.T__2);
               this.state = 2687;
               this._errHandler.sync(this);
-              switch (
-                this.interpreter.adaptivePredict(this._input, 348, this._ctx)
-              ) {
+              switch (this.interpreter.adaptivePredict(this._input, 348, this._ctx)) {
                 case 1:
                   {
                     this.state = 2681;
@@ -12660,9 +11674,7 @@ export class SqlBaseParser extends Parser {
                     this.state = 2683;
                     this.match(SqlBaseParser.WHERE);
                     this.state = 2684;
-                    (_localctx as FunctionCallContext)._where = this.booleanExpression(
-                      0
-                    );
+                    (_localctx as FunctionCallContext)._where = this.booleanExpression(0);
                     this.state = 2685;
                     this.match(SqlBaseParser.T__2);
                   }
@@ -12670,25 +11682,14 @@ export class SqlBaseParser extends Parser {
               }
               this.state = 2691;
               this._errHandler.sync(this);
-              switch (
-                this.interpreter.adaptivePredict(this._input, 349, this._ctx)
-              ) {
+              switch (this.interpreter.adaptivePredict(this._input, 349, this._ctx)) {
                 case 1:
                   {
                     this.state = 2689;
-                    (_localctx as FunctionCallContext)._nullsOption = this._input.LT(
-                      1
-                    );
+                    (_localctx as FunctionCallContext)._nullsOption = this._input.LT(1);
                     _la = this._input.LA(1);
-                    if (
-                      !(
-                        _la === SqlBaseParser.IGNORE ||
-                        _la === SqlBaseParser.RESPECT
-                      )
-                    ) {
-                      (_localctx as FunctionCallContext)._nullsOption = this._errHandler.recoverInline(
-                        this
-                      );
+                    if (!(_la === SqlBaseParser.IGNORE || _la === SqlBaseParser.RESPECT)) {
+                      (_localctx as FunctionCallContext)._nullsOption = this._errHandler.recoverInline(this);
                     } else {
                       if (this._input.LA(1) === Token.EOF) {
                         this.matchedEOF = true;
@@ -12704,9 +11705,7 @@ export class SqlBaseParser extends Parser {
               }
               this.state = 2695;
               this._errHandler.sync(this);
-              switch (
-                this.interpreter.adaptivePredict(this._input, 350, this._ctx)
-              ) {
+              switch (this.interpreter.adaptivePredict(this._input, 350, this._ctx)) {
                 case 1:
                   {
                     this.state = 2693;
@@ -12818,12 +11817,7 @@ export class SqlBaseParser extends Parser {
               _prevctx = _localctx;
               this.state = 2725;
               _la = this._input.LA(1);
-              if (
-                !(
-                  _la === SqlBaseParser.SUBSTR ||
-                  _la === SqlBaseParser.SUBSTRING
-                )
-              ) {
+              if (!(_la === SqlBaseParser.SUBSTR || _la === SqlBaseParser.SUBSTRING)) {
                 this._errHandler.recoverInline(this);
               } else {
                 if (this._input.LA(1) === Token.EOF) {
@@ -12858,9 +11852,7 @@ export class SqlBaseParser extends Parser {
                 {
                   this.state = 2730;
                   _la = this._input.LA(1);
-                  if (
-                    !(_la === SqlBaseParser.T__3 || _la === SqlBaseParser.FOR)
-                  ) {
+                  if (!(_la === SqlBaseParser.T__3 || _la === SqlBaseParser.FOR)) {
                     this._errHandler.recoverInline(this);
                   } else {
                     if (this._input.LA(1) === Token.EOF) {
@@ -12871,9 +11863,7 @@ export class SqlBaseParser extends Parser {
                     this.consume();
                   }
                   this.state = 2731;
-                  (_localctx as SubstringContext)._len = this.valueExpression(
-                    0
-                  );
+                  (_localctx as SubstringContext)._len = this.valueExpression(0);
                 }
               }
 
@@ -12893,24 +11883,16 @@ export class SqlBaseParser extends Parser {
               this.match(SqlBaseParser.T__1);
               this.state = 2739;
               this._errHandler.sync(this);
-              switch (
-                this.interpreter.adaptivePredict(this._input, 353, this._ctx)
-              ) {
+              switch (this.interpreter.adaptivePredict(this._input, 353, this._ctx)) {
                 case 1:
                   {
                     this.state = 2738;
                     (_localctx as TrimContext)._trimOption = this._input.LT(1);
                     _la = this._input.LA(1);
                     if (
-                      !(
-                        _la === SqlBaseParser.BOTH ||
-                        _la === SqlBaseParser.LEADING ||
-                        _la === SqlBaseParser.TRAILING
-                      )
+                      !(_la === SqlBaseParser.BOTH || _la === SqlBaseParser.LEADING || _la === SqlBaseParser.TRAILING)
                     ) {
-                      (_localctx as TrimContext)._trimOption = this._errHandler.recoverInline(
-                        this
-                      );
+                      (_localctx as TrimContext)._trimOption = this._errHandler.recoverInline(this);
                     } else {
                       if (this._input.LA(1) === Token.EOF) {
                         this.matchedEOF = true;
@@ -12924,15 +11906,11 @@ export class SqlBaseParser extends Parser {
               }
               this.state = 2742;
               this._errHandler.sync(this);
-              switch (
-                this.interpreter.adaptivePredict(this._input, 354, this._ctx)
-              ) {
+              switch (this.interpreter.adaptivePredict(this._input, 354, this._ctx)) {
                 case 1:
                   {
                     this.state = 2741;
-                    (_localctx as TrimContext)._trimStr = this.valueExpression(
-                      0
-                    );
+                    (_localctx as TrimContext)._trimStr = this.valueExpression(0);
                   }
                   break;
               }
@@ -12972,9 +11950,7 @@ export class SqlBaseParser extends Parser {
                   this.state = 2755;
                   this.match(SqlBaseParser.FOR);
                   this.state = 2756;
-                  (_localctx as OverlayContext)._length = this.valueExpression(
-                    0
-                  );
+                  (_localctx as OverlayContext)._length = this.valueExpression(0);
                 }
               }
 
@@ -12996,32 +11972,20 @@ export class SqlBaseParser extends Parser {
             {
               this.state = 2774;
               this._errHandler.sync(this);
-              switch (
-                this.interpreter.adaptivePredict(this._input, 357, this._ctx)
-              ) {
+              switch (this.interpreter.adaptivePredict(this._input, 357, this._ctx)) {
                 case 1:
                   {
-                    _localctx = new SubscriptContext(
-                      new PrimaryExpressionContext(_parentctx, _parentState)
-                    );
+                    _localctx = new SubscriptContext(new PrimaryExpressionContext(_parentctx, _parentState));
                     (_localctx as SubscriptContext)._value = _prevctx;
-                    this.pushNewRecursionContext(
-                      _localctx,
-                      _startState,
-                      SqlBaseParser.RULE_primaryExpression
-                    );
+                    this.pushNewRecursionContext(_localctx, _startState, SqlBaseParser.RULE_primaryExpression);
                     this.state = 2763;
                     if (!this.precpred(this._ctx, 9)) {
-                      throw this.createFailedPredicateException(
-                        "this.precpred(this._ctx, 9)"
-                      );
+                      throw this.createFailedPredicateException("this.precpred(this._ctx, 9)");
                     }
                     this.state = 2764;
                     this.match(SqlBaseParser.T__8);
                     this.state = 2765;
-                    (_localctx as SubscriptContext)._index = this.valueExpression(
-                      0
-                    );
+                    (_localctx as SubscriptContext)._index = this.valueExpression(0);
                     this.state = 2766;
                     this.match(SqlBaseParser.T__9);
                   }
@@ -13029,20 +11993,12 @@ export class SqlBaseParser extends Parser {
 
                 case 2:
                   {
-                    _localctx = new DereferenceContext(
-                      new PrimaryExpressionContext(_parentctx, _parentState)
-                    );
+                    _localctx = new DereferenceContext(new PrimaryExpressionContext(_parentctx, _parentState));
                     (_localctx as DereferenceContext)._base = _prevctx;
-                    this.pushNewRecursionContext(
-                      _localctx,
-                      _startState,
-                      SqlBaseParser.RULE_primaryExpression
-                    );
+                    this.pushNewRecursionContext(_localctx, _startState, SqlBaseParser.RULE_primaryExpression);
                     this.state = 2768;
                     if (!this.precpred(this._ctx, 7)) {
-                      throw this.createFailedPredicateException(
-                        "this.precpred(this._ctx, 7)"
-                      );
+                      throw this.createFailedPredicateException("this.precpred(this._ctx, 7)");
                     }
                     this.state = 2769;
                     this.match(SqlBaseParser.T__4);
@@ -13053,20 +12009,12 @@ export class SqlBaseParser extends Parser {
 
                 case 3:
                   {
-                    _localctx = new PostgresCastContext(
-                      new PrimaryExpressionContext(_parentctx, _parentState)
-                    );
+                    _localctx = new PostgresCastContext(new PrimaryExpressionContext(_parentctx, _parentState));
                     (_localctx as PostgresCastContext)._value = _prevctx;
-                    this.pushNewRecursionContext(
-                      _localctx,
-                      _startState,
-                      SqlBaseParser.RULE_primaryExpression
-                    );
+                    this.pushNewRecursionContext(_localctx, _startState, SqlBaseParser.RULE_primaryExpression);
                     this.state = 2771;
                     if (!this.precpred(this._ctx, 6)) {
-                      throw this.createFailedPredicateException(
-                        "this.precpred(this._ctx, 6)"
-                      );
+                      throw this.createFailedPredicateException("this.precpred(this._ctx, 6)");
                     }
                     this.state = 2772;
                     this.match(SqlBaseParser.DOUBLE_COLON);
@@ -13173,11 +12121,7 @@ export class SqlBaseParser extends Parser {
               }
               this.state = 2789;
               this._errHandler.sync(this);
-              _alt = this.interpreter.adaptivePredict(
-                this._input,
-                359,
-                this._ctx
-              );
+              _alt = this.interpreter.adaptivePredict(this._input, 359, this._ctx);
             } while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER);
           }
           break;
@@ -13197,10 +12141,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public comparisonOperator(): ComparisonOperatorContext {
-    let _localctx: ComparisonOperatorContext = new ComparisonOperatorContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: ComparisonOperatorContext = new ComparisonOperatorContext(this._ctx, this.state);
     this.enterRule(_localctx, 212, SqlBaseParser.RULE_comparisonOperator);
     let _la: number;
     try {
@@ -13248,10 +12189,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public arithmeticOperator(): ArithmeticOperatorContext {
-    let _localctx: ArithmeticOperatorContext = new ArithmeticOperatorContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: ArithmeticOperatorContext = new ArithmeticOperatorContext(this._ctx, this.state);
     this.enterRule(_localctx, 214, SqlBaseParser.RULE_arithmeticOperator);
     let _la: number;
     try {
@@ -13302,10 +12240,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public predicateOperator(): PredicateOperatorContext {
-    let _localctx: PredicateOperatorContext = new PredicateOperatorContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: PredicateOperatorContext = new PredicateOperatorContext(this._ctx, this.state);
     this.enterRule(_localctx, 216, SqlBaseParser.RULE_predicateOperator);
     let _la: number;
     try {
@@ -13346,10 +12281,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public booleanValue(): BooleanValueContext {
-    let _localctx: BooleanValueContext = new BooleanValueContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: BooleanValueContext = new BooleanValueContext(this._ctx, this.state);
     this.enterRule(_localctx, 218, SqlBaseParser.RULE_booleanValue);
     let _la: number;
     try {
@@ -13383,7 +12315,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public interval(): IntervalContext {
-    let _localctx: IntervalContext = new IntervalContext(this._ctx, this.state);
+    const _localctx: IntervalContext = new IntervalContext(this._ctx, this.state);
     this.enterRule(_localctx, 220, SqlBaseParser.RULE_interval);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -13423,15 +12355,11 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public errorCapturingMultiUnitsInterval(): ErrorCapturingMultiUnitsIntervalContext {
-    let _localctx: ErrorCapturingMultiUnitsIntervalContext = new ErrorCapturingMultiUnitsIntervalContext(
+    const _localctx: ErrorCapturingMultiUnitsIntervalContext = new ErrorCapturingMultiUnitsIntervalContext(
       this._ctx,
       this.state
     );
-    this.enterRule(
-      _localctx,
-      222,
-      SqlBaseParser.RULE_errorCapturingMultiUnitsInterval
-    );
+    this.enterRule(_localctx, 222, SqlBaseParser.RULE_errorCapturingMultiUnitsInterval);
     try {
       this.enterOuterAlt(_localctx, 1);
       {
@@ -13463,10 +12391,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public multiUnitsInterval(): MultiUnitsIntervalContext {
-    let _localctx: MultiUnitsIntervalContext = new MultiUnitsIntervalContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: MultiUnitsIntervalContext = new MultiUnitsIntervalContext(this._ctx, this.state);
     this.enterRule(_localctx, 224, SqlBaseParser.RULE_multiUnitsInterval);
     try {
       let _alt: number;
@@ -13511,15 +12436,11 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public errorCapturingUnitToUnitInterval(): ErrorCapturingUnitToUnitIntervalContext {
-    let _localctx: ErrorCapturingUnitToUnitIntervalContext = new ErrorCapturingUnitToUnitIntervalContext(
+    const _localctx: ErrorCapturingUnitToUnitIntervalContext = new ErrorCapturingUnitToUnitIntervalContext(
       this._ctx,
       this.state
     );
-    this.enterRule(
-      _localctx,
-      226,
-      SqlBaseParser.RULE_errorCapturingUnitToUnitInterval
-    );
+    this.enterRule(_localctx, 226, SqlBaseParser.RULE_errorCapturingUnitToUnitInterval);
     try {
       this.enterOuterAlt(_localctx, 1);
       {
@@ -13558,10 +12479,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public unitToUnitInterval(): UnitToUnitIntervalContext {
-    let _localctx: UnitToUnitIntervalContext = new UnitToUnitIntervalContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: UnitToUnitIntervalContext = new UnitToUnitIntervalContext(this._ctx, this.state);
     this.enterRule(_localctx, 228, SqlBaseParser.RULE_unitToUnitInterval);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -13590,10 +12508,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public intervalValue(): IntervalValueContext {
-    let _localctx: IntervalValueContext = new IntervalValueContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: IntervalValueContext = new IntervalValueContext(this._ctx, this.state);
     this.enterRule(_localctx, 230, SqlBaseParser.RULE_intervalValue);
     let _la: number;
     try {
@@ -13656,10 +12571,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public colPosition(): ColPositionContext {
-    let _localctx: ColPositionContext = new ColPositionContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: ColPositionContext = new ColPositionContext(this._ctx, this.state);
     this.enterRule(_localctx, 232, SqlBaseParser.RULE_colPosition);
     try {
       this.state = 2835;
@@ -13711,9 +12623,7 @@ export class SqlBaseParser extends Parser {
           this.enterOuterAlt(_localctx, 1);
           {
             this.state = 2837;
-            (_localctx as ComplexDataTypeContext)._complex = this.match(
-              SqlBaseParser.ARRAY
-            );
+            (_localctx as ComplexDataTypeContext)._complex = this.match(SqlBaseParser.ARRAY);
             this.state = 2838;
             this.match(SqlBaseParser.LT);
             this.state = 2839;
@@ -13728,9 +12638,7 @@ export class SqlBaseParser extends Parser {
           this.enterOuterAlt(_localctx, 2);
           {
             this.state = 2842;
-            (_localctx as ComplexDataTypeContext)._complex = this.match(
-              SqlBaseParser.MAP
-            );
+            (_localctx as ComplexDataTypeContext)._complex = this.match(SqlBaseParser.MAP);
             this.state = 2843;
             this.match(SqlBaseParser.LT);
             this.state = 2844;
@@ -13749,9 +12657,7 @@ export class SqlBaseParser extends Parser {
           this.enterOuterAlt(_localctx, 3);
           {
             this.state = 2849;
-            (_localctx as ComplexDataTypeContext)._complex = this.match(
-              SqlBaseParser.STRUCT
-            );
+            (_localctx as ComplexDataTypeContext)._complex = this.match(SqlBaseParser.STRUCT);
             this.state = 2856;
             this._errHandler.sync(this);
             switch (this._input.LA(1)) {
@@ -13761,13 +12667,7 @@ export class SqlBaseParser extends Parser {
                   this.match(SqlBaseParser.LT);
                   this.state = 2852;
                   this._errHandler.sync(this);
-                  switch (
-                    this.interpreter.adaptivePredict(
-                      this._input,
-                      367,
-                      this._ctx
-                    )
-                  ) {
+                  switch (this.interpreter.adaptivePredict(this._input, 367, this._ctx)) {
                     case 1:
                       {
                         this.state = 2851;
@@ -13798,14 +12698,10 @@ export class SqlBaseParser extends Parser {
             this.state = 2858;
             this.match(SqlBaseParser.INTERVAL);
             this.state = 2859;
-            (_localctx as YearMonthIntervalDataTypeContext)._from = this._input.LT(
-              1
-            );
+            (_localctx as YearMonthIntervalDataTypeContext)._from = this._input.LT(1);
             _la = this._input.LA(1);
             if (!(_la === SqlBaseParser.MONTH || _la === SqlBaseParser.YEAR)) {
-              (_localctx as YearMonthIntervalDataTypeContext)._from = this._errHandler.recoverInline(
-                this
-              );
+              (_localctx as YearMonthIntervalDataTypeContext)._from = this._errHandler.recoverInline(this);
             } else {
               if (this._input.LA(1) === Token.EOF) {
                 this.matchedEOF = true;
@@ -13816,17 +12712,13 @@ export class SqlBaseParser extends Parser {
             }
             this.state = 2862;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 369, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 369, this._ctx)) {
               case 1:
                 {
                   this.state = 2860;
                   this.match(SqlBaseParser.TO);
                   this.state = 2861;
-                  (_localctx as YearMonthIntervalDataTypeContext)._to = this.match(
-                    SqlBaseParser.MONTH
-                  );
+                  (_localctx as YearMonthIntervalDataTypeContext)._to = this.match(SqlBaseParser.MONTH);
                 }
                 break;
             }
@@ -13840,9 +12732,7 @@ export class SqlBaseParser extends Parser {
             this.state = 2864;
             this.match(SqlBaseParser.INTERVAL);
             this.state = 2865;
-            (_localctx as DayTimeIntervalDataTypeContext)._from = this._input.LT(
-              1
-            );
+            (_localctx as DayTimeIntervalDataTypeContext)._from = this._input.LT(1);
             _la = this._input.LA(1);
             if (
               !(
@@ -13852,9 +12742,7 @@ export class SqlBaseParser extends Parser {
                 _la === SqlBaseParser.SECOND
               )
             ) {
-              (_localctx as DayTimeIntervalDataTypeContext)._from = this._errHandler.recoverInline(
-                this
-              );
+              (_localctx as DayTimeIntervalDataTypeContext)._from = this._errHandler.recoverInline(this);
             } else {
               if (this._input.LA(1) === Token.EOF) {
                 this.matchedEOF = true;
@@ -13865,28 +12753,16 @@ export class SqlBaseParser extends Parser {
             }
             this.state = 2868;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 370, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 370, this._ctx)) {
               case 1:
                 {
                   this.state = 2866;
                   this.match(SqlBaseParser.TO);
                   this.state = 2867;
-                  (_localctx as DayTimeIntervalDataTypeContext)._to = this._input.LT(
-                    1
-                  );
+                  (_localctx as DayTimeIntervalDataTypeContext)._to = this._input.LT(1);
                   _la = this._input.LA(1);
-                  if (
-                    !(
-                      _la === SqlBaseParser.HOUR ||
-                      _la === SqlBaseParser.MINUTE ||
-                      _la === SqlBaseParser.SECOND
-                    )
-                  ) {
-                    (_localctx as DayTimeIntervalDataTypeContext)._to = this._errHandler.recoverInline(
-                      this
-                    );
+                  if (!(_la === SqlBaseParser.HOUR || _la === SqlBaseParser.MINUTE || _la === SqlBaseParser.SECOND)) {
+                    (_localctx as DayTimeIntervalDataTypeContext)._to = this._errHandler.recoverInline(this);
                   } else {
                     if (this._input.LA(1) === Token.EOF) {
                       this.matchedEOF = true;
@@ -13909,9 +12785,7 @@ export class SqlBaseParser extends Parser {
             this.identifier();
             this.state = 2881;
             this._errHandler.sync(this);
-            switch (
-              this.interpreter.adaptivePredict(this._input, 372, this._ctx)
-            ) {
+            switch (this.interpreter.adaptivePredict(this._input, 372, this._ctx)) {
               case 1:
                 {
                   this.state = 2871;
@@ -13957,15 +12831,11 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public qualifiedColTypeWithPositionList(): QualifiedColTypeWithPositionListContext {
-    let _localctx: QualifiedColTypeWithPositionListContext = new QualifiedColTypeWithPositionListContext(
+    const _localctx: QualifiedColTypeWithPositionListContext = new QualifiedColTypeWithPositionListContext(
       this._ctx,
       this.state
     );
-    this.enterRule(
-      _localctx,
-      236,
-      SqlBaseParser.RULE_qualifiedColTypeWithPositionList
-    );
+    this.enterRule(_localctx, 236, SqlBaseParser.RULE_qualifiedColTypeWithPositionList);
     let _la: number;
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -14004,15 +12874,11 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public qualifiedColTypeWithPosition(): QualifiedColTypeWithPositionContext {
-    let _localctx: QualifiedColTypeWithPositionContext = new QualifiedColTypeWithPositionContext(
+    const _localctx: QualifiedColTypeWithPositionContext = new QualifiedColTypeWithPositionContext(
       this._ctx,
       this.state
     );
-    this.enterRule(
-      _localctx,
-      238,
-      SqlBaseParser.RULE_qualifiedColTypeWithPosition
-    );
+    this.enterRule(_localctx, 238, SqlBaseParser.RULE_qualifiedColTypeWithPosition);
     let _la: number;
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -14068,10 +12934,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public colTypeList(): ColTypeListContext {
-    let _localctx: ColTypeListContext = new ColTypeListContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: ColTypeListContext = new ColTypeListContext(this._ctx, this.state);
     this.enterRule(_localctx, 240, SqlBaseParser.RULE_colTypeList);
     try {
       let _alt: number;
@@ -14113,7 +12976,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public colType(): ColTypeContext {
-    let _localctx: ColTypeContext = new ColTypeContext(this._ctx, this.state);
+    const _localctx: ColTypeContext = new ColTypeContext(this._ctx, this.state);
     this.enterRule(_localctx, 242, SqlBaseParser.RULE_colType);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -14160,10 +13023,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public complexColTypeList(): ComplexColTypeListContext {
-    let _localctx: ComplexColTypeListContext = new ComplexColTypeListContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: ComplexColTypeListContext = new ComplexColTypeListContext(this._ctx, this.state);
     this.enterRule(_localctx, 244, SqlBaseParser.RULE_complexColTypeList);
     let _la: number;
     try {
@@ -14203,10 +13063,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public complexColType(): ComplexColTypeContext {
-    let _localctx: ComplexColTypeContext = new ComplexColTypeContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: ComplexColTypeContext = new ComplexColTypeContext(this._ctx, this.state);
     this.enterRule(_localctx, 246, SqlBaseParser.RULE_complexColType);
     let _la: number;
     try {
@@ -14263,10 +13120,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public whenClause(): WhenClauseContext {
-    let _localctx: WhenClauseContext = new WhenClauseContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: WhenClauseContext = new WhenClauseContext(this._ctx, this.state);
     this.enterRule(_localctx, 248, SqlBaseParser.RULE_whenClause);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -14295,10 +13149,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public windowClause(): WindowClauseContext {
-    let _localctx: WindowClauseContext = new WindowClauseContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: WindowClauseContext = new WindowClauseContext(this._ctx, this.state);
     this.enterRule(_localctx, 250, SqlBaseParser.RULE_windowClause);
     try {
       let _alt: number;
@@ -14342,10 +13193,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public namedWindow(): NamedWindowContext {
-    let _localctx: NamedWindowContext = new NamedWindowContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: NamedWindowContext = new NamedWindowContext(this._ctx, this.state);
     this.enterRule(_localctx, 252, SqlBaseParser.RULE_namedWindow);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -14372,10 +13220,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public windowSpec(): WindowSpecContext {
-    let _localctx: WindowSpecContext = new WindowSpecContext(
-      this._ctx,
-      this.state
-    );
+    let _localctx: WindowSpecContext = new WindowSpecContext(this._ctx, this.state);
     this.enterRule(_localctx, 254, SqlBaseParser.RULE_windowSpec);
     let _la: number;
     try {
@@ -14421,9 +13266,7 @@ export class SqlBaseParser extends Parser {
                   this.match(SqlBaseParser.BY);
                   this.state = 2968;
                   (_localctx as WindowDefContext)._expression = this.expression();
-                  (_localctx as WindowDefContext)._partition.push(
-                    (_localctx as WindowDefContext)._expression
-                  );
+                  (_localctx as WindowDefContext)._partition.push((_localctx as WindowDefContext)._expression);
                   this.state = 2973;
                   this._errHandler.sync(this);
                   _la = this._input.LA(1);
@@ -14434,9 +13277,7 @@ export class SqlBaseParser extends Parser {
                         this.match(SqlBaseParser.T__3);
                         this.state = 2970;
                         (_localctx as WindowDefContext)._expression = this.expression();
-                        (_localctx as WindowDefContext)._partition.push(
-                          (_localctx as WindowDefContext)._expression
-                        );
+                        (_localctx as WindowDefContext)._partition.push((_localctx as WindowDefContext)._expression);
                       }
                     }
                     this.state = 2975;
@@ -14456,19 +13297,11 @@ export class SqlBaseParser extends Parser {
                   this.state = 2986;
                   this._errHandler.sync(this);
                   _la = this._input.LA(1);
-                  if (
-                    _la === SqlBaseParser.DISTRIBUTE ||
-                    _la === SqlBaseParser.PARTITION
-                  ) {
+                  if (_la === SqlBaseParser.DISTRIBUTE || _la === SqlBaseParser.PARTITION) {
                     {
                       this.state = 2976;
                       _la = this._input.LA(1);
-                      if (
-                        !(
-                          _la === SqlBaseParser.DISTRIBUTE ||
-                          _la === SqlBaseParser.PARTITION
-                        )
-                      ) {
+                      if (!(_la === SqlBaseParser.DISTRIBUTE || _la === SqlBaseParser.PARTITION)) {
                         this._errHandler.recoverInline(this);
                       } else {
                         if (this._input.LA(1) === Token.EOF) {
@@ -14482,9 +13315,7 @@ export class SqlBaseParser extends Parser {
                       this.match(SqlBaseParser.BY);
                       this.state = 2978;
                       (_localctx as WindowDefContext)._expression = this.expression();
-                      (_localctx as WindowDefContext)._partition.push(
-                        (_localctx as WindowDefContext)._expression
-                      );
+                      (_localctx as WindowDefContext)._partition.push((_localctx as WindowDefContext)._expression);
                       this.state = 2983;
                       this._errHandler.sync(this);
                       _la = this._input.LA(1);
@@ -14510,19 +13341,11 @@ export class SqlBaseParser extends Parser {
                   this.state = 2998;
                   this._errHandler.sync(this);
                   _la = this._input.LA(1);
-                  if (
-                    _la === SqlBaseParser.ORDER ||
-                    _la === SqlBaseParser.SORT
-                  ) {
+                  if (_la === SqlBaseParser.ORDER || _la === SqlBaseParser.SORT) {
                     {
                       this.state = 2988;
                       _la = this._input.LA(1);
-                      if (
-                        !(
-                          _la === SqlBaseParser.ORDER ||
-                          _la === SqlBaseParser.SORT
-                        )
-                      ) {
+                      if (!(_la === SqlBaseParser.ORDER || _la === SqlBaseParser.SORT)) {
                         this._errHandler.recoverInline(this);
                       } else {
                         if (this._input.LA(1) === Token.EOF) {
@@ -14589,10 +13412,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public windowFrame(): WindowFrameContext {
-    let _localctx: WindowFrameContext = new WindowFrameContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: WindowFrameContext = new WindowFrameContext(this._ctx, this.state);
     this.enterRule(_localctx, 256, SqlBaseParser.RULE_windowFrame);
     try {
       this.state = 3024;
@@ -14665,10 +13485,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public frameBound(): FrameBoundContext {
-    let _localctx: FrameBoundContext = new FrameBoundContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: FrameBoundContext = new FrameBoundContext(this._ctx, this.state);
     this.enterRule(_localctx, 258, SqlBaseParser.RULE_frameBound);
     let _la: number;
     try {
@@ -14683,12 +13500,7 @@ export class SqlBaseParser extends Parser {
             this.state = 3027;
             _localctx._boundType = this._input.LT(1);
             _la = this._input.LA(1);
-            if (
-              !(
-                _la === SqlBaseParser.FOLLOWING ||
-                _la === SqlBaseParser.PRECEDING
-              )
-            ) {
+            if (!(_la === SqlBaseParser.FOLLOWING || _la === SqlBaseParser.PRECEDING)) {
               _localctx._boundType = this._errHandler.recoverInline(this);
             } else {
               if (this._input.LA(1) === Token.EOF) {
@@ -14719,12 +13531,7 @@ export class SqlBaseParser extends Parser {
             this.state = 3031;
             _localctx._boundType = this._input.LT(1);
             _la = this._input.LA(1);
-            if (
-              !(
-                _la === SqlBaseParser.FOLLOWING ||
-                _la === SqlBaseParser.PRECEDING
-              )
-            ) {
+            if (!(_la === SqlBaseParser.FOLLOWING || _la === SqlBaseParser.PRECEDING)) {
               _localctx._boundType = this._errHandler.recoverInline(this);
             } else {
               if (this._input.LA(1) === Token.EOF) {
@@ -14752,10 +13559,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public qualifiedNameList(): QualifiedNameListContext {
-    let _localctx: QualifiedNameListContext = new QualifiedNameListContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: QualifiedNameListContext = new QualifiedNameListContext(this._ctx, this.state);
     this.enterRule(_localctx, 260, SqlBaseParser.RULE_qualifiedNameList);
     let _la: number;
     try {
@@ -14795,10 +13599,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public functionName(): FunctionNameContext {
-    let _localctx: FunctionNameContext = new FunctionNameContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: FunctionNameContext = new FunctionNameContext(this._ctx, this.state);
     this.enterRule(_localctx, 262, SqlBaseParser.RULE_functionName);
     try {
       this.state = 3047;
@@ -14851,10 +13652,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public qualifiedName(): QualifiedNameContext {
-    let _localctx: QualifiedNameContext = new QualifiedNameContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: QualifiedNameContext = new QualifiedNameContext(this._ctx, this.state);
     this.enterRule(_localctx, 264, SqlBaseParser.RULE_qualifiedName);
     try {
       let _alt: number;
@@ -14896,10 +13694,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public errorCapturingIdentifier(): ErrorCapturingIdentifierContext {
-    let _localctx: ErrorCapturingIdentifierContext = new ErrorCapturingIdentifierContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: ErrorCapturingIdentifierContext = new ErrorCapturingIdentifierContext(this._ctx, this.state);
     this.enterRule(_localctx, 266, SqlBaseParser.RULE_errorCapturingIdentifier);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -14928,11 +13723,7 @@ export class SqlBaseParser extends Parser {
       this._ctx,
       this.state
     );
-    this.enterRule(
-      _localctx,
-      268,
-      SqlBaseParser.RULE_errorCapturingIdentifierExtra
-    );
+    this.enterRule(_localctx, 268, SqlBaseParser.RULE_errorCapturingIdentifierExtra);
     try {
       let _alt: number;
       this.state = 3067;
@@ -14962,11 +13753,7 @@ export class SqlBaseParser extends Parser {
               }
               this.state = 3064;
               this._errHandler.sync(this);
-              _alt = this.interpreter.adaptivePredict(
-                this._input,
-                399,
-                this._ctx
-              );
+              _alt = this.interpreter.adaptivePredict(this._input, 399, this._ctx);
             } while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER);
           }
           break;
@@ -14994,10 +13781,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public identifier(): IdentifierContext {
-    let _localctx: IdentifierContext = new IdentifierContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: IdentifierContext = new IdentifierContext(this._ctx, this.state);
     this.enterRule(_localctx, 270, SqlBaseParser.RULE_identifier);
     try {
       this.state = 3072;
@@ -15015,10 +13799,8 @@ export class SqlBaseParser extends Parser {
           this.enterOuterAlt(_localctx, 2);
           {
             this.state = 3070;
-            if (!!this.SQL_standard_keyword_behavior) {
-              throw this.createFailedPredicateException(
-                "!this.SQL_standard_keyword_behavior"
-              );
+            if (this.SQL_standard_keyword_behavior) {
+              throw this.createFailedPredicateException("!this.SQL_standard_keyword_behavior");
             }
             this.state = 3071;
             this.strictNonReserved();
@@ -15040,10 +13822,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public strictIdentifier(): StrictIdentifierContext {
-    let _localctx: StrictIdentifierContext = new StrictIdentifierContext(
-      this._ctx,
-      this.state
-    );
+    let _localctx: StrictIdentifierContext = new StrictIdentifierContext(this._ctx, this.state);
     this.enterRule(_localctx, 272, SqlBaseParser.RULE_strictIdentifier);
     try {
       this.state = 3080;
@@ -15073,9 +13852,7 @@ export class SqlBaseParser extends Parser {
           {
             this.state = 3076;
             if (!this.SQL_standard_keyword_behavior) {
-              throw this.createFailedPredicateException(
-                "this.SQL_standard_keyword_behavior"
-              );
+              throw this.createFailedPredicateException("this.SQL_standard_keyword_behavior");
             }
             this.state = 3077;
             this.ansiNonReserved();
@@ -15087,10 +13864,8 @@ export class SqlBaseParser extends Parser {
           this.enterOuterAlt(_localctx, 4);
           {
             this.state = 3078;
-            if (!!this.SQL_standard_keyword_behavior) {
-              throw this.createFailedPredicateException(
-                "!this.SQL_standard_keyword_behavior"
-              );
+            if (this.SQL_standard_keyword_behavior) {
+              throw this.createFailedPredicateException("!this.SQL_standard_keyword_behavior");
             }
             this.state = 3079;
             this.nonReserved();
@@ -15112,10 +13887,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public quotedIdentifier(): QuotedIdentifierContext {
-    let _localctx: QuotedIdentifierContext = new QuotedIdentifierContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: QuotedIdentifierContext = new QuotedIdentifierContext(this._ctx, this.state);
     this.enterRule(_localctx, 274, SqlBaseParser.RULE_quotedIdentifier);
     try {
       this.state = 3086;
@@ -15126,9 +13898,7 @@ export class SqlBaseParser extends Parser {
           {
             this.state = 3082;
             if (!this.backquoted_identifier) {
-              throw this.createFailedPredicateException(
-                "this.backquoted_identifier"
-              );
+              throw this.createFailedPredicateException("this.backquoted_identifier");
             }
             this.state = 3083;
             this.match(SqlBaseParser.BACKQUOTED_IDENTIFIER);
@@ -15140,9 +13910,7 @@ export class SqlBaseParser extends Parser {
           {
             this.state = 3084;
             if (!this.doublequoted_identifier) {
-              throw this.createFailedPredicateException(
-                "this.doublequoted_identifier"
-              );
+              throw this.createFailedPredicateException("this.doublequoted_identifier");
             }
             this.state = 3085;
             this.match(SqlBaseParser.DOUBLEQUOTED_IDENTIFIER);
@@ -15176,10 +13944,8 @@ export class SqlBaseParser extends Parser {
           this.enterOuterAlt(_localctx, 1);
           {
             this.state = 3088;
-            if (!!this.legacy_exponent_literal_as_decimal_enabled) {
-              throw this.createFailedPredicateException(
-                "!this.legacy_exponent_literal_as_decimal_enabled"
-              );
+            if (this.legacy_exponent_literal_as_decimal_enabled) {
+              throw this.createFailedPredicateException("!this.legacy_exponent_literal_as_decimal_enabled");
             }
             this.state = 3090;
             this._errHandler.sync(this);
@@ -15201,10 +13967,8 @@ export class SqlBaseParser extends Parser {
           this.enterOuterAlt(_localctx, 2);
           {
             this.state = 3093;
-            if (!!this.legacy_exponent_literal_as_decimal_enabled) {
-              throw this.createFailedPredicateException(
-                "!this.legacy_exponent_literal_as_decimal_enabled"
-              );
+            if (this.legacy_exponent_literal_as_decimal_enabled) {
+              throw this.createFailedPredicateException("!this.legacy_exponent_literal_as_decimal_enabled");
             }
             this.state = 3095;
             this._errHandler.sync(this);
@@ -15227,9 +13991,7 @@ export class SqlBaseParser extends Parser {
           {
             this.state = 3098;
             if (!this.legacy_exponent_literal_as_decimal_enabled) {
-              throw this.createFailedPredicateException(
-                "this.legacy_exponent_literal_as_decimal_enabled"
-              );
+              throw this.createFailedPredicateException("this.legacy_exponent_literal_as_decimal_enabled");
             }
             this.state = 3100;
             this._errHandler.sync(this);
@@ -15243,12 +14005,7 @@ export class SqlBaseParser extends Parser {
 
             this.state = 3102;
             _la = this._input.LA(1);
-            if (
-              !(
-                _la === SqlBaseParser.EXPONENT_VALUE ||
-                _la === SqlBaseParser.DECIMAL_VALUE
-              )
-            ) {
+            if (!(_la === SqlBaseParser.EXPONENT_VALUE || _la === SqlBaseParser.DECIMAL_VALUE)) {
               this._errHandler.recoverInline(this);
             } else {
               if (this._input.LA(1) === Token.EOF) {
@@ -15409,10 +14166,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public alterColumnAction(): AlterColumnActionContext {
-    let _localctx: AlterColumnActionContext = new AlterColumnActionContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: AlterColumnActionContext = new AlterColumnActionContext(this._ctx, this.state);
     this.enterRule(_localctx, 278, SqlBaseParser.RULE_alterColumnAction);
     let _la: number;
     try {
@@ -15484,10 +14238,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public ansiNonReserved(): AnsiNonReservedContext {
-    let _localctx: AnsiNonReservedContext = new AnsiNonReservedContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: AnsiNonReservedContext = new AnsiNonReservedContext(this._ctx, this.state);
     this.enterRule(_localctx, 280, SqlBaseParser.RULE_ansiNonReserved);
     let _la: number;
     try {
@@ -15736,10 +14487,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public strictNonReserved(): StrictNonReservedContext {
-    let _localctx: StrictNonReservedContext = new StrictNonReservedContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: StrictNonReservedContext = new StrictNonReservedContext(this._ctx, this.state);
     this.enterRule(_localctx, 282, SqlBaseParser.RULE_strictNonReserved);
     let _la: number;
     try {
@@ -15798,10 +14546,7 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public nonReserved(): NonReservedContext {
-    let _localctx: NonReservedContext = new NonReservedContext(
-      this._ctx,
-      this.state
-    );
+    const _localctx: NonReservedContext = new NonReservedContext(this._ctx, this.state);
     this.enterRule(_localctx, 284, SqlBaseParser.RULE_nonReserved);
     let _la: number;
     try {
@@ -16106,60 +14851,35 @@ export class SqlBaseParser extends Parser {
     return _localctx;
   }
 
-  public sempred(
-    _localctx: RuleContext,
-    ruleIndex: number,
-    predIndex: number
-  ): boolean {
+  public sempred(_localctx: RuleContext, ruleIndex: number, predIndex: number): boolean {
     switch (ruleIndex) {
       case 42:
         return this.queryTerm_sempred(_localctx as QueryTermContext, predIndex);
 
       case 101:
-        return this.booleanExpression_sempred(
-          _localctx as BooleanExpressionContext,
-          predIndex
-        );
+        return this.booleanExpression_sempred(_localctx as BooleanExpressionContext, predIndex);
 
       case 103:
-        return this.valueExpression_sempred(
-          _localctx as ValueExpressionContext,
-          predIndex
-        );
+        return this.valueExpression_sempred(_localctx as ValueExpressionContext, predIndex);
 
       case 104:
-        return this.primaryExpression_sempred(
-          _localctx as PrimaryExpressionContext,
-          predIndex
-        );
+        return this.primaryExpression_sempred(_localctx as PrimaryExpressionContext, predIndex);
 
       case 135:
-        return this.identifier_sempred(
-          _localctx as IdentifierContext,
-          predIndex
-        );
+        return this.identifier_sempred(_localctx as IdentifierContext, predIndex);
 
       case 136:
-        return this.strictIdentifier_sempred(
-          _localctx as StrictIdentifierContext,
-          predIndex
-        );
+        return this.strictIdentifier_sempred(_localctx as StrictIdentifierContext, predIndex);
 
       case 137:
-        return this.quotedIdentifier_sempred(
-          _localctx as QuotedIdentifierContext,
-          predIndex
-        );
+        return this.quotedIdentifier_sempred(_localctx as QuotedIdentifierContext, predIndex);
 
       case 138:
         return this.number_sempred(_localctx as NumberContext, predIndex);
     }
     return true;
   }
-  private queryTerm_sempred(
-    _localctx: QueryTermContext,
-    predIndex: number
-  ): boolean {
+  private queryTerm_sempred(_localctx: QueryTermContext, predIndex: number): boolean {
     switch (predIndex) {
       case 0:
         return this.precpred(this._ctx, 3);
@@ -16181,10 +14901,7 @@ export class SqlBaseParser extends Parser {
     }
     return true;
   }
-  private booleanExpression_sempred(
-    _localctx: BooleanExpressionContext,
-    predIndex: number
-  ): boolean {
+  private booleanExpression_sempred(_localctx: BooleanExpressionContext, predIndex: number): boolean {
     switch (predIndex) {
       case 6:
         return this.precpred(this._ctx, 2);
@@ -16194,10 +14911,7 @@ export class SqlBaseParser extends Parser {
     }
     return true;
   }
-  private valueExpression_sempred(
-    _localctx: ValueExpressionContext,
-    predIndex: number
-  ): boolean {
+  private valueExpression_sempred(_localctx: ValueExpressionContext, predIndex: number): boolean {
     switch (predIndex) {
       case 8:
         return this.precpred(this._ctx, 6);
@@ -16219,10 +14933,7 @@ export class SqlBaseParser extends Parser {
     }
     return true;
   }
-  private primaryExpression_sempred(
-    _localctx: PrimaryExpressionContext,
-    predIndex: number
-  ): boolean {
+  private primaryExpression_sempred(_localctx: PrimaryExpressionContext, predIndex: number): boolean {
     switch (predIndex) {
       case 14:
         return this.precpred(this._ctx, 9);
@@ -16235,20 +14946,14 @@ export class SqlBaseParser extends Parser {
     }
     return true;
   }
-  private identifier_sempred(
-    _localctx: IdentifierContext,
-    predIndex: number
-  ): boolean {
+  private identifier_sempred(_localctx: IdentifierContext, predIndex: number): boolean {
     switch (predIndex) {
       case 17:
         return !this.SQL_standard_keyword_behavior;
     }
     return true;
   }
-  private strictIdentifier_sempred(
-    _localctx: StrictIdentifierContext,
-    predIndex: number
-  ): boolean {
+  private strictIdentifier_sempred(_localctx: StrictIdentifierContext, predIndex: number): boolean {
     switch (predIndex) {
       case 18:
         return this.SQL_standard_keyword_behavior;
@@ -16258,10 +14963,7 @@ export class SqlBaseParser extends Parser {
     }
     return true;
   }
-  private quotedIdentifier_sempred(
-    _localctx: QuotedIdentifierContext,
-    predIndex: number
-  ): boolean {
+  private quotedIdentifier_sempred(_localctx: QuotedIdentifierContext, predIndex: number): boolean {
     switch (predIndex) {
       case 20:
         return this.backquoted_identifier;
@@ -18053,9 +16755,7 @@ export class SqlBaseParser extends Parser {
   public static __ATN: ATN;
   public static get _ATN(): ATN {
     if (!SqlBaseParser.__ATN) {
-      SqlBaseParser.__ATN = new ATNDeserializer().deserialize(
-        Utils.toCharArray(SqlBaseParser._serializedATN)
-      );
+      SqlBaseParser.__ATN = new ATNDeserializer().deserialize(Utils.toCharArray(SqlBaseParser._serializedATN));
     }
 
     return SqlBaseParser.__ATN;
@@ -18470,9 +17170,7 @@ export class CreateNamespaceContext extends StatementContext {
   }
   public tablePropertyList(): TablePropertyListContext[];
   public tablePropertyList(i: number): TablePropertyListContext;
-  public tablePropertyList(
-    i?: number
-  ): TablePropertyListContext | TablePropertyListContext[] {
+  public tablePropertyList(i?: number): TablePropertyListContext | TablePropertyListContext[] {
     if (i === undefined) {
       return this.getRuleContexts(TablePropertyListContext);
     } else {
@@ -18767,9 +17465,7 @@ export class CreateTableLikeContext extends StatementContext {
   }
   public tableIdentifier(): TableIdentifierContext[];
   public tableIdentifier(i: number): TableIdentifierContext;
-  public tableIdentifier(
-    i?: number
-  ): TableIdentifierContext | TableIdentifierContext[] {
+  public tableIdentifier(i?: number): TableIdentifierContext | TableIdentifierContext[] {
     if (i === undefined) {
       return this.getRuleContexts(TableIdentifierContext);
     } else {
@@ -18787,9 +17483,7 @@ export class CreateTableLikeContext extends StatementContext {
   }
   public tableProvider(): TableProviderContext[];
   public tableProvider(i: number): TableProviderContext;
-  public tableProvider(
-    i?: number
-  ): TableProviderContext | TableProviderContext[] {
+  public tableProvider(i?: number): TableProviderContext | TableProviderContext[] {
     if (i === undefined) {
       return this.getRuleContexts(TableProviderContext);
     } else {
@@ -18807,9 +17501,7 @@ export class CreateTableLikeContext extends StatementContext {
   }
   public createFileFormat(): CreateFileFormatContext[];
   public createFileFormat(i: number): CreateFileFormatContext;
-  public createFileFormat(
-    i?: number
-  ): CreateFileFormatContext | CreateFileFormatContext[] {
+  public createFileFormat(i?: number): CreateFileFormatContext | CreateFileFormatContext[] {
     if (i === undefined) {
       return this.getRuleContexts(CreateFileFormatContext);
     } else {
@@ -18836,9 +17528,7 @@ export class CreateTableLikeContext extends StatementContext {
   }
   public tablePropertyList(): TablePropertyListContext[];
   public tablePropertyList(i: number): TablePropertyListContext;
-  public tablePropertyList(
-    i?: number
-  ): TablePropertyListContext | TablePropertyListContext[] {
+  public tablePropertyList(i?: number): TablePropertyListContext | TablePropertyListContext[] {
     if (i === undefined) {
       return this.getRuleContexts(TablePropertyListContext);
     } else {
@@ -19092,9 +17782,7 @@ export class RenameTableColumnContext extends StatementContext {
   }
   public multipartIdentifier(): MultipartIdentifierContext[];
   public multipartIdentifier(i: number): MultipartIdentifierContext;
-  public multipartIdentifier(
-    i?: number
-  ): MultipartIdentifierContext | MultipartIdentifierContext[] {
+  public multipartIdentifier(i?: number): MultipartIdentifierContext | MultipartIdentifierContext[] {
     if (i === undefined) {
       return this.getRuleContexts(MultipartIdentifierContext);
     } else {
@@ -19197,9 +17885,7 @@ export class RenameTableContext extends StatementContext {
   }
   public multipartIdentifier(): MultipartIdentifierContext[];
   public multipartIdentifier(i: number): MultipartIdentifierContext;
-  public multipartIdentifier(
-    i?: number
-  ): MultipartIdentifierContext | MultipartIdentifierContext[] {
+  public multipartIdentifier(i?: number): MultipartIdentifierContext | MultipartIdentifierContext[] {
     if (i === undefined) {
       return this.getRuleContexts(MultipartIdentifierContext);
     } else {
@@ -19348,9 +18034,7 @@ export class AlterTableAlterColumnContext extends StatementContext {
   }
   public multipartIdentifier(): MultipartIdentifierContext[];
   public multipartIdentifier(i: number): MultipartIdentifierContext;
-  public multipartIdentifier(
-    i?: number
-  ): MultipartIdentifierContext | MultipartIdentifierContext[] {
+  public multipartIdentifier(i?: number): MultipartIdentifierContext | MultipartIdentifierContext[] {
     if (i === undefined) {
       return this.getRuleContexts(MultipartIdentifierContext);
     } else {
@@ -19408,9 +18092,7 @@ export class HiveChangeColumnContext extends StatementContext {
   }
   public multipartIdentifier(): MultipartIdentifierContext[];
   public multipartIdentifier(i: number): MultipartIdentifierContext;
-  public multipartIdentifier(
-    i?: number
-  ): MultipartIdentifierContext | MultipartIdentifierContext[] {
+  public multipartIdentifier(i?: number): MultipartIdentifierContext | MultipartIdentifierContext[] {
     if (i === undefined) {
       return this.getRuleContexts(MultipartIdentifierContext);
     } else {
@@ -19583,9 +18265,7 @@ export class AddTablePartitionContext extends StatementContext {
   }
   public partitionSpecLocation(): PartitionSpecLocationContext[];
   public partitionSpecLocation(i: number): PartitionSpecLocationContext;
-  public partitionSpecLocation(
-    i?: number
-  ): PartitionSpecLocationContext | PartitionSpecLocationContext[] {
+  public partitionSpecLocation(i?: number): PartitionSpecLocationContext | PartitionSpecLocationContext[] {
     if (i === undefined) {
       return this.getRuleContexts(PartitionSpecLocationContext);
     } else {
@@ -19637,9 +18317,7 @@ export class RenameTablePartitionContext extends StatementContext {
   }
   public partitionSpec(): PartitionSpecContext[];
   public partitionSpec(i: number): PartitionSpecContext;
-  public partitionSpec(
-    i?: number
-  ): PartitionSpecContext | PartitionSpecContext[] {
+  public partitionSpec(i?: number): PartitionSpecContext | PartitionSpecContext[] {
     if (i === undefined) {
       return this.getRuleContexts(PartitionSpecContext);
     } else {
@@ -19683,9 +18361,7 @@ export class DropTablePartitionsContext extends StatementContext {
   }
   public partitionSpec(): PartitionSpecContext[];
   public partitionSpec(i: number): PartitionSpecContext;
-  public partitionSpec(
-    i?: number
-  ): PartitionSpecContext | PartitionSpecContext[] {
+  public partitionSpec(i?: number): PartitionSpecContext | PartitionSpecContext[] {
     if (i === undefined) {
       return this.getRuleContexts(PartitionSpecContext);
     } else {
@@ -19968,9 +18644,7 @@ export class CreateViewContext extends StatementContext {
   }
   public identifierList(): IdentifierListContext[];
   public identifierList(i: number): IdentifierListContext;
-  public identifierList(
-    i?: number
-  ): IdentifierListContext | IdentifierListContext[] {
+  public identifierList(i?: number): IdentifierListContext | IdentifierListContext[] {
     if (i === undefined) {
       return this.getRuleContexts(IdentifierListContext);
     } else {
@@ -19988,9 +18662,7 @@ export class CreateViewContext extends StatementContext {
   }
   public tablePropertyList(): TablePropertyListContext[];
   public tablePropertyList(i: number): TablePropertyListContext;
-  public tablePropertyList(
-    i?: number
-  ): TablePropertyListContext | TablePropertyListContext[] {
+  public tablePropertyList(i?: number): TablePropertyListContext | TablePropertyListContext[] {
     if (i === undefined) {
       return this.getRuleContexts(TablePropertyListContext);
     } else {
@@ -20460,9 +19132,7 @@ export class ShowColumnsContext extends StatementContext {
   }
   public multipartIdentifier(): MultipartIdentifierContext[];
   public multipartIdentifier(i: number): MultipartIdentifierContext;
-  public multipartIdentifier(
-    i?: number
-  ): MultipartIdentifierContext | MultipartIdentifierContext[] {
+  public multipartIdentifier(i?: number): MultipartIdentifierContext | MultipartIdentifierContext[] {
     if (i === undefined) {
       return this.getRuleContexts(MultipartIdentifierContext);
     } else {
@@ -21386,9 +20056,7 @@ export class FailNativeCommandContext extends StatementContext {
   public ROLE(): TerminalNode | undefined {
     return this.tryGetToken(SqlBaseParser.ROLE, 0);
   }
-  public unsupportedHiveNativeCommands():
-    | UnsupportedHiveNativeCommandsContext
-    | undefined {
+  public unsupportedHiveNativeCommands(): UnsupportedHiveNativeCommandsContext | undefined {
     return this.tryGetRuleContext(0, UnsupportedHiveNativeCommandsContext);
   }
   constructor(ctx: StatementContext) {
@@ -22785,9 +21453,7 @@ export class CreateTableClausesContext extends ParserRuleContext {
   }
   public createFileFormat(): CreateFileFormatContext[];
   public createFileFormat(i: number): CreateFileFormatContext;
-  public createFileFormat(
-    i?: number
-  ): CreateFileFormatContext | CreateFileFormatContext[] {
+  public createFileFormat(i?: number): CreateFileFormatContext | CreateFileFormatContext[] {
     if (i === undefined) {
       return this.getRuleContexts(CreateFileFormatContext);
     } else {
@@ -22850,9 +21516,7 @@ export class CreateTableClausesContext extends ParserRuleContext {
   }
   public tablePropertyList(): TablePropertyListContext[];
   public tablePropertyList(i: number): TablePropertyListContext;
-  public tablePropertyList(
-    i?: number
-  ): TablePropertyListContext | TablePropertyListContext[] {
+  public tablePropertyList(i?: number): TablePropertyListContext | TablePropertyListContext[] {
     if (i === undefined) {
       return this.getRuleContexts(TablePropertyListContext);
     } else {
@@ -22861,9 +21525,7 @@ export class CreateTableClausesContext extends ParserRuleContext {
   }
   public partitionFieldList(): PartitionFieldListContext[];
   public partitionFieldList(i: number): PartitionFieldListContext;
-  public partitionFieldList(
-    i?: number
-  ): PartitionFieldListContext | PartitionFieldListContext[] {
+  public partitionFieldList(i?: number): PartitionFieldListContext | PartitionFieldListContext[] {
     if (i === undefined) {
       return this.getRuleContexts(PartitionFieldListContext);
     } else {
@@ -22902,9 +21564,7 @@ export class CreateTableClausesContext extends ParserRuleContext {
 export class TablePropertyListContext extends ParserRuleContext {
   public tableProperty(): TablePropertyContext[];
   public tableProperty(i: number): TablePropertyContext;
-  public tableProperty(
-    i?: number
-  ): TablePropertyContext | TablePropertyContext[] {
+  public tableProperty(i?: number): TablePropertyContext | TablePropertyContext[] {
     if (i === undefined) {
       return this.getRuleContexts(TablePropertyContext);
     } else {
@@ -23404,9 +22064,7 @@ export class MultiInsertQueryContext extends DmlStatementNoWithContext {
   }
   public multiInsertQueryBody(): MultiInsertQueryBodyContext[];
   public multiInsertQueryBody(i: number): MultiInsertQueryBodyContext;
-  public multiInsertQueryBody(
-    i?: number
-  ): MultiInsertQueryBodyContext | MultiInsertQueryBodyContext[] {
+  public multiInsertQueryBody(i?: number): MultiInsertQueryBodyContext | MultiInsertQueryBodyContext[] {
     if (i === undefined) {
       return this.getRuleContexts(MultiInsertQueryBodyContext);
     } else {
@@ -23541,9 +22199,7 @@ export class MergeIntoTableContext extends DmlStatementNoWithContext {
   }
   public multipartIdentifier(): MultipartIdentifierContext[];
   public multipartIdentifier(i: number): MultipartIdentifierContext;
-  public multipartIdentifier(
-    i?: number
-  ): MultipartIdentifierContext | MultipartIdentifierContext[] {
+  public multipartIdentifier(i?: number): MultipartIdentifierContext | MultipartIdentifierContext[] {
     if (i === undefined) {
       return this.getRuleContexts(MultipartIdentifierContext);
     } else {
@@ -23567,9 +22223,7 @@ export class MergeIntoTableContext extends DmlStatementNoWithContext {
   }
   public matchedClause(): MatchedClauseContext[];
   public matchedClause(i: number): MatchedClauseContext;
-  public matchedClause(
-    i?: number
-  ): MatchedClauseContext | MatchedClauseContext[] {
+  public matchedClause(i?: number): MatchedClauseContext | MatchedClauseContext[] {
     if (i === undefined) {
       return this.getRuleContexts(MatchedClauseContext);
     } else {
@@ -23578,9 +22232,7 @@ export class MergeIntoTableContext extends DmlStatementNoWithContext {
   }
   public notMatchedClause(): NotMatchedClauseContext[];
   public notMatchedClause(i: number): NotMatchedClauseContext;
-  public notMatchedClause(
-    i?: number
-  ): NotMatchedClauseContext | NotMatchedClauseContext[] {
+  public notMatchedClause(i?: number): NotMatchedClauseContext | NotMatchedClauseContext[] {
     if (i === undefined) {
       return this.getRuleContexts(NotMatchedClauseContext);
     } else {
@@ -24046,9 +22698,7 @@ export class FromStatementContext extends ParserRuleContext {
   }
   public fromStatementBody(): FromStatementBodyContext[];
   public fromStatementBody(i: number): FromStatementBodyContext;
-  public fromStatementBody(
-    i?: number
-  ): FromStatementBodyContext | FromStatementBodyContext[] {
+  public fromStatementBody(i?: number): FromStatementBodyContext | FromStatementBodyContext[] {
     if (i === undefined) {
       return this.getRuleContexts(FromStatementBodyContext);
     } else {
@@ -24794,9 +23444,7 @@ export class HintContext extends ParserRuleContext {
   public _hintStatements: HintStatementContext[] = [];
   public hintStatement(): HintStatementContext[];
   public hintStatement(i: number): HintStatementContext;
-  public hintStatement(
-    i?: number
-  ): HintStatementContext | HintStatementContext[] {
+  public hintStatement(i?: number): HintStatementContext | HintStatementContext[] {
     if (i === undefined) {
       return this.getRuleContexts(HintStatementContext);
     } else {
@@ -24841,9 +23489,7 @@ export class HintStatementContext extends ParserRuleContext {
   }
   public primaryExpression(): PrimaryExpressionContext[];
   public primaryExpression(i: number): PrimaryExpressionContext;
-  public primaryExpression(
-    i?: number
-  ): PrimaryExpressionContext | PrimaryExpressionContext[] {
+  public primaryExpression(i?: number): PrimaryExpressionContext | PrimaryExpressionContext[] {
     if (i === undefined) {
       return this.getRuleContexts(PrimaryExpressionContext);
     } else {
@@ -24947,9 +23593,7 @@ export class AggregationClauseContext extends ParserRuleContext {
   }
   public groupByClause(): GroupByClauseContext[];
   public groupByClause(i: number): GroupByClauseContext;
-  public groupByClause(
-    i?: number
-  ): GroupByClauseContext | GroupByClauseContext[] {
+  public groupByClause(i?: number): GroupByClauseContext | GroupByClauseContext[] {
     if (i === undefined) {
       return this.getRuleContexts(GroupByClauseContext);
     } else {
@@ -25078,9 +23722,7 @@ export class GroupingAnalyticsContext extends ParserRuleContext {
   }
   public groupingElement(): GroupingElementContext[];
   public groupingElement(i: number): GroupingElementContext;
-  public groupingElement(
-    i?: number
-  ): GroupingElementContext | GroupingElementContext[] {
+  public groupingElement(i?: number): GroupingElementContext | GroupingElementContext[] {
     if (i === undefined) {
       return this.getRuleContexts(GroupingElementContext);
     } else {
@@ -25865,9 +24507,7 @@ export class IdentifierSeqContext extends ParserRuleContext {
   public _ident: ErrorCapturingIdentifierContext[] = [];
   public errorCapturingIdentifier(): ErrorCapturingIdentifierContext[];
   public errorCapturingIdentifier(i: number): ErrorCapturingIdentifierContext;
-  public errorCapturingIdentifier(
-    i?: number
-  ): ErrorCapturingIdentifierContext | ErrorCapturingIdentifierContext[] {
+  public errorCapturingIdentifier(i?: number): ErrorCapturingIdentifierContext | ErrorCapturingIdentifierContext[] {
     if (i === undefined) {
       return this.getRuleContexts(ErrorCapturingIdentifierContext);
     } else {
@@ -25906,9 +24546,7 @@ export class IdentifierSeqContext extends ParserRuleContext {
 export class OrderedIdentifierListContext extends ParserRuleContext {
   public orderedIdentifier(): OrderedIdentifierContext[];
   public orderedIdentifier(i: number): OrderedIdentifierContext;
-  public orderedIdentifier(
-    i?: number
-  ): OrderedIdentifierContext | OrderedIdentifierContext[] {
+  public orderedIdentifier(i?: number): OrderedIdentifierContext | OrderedIdentifierContext[] {
     if (i === undefined) {
       return this.getRuleContexts(OrderedIdentifierContext);
     } else {
@@ -25988,9 +24626,7 @@ export class OrderedIdentifierContext extends ParserRuleContext {
 export class IdentifierCommentListContext extends ParserRuleContext {
   public identifierComment(): IdentifierCommentContext[];
   public identifierComment(i: number): IdentifierCommentContext;
-  public identifierComment(
-    i?: number
-  ): IdentifierCommentContext | IdentifierCommentContext[] {
+  public identifierComment(i?: number): IdentifierCommentContext | IdentifierCommentContext[] {
     if (i === undefined) {
       return this.getRuleContexts(IdentifierCommentContext);
     } else {
@@ -26531,9 +25167,7 @@ export class RowFormatDelimitedContext extends RowFormatContext {
 export class MultipartIdentifierListContext extends ParserRuleContext {
   public multipartIdentifier(): MultipartIdentifierContext[];
   public multipartIdentifier(i: number): MultipartIdentifierContext;
-  public multipartIdentifier(
-    i?: number
-  ): MultipartIdentifierContext | MultipartIdentifierContext[] {
+  public multipartIdentifier(i?: number): MultipartIdentifierContext | MultipartIdentifierContext[] {
     if (i === undefined) {
       return this.getRuleContexts(MultipartIdentifierContext);
     } else {
@@ -26574,9 +25208,7 @@ export class MultipartIdentifierContext extends ParserRuleContext {
   public _parts: ErrorCapturingIdentifierContext[] = [];
   public errorCapturingIdentifier(): ErrorCapturingIdentifierContext[];
   public errorCapturingIdentifier(i: number): ErrorCapturingIdentifierContext;
-  public errorCapturingIdentifier(
-    i?: number
-  ): ErrorCapturingIdentifierContext | ErrorCapturingIdentifierContext[] {
+  public errorCapturingIdentifier(i?: number): ErrorCapturingIdentifierContext | ErrorCapturingIdentifierContext[] {
     if (i === undefined) {
       return this.getRuleContexts(ErrorCapturingIdentifierContext);
     } else {
@@ -26617,9 +25249,7 @@ export class TableIdentifierContext extends ParserRuleContext {
   public _table!: ErrorCapturingIdentifierContext;
   public errorCapturingIdentifier(): ErrorCapturingIdentifierContext[];
   public errorCapturingIdentifier(i: number): ErrorCapturingIdentifierContext;
-  public errorCapturingIdentifier(
-    i?: number
-  ): ErrorCapturingIdentifierContext | ErrorCapturingIdentifierContext[] {
+  public errorCapturingIdentifier(i?: number): ErrorCapturingIdentifierContext | ErrorCapturingIdentifierContext[] {
     if (i === undefined) {
       return this.getRuleContexts(ErrorCapturingIdentifierContext);
     } else {
@@ -26660,9 +25290,7 @@ export class FunctionIdentifierContext extends ParserRuleContext {
   public _funcName!: ErrorCapturingIdentifierContext;
   public errorCapturingIdentifier(): ErrorCapturingIdentifierContext[];
   public errorCapturingIdentifier(i: number): ErrorCapturingIdentifierContext;
-  public errorCapturingIdentifier(
-    i?: number
-  ): ErrorCapturingIdentifierContext | ErrorCapturingIdentifierContext[] {
+  public errorCapturingIdentifier(i?: number): ErrorCapturingIdentifierContext | ErrorCapturingIdentifierContext[] {
     if (i === undefined) {
       return this.getRuleContexts(ErrorCapturingIdentifierContext);
     } else {
@@ -26709,9 +25337,7 @@ export class NamedExpressionContext extends ParserRuleContext {
   public AS(): TerminalNode | undefined {
     return this.tryGetToken(SqlBaseParser.AS, 0);
   }
-  public errorCapturingIdentifier():
-    | ErrorCapturingIdentifierContext
-    | undefined {
+  public errorCapturingIdentifier(): ErrorCapturingIdentifierContext | undefined {
     return this.tryGetRuleContext(0, ErrorCapturingIdentifierContext);
   }
   constructor(parent: ParserRuleContext | undefined, invokingState: number) {
@@ -26746,9 +25372,7 @@ export class NamedExpressionContext extends ParserRuleContext {
 export class NamedExpressionSeqContext extends ParserRuleContext {
   public namedExpression(): NamedExpressionContext[];
   public namedExpression(i: number): NamedExpressionContext;
-  public namedExpression(
-    i?: number
-  ): NamedExpressionContext | NamedExpressionContext[] {
+  public namedExpression(i?: number): NamedExpressionContext | NamedExpressionContext[] {
     if (i === undefined) {
       return this.getRuleContexts(NamedExpressionContext);
     } else {
@@ -26789,9 +25413,7 @@ export class PartitionFieldListContext extends ParserRuleContext {
   public _fields: PartitionFieldContext[] = [];
   public partitionField(): PartitionFieldContext[];
   public partitionField(i: number): PartitionFieldContext;
-  public partitionField(
-    i?: number
-  ): PartitionFieldContext | PartitionFieldContext[] {
+  public partitionField(i?: number): PartitionFieldContext | PartitionFieldContext[] {
     if (i === undefined) {
       return this.getRuleContexts(PartitionFieldContext);
     } else {
@@ -26948,9 +25570,7 @@ export class ApplyTransformContext extends TransformContext {
   }
   public transformArgument(): TransformArgumentContext[];
   public transformArgument(i: number): TransformArgumentContext;
-  public transformArgument(
-    i?: number
-  ): TransformArgumentContext | TransformArgumentContext[] {
+  public transformArgument(i?: number): TransformArgumentContext | TransformArgumentContext[] {
     if (i === undefined) {
       return this.getRuleContexts(TransformArgumentContext);
     } else {
@@ -27205,9 +25825,7 @@ export class LogicalBinaryContext extends BooleanExpressionContext {
   public _right!: BooleanExpressionContext;
   public booleanExpression(): BooleanExpressionContext[];
   public booleanExpression(i: number): BooleanExpressionContext;
-  public booleanExpression(
-    i?: number
-  ): BooleanExpressionContext | BooleanExpressionContext[] {
+  public booleanExpression(i?: number): BooleanExpressionContext | BooleanExpressionContext[] {
     if (i === undefined) {
       return this.getRuleContexts(BooleanExpressionContext);
     } else {
@@ -27262,9 +25880,7 @@ export class PredicateContext extends ParserRuleContext {
   }
   public valueExpression(): ValueExpressionContext[];
   public valueExpression(i: number): ValueExpressionContext;
-  public valueExpression(
-    i?: number
-  ): ValueExpressionContext | ValueExpressionContext[] {
+  public valueExpression(i?: number): ValueExpressionContext | ValueExpressionContext[] {
     if (i === undefined) {
       return this.getRuleContexts(ValueExpressionContext);
     } else {
@@ -27446,9 +26062,7 @@ export class ArithmeticBinaryContext extends ValueExpressionContext {
   public _right!: ValueExpressionContext;
   public valueExpression(): ValueExpressionContext[];
   public valueExpression(i: number): ValueExpressionContext;
-  public valueExpression(
-    i?: number
-  ): ValueExpressionContext | ValueExpressionContext[] {
+  public valueExpression(i?: number): ValueExpressionContext | ValueExpressionContext[] {
     if (i === undefined) {
       return this.getRuleContexts(ValueExpressionContext);
     } else {
@@ -27518,9 +26132,7 @@ export class ComparisonContext extends ValueExpressionContext {
   }
   public valueExpression(): ValueExpressionContext[];
   public valueExpression(i: number): ValueExpressionContext;
-  public valueExpression(
-    i?: number
-  ): ValueExpressionContext | ValueExpressionContext[] {
+  public valueExpression(i?: number): ValueExpressionContext | ValueExpressionContext[] {
     if (i === undefined) {
       return this.getRuleContexts(ValueExpressionContext);
     } else {
@@ -27754,9 +26366,7 @@ export class StructContext extends PrimaryExpressionContext {
   }
   public namedExpression(): NamedExpressionContext[];
   public namedExpression(i: number): NamedExpressionContext;
-  public namedExpression(
-    i?: number
-  ): NamedExpressionContext | NamedExpressionContext[] {
+  public namedExpression(i?: number): NamedExpressionContext | NamedExpressionContext[] {
     if (i === undefined) {
       return this.getRuleContexts(NamedExpressionContext);
     } else {
@@ -27875,9 +26485,7 @@ export class PositionContext extends PrimaryExpressionContext {
   }
   public valueExpression(): ValueExpressionContext[];
   public valueExpression(i: number): ValueExpressionContext;
-  public valueExpression(
-    i?: number
-  ): ValueExpressionContext | ValueExpressionContext[] {
+  public valueExpression(i?: number): ValueExpressionContext | ValueExpressionContext[] {
     if (i === undefined) {
       return this.getRuleContexts(ValueExpressionContext);
     } else {
@@ -27973,9 +26581,7 @@ export class StarContext extends PrimaryExpressionContext {
 export class RowConstructorContext extends PrimaryExpressionContext {
   public namedExpression(): NamedExpressionContext[];
   public namedExpression(i: number): NamedExpressionContext;
-  public namedExpression(
-    i?: number
-  ): NamedExpressionContext | NamedExpressionContext[] {
+  public namedExpression(i?: number): NamedExpressionContext | NamedExpressionContext[] {
     if (i === undefined) {
       return this.getRuleContexts(NamedExpressionContext);
     } else {
@@ -28357,9 +26963,7 @@ export class SubstringContext extends PrimaryExpressionContext {
   }
   public valueExpression(): ValueExpressionContext[];
   public valueExpression(i: number): ValueExpressionContext;
-  public valueExpression(
-    i?: number
-  ): ValueExpressionContext | ValueExpressionContext[] {
+  public valueExpression(i?: number): ValueExpressionContext | ValueExpressionContext[] {
     if (i === undefined) {
       return this.getRuleContexts(ValueExpressionContext);
     } else {
@@ -28409,9 +27013,7 @@ export class TrimContext extends PrimaryExpressionContext {
   }
   public valueExpression(): ValueExpressionContext[];
   public valueExpression(i: number): ValueExpressionContext;
-  public valueExpression(
-    i?: number
-  ): ValueExpressionContext | ValueExpressionContext[] {
+  public valueExpression(i?: number): ValueExpressionContext | ValueExpressionContext[] {
     if (i === undefined) {
       return this.getRuleContexts(ValueExpressionContext);
     } else {
@@ -28468,9 +27070,7 @@ export class OverlayContext extends PrimaryExpressionContext {
   }
   public valueExpression(): ValueExpressionContext[];
   public valueExpression(i: number): ValueExpressionContext;
-  public valueExpression(
-    i?: number
-  ): ValueExpressionContext | ValueExpressionContext[] {
+  public valueExpression(i?: number): ValueExpressionContext | ValueExpressionContext[] {
     if (i === undefined) {
       return this.getRuleContexts(ValueExpressionContext);
     } else {
@@ -28901,14 +27501,10 @@ export class IntervalContext extends ParserRuleContext {
   public INTERVAL(): TerminalNode {
     return this.getToken(SqlBaseParser.INTERVAL, 0);
   }
-  public errorCapturingMultiUnitsInterval():
-    | ErrorCapturingMultiUnitsIntervalContext
-    | undefined {
+  public errorCapturingMultiUnitsInterval(): ErrorCapturingMultiUnitsIntervalContext | undefined {
     return this.tryGetRuleContext(0, ErrorCapturingMultiUnitsIntervalContext);
   }
-  public errorCapturingUnitToUnitInterval():
-    | ErrorCapturingUnitToUnitIntervalContext
-    | undefined {
+  public errorCapturingUnitToUnitInterval(): ErrorCapturingUnitToUnitIntervalContext | undefined {
     return this.tryGetRuleContext(0, ErrorCapturingUnitToUnitIntervalContext);
   }
   constructor(parent: ParserRuleContext | undefined, invokingState: number) {
@@ -28981,9 +27577,7 @@ export class MultiUnitsIntervalContext extends ParserRuleContext {
   public _unit: IdentifierContext[] = [];
   public intervalValue(): IntervalValueContext[];
   public intervalValue(i: number): IntervalValueContext;
-  public intervalValue(
-    i?: number
-  ): IntervalValueContext | IntervalValueContext[] {
+  public intervalValue(i?: number): IntervalValueContext | IntervalValueContext[] {
     if (i === undefined) {
       return this.getRuleContexts(IntervalValueContext);
     } else {
@@ -29034,9 +27628,7 @@ export class ErrorCapturingUnitToUnitIntervalContext extends ParserRuleContext {
   public _error2!: UnitToUnitIntervalContext;
   public unitToUnitInterval(): UnitToUnitIntervalContext[];
   public unitToUnitInterval(i: number): UnitToUnitIntervalContext;
-  public unitToUnitInterval(
-    i?: number
-  ): UnitToUnitIntervalContext | UnitToUnitIntervalContext[] {
+  public unitToUnitInterval(i?: number): UnitToUnitIntervalContext | UnitToUnitIntervalContext[] {
     if (i === undefined) {
       return this.getRuleContexts(UnitToUnitIntervalContext);
     } else {
@@ -29177,9 +27769,7 @@ export class ColPositionContext extends ParserRuleContext {
   public AFTER(): TerminalNode | undefined {
     return this.tryGetToken(SqlBaseParser.AFTER, 0);
   }
-  public errorCapturingIdentifier():
-    | ErrorCapturingIdentifierContext
-    | undefined {
+  public errorCapturingIdentifier(): ErrorCapturingIdentifierContext | undefined {
     return this.tryGetRuleContext(0, ErrorCapturingIdentifierContext);
   }
   constructor(parent: ParserRuleContext | undefined, invokingState: number) {
@@ -29431,14 +28021,10 @@ export class PrimitiveDataTypeContext extends DataTypeContext {
 
 export class QualifiedColTypeWithPositionListContext extends ParserRuleContext {
   public qualifiedColTypeWithPosition(): QualifiedColTypeWithPositionContext[];
-  public qualifiedColTypeWithPosition(
-    i: number
-  ): QualifiedColTypeWithPositionContext;
+  public qualifiedColTypeWithPosition(i: number): QualifiedColTypeWithPositionContext;
   public qualifiedColTypeWithPosition(
     i?: number
-  ):
-    | QualifiedColTypeWithPositionContext
-    | QualifiedColTypeWithPositionContext[] {
+  ): QualifiedColTypeWithPositionContext | QualifiedColTypeWithPositionContext[] {
     if (i === undefined) {
       return this.getRuleContexts(QualifiedColTypeWithPositionContext);
     } else {
@@ -29611,9 +28197,7 @@ export class ColTypeContext extends ParserRuleContext {
 export class ComplexColTypeListContext extends ParserRuleContext {
   public complexColType(): ComplexColTypeContext[];
   public complexColType(i: number): ComplexColTypeContext;
-  public complexColType(
-    i?: number
-  ): ComplexColTypeContext | ComplexColTypeContext[] {
+  public complexColType(i?: number): ComplexColTypeContext | ComplexColTypeContext[] {
     if (i === undefined) {
       return this.getRuleContexts(ComplexColTypeContext);
     } else {
@@ -30045,9 +28629,7 @@ export class FrameBoundContext extends ParserRuleContext {
 export class QualifiedNameListContext extends ParserRuleContext {
   public qualifiedName(): QualifiedNameContext[];
   public qualifiedName(i: number): QualifiedNameContext;
-  public qualifiedName(
-    i?: number
-  ): QualifiedNameContext | QualifiedNameContext[] {
+  public qualifiedName(i?: number): QualifiedNameContext | QualifiedNameContext[] {
     if (i === undefined) {
       return this.getRuleContexts(QualifiedNameContext);
     } else {
