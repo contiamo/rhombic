@@ -17,7 +17,7 @@ export class UppercaseCharStream implements CharStream {
   }
 
   LA(i: number): number {
-    let c = this.wrapped.LA(i);
+    const c = this.wrapped.LA(i);
     if (c <= 0) {
       return c;
     }

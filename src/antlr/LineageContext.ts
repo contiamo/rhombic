@@ -7,14 +7,11 @@ export class LineageContext<TableData, ColumnData> {
     getColumns: (tableId: string) => ColumnData[];
   };
 
-  relationSeq: number = 0;
-  relationsStack: Array<Relation<TableData, ColumnData>> = new Array();
-  lineage: Lineage<TableData, ColumnData> = new Array();
+  relationSeq = 0;
+  relationsStack: Array<Relation<TableData, ColumnData>> = [];
+  lineage: Lineage<TableData, ColumnData> = [];
 
-  constructor(getters: {
-    getTable: (tableId: string) => TableData;
-    getColumns: (tableId: string) => ColumnData[];
-  }) {
+  constructor(getters: { getTable: (tableId: string) => TableData; getColumns: (tableId: string) => ColumnData[] }) {
     this.getters = getters;
   }
 
