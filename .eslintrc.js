@@ -10,6 +10,7 @@ module.exports = {
     {
       files: ["src/antlr/SqlBaseLexer.ts", "src/antlr/SqlBaseParser.ts"],
       rules: {
+        "no-useless-escape": "off",
         "@typescript-eslint/no-unused-vars": "off"
       }
     },
