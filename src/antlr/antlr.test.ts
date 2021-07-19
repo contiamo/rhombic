@@ -94,4 +94,12 @@ describe("antlr", () => {
     const sql = 'select "account_id", 1 as "one "" " ' + "from account";
     console.log(JSON.stringify(getLineage(sql, metadataProvider), undefined, 2));
   });
+
+  it("should support matching quoted identifiers", () => {
+    const sql =
+      'select accOUNT_ID as "acc_id" from (select "account_id", ACCounT_TypE from account) as a';
+    console.log(
+      JSON.stringify(getLineage(sql, metadataProvider), undefined, 2)
+    );
+  });
 });

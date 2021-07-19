@@ -2,7 +2,7 @@ import { Column, Lineage, Table } from "../Lineage";
 import { SqlBaseVisitor } from "./SqlBaseVisitor";
 import { AbstractParseTreeVisitor } from "antlr4ts/tree/AbstractParseTreeVisitor";
 import { Range } from "../utils/getRange";
-import { ColumnRef, Relation } from "./model";
+import { ColumnRef, QuotableIdentifier, Relation } from "./model";
 import { ParserRuleContext } from "antlr4ts";
 import {
   AliasedQueryContext,
@@ -10,12 +10,15 @@ import {
   DereferenceContext,
   ExpressionContext,
   FromClauseContext,
+  IdentifierContext,
   NamedExpressionContext,
   PredicatedContext,
   PrimaryExpressionContext,
   QueryContext,
   QuerySpecificationContext,
+  QuotedIdentifierAlternativeContext,
   RegularQuerySpecificationContext,
+  StrictIdentifierContext,
   TableNameContext,
   ValueExpressionDefaultContext
 } from "./SqlBaseParser";
@@ -71,26 +74,97 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
     return level;
   }
 
-  findRelation(tableName: string): Relation<TableData, ColumnData> | undefined {
+  protected stripQuoteFromText(
+    text: string,
+    quote: string
+  ): QuotableIdentifier {
+    if (text.startsWith(quote) && text.endsWith(quote)) {
+      return {
+        name: text.substring(1, text.length - 1).replace(quote + quote, quote),
+        quoted: true
+      };
+    } else {
+      return {
+        name: text,
+        quoted: false
+      };
+    }
+  }
+
+  protected stripQuote(
+    ctx: IdentifierContext | StrictIdentifierContext
+  ): QuotableIdentifier {
+    let strictId =
+      ctx instanceof StrictIdentifierContext ? ctx : ctx.strictIdentifier();
+    if (strictId !== undefined) {
+      if (strictId instanceof QuotedIdentifierAlternativeContext) {
+        let quotedId = strictId.quotedIdentifier();
+        if (quotedId.DOUBLEQUOTED_IDENTIFIER() !== undefined) {
+          return this.stripQuoteFromText(
+            quotedId.DOUBLEQUOTED_IDENTIFIER()!.text,
+            '"'
+          );
+        } else if (quotedId.BACKQUOTED_IDENTIFIER() !== undefined) {
+          return this.stripQuoteFromText(
+            quotedId.BACKQUOTED_IDENTIFIER()!.text,
+            "`"
+          );
+        }
+      }
+    }
+    return {
+      name: ctx.text,
+      quoted: false
+    };
+  }
+
+  protected findRelation(
+    tableName: QuotableIdentifier
+  ): Relation<TableData, ColumnData> | undefined {
     let cur: QueryVisitor<TableData, ColumnData> | undefined = this;
     while (cur != undefined) {
-      const table = cur.relations.get(tableName);
-      if (table !== undefined) return table;
+      for (let rel of cur.relations) {
+        if (tableName.quoted) {
+          if (rel[0] == tableName.name) return rel[1];
+        } else {
+          if (
+            tableName.name.localeCompare(rel[0], undefined, {
+              sensitivity: "accent"
+            }) == 0
+          )
+            return rel[1];
+        }
+      }
       cur = cur.parent;
     }
     return undefined;
   }
 
-  resolveColumn(columnName: string, tableName?: string): ColumnRef | undefined {
+  protected resolveColumn(
+    columnName: QuotableIdentifier,
+    tableName?: QuotableIdentifier
+  ): ColumnRef | undefined {
     if (tableName !== undefined) {
-      const table = this.findRelation(tableName);
-      const col = table?.columns.find(c => c.label == columnName);
+      let table = this.findRelation(tableName);
+      let col = table?.columns.find(c =>
+        columnName.quoted
+          ? c.label == columnName.name
+          : c.label.localeCompare(columnName.name, undefined, {
+              sensitivity: "accent"
+            }) == 0
+      );
       if (table && col) {
         return { tableId: table.id, columnId: col.id };
       }
     } else {
-      for (const r of this.relations) {
-        const col = r[1].columns.find(c => c.label == columnName);
+      for (let r of this.relations) {
+        let col = r[1].columns.find(c =>
+          columnName.quoted
+            ? c.label == columnName.name
+            : c.label.localeCompare(columnName.name, undefined, {
+                sensitivity: "accent"
+              }) == 0
+        );
         if (col) {
           return { tableId: r[1].id, columnId: col.id };
         }
@@ -108,19 +182,17 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
     return "column_" + this.columnIdSeq;
   }
 
-  protected defaultResult(): Lineage<TableData, ColumnData> | undefined {
-    return undefined;
-  }
-
-  protected extractTableAndColumn(ctx: PrimaryExpressionContext): { table?: string; column: string } | undefined {
+  protected extractTableAndColumn(
+    ctx: PrimaryExpressionContext
+  ): { table?: QuotableIdentifier; column: QuotableIdentifier } | undefined {
     if (ctx instanceof ColumnReferenceContext) {
-      return { column: ctx.identifier().text };
+      return { column: this.stripQuote(ctx.identifier()) };
     } else if (ctx instanceof DereferenceContext) {
       const primary = ctx.primaryExpression();
       if (primary instanceof ColumnReferenceContext) {
         return {
-          table: primary.identifier().text,
-          column: ctx.identifier().text
+          table: this.stripQuote(primary.identifier()),
+          column: this.stripQuote(ctx.identifier())
         };
       }
     }
@@ -134,10 +206,18 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
       if (valExpr instanceof ValueExpressionDefaultContext) {
         const tableCol = this.extractTableAndColumn(valExpr.primaryExpression());
         if (tableCol !== undefined) {
-          return tableCol.column;
+          return tableCol.column.name;
         }
       }
     }
+    return undefined;
+  }
+
+  //
+  // Visitor method overrides
+  //
+
+  protected defaultResult(): Lineage<TableData, ColumnData> | undefined {
     return undefined;
   }
 
@@ -167,26 +247,46 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
     }
   }
 
-  visitRegularQuerySpecification(ctx: RegularQuerySpecificationContext): Lineage<TableData, ColumnData> | undefined {
-    let lineage = ctx.fromClause()?.accept(this);
+  visitRegularQuerySpecification(
+    ctx: RegularQuerySpecificationContext
+  ): Lineage<TableData, ColumnData> | undefined {
+    // process FROM first to capture all available relations
+    var lineage = ctx.fromClause()?.accept(this);
+
+    // then process all remaining clauses
     ctx.children?.forEach(c => {
       if (!(c instanceof FromClauseContext)) {
         lineage = this.aggregateResult(lineage, c.accept(this));
       }
     });
+
     return lineage;
   }
 
-  visitTableName(ctx: TableNameContext): Lineage<TableData, ColumnData> | undefined {
-    const tableName = ctx.multipartIdentifier().text;
-    const tableData = this.globals.getters.getTable(tableName);
-    const columns = this.globals.getters.getColumns(tableName).map(c => ({
+  visitTableName(
+    ctx: TableNameContext
+  ): Lineage<TableData, ColumnData> | undefined {
+    let multipartTableName = ctx
+      .multipartIdentifier()
+      .errorCapturingIdentifier()
+      .map(v => {
+        return this.stripQuote(v.identifier()).name;
+      });
+    let tableName = multipartTableName.join(".");
+    let tableData = this.globals.getters.getTable(tableName);
+    let columns = this.globals.getters.getColumns(tableName).map(c => ({
       id: c.id,
       label: c.id,
       data: c
     }));
-    const alias = ctx.tableAlias().strictIdentifier()?.text ?? tableName;
-    const relation = new Relation(
+
+    let strictId = ctx.tableAlias().strictIdentifier();
+    let alias =
+      strictId !== undefined
+        ? this.stripQuote(strictId).name
+        : multipartTableName[multipartTableName.length - 1];
+
+    let relation = new Relation(
       this.globals.nextRelationId,
       columns,
       this.level + 1,
@@ -199,11 +299,16 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
     return [relation.toLineage(alias)];
   }
 
-  visitAliasedQuery(ctx: AliasedQueryContext): Lineage<TableData, ColumnData> | undefined {
-    const lineage = this.visitChildren(ctx);
+  visitAliasedQuery(
+    ctx: AliasedQueryContext
+  ): Lineage<TableData, ColumnData> | undefined {
+    let lineage = this.visitChildren(ctx);
+
     // expecting query relation to be in stack
-    const relation = this.globals.relationsStack.pop()!;
-    const alias = ctx.tableAlias().strictIdentifier()?.text ?? relation.id;
+    let relation = this.globals.relationsStack.pop()!;
+    let strictId = ctx.tableAlias().strictIdentifier();
+    let alias =
+      strictId !== undefined ? this.stripQuote(strictId).name : relation.id;
     this.relations.set(alias, relation);
     return this.aggregateResult(lineage, [relation.toLineage(alias)]);
   }
@@ -214,9 +319,12 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
 
     const result = this.visitChildren(ctx);
 
-    const columnId = this.nextColumnId;
-    const label =
-      ctx.errorCapturingIdentifier()?.identifier()?.text ?? this.deriveColumnName(ctx.expression()) ?? columnId;
+    let columnId = this.nextColumnId;
+    let errCaptId = ctx.errorCapturingIdentifier();
+    let label =
+      errCaptId !== undefined
+        ? this.stripQuote(errCaptId.identifier()).name
+        : this.deriveColumnName(ctx.expression()) ?? columnId;
 
     const range = this.rangeFromContext(ctx);
     const column = {
@@ -248,8 +356,11 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
     return this.visitPrimaryExpression(ctx);
   }
 
-  visitPrimaryExpression(ctx: PrimaryExpressionContext): Lineage<TableData, ColumnData> | undefined {
-    const tableCol = this.extractTableAndColumn(ctx);
+  // this method is not called directly by visitChildren() but by above 2 methods
+  visitPrimaryExpression(
+    ctx: PrimaryExpressionContext
+  ): Lineage<TableData, ColumnData> | undefined {
+    let tableCol = this.extractTableAndColumn(ctx);
     if (tableCol !== undefined) {
       const col = this.resolveColumn(tableCol.column, tableCol.table);
       if (col) {
