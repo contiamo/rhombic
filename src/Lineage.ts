@@ -13,6 +13,7 @@ export interface Table<TableData, ColumnData> {
   type: "table";
   id: string;
   label: string;
+  level?: number;
   range?: Range;
   data?: TableData;
   columns: Column<ColumnData>[];
