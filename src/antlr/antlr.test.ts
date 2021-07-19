@@ -96,10 +96,22 @@ describe("antlr", () => {
   });
 
   it("should support matching quoted identifiers", () => {
-    const sql =
-      'select accOUNT_ID as "acc_id" from (select "account_id", ACCounT_TypE from account) as a';
-    console.log(
-      JSON.stringify(getLineage(sql, metadataProvider), undefined, 2)
-    );
+    const sql = 'select accOUNT_ID as "acc_id" from (select "account_id", ACCounT_TypE from account) as a';
+    console.log(JSON.stringify(getLineage(sql, metadataProvider), undefined, 2));
+  });
+
+  it("should support star on subquery", () => {
+    const sql = 'select * from (select "account_id", ACCounT_TypE from account) as a';
+    console.log(JSON.stringify(getLineage(sql, metadataProvider), undefined, 2));
+  });
+
+  it("should support star on join", () => {
+    const sql = "select * from account, salary";
+    console.log(JSON.stringify(getLineage(sql, metadataProvider), undefined, 2));
+  });
+
+  it("should support qualified star", () => {
+    const sql = "select s.* from account a, salary s";
+    console.log(JSON.stringify(getLineage(sql, metadataProvider), undefined, 2));
   });
 });
