@@ -1,4 +1,4 @@
-import { Column, Lineage, Table } from "../Lineage";
+import { Column, Lineage } from "../Lineage";
 import { SqlBaseVisitor } from "./SqlBaseVisitor";
 import { AbstractParseTreeVisitor } from "antlr4ts/tree/AbstractParseTreeVisitor";
 import { Range } from "../utils/getRange";
@@ -15,7 +15,6 @@ import {
   PredicatedContext,
   PrimaryExpressionContext,
   QueryContext,
-  QuerySpecificationContext,
   QuotedIdentifierAlternativeContext,
   RegularQuerySpecificationContext,
   StrictIdentifierContext,
@@ -66,6 +65,7 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
 
   get level(): number {
     let level = 0;
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     let cur: QueryVisitor<TableData, ColumnData> = this;
     while (cur.parent !== undefined) {
       level++;
@@ -74,10 +74,7 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
     return level;
   }
 
-  protected stripQuoteFromText(
-    text: string,
-    quote: string
-  ): QuotableIdentifier {
+  protected stripQuoteFromText(text: string, quote: string): QuotableIdentifier {
     if (text.startsWith(quote) && text.endsWith(quote)) {
       return {
         name: text.substring(1, text.length - 1).replace(quote + quote, quote),
@@ -91,24 +88,15 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
     }
   }
 
-  protected stripQuote(
-    ctx: IdentifierContext | StrictIdentifierContext
-  ): QuotableIdentifier {
-    let strictId =
-      ctx instanceof StrictIdentifierContext ? ctx : ctx.strictIdentifier();
+  protected stripQuote(ctx: IdentifierContext | StrictIdentifierContext): QuotableIdentifier {
+    const strictId = ctx instanceof StrictIdentifierContext ? ctx : ctx.strictIdentifier();
     if (strictId !== undefined) {
       if (strictId instanceof QuotedIdentifierAlternativeContext) {
-        let quotedId = strictId.quotedIdentifier();
+        const quotedId = strictId.quotedIdentifier();
         if (quotedId.DOUBLEQUOTED_IDENTIFIER() !== undefined) {
-          return this.stripQuoteFromText(
-            quotedId.DOUBLEQUOTED_IDENTIFIER()!.text,
-            '"'
-          );
+          return this.stripQuoteFromText(quotedId.DOUBLEQUOTED_IDENTIFIER()!.text, '"');
         } else if (quotedId.BACKQUOTED_IDENTIFIER() !== undefined) {
-          return this.stripQuoteFromText(
-            quotedId.BACKQUOTED_IDENTIFIER()!.text,
-            "`"
-          );
+          return this.stripQuoteFromText(quotedId.BACKQUOTED_IDENTIFIER()!.text, "`");
         }
       }
     }
@@ -118,12 +106,11 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
     };
   }
 
-  protected findRelation(
-    tableName: QuotableIdentifier
-  ): Relation<TableData, ColumnData> | undefined {
+  protected findRelation(tableName: QuotableIdentifier): Relation<TableData, ColumnData> | undefined {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     let cur: QueryVisitor<TableData, ColumnData> | undefined = this;
     while (cur != undefined) {
-      for (let rel of cur.relations) {
+      for (const rel of cur.relations) {
         if (tableName.quoted) {
           if (rel[0] == tableName.name) return rel[1];
         } else {
@@ -140,13 +127,10 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
     return undefined;
   }
 
-  protected resolveColumn(
-    columnName: QuotableIdentifier,
-    tableName?: QuotableIdentifier
-  ): ColumnRef | undefined {
+  protected resolveColumn(columnName: QuotableIdentifier, tableName?: QuotableIdentifier): ColumnRef | undefined {
     if (tableName !== undefined) {
-      let table = this.findRelation(tableName);
-      let col = table?.columns.find(c =>
+      const table = this.findRelation(tableName);
+      const col = table?.columns.find(c =>
         columnName.quoted
           ? c.label == columnName.name
           : c.label.localeCompare(columnName.name, undefined, {
@@ -157,8 +141,8 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
         return { tableId: table.id, columnId: col.id };
       }
     } else {
-      for (let r of this.relations) {
-        let col = r[1].columns.find(c =>
+      for (const r of this.relations) {
+        const col = r[1].columns.find(c =>
           columnName.quoted
             ? c.label == columnName.name
             : c.label.localeCompare(columnName.name, undefined, {
@@ -247,11 +231,9 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
     }
   }
 
-  visitRegularQuerySpecification(
-    ctx: RegularQuerySpecificationContext
-  ): Lineage<TableData, ColumnData> | undefined {
+  visitRegularQuerySpecification(ctx: RegularQuerySpecificationContext): Lineage<TableData, ColumnData> | undefined {
     // process FROM first to capture all available relations
-    var lineage = ctx.fromClause()?.accept(this);
+    let lineage = ctx.fromClause()?.accept(this);
 
     // then process all remaining clauses
     ctx.children?.forEach(c => {
@@ -263,30 +245,26 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
     return lineage;
   }
 
-  visitTableName(
-    ctx: TableNameContext
-  ): Lineage<TableData, ColumnData> | undefined {
-    let multipartTableName = ctx
+  visitTableName(ctx: TableNameContext): Lineage<TableData, ColumnData> | undefined {
+    const multipartTableName = ctx
       .multipartIdentifier()
       .errorCapturingIdentifier()
       .map(v => {
         return this.stripQuote(v.identifier()).name;
       });
-    let tableName = multipartTableName.join(".");
-    let tableData = this.globals.getters.getTable(tableName);
-    let columns = this.globals.getters.getColumns(tableName).map(c => ({
+    const tableName = multipartTableName.join(".");
+    const tableData = this.globals.getters.getTable(tableName);
+    const columns = this.globals.getters.getColumns(tableName).map(c => ({
       id: c.id,
       label: c.id,
       data: c
     }));
 
-    let strictId = ctx.tableAlias().strictIdentifier();
-    let alias =
-      strictId !== undefined
-        ? this.stripQuote(strictId).name
-        : multipartTableName[multipartTableName.length - 1];
+    const strictId = ctx.tableAlias().strictIdentifier();
+    const alias =
+      strictId !== undefined ? this.stripQuote(strictId).name : multipartTableName[multipartTableName.length - 1];
 
-    let relation = new Relation(
+    const relation = new Relation(
       this.globals.nextRelationId,
       columns,
       this.level + 1,
@@ -299,16 +277,13 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
     return [relation.toLineage(alias)];
   }
 
-  visitAliasedQuery(
-    ctx: AliasedQueryContext
-  ): Lineage<TableData, ColumnData> | undefined {
-    let lineage = this.visitChildren(ctx);
+  visitAliasedQuery(ctx: AliasedQueryContext): Lineage<TableData, ColumnData> | undefined {
+    const lineage = this.visitChildren(ctx);
 
     // expecting query relation to be in stack
-    let relation = this.globals.relationsStack.pop()!;
-    let strictId = ctx.tableAlias().strictIdentifier();
-    let alias =
-      strictId !== undefined ? this.stripQuote(strictId).name : relation.id;
+    const relation = this.globals.relationsStack.pop()!;
+    const strictId = ctx.tableAlias().strictIdentifier();
+    const alias = strictId !== undefined ? this.stripQuote(strictId).name : relation.id;
     this.relations.set(alias, relation);
     return this.aggregateResult(lineage, [relation.toLineage(alias)]);
   }
@@ -319,9 +294,9 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
 
     const result = this.visitChildren(ctx);
 
-    let columnId = this.nextColumnId;
-    let errCaptId = ctx.errorCapturingIdentifier();
-    let label =
+    const columnId = this.nextColumnId;
+    const errCaptId = ctx.errorCapturingIdentifier();
+    const label =
       errCaptId !== undefined
         ? this.stripQuote(errCaptId.identifier()).name
         : this.deriveColumnName(ctx.expression()) ?? columnId;
@@ -357,10 +332,8 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
   }
 
   // this method is not called directly by visitChildren() but by above 2 methods
-  visitPrimaryExpression(
-    ctx: PrimaryExpressionContext
-  ): Lineage<TableData, ColumnData> | undefined {
-    let tableCol = this.extractTableAndColumn(ctx);
+  visitPrimaryExpression(ctx: PrimaryExpressionContext): Lineage<TableData, ColumnData> | undefined {
+    const tableCol = this.extractTableAndColumn(ctx);
     if (tableCol !== undefined) {
       const col = this.resolveColumn(tableCol.column, tableCol.table);
       if (col) {
