@@ -225,7 +225,7 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
       range: range
     };
     this.columns.push(column);
-    const lineage = [];
+    const lineage: Lineage<TableData, ColumnData> = [];
     for (const c of this.columnReferences) {
       lineage.push({
         type: "edge",
