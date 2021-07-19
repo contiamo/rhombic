@@ -17,6 +17,7 @@ import {
   QueryContext,
   QuotedIdentifierAlternativeContext,
   RegularQuerySpecificationContext,
+  StarContext,
   StrictIdentifierContext,
   TableNameContext,
   ValueExpressionDefaultContext
@@ -38,6 +39,8 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
 
   // relations for this context extracted from FROM
   relations: Map<string, Relation<TableData, ColumnData>> = new Map();
+
+  isStar = false;
 
   columnReferences: Array<ColumnRef> = [];
 
@@ -106,22 +109,32 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
     };
   }
 
+  protected findRelationInCtx(
+    ctx: QueryVisitor<TableData, ColumnData>,
+    tableName: QuotableIdentifier
+  ): Relation<TableData, ColumnData> | undefined {
+    for (const rel of ctx.relations) {
+      if (tableName.quoted) {
+        if (rel[0] == tableName.name) return rel[1];
+      } else {
+        if (
+          tableName.name.localeCompare(rel[0], undefined, {
+            sensitivity: "accent"
+          }) == 0
+        )
+          return rel[1];
+      }
+    }
+
+    return undefined;
+  }
+
   protected findRelation(tableName: QuotableIdentifier): Relation<TableData, ColumnData> | undefined {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let cur: QueryVisitor<TableData, ColumnData> | undefined = this;
     while (cur != undefined) {
-      for (const rel of cur.relations) {
-        if (tableName.quoted) {
-          if (rel[0] == tableName.name) return rel[1];
-        } else {
-          if (
-            tableName.name.localeCompare(rel[0], undefined, {
-              sensitivity: "accent"
-            }) == 0
-          )
-            return rel[1];
-        }
-      }
+      const table = this.findRelationInCtx(cur, tableName);
+      if (table !== undefined) return table;
       cur = cur.parent;
     }
     return undefined;
@@ -195,6 +208,31 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
       }
     }
     return undefined;
+  }
+
+  protected addRelationColumns(rel: Relation<TableData, ColumnData>, range: Range): Lineage<TableData, ColumnData> {
+    const lineage: Lineage<TableData, ColumnData> = [];
+    rel.columns.forEach(c => {
+      const columnId = this.nextColumnId;
+      const col = {
+        id: columnId,
+        label: c.label,
+        range: range
+      };
+      this.columns.push(col);
+      lineage.push({
+        type: "edge",
+        source: {
+          tableId: rel.id,
+          columnId: c.id
+        },
+        target: {
+          tableId: this.id,
+          columnId: columnId
+        }
+      });
+    });
+    return lineage;
   }
 
   //
@@ -292,7 +330,12 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
     // clear array to start accumulating new references
     this.columnReferences.length = 0;
 
+    this.isStar = false;
     const result = this.visitChildren(ctx);
+    if (this.isStar) {
+      this.isStar = false;
+      return result;
+    }
 
     const columnId = this.nextColumnId;
     const errCaptId = ctx.errorCapturingIdentifier();
@@ -321,6 +364,28 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
     }
 
     return this.aggregateResult(result, lineage);
+  }
+
+  visitStar(ctx: StarContext): Lineage<TableData, ColumnData> | undefined {
+    this.isStar = true;
+    const range = this.rangeFromContext(ctx);
+    const qualifiedName = ctx.qualifiedName();
+    if (qualifiedName !== undefined) {
+      // TODO support multipart table names
+      const lastName = qualifiedName.identifier()[qualifiedName.identifier().length - 1];
+      const tableName = this.stripQuote(lastName);
+      const rel = this.findRelationInCtx(this, tableName);
+      if (rel !== undefined) {
+        return this.addRelationColumns(rel, range);
+      }
+    } else {
+      let lineage: Lineage<TableData, ColumnData> | undefined = undefined;
+      for (const r of this.relations) {
+        lineage = this.aggregateResult(lineage, this.addRelationColumns(r[1], range));
+      }
+      return lineage;
+    }
+    return undefined;
   }
 
   visitColumnReference(ctx: ColumnReferenceContext): Lineage<TableData, ColumnData> | undefined {
