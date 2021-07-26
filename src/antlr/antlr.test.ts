@@ -3,6 +3,7 @@ import { UppercaseCharStream } from "./UppercaseCharStream";
 import { SqlBaseLexer } from "./SqlBaseLexer";
 import { SqlBaseParser } from "./SqlBaseParser";
 import { getLineage } from "./LineageUtil";
+import { Lineage, Table } from "../Lineage";
 
 type ColumnId = string;
 const columnsMapping: { [tableId: string]: ColumnId[] } = {
@@ -55,6 +56,14 @@ const metadataProvider = {
   getColumns: getColumns
 };
 
+// function to log lineage when testing
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function logLineage<TableData extends { id: string }, ColumnData extends { id: string }>(
+  lineage: Lineage<TableData, ColumnData>
+) {
+  console.log(JSON.stringify(lineage, undefined, 2));
+}
+
 describe("antlr", () => {
   it("should build parse tree", () => {
     const input = "select * from emp";
@@ -69,12 +78,13 @@ describe("antlr", () => {
     );
   });
 
-  it("should walk through tree", () => {
+  it("should work with aliases", () => {
     const sql =
       "select sq.account_id as account_id, e.employee_id as employee_id \n" +
       "from (select account_id as account_id, account_type as account_type from account as d) as sq, \n" +
       "   employee as e";
-    console.log(JSON.stringify(getLineage(sql, metadataProvider), undefined, 2));
+    const lin = getLineage(sql, metadataProvider);
+    expect(lin.filter(e => e.type == "edge")).toHaveLength(4);
   });
 
   it("should deduce column names", () => {
@@ -82,36 +92,46 @@ describe("antlr", () => {
       "select sq.account_id, account_type \n" +
       "from (select account_id, account.account_type from account) as sq, \n" +
       "   employee as e";
-    console.log(JSON.stringify(getLineage(sql, metadataProvider), undefined, 2));
+    const lin = getLineage(sql, metadataProvider);
+    expect(lin.filter(e => e.type == "edge")).toHaveLength(4);
   });
 
   it("should support PostgreSQL cast", () => {
     const sql = "select account_id::varchar " + "from account";
-    console.log(JSON.stringify(getLineage(sql, metadataProvider), undefined, 2));
+    const lin = getLineage(sql, metadataProvider);
+    expect(lin.filter(e => e.type == "edge")).toHaveLength(1);
   });
 
   it("should support double-quoted identifiers", () => {
     const sql = 'select "account_id", 1 as "one "" " ' + "from account";
-    console.log(JSON.stringify(getLineage(sql, metadataProvider), undefined, 2));
+    const lin = getLineage(sql, metadataProvider);
+    expect(lin.filter(e => e.type == "edge")).toHaveLength(1);
+    const table = lin.filter(e => e.type == "table").find(t => t.label == "[final result]") as Table<unknown, unknown>;
+    expect(table.columns).toHaveLength(2);
+    expect(table.columns.filter(c => c.label == 'one " ')).toHaveLength(1);
   });
 
   it("should support matching quoted identifiers", () => {
     const sql = 'select accOUNT_ID as "acc_id" from (select "account_id", ACCounT_TypE from account) as a';
-    console.log(JSON.stringify(getLineage(sql, metadataProvider), undefined, 2));
+    const lin = getLineage(sql, metadataProvider);
+    expect(lin.filter(e => e.type == "edge")).toHaveLength(3);
   });
 
   it("should support star on subquery", () => {
     const sql = 'select * from (select "account_id", ACCounT_TypE from account) as a';
-    console.log(JSON.stringify(getLineage(sql, metadataProvider), undefined, 2));
+    const lin = getLineage(sql, metadataProvider);
+    expect(lin.filter(e => e.type == "edge")).toHaveLength(4);
   });
 
   it("should support star on join", () => {
     const sql = "select * from account, salary";
-    console.log(JSON.stringify(getLineage(sql, metadataProvider), undefined, 2));
+    const lin = getLineage(sql, metadataProvider);
+    expect(lin.filter(e => e.type == "edge")).toHaveLength(13);
   });
 
   it("should support qualified star", () => {
     const sql = "select s.* from account a, salary s";
-    console.log(JSON.stringify(getLineage(sql, metadataProvider), undefined, 2));
+    const lin = getLineage(sql, metadataProvider);
+    expect(lin.filter(e => e.type == "edge")).toHaveLength(8);
   });
 });
