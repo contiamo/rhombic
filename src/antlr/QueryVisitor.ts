@@ -27,7 +27,7 @@ import { LineageContext } from "./LineageContext";
 export class QueryVisitor<TableData extends { id: string }, ColumnData extends { id: string }>
   extends AbstractParseTreeVisitor<Lineage<TableData, ColumnData> | undefined>
   implements SqlBaseVisitor<Lineage<TableData, ColumnData> | undefined> {
-  private id;
+  private readonly id;
 
   private topQuery = true;
 
@@ -35,25 +35,21 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
   private columnIdSeq = 0;
 
   // columns for this query extracted from SELECT
-  columns: Array<Column<ColumnData>> = [];
+  private columns: Array<Column<ColumnData>> = [];
 
   // relations for this context extracted from FROM
-  relations: Map<string, Relation<TableData, ColumnData>> = new Map();
+  private relations: Map<string, Relation<TableData, ColumnData>> = new Map();
 
-  isStar = false;
+  private isStar = false;
 
-  columnReferences: Array<ColumnRef> = [];
+  private columnReferences: Array<ColumnRef> = [];
 
-  globals: LineageContext<TableData, ColumnData>;
-
-  // parent reference, used for name resolution
-  readonly parent?: QueryVisitor<TableData, ColumnData>;
-
-  constructor(globals: LineageContext<TableData, ColumnData>, parent?: QueryVisitor<TableData, ColumnData>) {
+  constructor(
+    private readonly globals: LineageContext<TableData, ColumnData>,
+    private readonly parent?: QueryVisitor<TableData, ColumnData>
+  ) {
     super();
-    this.globals = globals;
-    this.parent = parent;
-    this.id = this.globals.getNextRelationId();
+    this.id = globals.getNextRelationId();
   }
 
   rangeFromContext(ctx: ParserRuleContext): Range {
