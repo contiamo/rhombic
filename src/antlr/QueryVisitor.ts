@@ -24,6 +24,8 @@ import {
 } from "./SqlBaseParser";
 import { LineageContext } from "./LineageContext";
 
+// Query visitor is instantiated per query/subquery
+// All shared state is hold in `lineageContext` which is shared across query visitors
 export class QueryVisitor<TableData extends { id: string }, ColumnData extends { id: string }>
   extends AbstractParseTreeVisitor<Lineage<TableData, ColumnData> | undefined>
   implements SqlBaseVisitor<Lineage<TableData, ColumnData> | undefined> {
@@ -45,11 +47,11 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
   private columnReferences: Array<ColumnRef> = [];
 
   constructor(
-    private readonly globals: LineageContext<TableData, ColumnData>,
+    private readonly lineageContext: LineageContext<TableData, ColumnData>,
     private readonly parent?: QueryVisitor<TableData, ColumnData>
   ) {
     super();
-    this.id = globals.getNextRelationId();
+    this.id = lineageContext.getNextRelationId();
   }
 
   rangeFromContext(ctx: ParserRuleContext): Range {
@@ -257,11 +259,11 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
       const result = this.visitChildren(ctx);
 
       // to be consumed later
-      this.globals.relationsStack.push(this.toRelation(this.rangeFromContext(ctx)));
+      this.lineageContext.relationsStack.push(this.toRelation(this.rangeFromContext(ctx)));
 
       return result;
     } else {
-      const visitor = new QueryVisitor(this.globals, this);
+      const visitor = new QueryVisitor(this.lineageContext, this);
       return ctx.accept(visitor);
     }
   }
@@ -288,8 +290,8 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
         return this.stripQuote(v.identifier()).name;
       });
     const tableName = multipartTableName.join(".");
-    const tableData = this.globals.getters.getTable(tableName);
-    const columns = this.globals.getters.getColumns(tableName).map(c => ({
+    const tableData = this.lineageContext.getters.getTable(tableName);
+    const columns = this.lineageContext.getters.getColumns(tableName).map(c => ({
       id: c.id,
       label: c.id,
       data: c
@@ -300,7 +302,7 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
       strictId !== undefined ? this.stripQuote(strictId).name : multipartTableName[multipartTableName.length - 1];
 
     const relation = new Relation(
-      this.globals.getNextRelationId(),
+      this.lineageContext.getNextRelationId(),
       columns,
       this.level + 1,
       this.rangeFromContext(ctx),
@@ -316,7 +318,7 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
     const lineage = this.visitChildren(ctx);
 
     // expecting query relation to be in stack
-    const relation = this.globals.relationsStack.pop();
+    const relation = this.lineageContext.relationsStack.pop();
     if (relation !== undefined) {
       const strictId = ctx.tableAlias().strictIdentifier();
       const alias = strictId !== undefined ? this.stripQuote(strictId).name : relation.id;

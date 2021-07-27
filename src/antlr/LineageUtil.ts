@@ -22,10 +22,10 @@ export function getLineage<TableData extends { id: string }, ColumnData extends 
   parser.buildParseTree = true;
   const tree = parser.statement();
 
-  const globals = new LineageContext(getters);
-  const visitor = new QueryVisitor<TableData, ColumnData>(globals);
+  const lineageContext = new LineageContext(getters);
+  const visitor = new QueryVisitor<TableData, ColumnData>(lineageContext);
   let lineage = tree.accept(visitor);
-  const outerRel = globals.relationsStack.pop();
+  const outerRel = lineageContext.relationsStack.pop();
   if (outerRel) {
     lineage = visitor.aggregateResult(lineage, [outerRel.toLineage("[final result]")]);
   }

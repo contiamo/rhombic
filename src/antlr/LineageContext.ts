@@ -1,5 +1,7 @@
 import { Relation } from "./model";
 
+// Instance of this class is shared across query visitors which are used to process
+// individual (sub-)queries
 export class LineageContext<TableData, ColumnData> {
   getters: {
     getTable: (tableId: string) => TableData;
