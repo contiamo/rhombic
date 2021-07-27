@@ -3,7 +3,7 @@ import { UppercaseCharStream } from "./UppercaseCharStream";
 import { SqlBaseLexer } from "./SqlBaseLexer";
 import { SqlBaseParser } from "./SqlBaseParser";
 import { getLineage } from "./LineageUtil";
-import { Lineage, Table } from "../Lineage";
+import { Table } from "../Lineage";
 
 type ColumnId = string;
 const columnsMapping: { [tableId: string]: ColumnId[] } = {
@@ -55,14 +55,6 @@ const metadataProvider = {
   getTable: getTable,
   getColumns: getColumns
 };
-
-// function to log lineage when testing
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function logLineage<TableData extends { id: string }, ColumnData extends { id: string }>(
-  lineage: Lineage<TableData, ColumnData>
-) {
-  console.log(JSON.stringify(lineage, undefined, 2));
-}
 
 describe("antlr", () => {
   it("should build parse tree", () => {

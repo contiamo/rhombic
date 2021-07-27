@@ -53,7 +53,7 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
     super();
     this.globals = globals;
     this.parent = parent;
-    this.id = this.globals.nextRelationId;
+    this.id = this.globals.getNextRelationId();
   }
 
   rangeFromContext(ctx: ParserRuleContext): Range {
@@ -96,10 +96,11 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
     if (strictId !== undefined) {
       if (strictId instanceof QuotedIdentifierAlternativeContext) {
         const quotedId = strictId.quotedIdentifier();
-        if (quotedId.DOUBLEQUOTED_IDENTIFIER() !== undefined) {
-          return this.stripQuoteFromText(quotedId.DOUBLEQUOTED_IDENTIFIER()!.text, '"');
-        } else if (quotedId.BACKQUOTED_IDENTIFIER() !== undefined) {
-          return this.stripQuoteFromText(quotedId.BACKQUOTED_IDENTIFIER()!.text, "`");
+        const [doubleQuotedId, backquotedId] = [quotedId.DOUBLEQUOTED_IDENTIFIER(), quotedId.BACKQUOTED_IDENTIFIER()];
+        if (doubleQuotedId !== undefined) {
+          return this.stripQuoteFromText(doubleQuotedId.text, '"');
+        } else if (backquotedId !== undefined) {
+          return this.stripQuoteFromText(backquotedId.text, "`");
         }
       }
     }
@@ -303,7 +304,7 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
       strictId !== undefined ? this.stripQuote(strictId).name : multipartTableName[multipartTableName.length - 1];
 
     const relation = new Relation(
-      this.globals.nextRelationId,
+      this.globals.getNextRelationId(),
       columns,
       this.level + 1,
       this.rangeFromContext(ctx),
@@ -319,11 +320,15 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
     const lineage = this.visitChildren(ctx);
 
     // expecting query relation to be in stack
-    const relation = this.globals.relationsStack.pop()!;
-    const strictId = ctx.tableAlias().strictIdentifier();
-    const alias = strictId !== undefined ? this.stripQuote(strictId).name : relation.id;
-    this.relations.set(alias, relation);
-    return this.aggregateResult(lineage, [relation.toLineage(alias)]);
+    const relation = this.globals.relationsStack.pop();
+    if (relation !== undefined) {
+      const strictId = ctx.tableAlias().strictIdentifier();
+      const alias = strictId !== undefined ? this.stripQuote(strictId).name : relation.id;
+      this.relations.set(alias, relation);
+      return this.aggregateResult(lineage, [relation.toLineage(alias)]);
+    } else {
+      throw new Error("Expecting subquery relation to be in stack");
+    }
   }
 
   visitNamedExpression(ctx: NamedExpressionContext): Lineage<TableData, ColumnData> | undefined {

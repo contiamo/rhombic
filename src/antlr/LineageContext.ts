@@ -1,4 +1,3 @@
-import { Lineage } from "../Lineage";
 import { Relation } from "./model";
 
 export class LineageContext<TableData, ColumnData> {
@@ -7,15 +6,14 @@ export class LineageContext<TableData, ColumnData> {
     getColumns: (tableId: string) => ColumnData[];
   };
 
-  relationSeq = 0;
-  relationsStack: Array<Relation<TableData, ColumnData>> = [];
-  lineage: Lineage<TableData, ColumnData> = [];
+  private relationSeq = 0;
+  public readonly relationsStack: Array<Relation<TableData, ColumnData>> = [];
 
   constructor(getters: { getTable: (tableId: string) => TableData; getColumns: (tableId: string) => ColumnData[] }) {
     this.getters = getters;
   }
 
-  get nextRelationId(): string {
+  getNextRelationId(): string {
     this.relationSeq++;
     return "result_" + this.relationSeq;
   }

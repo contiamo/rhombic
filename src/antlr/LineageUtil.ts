@@ -44,7 +44,7 @@ export function getLineage<TableData extends { id: string }, ColumnData extends 
       }
     });
     tables.forEach(e => {
-      if (e.type == "table") e.level = maxLevel - e.level!;
+      if (e.type == "table" && e.level !== undefined) e.level = maxLevel - e.level;
     });
 
     return tables.concat(edges);

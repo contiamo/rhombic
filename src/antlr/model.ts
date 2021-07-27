@@ -8,28 +8,14 @@ export enum Clause {
 }
 
 export class Relation<TableData, ColumnData> {
-  id: string;
-  columns: Array<Column<ColumnData>>;
-  level: number;
-  name?: string;
-  range?: Range;
-  data?: TableData;
-
   constructor(
-    id: string,
-    columns: Array<Column<ColumnData>>,
-    level: number,
-    range?: Range,
-    data?: TableData,
-    name?: string // name is defined for real tables
-  ) {
-    this.id = id;
-    this.columns = columns;
-    this.level = level;
-    this.name = name;
-    this.range = range;
-    this.data = data;
-  }
+    public readonly id: string,
+    public readonly columns: Array<Column<ColumnData>>,
+    public readonly level: number,
+    public readonly range?: Range,
+    public readonly data?: TableData,
+    public readonly name?: string // name is defined for real tables
+  ) {}
 
   toLineage(label?: string): Table<TableData, ColumnData> {
     let l = this.id;
@@ -49,6 +35,7 @@ export class Relation<TableData, ColumnData> {
       label: l,
       level: this.level,
       range: this.range,
+      data: this.data,
       columns: this.columns
     };
   }
