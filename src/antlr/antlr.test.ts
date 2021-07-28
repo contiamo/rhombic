@@ -55,16 +55,41 @@ const getTable = (id: TablePrimary) => {
 
 describe("antlr", () => {
   it("should build parse tree", () => {
-    const input = "select * from emp";
-    const inputStream = new UppercaseCharStream(CharStreams.fromString(input));
-    const lexer = new SqlBaseLexer(inputStream);
-    const tokens = new CommonTokenStream(lexer);
-    const parser = new SqlBaseParser(tokens);
-    parser.buildParseTree = true;
-    const tree = parser.statement();
-    expect(tree.toStringTree()).toBe(
+    const sql = "select * from emp";
+    const parsed = antlr.parse(sql);
+    expect(parsed.tree.toStringTree()).toBe(
       "(select*fromemp (select*fromemp (select*fromemp (select*fromemp (select*fromemp (select* select (* (* (* (* (* (* *))))))) (fromemp from (emp (emp (emp (emp (emp (emp emp)) )) )))))) ))"
     );
+  });
+
+  it("should extract table primaries", () => {
+    const sql = "select * from t1, s1.t1, s2.t1, (select * from c1.s2.t2, s3.t3, t4) as sq";
+    const parsed = antlr.parse(sql);
+    expect(parsed.getUsedTables()).toEqual([
+      {
+        tableName: "t1"
+      },
+      {
+        schemaName: "s1",
+        tableName: "t1"
+      },
+      {
+        schemaName: "s2",
+        tableName: "t1"
+      },
+      {
+        catalogName: "c1",
+        schemaName: "s2",
+        tableName: "t2"
+      },
+      {
+        schemaName: "s3",
+        tableName: "t3"
+      },
+      {
+        tableName: "t4"
+      }
+    ]);
   });
 
   const cases: Array<{

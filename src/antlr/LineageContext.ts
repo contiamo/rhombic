@@ -1,5 +1,5 @@
 import { TablePrimary } from "..";
-import { Relation } from "./model";
+import { Relation } from "./common";
 
 // Instance of this class is shared across query visitors which are used to process
 // individual (sub-)queries
