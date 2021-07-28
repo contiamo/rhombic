@@ -2,7 +2,7 @@ import { CharStreams, CommonTokenStream } from "antlr4ts";
 import { UppercaseCharStream } from "./UppercaseCharStream";
 import { SqlBaseLexer } from "./SqlBaseLexer";
 import { SqlBaseParser } from "./SqlBaseParser";
-import { getLineage } from "./LineageUtil";
+import antlr from ".";
 import { Lineage } from "../Lineage";
 import * as fs from "fs";
 import { TablePrimary } from "..";
@@ -2236,7 +2236,7 @@ describe("antlr", () => {
 
   cases.forEach(({ data, name, only, sql, debug }) => {
     (only ? it.only : it)(`should parse ${name}`, () => {
-      const lineage = getLineage(sql, getTable);
+      const lineage = antlr.parse(sql, { doubleQuotedIdentifier: true }).getLineage(getTable);
       if (debug) {
         const previous = fs.existsSync("debug.json") ? fs.readFileSync("debug.json", "utf-8") : "";
         const next = JSON.stringify(lineage, null, 2);
