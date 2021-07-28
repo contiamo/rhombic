@@ -5,13 +5,11 @@ import { SqlBaseLexer } from "./SqlBaseLexer";
 import { SqlBaseParser } from "./SqlBaseParser";
 import { UppercaseCharStream } from "./UppercaseCharStream";
 import { LineageContext } from "./LineageContext";
+import { TablePrimary } from "..";
 
-export function getLineage<TableData extends { id: string }, ColumnData extends { id: string }>(
+export function getLineage<TableData extends { id: TablePrimary }, ColumnData extends { id: string }>(
   sql: string,
-  getters: {
-    getTable: (tableId: string) => TableData;
-    getColumns: (tableId: string) => ColumnData[];
-  }
+  getTable: (id: TablePrimary) => { table: TableData; columns: ColumnData[] }
 ): Lineage<TableData, ColumnData> {
   const inputStream = new UppercaseCharStream(CharStreams.fromString(sql));
   const lexer = new SqlBaseLexer(inputStream);
@@ -22,7 +20,7 @@ export function getLineage<TableData extends { id: string }, ColumnData extends 
   parser.buildParseTree = true;
   const tree = parser.statement();
 
-  const lineageContext = new LineageContext(getters);
+  const lineageContext = new LineageContext(getTable);
   const visitor = new QueryVisitor<TableData, ColumnData>(lineageContext);
   let lineage = tree.accept(visitor);
   const outerRel = lineageContext.relationsStack.pop();

@@ -23,10 +23,11 @@ import {
   ValueExpressionDefaultContext
 } from "./SqlBaseParser";
 import { LineageContext } from "./LineageContext";
+import { TablePrimary } from "..";
 
 // Query visitor is instantiated per query/subquery
 // All shared state is hold in `lineageContext` which is shared across query visitors
-export class QueryVisitor<TableData extends { id: string }, ColumnData extends { id: string }>
+export class QueryVisitor<TableData extends { id: TablePrimary }, ColumnData extends { id: string }>
   extends AbstractParseTreeVisitor<Lineage<TableData, ColumnData> | undefined>
   implements SqlBaseVisitor<Lineage<TableData, ColumnData> | undefined> {
   private readonly id;
@@ -234,6 +235,28 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
     return lineage;
   }
 
+  private tablePrimaryFromMultipart(names: string[]): TablePrimary {
+    const len = names.length;
+    if (len == 0) {
+      throw new Error("Unexpected empty array for table name");
+    } else if (len == 1) {
+      return {
+        tableName: names[0]
+      };
+    } else if (len == 2) {
+      return {
+        schemaName: names[0],
+        tableName: names[1]
+      };
+    } else {
+      return {
+        catalogName: names[len - 3],
+        schemaName: names[len - 2],
+        tableName: names[len - 1]
+      };
+    }
+  }
+
   //
   // Visitor method overrides
   //
@@ -286,12 +309,10 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
     const multipartTableName = ctx
       .multipartIdentifier()
       .errorCapturingIdentifier()
-      .map(v => {
-        return this.stripQuote(v.identifier()).name;
-      });
-    const tableName = multipartTableName.join(".");
-    const tableData = this.lineageContext.getters.getTable(tableName);
-    const columns = this.lineageContext.getters.getColumns(tableName).map(c => ({
+      .map(v => this.stripQuote(v.identifier()).name);
+    const tablePrimary = this.tablePrimaryFromMultipart(multipartTableName);
+    const metadata = this.lineageContext.getTable(tablePrimary);
+    const columns = metadata.columns.map(c => ({
       id: c.id,
       label: c.id,
       data: c
@@ -301,13 +322,13 @@ export class QueryVisitor<TableData extends { id: string }, ColumnData extends {
     const alias =
       strictId !== undefined ? this.stripQuote(strictId).name : multipartTableName[multipartTableName.length - 1];
 
-    const relation = new Relation(
+    const relation = new Relation<TableData, ColumnData>(
       this.lineageContext.getNextRelationId(),
       columns,
       this.level + 1,
       this.rangeFromContext(ctx),
-      tableData,
-      tableName
+      metadata.table,
+      tablePrimary.tableName
     );
 
     this.relations.set(alias, relation);

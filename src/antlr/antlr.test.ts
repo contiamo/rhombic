@@ -5,6 +5,7 @@ import { SqlBaseParser } from "./SqlBaseParser";
 import { getLineage } from "./LineageUtil";
 import { Lineage } from "../Lineage";
 import * as fs from "fs";
+import { TablePrimary } from "..";
 
 type ColumnId = string;
 const columnsMapping: { [tableId: string]: ColumnId[] } = {
@@ -40,16 +41,16 @@ const columnsMapping: { [tableId: string]: ColumnId[] } = {
   ]
 };
 
-const getTable = (id: string) => ({
-  id
-});
-
-const getColumns = (tableId: string) => {
-  const columns = columnsMapping[tableId] || [];
-  return columns.map(columnId => ({
+const getTable = (id: TablePrimary) => {
+  const columnNames = columnsMapping[id.tableName] || [];
+  const columns = columnNames.map(columnId => ({
     id: columnId,
-    tableId
+    tableId: id
   }));
+  return {
+    table: { id },
+    columns
+  };
 };
 
 describe("antlr", () => {
@@ -69,7 +70,7 @@ describe("antlr", () => {
   const cases: Array<{
     name: string;
     sql: string;
-    data: Lineage<{ id: string }, { id: string; tableId: string }>;
+    data: Lineage<{ id: TablePrimary }, { id: string; tableId: TablePrimary }>;
     only?: boolean;
     debug?: boolean; // output in debug.json
   }> = [
@@ -92,7 +93,9 @@ describe("antlr", () => {
             endColumn: 85
           },
           data: {
-            id: "account"
+            id: {
+              tableName: "account"
+            }
           },
           columns: [
             {
@@ -100,7 +103,9 @@ describe("antlr", () => {
               label: "account_type",
               data: {
                 id: "account_type",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -108,7 +113,9 @@ describe("antlr", () => {
               label: "account_id",
               data: {
                 id: "account_id",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -116,7 +123,9 @@ describe("antlr", () => {
               label: "account_description",
               data: {
                 id: "account_description",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -124,7 +133,9 @@ describe("antlr", () => {
               label: "account_parent",
               data: {
                 id: "account_parent",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -132,7 +143,9 @@ describe("antlr", () => {
               label: "account_rollup",
               data: {
                 id: "account_rollup",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             }
           ]
@@ -183,7 +196,9 @@ describe("antlr", () => {
             endColumn: 16
           },
           data: {
-            id: "employee"
+            id: {
+              tableName: "employee"
+            }
           },
           columns: [
             {
@@ -191,7 +206,9 @@ describe("antlr", () => {
               label: "birth_date",
               data: {
                 id: "birth_date",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -199,7 +216,9 @@ describe("antlr", () => {
               label: "department_id",
               data: {
                 id: "department_id",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -207,7 +226,9 @@ describe("antlr", () => {
               label: "education_level",
               data: {
                 id: "education_level",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -215,7 +236,9 @@ describe("antlr", () => {
               label: "employee_id",
               data: {
                 id: "employee_id",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -223,7 +246,9 @@ describe("antlr", () => {
               label: "end_date",
               data: {
                 id: "end_date",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -231,7 +256,9 @@ describe("antlr", () => {
               label: "first_name",
               data: {
                 id: "first_name",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -239,7 +266,9 @@ describe("antlr", () => {
               label: "full_name",
               data: {
                 id: "full_name",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -247,7 +276,9 @@ describe("antlr", () => {
               label: "gender",
               data: {
                 id: "gender",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -255,7 +286,9 @@ describe("antlr", () => {
               label: "hire_date",
               data: {
                 id: "hire_date",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -263,7 +296,9 @@ describe("antlr", () => {
               label: "last_name",
               data: {
                 id: "last_name",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -271,7 +306,9 @@ describe("antlr", () => {
               label: "management_role",
               data: {
                 id: "management_role",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -279,7 +316,9 @@ describe("antlr", () => {
               label: "marital_status",
               data: {
                 id: "marital_status",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -287,7 +326,9 @@ describe("antlr", () => {
               label: "position_id",
               data: {
                 id: "position_id",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -295,7 +336,9 @@ describe("antlr", () => {
               label: "position_title",
               data: {
                 id: "position_title",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -303,7 +346,9 @@ describe("antlr", () => {
               label: "salary",
               data: {
                 id: "salary",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -311,7 +356,9 @@ describe("antlr", () => {
               label: "store_id",
               data: {
                 id: "store_id",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -319,7 +366,9 @@ describe("antlr", () => {
               label: "supervisor_id",
               data: {
                 id: "supervisor_id",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             }
           ]
@@ -423,7 +472,9 @@ describe("antlr", () => {
             endColumn: 58
           },
           data: {
-            id: "account"
+            id: {
+              tableName: "account"
+            }
           },
           columns: [
             {
@@ -431,7 +482,9 @@ describe("antlr", () => {
               label: "account_type",
               data: {
                 id: "account_type",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -439,7 +492,9 @@ describe("antlr", () => {
               label: "account_id",
               data: {
                 id: "account_id",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -447,7 +502,9 @@ describe("antlr", () => {
               label: "account_description",
               data: {
                 id: "account_description",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -455,7 +512,9 @@ describe("antlr", () => {
               label: "account_parent",
               data: {
                 id: "account_parent",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -463,7 +522,9 @@ describe("antlr", () => {
               label: "account_rollup",
               data: {
                 id: "account_rollup",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             }
           ]
@@ -514,7 +575,9 @@ describe("antlr", () => {
             endColumn: 16
           },
           data: {
-            id: "employee"
+            id: {
+              tableName: "employee"
+            }
           },
           columns: [
             {
@@ -522,7 +585,9 @@ describe("antlr", () => {
               label: "birth_date",
               data: {
                 id: "birth_date",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -530,7 +595,9 @@ describe("antlr", () => {
               label: "department_id",
               data: {
                 id: "department_id",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -538,7 +605,9 @@ describe("antlr", () => {
               label: "education_level",
               data: {
                 id: "education_level",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -546,7 +615,9 @@ describe("antlr", () => {
               label: "employee_id",
               data: {
                 id: "employee_id",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -554,7 +625,9 @@ describe("antlr", () => {
               label: "end_date",
               data: {
                 id: "end_date",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -562,7 +635,9 @@ describe("antlr", () => {
               label: "first_name",
               data: {
                 id: "first_name",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -570,7 +645,9 @@ describe("antlr", () => {
               label: "full_name",
               data: {
                 id: "full_name",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -578,7 +655,9 @@ describe("antlr", () => {
               label: "gender",
               data: {
                 id: "gender",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -586,7 +665,9 @@ describe("antlr", () => {
               label: "hire_date",
               data: {
                 id: "hire_date",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -594,7 +675,9 @@ describe("antlr", () => {
               label: "last_name",
               data: {
                 id: "last_name",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -602,7 +685,9 @@ describe("antlr", () => {
               label: "management_role",
               data: {
                 id: "management_role",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -610,7 +695,9 @@ describe("antlr", () => {
               label: "marital_status",
               data: {
                 id: "marital_status",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -618,7 +705,9 @@ describe("antlr", () => {
               label: "position_id",
               data: {
                 id: "position_id",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -626,7 +715,9 @@ describe("antlr", () => {
               label: "position_title",
               data: {
                 id: "position_title",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -634,7 +725,9 @@ describe("antlr", () => {
               label: "salary",
               data: {
                 id: "salary",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -642,7 +735,9 @@ describe("antlr", () => {
               label: "store_id",
               data: {
                 id: "store_id",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             },
             {
@@ -650,7 +745,9 @@ describe("antlr", () => {
               label: "supervisor_id",
               data: {
                 id: "supervisor_id",
-                tableId: "employee"
+                tableId: {
+                  tableName: "employee"
+                }
               }
             }
           ]
@@ -751,7 +848,9 @@ describe("antlr", () => {
             endColumn: 39
           },
           data: {
-            id: "account"
+            id: {
+              tableName: "account"
+            }
           },
           columns: [
             {
@@ -759,7 +858,9 @@ describe("antlr", () => {
               label: "account_type",
               data: {
                 id: "account_type",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -767,7 +868,9 @@ describe("antlr", () => {
               label: "account_id",
               data: {
                 id: "account_id",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -775,7 +878,9 @@ describe("antlr", () => {
               label: "account_description",
               data: {
                 id: "account_description",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -783,7 +888,9 @@ describe("antlr", () => {
               label: "account_parent",
               data: {
                 id: "account_parent",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -791,7 +898,9 @@ describe("antlr", () => {
               label: "account_rollup",
               data: {
                 id: "account_rollup",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             }
           ]
@@ -849,7 +958,9 @@ describe("antlr", () => {
             endColumn: 48
           },
           data: {
-            id: "account"
+            id: {
+              tableName: "account"
+            }
           },
           columns: [
             {
@@ -857,7 +968,9 @@ describe("antlr", () => {
               label: "account_type",
               data: {
                 id: "account_type",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -865,7 +978,9 @@ describe("antlr", () => {
               label: "account_id",
               data: {
                 id: "account_id",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -873,7 +988,9 @@ describe("antlr", () => {
               label: "account_description",
               data: {
                 id: "account_description",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -881,7 +998,9 @@ describe("antlr", () => {
               label: "account_parent",
               data: {
                 id: "account_parent",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -889,7 +1008,9 @@ describe("antlr", () => {
               label: "account_rollup",
               data: {
                 id: "account_rollup",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             }
           ]
@@ -957,7 +1078,9 @@ describe("antlr", () => {
             endColumn: 82
           },
           data: {
-            id: "account"
+            id: {
+              tableName: "account"
+            }
           },
           columns: [
             {
@@ -965,7 +1088,9 @@ describe("antlr", () => {
               label: "account_type",
               data: {
                 id: "account_type",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -973,7 +1098,9 @@ describe("antlr", () => {
               label: "account_id",
               data: {
                 id: "account_id",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -981,7 +1108,9 @@ describe("antlr", () => {
               label: "account_description",
               data: {
                 id: "account_description",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -989,7 +1118,9 @@ describe("antlr", () => {
               label: "account_parent",
               data: {
                 id: "account_parent",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -997,7 +1128,9 @@ describe("antlr", () => {
               label: "account_rollup",
               data: {
                 id: "account_rollup",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             }
           ]
@@ -1111,7 +1244,9 @@ describe("antlr", () => {
             endColumn: 61
           },
           data: {
-            id: "account"
+            id: {
+              tableName: "account"
+            }
           },
           columns: [
             {
@@ -1119,7 +1254,9 @@ describe("antlr", () => {
               label: "account_type",
               data: {
                 id: "account_type",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -1127,7 +1264,9 @@ describe("antlr", () => {
               label: "account_id",
               data: {
                 id: "account_id",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -1135,7 +1274,9 @@ describe("antlr", () => {
               label: "account_description",
               data: {
                 id: "account_description",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -1143,7 +1284,9 @@ describe("antlr", () => {
               label: "account_parent",
               data: {
                 id: "account_parent",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -1151,7 +1294,9 @@ describe("antlr", () => {
               label: "account_rollup",
               data: {
                 id: "account_rollup",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             }
           ]
@@ -1286,7 +1431,9 @@ describe("antlr", () => {
             endColumn: 21
           },
           data: {
-            id: "account"
+            id: {
+              tableName: "account"
+            }
           },
           columns: [
             {
@@ -1294,7 +1441,9 @@ describe("antlr", () => {
               label: "account_type",
               data: {
                 id: "account_type",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -1302,7 +1451,9 @@ describe("antlr", () => {
               label: "account_id",
               data: {
                 id: "account_id",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -1310,7 +1461,9 @@ describe("antlr", () => {
               label: "account_description",
               data: {
                 id: "account_description",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -1318,7 +1471,9 @@ describe("antlr", () => {
               label: "account_parent",
               data: {
                 id: "account_parent",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -1326,7 +1481,9 @@ describe("antlr", () => {
               label: "account_rollup",
               data: {
                 id: "account_rollup",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             }
           ]
@@ -1343,7 +1500,9 @@ describe("antlr", () => {
             endColumn: 29
           },
           data: {
-            id: "salary"
+            id: {
+              tableName: "salary"
+            }
           },
           columns: [
             {
@@ -1351,7 +1510,9 @@ describe("antlr", () => {
               label: "currency_id",
               data: {
                 id: "currency_id",
-                tableId: "salary"
+                tableId: {
+                  tableName: "salary"
+                }
               }
             },
             {
@@ -1359,7 +1520,9 @@ describe("antlr", () => {
               label: "department_id",
               data: {
                 id: "department_id",
-                tableId: "salary"
+                tableId: {
+                  tableName: "salary"
+                }
               }
             },
             {
@@ -1367,7 +1530,9 @@ describe("antlr", () => {
               label: "employee_id",
               data: {
                 id: "employee_id",
-                tableId: "salary"
+                tableId: {
+                  tableName: "salary"
+                }
               }
             },
             {
@@ -1375,7 +1540,9 @@ describe("antlr", () => {
               label: "overtime_paid",
               data: {
                 id: "overtime_paid",
-                tableId: "salary"
+                tableId: {
+                  tableName: "salary"
+                }
               }
             },
             {
@@ -1383,7 +1550,9 @@ describe("antlr", () => {
               label: "pay_date",
               data: {
                 id: "pay_date",
-                tableId: "salary"
+                tableId: {
+                  tableName: "salary"
+                }
               }
             },
             {
@@ -1391,7 +1560,9 @@ describe("antlr", () => {
               label: "salary_paid",
               data: {
                 id: "salary_paid",
-                tableId: "salary"
+                tableId: {
+                  tableName: "salary"
+                }
               }
             },
             {
@@ -1399,7 +1570,9 @@ describe("antlr", () => {
               label: "vacation_accrued",
               data: {
                 id: "vacation_accrued",
-                tableId: "salary"
+                tableId: {
+                  tableName: "salary"
+                }
               }
             },
             {
@@ -1407,7 +1580,9 @@ describe("antlr", () => {
               label: "vacation_used",
               data: {
                 id: "vacation_used",
-                tableId: "salary"
+                tableId: {
+                  tableName: "salary"
+                }
               }
             }
           ]
@@ -1717,7 +1892,9 @@ describe("antlr", () => {
             endColumn: 25
           },
           data: {
-            id: "account"
+            id: {
+              tableName: "account"
+            }
           },
           columns: [
             {
@@ -1725,7 +1902,9 @@ describe("antlr", () => {
               label: "account_type",
               data: {
                 id: "account_type",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -1733,7 +1912,9 @@ describe("antlr", () => {
               label: "account_id",
               data: {
                 id: "account_id",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -1741,7 +1922,9 @@ describe("antlr", () => {
               label: "account_description",
               data: {
                 id: "account_description",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -1749,7 +1932,9 @@ describe("antlr", () => {
               label: "account_parent",
               data: {
                 id: "account_parent",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             },
             {
@@ -1757,7 +1942,9 @@ describe("antlr", () => {
               label: "account_rollup",
               data: {
                 id: "account_rollup",
-                tableId: "account"
+                tableId: {
+                  tableName: "account"
+                }
               }
             }
           ]
@@ -1774,7 +1961,9 @@ describe("antlr", () => {
             endColumn: 35
           },
           data: {
-            id: "salary"
+            id: {
+              tableName: "salary"
+            }
           },
           columns: [
             {
@@ -1782,7 +1971,9 @@ describe("antlr", () => {
               label: "currency_id",
               data: {
                 id: "currency_id",
-                tableId: "salary"
+                tableId: {
+                  tableName: "salary"
+                }
               }
             },
             {
@@ -1790,7 +1981,9 @@ describe("antlr", () => {
               label: "department_id",
               data: {
                 id: "department_id",
-                tableId: "salary"
+                tableId: {
+                  tableName: "salary"
+                }
               }
             },
             {
@@ -1798,7 +1991,9 @@ describe("antlr", () => {
               label: "employee_id",
               data: {
                 id: "employee_id",
-                tableId: "salary"
+                tableId: {
+                  tableName: "salary"
+                }
               }
             },
             {
@@ -1806,7 +2001,9 @@ describe("antlr", () => {
               label: "overtime_paid",
               data: {
                 id: "overtime_paid",
-                tableId: "salary"
+                tableId: {
+                  tableName: "salary"
+                }
               }
             },
             {
@@ -1814,7 +2011,9 @@ describe("antlr", () => {
               label: "pay_date",
               data: {
                 id: "pay_date",
-                tableId: "salary"
+                tableId: {
+                  tableName: "salary"
+                }
               }
             },
             {
@@ -1822,7 +2021,9 @@ describe("antlr", () => {
               label: "salary_paid",
               data: {
                 id: "salary_paid",
-                tableId: "salary"
+                tableId: {
+                  tableName: "salary"
+                }
               }
             },
             {
@@ -1830,7 +2031,9 @@ describe("antlr", () => {
               label: "vacation_accrued",
               data: {
                 id: "vacation_accrued",
-                tableId: "salary"
+                tableId: {
+                  tableName: "salary"
+                }
               }
             },
             {
@@ -1838,7 +2041,9 @@ describe("antlr", () => {
               label: "vacation_used",
               data: {
                 id: "vacation_used",
-                tableId: "salary"
+                tableId: {
+                  tableName: "salary"
+                }
               }
             }
           ]
@@ -2031,7 +2236,7 @@ describe("antlr", () => {
 
   cases.forEach(({ data, name, only, sql, debug }) => {
     (only ? it.only : it)(`should parse ${name}`, () => {
-      const lineage = getLineage(sql, { getTable, getColumns });
+      const lineage = getLineage(sql, getTable);
       if (debug) {
         const previous = fs.existsSync("debug.json") ? fs.readFileSync("debug.json", "utf-8") : "";
         const next = JSON.stringify(lineage, null, 2);
