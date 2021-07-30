@@ -11,6 +11,7 @@ import {
   ExpressionContext,
   FromClauseContext,
   NamedExpressionContext,
+  NamedQueryContext,
   PredicatedContext,
   PrimaryExpressionContext,
   QueryContext,
@@ -252,18 +253,32 @@ export class LineageQueryVisitor<TableData extends { id: TablePrimary }, ColumnD
     const multipartTableName = ctx
       .multipartIdentifier()
       .errorCapturingIdentifier()
-      .map(v => common.stripQuote(v.identifier()).name);
-    const tablePrimary = common.tablePrimaryFromMultipart(multipartTableName);
+      .map(v => common.stripQuote(v.identifier()));
+
+    const strictId = ctx.tableAlias().strictIdentifier();
+    const alias = (strictId !== undefined
+      ? common.stripQuote(strictId)
+      : multipartTableName[multipartTableName.length - 1]
+    ).name;
+
+    if (multipartTableName.length == 1) {
+      const rel = this.findRelation(multipartTableName[0]);
+      if (rel !== undefined) {
+        // found relation as CTE or correllated sq
+        if (multipartTableName[0].name != alias) {
+          this.relations.set(alias, rel);
+        }
+        return undefined; // no additional lineage, just alias
+      }
+    }
+
+    const tablePrimary = common.tablePrimaryFromMultipart(multipartTableName.map(v => v.name));
     const metadata = this.lineageContext.getTable(tablePrimary);
     const columns = metadata.columns.map(c => ({
       id: c.id,
       label: c.id,
       data: c
     }));
-
-    const strictId = ctx.tableAlias().strictIdentifier();
-    const alias =
-      strictId !== undefined ? common.stripQuote(strictId).name : multipartTableName[multipartTableName.length - 1];
 
     const relation = new Relation<TableData, ColumnData>(
       this.lineageContext.getNextRelationId(),
@@ -276,6 +291,21 @@ export class LineageQueryVisitor<TableData extends { id: TablePrimary }, ColumnD
 
     this.relations.set(alias, relation);
     return [relation.toLineage(alias)];
+  }
+
+  visitNamedQuery(ctx: NamedQueryContext): Lineage<TableData, ColumnData> | undefined {
+    const lineage = this.visitChildren(ctx);
+
+    // expecting query relation to be in stack
+    const relation = this.lineageContext.relationsStack.pop();
+    if (relation !== undefined) {
+      const identifier = ctx.errorCapturingIdentifier().identifier();
+      const alias = identifier !== undefined ? common.stripQuote(identifier).name : relation.id;
+      this.relations.set(alias, relation);
+      return this.aggregateResult(lineage, [relation.toLineage(alias)]);
+    } else {
+      throw new Error("Expecting CTE query relation to be in stack");
+    }
   }
 
   visitAliasedQuery(ctx: AliasedQueryContext): Lineage<TableData, ColumnData> | undefined {

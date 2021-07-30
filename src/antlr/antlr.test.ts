@@ -1,7 +1,3 @@
-import { CharStreams, CommonTokenStream } from "antlr4ts";
-import { UppercaseCharStream } from "./UppercaseCharStream";
-import { SqlBaseLexer } from "./SqlBaseLexer";
-import { SqlBaseParser } from "./SqlBaseParser";
 import antlr from ".";
 import { Lineage } from "../Lineage";
 import * as fs from "fs";
@@ -2253,6 +2249,256 @@ describe("antlr", () => {
           target: {
             tableId: "result_1",
             columnId: "column_8"
+          }
+        }
+      ]
+    },
+    {
+      name: "common table expression",
+      sql: "with a as (select * from account)\n" + "select account_type, a.account_id from a",
+      data: [
+        {
+          type: "table",
+          id: "result_3",
+          label: "account",
+          level: 0,
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 25,
+            endColumn: 32
+          },
+          data: {
+            id: {
+              tableName: "account"
+            }
+          },
+          columns: [
+            {
+              id: "account_type",
+              label: "account_type",
+              data: {
+                id: "account_type",
+                tableId: {
+                  tableName: "account"
+                }
+              }
+            },
+            {
+              id: "account_id",
+              label: "account_id",
+              data: {
+                id: "account_id",
+                tableId: {
+                  tableName: "account"
+                }
+              }
+            },
+            {
+              id: "account_description",
+              label: "account_description",
+              data: {
+                id: "account_description",
+                tableId: {
+                  tableName: "account"
+                }
+              }
+            },
+            {
+              id: "account_parent",
+              label: "account_parent",
+              data: {
+                id: "account_parent",
+                tableId: {
+                  tableName: "account"
+                }
+              }
+            },
+            {
+              id: "account_rollup",
+              label: "account_rollup",
+              data: {
+                id: "account_rollup",
+                tableId: {
+                  tableName: "account"
+                }
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_2",
+          label: "a",
+          level: 1,
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 11,
+            endColumn: 32
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "account_type",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 18,
+                endColumn: 19
+              }
+            },
+            {
+              id: "column_2",
+              label: "account_id",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 18,
+                endColumn: 19
+              }
+            },
+            {
+              id: "column_3",
+              label: "account_description",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 18,
+                endColumn: 19
+              }
+            },
+            {
+              id: "column_4",
+              label: "account_parent",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 18,
+                endColumn: 19
+              }
+            },
+            {
+              id: "column_5",
+              label: "account_rollup",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 18,
+                endColumn: 19
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_1",
+          label: "[final result]",
+          level: 2,
+          range: {
+            startLine: 1,
+            endLine: 2,
+            startColumn: 0,
+            endColumn: 40
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "account_type",
+              range: {
+                startLine: 2,
+                endLine: 2,
+                startColumn: 7,
+                endColumn: 19
+              }
+            },
+            {
+              id: "column_2",
+              label: "account_id",
+              range: {
+                startLine: 2,
+                endLine: 2,
+                startColumn: 21,
+                endColumn: 33
+              }
+            }
+          ]
+        },
+        {
+          type: "edge",
+          source: {
+            tableId: "result_3",
+            columnId: "account_type"
+          },
+          target: {
+            tableId: "result_2",
+            columnId: "column_1"
+          }
+        },
+        {
+          type: "edge",
+          source: {
+            tableId: "result_3",
+            columnId: "account_id"
+          },
+          target: {
+            tableId: "result_2",
+            columnId: "column_2"
+          }
+        },
+        {
+          type: "edge",
+          source: {
+            tableId: "result_3",
+            columnId: "account_description"
+          },
+          target: {
+            tableId: "result_2",
+            columnId: "column_3"
+          }
+        },
+        {
+          type: "edge",
+          source: {
+            tableId: "result_3",
+            columnId: "account_parent"
+          },
+          target: {
+            tableId: "result_2",
+            columnId: "column_4"
+          }
+        },
+        {
+          type: "edge",
+          source: {
+            tableId: "result_3",
+            columnId: "account_rollup"
+          },
+          target: {
+            tableId: "result_2",
+            columnId: "column_5"
+          }
+        },
+        {
+          type: "edge",
+          source: {
+            tableId: "result_2",
+            columnId: "column_1"
+          },
+          target: {
+            tableId: "result_1",
+            columnId: "column_1"
+          }
+        },
+        {
+          type: "edge",
+          source: {
+            tableId: "result_2",
+            columnId: "column_2"
+          },
+          target: {
+            tableId: "result_1",
+            columnId: "column_2"
           }
         }
       ]
