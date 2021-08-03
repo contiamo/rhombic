@@ -20,6 +20,9 @@ import { Lineage, TableModifier } from "./Lineage";
 import { flatten } from "lodash";
 import { GroupByVisitor } from "./visitors/GroupByVisitor";
 
+// Antlr parser version
+export { default as antlr } from "./antlr";
+
 // Utils
 export { needToBeEscaped, printFilter };
 
