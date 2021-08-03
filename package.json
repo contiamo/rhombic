@@ -6,7 +6,7 @@
   "typings": "lib/index.d.ts",
   "files": [
     "lib",
-    "docs/rhombic-logo.svg"
+    "docs/rhombic-logso.svg"
   ],
   "scripts": {
     "start": "jest --watch",
@@ -30,7 +30,10 @@
   "license": "MIT",
   "dependencies": {
     "antlr4ts": "^0.5.0-alpha.4",
-    "chevrotain": "^4.8.1"
+    "assert": "^2.0.0",
+    "chevrotain": "^4.8.1",
+    "process": "^0.11.10",
+    "util": "^0.12.4"
   },
   "devDependencies": {
     "@types/chalk": "^2.2.0",
