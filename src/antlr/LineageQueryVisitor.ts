@@ -296,7 +296,7 @@ export class LineageQueryVisitor<TableData extends { id: TablePrimary }, ColumnD
 
       const rel = this.findRelation(multipartTableName[0]);
       if (rel !== undefined) {
-        // found relation as correllated sq
+        // found relation as correlated sq
         if (multipartTableName[0].name != alias) {
           this.relations.set(alias, rel);
         }
@@ -306,18 +306,19 @@ export class LineageQueryVisitor<TableData extends { id: TablePrimary }, ColumnD
 
     const tablePrimary = common.tablePrimaryFromMultipart(multipartTableName.map(v => v.name));
     const metadata = this.lineageContext.getTable(tablePrimary);
-    const columns = metadata.columns.map(c => ({
-      id: c.id,
-      label: c.id,
-      data: c
-    }));
+    const columns =
+      metadata?.columns.map(c => ({
+        id: c.id,
+        label: c.id,
+        data: c
+      })) || [];
 
     const relation = new Relation<TableData, ColumnData>(
       this.lineageContext.getNextRelationId(),
       columns,
       this.level + 1,
       this.rangeFromContext(ctx),
-      metadata.table,
+      metadata?.table,
       tablePrimary.tableName
     );
 
