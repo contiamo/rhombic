@@ -39,6 +39,9 @@ export class LineageQueryVisitor<TableData extends { id: TablePrimary }, ColumnD
   // columns for this query extracted from SELECT
   private columns: Array<Column<ColumnData>> = [];
 
+  // CTEs from this context
+  private ctes: Map<string, Relation<TableData, ColumnData>> = new Map();
+
   // relations for this context extracted from FROM
   private relations: Map<string, Relation<TableData, ColumnData>> = new Map();
 
@@ -101,6 +104,27 @@ export class LineageQueryVisitor<TableData extends { id: TablePrimary }, ColumnD
     while (cur != undefined) {
       const table = this.findRelationInCtx(cur, tableName);
       if (table !== undefined) return table;
+      cur = cur.parent;
+    }
+    return undefined;
+  }
+
+  private findCTE(tableName: QuotableIdentifier): Relation<TableData, ColumnData> | undefined {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    let cur: LineageQueryVisitor<TableData, ColumnData> | undefined = this;
+    while (cur != undefined) {
+      for (const rel of cur.ctes) {
+        if (tableName.quoted) {
+          if (rel[0] == tableName.name) return rel[1];
+        } else {
+          if (
+            tableName.name.localeCompare(rel[0], undefined, {
+              sensitivity: "accent"
+            }) == 0
+          )
+            return rel[1];
+        }
+      }
       cur = cur.parent;
     }
     return undefined;
@@ -249,6 +273,7 @@ export class LineageQueryVisitor<TableData extends { id: TablePrimary }, ColumnD
     return lineage;
   }
 
+  // processes table/CTE/correlated subquery references
   visitTableName(ctx: TableNameContext): Lineage<TableData, ColumnData> | undefined {
     const multipartTableName = ctx
       .multipartIdentifier()
@@ -262,13 +287,20 @@ export class LineageQueryVisitor<TableData extends { id: TablePrimary }, ColumnD
     ).name;
 
     if (multipartTableName.length == 1) {
+      const cte = this.findCTE(multipartTableName[0]);
+      if (cte !== undefined) {
+        // found relation as CTE
+        this.relations.set(alias, cte);
+        return undefined; // no additional lineage, just an alias
+      }
+
       const rel = this.findRelation(multipartTableName[0]);
       if (rel !== undefined) {
-        // found relation as CTE or correllated sq
+        // found relation as correllated sq
         if (multipartTableName[0].name != alias) {
           this.relations.set(alias, rel);
         }
-        return undefined; // no additional lineage, just alias
+        return undefined; // no additional lineage, just an alias
       }
     }
 
@@ -293,6 +325,7 @@ export class LineageQueryVisitor<TableData extends { id: TablePrimary }, ColumnD
     return [relation.toLineage(alias)];
   }
 
+  // processes CTE
   visitNamedQuery(ctx: NamedQueryContext): Lineage<TableData, ColumnData> | undefined {
     const lineage = this.visitChildren(ctx);
 
@@ -301,13 +334,14 @@ export class LineageQueryVisitor<TableData extends { id: TablePrimary }, ColumnD
     if (relation !== undefined) {
       const identifier = ctx.errorCapturingIdentifier().identifier();
       const alias = identifier !== undefined ? common.stripQuote(identifier).name : relation.id;
-      this.relations.set(alias, relation);
+      this.ctes.set(alias, relation);
       return this.aggregateResult(lineage, [relation.toLineage(alias)]);
     } else {
       throw new Error("Expecting CTE query relation to be in stack");
     }
   }
 
+  // processes subqueries
   visitAliasedQuery(ctx: AliasedQueryContext): Lineage<TableData, ColumnData> | undefined {
     const lineage = this.visitChildren(ctx);
 
