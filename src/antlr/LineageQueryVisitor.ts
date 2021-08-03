@@ -21,12 +21,11 @@ import {
   ValueExpressionDefaultContext
 } from "./SqlBaseParser";
 import { LineageContext } from "./LineageContext";
-import { TablePrimary } from "..";
 import common from "./common";
 
 // Query visitor is instantiated per query/subquery
 // All shared state is hold in `lineageContext` which is shared across query visitors
-export class LineageQueryVisitor<TableData extends { id: TablePrimary }, ColumnData extends { id: string }>
+export class LineageQueryVisitor<TableData extends { id: string }, ColumnData extends { id: string }>
   extends AbstractParseTreeVisitor<Lineage<TableData, ColumnData> | undefined>
   implements SqlBaseVisitor<Lineage<TableData, ColumnData> | undefined> {
   private readonly id;

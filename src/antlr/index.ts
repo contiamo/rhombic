@@ -20,7 +20,7 @@ class SqlParseTree {
     return this.tree.accept(visitor);
   }
 
-  getLineage<TableData extends { id: TablePrimary }, ColumnData extends { id: string }>(
+  getLineage<TableData extends { id: string }, ColumnData extends { id: string }>(
     getTable: (id: TablePrimary) => { table: TableData; columns: ColumnData[] } | undefined
   ): Lineage<TableData, ColumnData> {
     const lineageContext = new LineageContext(getTable);
