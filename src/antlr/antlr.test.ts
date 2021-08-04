@@ -94,6 +94,7 @@ describe("antlr", () => {
     data: Lineage<{ id: string }, { id: string; tableId: string }>;
     only?: boolean;
     debug?: boolean; // output in debug.json
+    mergedLeaves?: boolean;
   }> = [
     {
       name: "select with aliases",
@@ -2736,12 +2737,190 @@ describe("antlr", () => {
           }
         }
       ]
+    },
+    {
+      name: "Merged leaves lineage",
+      sql:
+        "with a as (select account_id, account_type from account)\n" +
+        "select a1.account_type, a.account_id from a, account a1",
+      mergedLeaves: true,
+      data: [
+        {
+          type: "table",
+          id: "result_3",
+          label: "account",
+          level: 0,
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 48,
+            endColumn: 55
+          },
+          data: {
+            id: "account"
+          },
+          columns: [
+            {
+              id: "account_type",
+              label: "account_type",
+              data: {
+                id: "account_type",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_id",
+              label: "account_id",
+              data: {
+                id: "account_id",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_description",
+              label: "account_description",
+              data: {
+                id: "account_description",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_parent",
+              label: "account_parent",
+              data: {
+                id: "account_parent",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_rollup",
+              label: "account_rollup",
+              data: {
+                id: "account_rollup",
+                tableId: "account"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_2",
+          label: "a",
+          level: 1,
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 11,
+            endColumn: 55
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "account_id",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 18,
+                endColumn: 28
+              }
+            },
+            {
+              id: "column_2",
+              label: "account_type",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 30,
+                endColumn: 42
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_1",
+          label: "[final result]",
+          level: 2,
+          range: {
+            startLine: 1,
+            endLine: 2,
+            startColumn: 0,
+            endColumn: 55
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "account_type",
+              range: {
+                startLine: 2,
+                endLine: 2,
+                startColumn: 7,
+                endColumn: 22
+              }
+            },
+            {
+              id: "column_2",
+              label: "account_id",
+              range: {
+                startLine: 2,
+                endLine: 2,
+                startColumn: 24,
+                endColumn: 36
+              }
+            }
+          ]
+        },
+        {
+          type: "edge",
+          source: {
+            tableId: "result_3",
+            columnId: "account_id"
+          },
+          target: {
+            tableId: "result_2",
+            columnId: "column_1"
+          }
+        },
+        {
+          type: "edge",
+          source: {
+            tableId: "result_3",
+            columnId: "account_type"
+          },
+          target: {
+            tableId: "result_2",
+            columnId: "column_2"
+          }
+        },
+        {
+          type: "edge",
+          source: {
+            tableId: "result_3",
+            columnId: "account_type"
+          },
+          target: {
+            tableId: "result_1",
+            columnId: "column_1"
+          }
+        },
+        {
+          type: "edge",
+          source: {
+            tableId: "result_2",
+            columnId: "column_1"
+          },
+          target: {
+            tableId: "result_1",
+            columnId: "column_2"
+          }
+        }
+      ]
     }
   ];
 
-  cases.forEach(({ data, name, only, sql, debug }) => {
+  cases.forEach(({ data, name, only, sql, debug, mergedLeaves }) => {
     (only ? it.only : it)(`should parse ${name}`, () => {
-      const lineage = antlr.parse(sql, { doubleQuotedIdentifier: true }).getLineage(getTable);
+      const lineage = antlr.parse(sql, { doubleQuotedIdentifier: true }).getLineage(getTable, mergedLeaves);
       if (debug) {
         const previous = fs.existsSync("debug.json") ? fs.readFileSync("debug.json", "utf-8") : "";
         const next = JSON.stringify(lineage, null, 2);

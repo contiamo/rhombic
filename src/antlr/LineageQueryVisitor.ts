@@ -304,6 +304,17 @@ export class LineageQueryVisitor<TableData, ColumnData>
     }
 
     const tablePrimary = common.tablePrimaryFromMultipart(multipartTableName.map(v => v.name));
+
+    const tablePrimaryStr = JSON.stringify(tablePrimary);
+
+    if (this.lineageContext.mergedLeaves) {
+      const existing = this.lineageContext.usedTables.get(tablePrimaryStr);
+      if (existing !== undefined) {
+        this.relations.set(alias, existing);
+        return undefined; // no additional lineage
+      }
+    }
+
     const metadata = this.lineageContext.getTable(tablePrimary);
     const columns =
       metadata?.columns.map(c => ({
@@ -321,6 +332,7 @@ export class LineageQueryVisitor<TableData, ColumnData>
       tablePrimary.tableName
     );
 
+    this.lineageContext.usedTables.set(tablePrimaryStr, relation);
     this.relations.set(alias, relation);
     return [relation.toLineage(alias)];
   }

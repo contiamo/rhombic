@@ -5,12 +5,14 @@ import { Relation } from "./common";
 // individual (sub-)queries
 export class LineageContext<TableData, ColumnData> {
   private relationSeq = 0;
+  public readonly usedTables: Map<string, Relation<TableData, ColumnData>> = new Map();
   public readonly relationsStack: Array<Relation<TableData, ColumnData>> = [];
 
   constructor(
     public getTable: (
       table: TablePrimary
-    ) => { table: { id: string; data: TableData }; columns: { id: string; data: ColumnData }[] } | undefined
+    ) => { table: { id: string; data: TableData }; columns: { id: string; data: ColumnData }[] } | undefined,
+    public readonly mergedLeaves: boolean
   ) {}
 
   getNextRelationId(): string {

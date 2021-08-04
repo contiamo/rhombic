@@ -23,9 +23,10 @@ class SqlParseTree {
   getLineage<TableData, ColumnData>(
     getTable: (
       id: TablePrimary
-    ) => { table: { id: string; data: TableData }; columns: { id: string; data: ColumnData }[] } | undefined
+    ) => { table: { id: string; data: TableData }; columns: { id: string; data: ColumnData }[] } | undefined,
+    mergedLeaves?: boolean
   ): Lineage<TableData, ColumnData> {
-    const lineageContext = new LineageContext(getTable);
+    const lineageContext = new LineageContext(getTable, mergedLeaves ?? false);
     const visitor = new LineageQueryVisitor<TableData, ColumnData>(lineageContext);
     let lineage = this.tree.accept(visitor);
     const outerRel = lineageContext.relationsStack.pop();
