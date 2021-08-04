@@ -41,10 +41,10 @@ const getTable = (table: TablePrimary) => {
   const columnNames = columnsMapping[table.tableName] || [];
   const columns = columnNames.map(columnId => ({
     id: columnId,
-    tableId: table.tableName
+    data: { id: columnId, tableId: table.tableName }
   }));
   return {
-    table: { id: table.tableName },
+    table: { id: table.tableName, data: { id: table.tableName } },
     columns
   };
 };

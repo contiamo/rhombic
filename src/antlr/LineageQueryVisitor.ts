@@ -25,7 +25,7 @@ import common from "./common";
 
 // Query visitor is instantiated per query/subquery
 // All shared state is hold in `lineageContext` which is shared across query visitors
-export class LineageQueryVisitor<TableData extends { id: string }, ColumnData extends { id: string }>
+export class LineageQueryVisitor<TableData, ColumnData>
   extends AbstractParseTreeVisitor<Lineage<TableData, ColumnData> | undefined>
   implements SqlBaseVisitor<Lineage<TableData, ColumnData> | undefined> {
   private readonly id;
@@ -309,7 +309,7 @@ export class LineageQueryVisitor<TableData extends { id: string }, ColumnData ex
       metadata?.columns.map(c => ({
         id: c.id,
         label: c.id,
-        data: c
+        data: c.data
       })) || [];
 
     const relation = new Relation<TableData, ColumnData>(
@@ -317,7 +317,7 @@ export class LineageQueryVisitor<TableData extends { id: string }, ColumnData ex
       columns,
       this.level + 1,
       this.rangeFromContext(ctx),
-      metadata?.table,
+      metadata?.table.data,
       tablePrimary.tableName
     );
 

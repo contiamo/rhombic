@@ -7,7 +7,11 @@ export class LineageContext<TableData, ColumnData> {
   private relationSeq = 0;
   public readonly relationsStack: Array<Relation<TableData, ColumnData>> = [];
 
-  constructor(public getTable: (table: TablePrimary) => { table: TableData; columns: ColumnData[] } | undefined) {}
+  constructor(
+    public getTable: (
+      table: TablePrimary
+    ) => { table: { id: string; data: TableData }; columns: { id: string; data: ColumnData }[] } | undefined
+  ) {}
 
   getNextRelationId(): string {
     this.relationSeq++;
