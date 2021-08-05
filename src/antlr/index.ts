@@ -69,6 +69,7 @@ const antlr = {
     const parser = new SqlBaseParser(tokens);
     parser.doublequoted_identifier = doubleQuotedIdentifier;
     parser.buildParseTree = true;
+    parser.removeErrorListeners();
     return new SqlParseTree(parser.statement());
   }
 };
