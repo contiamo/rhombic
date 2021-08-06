@@ -29,6 +29,27 @@ try {
 
 Thanks to the amazing [Chevrotain](https://sap.github.io/chevrotain), we generate an AST from any Calcite SQL statements. After this first parsing phase, we "just" apply modifiers to the AST to perform any wanted operations or analysis.
 
+## Antlr parser
+
+Rhombic have currently a part relying on antlr as parser, this is to take advantage of the already existing sql grammar from spark. This parser is currently there to support the lineage feature and can be access like this:
+
+```ts
+import { antlr, TablePrimary } from "rhombic";
+
+try {
+  const q = antlr.parse("SELECT * FROM abc;");
+
+  console.log(q.getUsedTables()); // [{ tableName: "abc" }];
+  const getTable = (table: TablePrimary) => {
+    /* Logic to retrieve table & columns metadata */
+  };
+  const lineage = q.getLineage(getTable);
+  // Use react-flow to draw a nice sql lineage
+} catch (e) {
+  // Parsing errors
+}
+```
+
 ## PostgreSQL compatibility
 
 This project was built to support Contiamo® workbench editor (a fancy SQL editor) based on CalciteSQL.

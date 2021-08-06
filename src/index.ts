@@ -20,6 +20,9 @@ import { Lineage, TableModifier } from "./Lineage";
 import { flatten } from "lodash";
 import { GroupByVisitor } from "./visitors/GroupByVisitor";
 
+// Antlr parser version
+export { default as antlr } from "./antlr";
+
 // Utils
 export { needToBeEscaped, printFilter };
 
@@ -91,7 +94,7 @@ export interface TablePrimary {
   schemaName?: string;
   tableName: string;
   alias?: string;
-  range: Range;
+  range?: Range;
 }
 
 // Note: Because we have a recursion, we can't rely on typescript inference
@@ -174,11 +177,7 @@ export interface ParsedSql {
    * @param options.index Index of the `projectionItem` to rename
    * @param options.value Replace value for the `projectionItem`
    */
-  updateProjectionItem(options: {
-    columns: string[];
-    index: number;
-    value: string;
-  }): ParsedSql;
+  updateProjectionItem(options: { columns: string[]; index: number; value: string }): ParsedSql;
 
   /**
    * Remove a projectionItem.
@@ -187,10 +186,7 @@ export interface ParsedSql {
    * @param options.columns Query columns results, needed to be able to expands `*`
    * @param options.index Index of the `projectionItem` to rename
    */
-  removeProjectionItem(options: {
-    columns: string[];
-    index: number;
-  }): ParsedSql;
+  removeProjectionItem(options: { columns: string[]; index: number }): ParsedSql;
 
   /**
    * Add/Update an ORDER BY expression.
@@ -200,11 +196,7 @@ export interface ParsedSql {
    * @param options.order
    * @param options.nullsOrder
    */
-  orderBy(options: {
-    expression: string;
-    order?: "asc" | "desc";
-    nullsOrder?: "last" | "first";
-  }): ParsedSql;
+  orderBy(options: { expression: string; order?: "asc" | "desc"; nullsOrder?: "last" | "first" }): ParsedSql;
 
   /**
    * Retrieve a UI friendly object that represent the current filter (`WHERE` statement).
@@ -229,10 +221,7 @@ export interface ParsedSql {
    * @param getters.getTable Get table metadata
    * @param getters.getColumn Get column metadata
    */
-  getLineage<
-    TableData extends { id: string },
-    ColumnData extends { id: string }
-  >(getters: {
+  getLineage<TableData extends { id: string }, ColumnData extends { id: string }>(getters: {
     getTable: (tableId: string) => TableData;
     getColumns: (tableId: string) => ColumnData[];
   }): Lineage<TableData, ColumnData>;
@@ -247,15 +236,11 @@ const parsedSql = (sql: string): ParsedSql => {
   const { cst, lexErrors, parseErrors } = parseSql(sql);
 
   if (lexErrors.length) {
-    throw new Error(
-      `Lexer error:\n - ${lexErrors.map(err => err.message).join("\n - ")}`
-    );
+    throw new Error(`Lexer error:\n - ${lexErrors.map(err => err.message).join("\n - ")}`);
   }
 
   if (parseErrors.length) {
-    throw new Error(
-      `Parse error:\n - ${parseErrors.map(err => err.message).join("\n - ")}`
-    );
+    throw new Error(`Parse error:\n - ${parseErrors.map(err => err.message).join("\n - ")}`);
   }
 
   return {
@@ -308,20 +293,14 @@ const parsedSql = (sql: string): ParsedSql => {
           if (i.isAsterisk) return mem;
           return [...mem, i.alias || i.expression];
         }, [] as string[]);
-        const candidates = otherNames
-          .filter(i => value.startsWith(i))
-          .sort((a, b) => b.length - a.length);
+        const candidates = otherNames.filter(i => value.startsWith(i)).sort((a, b) => b.length - a.length);
         const originalValue = candidates[0];
-        const sort = visitor.sort.find(
-          i => i.expression === (originalValue || value)
-        );
+        const sort = visitor.sort.find(i => i.expression === (originalValue || value));
 
         return {
           expression: originalValue || value,
           path: { columnName: originalValue || value },
-          sort: sort
-            ? { order: sort.order || "asc", nullsOrder: sort.nullsOrder }
-            : undefined
+          sort: sort ? { order: sort.order || "asc", nullsOrder: sort.nullsOrder } : undefined
         };
       } else {
         return {
@@ -339,9 +318,7 @@ const parsedSql = (sql: string): ParsedSql => {
     getProjectionItems(columns) {
       const visitor = new ProjectionItemsVisitor();
       visitor.visit(cst);
-      return columns.map((_, index) =>
-        this.getProjectionItem({ columns, index }, visitor)
-      );
+      return columns.map((_, index) => this.getProjectionItem({ columns, index }, visitor));
     },
 
     addProjectionItem(projectionItem, options) {
@@ -359,33 +336,22 @@ const parsedSql = (sql: string): ParsedSql => {
       const hasAsterisk = visitor.asteriskCount;
 
       // escape reserved keywords
-      if (
-        options.escapeReservedKeywords &&
-        projectionItem[0] !== '"' &&
-        needToBeEscaped(projectionItem)
-      ) {
+      if (options.escapeReservedKeywords && projectionItem[0] !== '"' && needToBeEscaped(projectionItem)) {
         projectionItem = `"${projectionItem}"`;
       }
 
       // add alias
       if (options.alias) {
-        projectionItem += needToBeEscaped(options.alias)
-          ? ` AS "${options.alias}"`
-          : ` AS ${options.alias}`;
+        projectionItem += needToBeEscaped(options.alias) ? ` AS "${options.alias}"` : ` AS ${options.alias}`;
       }
 
       // multiline query
       if (visitor.output.length > 1) {
-        const previousProjectionItem =
-          visitor.output[visitor.output.length - 2];
-        const isMultiline =
-          previousProjectionItem.range.endLine !==
-          lastProjectionItem.range.endLine;
+        const previousProjectionItem = visitor.output[visitor.output.length - 2];
+        const isMultiline = previousProjectionItem.range.endLine !== lastProjectionItem.range.endLine;
 
         if (isMultiline) {
-          const spaces = " ".repeat(
-            (lastProjectionItem.range.startColumn || 1) - 1
-          );
+          const spaces = " ".repeat((lastProjectionItem.range.startColumn || 1) - 1);
 
           let nextSql = insertText(sql, `,\n${spaces}${projectionItem}`, {
             line: lastProjectionItem.range.endLine || 1,
@@ -420,17 +386,12 @@ const parsedSql = (sql: string): ParsedSql => {
 
       if (visitor.asteriskCount > 0 && index >= asteriskIndex) {
         // Expand asterisk
-        const nonAsteriskItemsCount = projectionItems.filter(i => !i.isAsterisk)
-          .length;
-        const projectionItemsBehindAsterisk =
-          (columns.length - nonAsteriskItemsCount) / visitor.asteriskCount;
+        const nonAsteriskItemsCount = projectionItems.filter(i => !i.isAsterisk).length;
+        const projectionItemsBehindAsterisk = (columns.length - nonAsteriskItemsCount) / visitor.asteriskCount;
 
         // Extract tableAlias
         const tablePrimaries = this.getTablePrimaries();
-        const tableAliases = tablePrimaries.reduce(
-          (mem, i) => (i.alias ? [...mem, i.alias] : mem),
-          [] as string[]
-        );
+        const tableAliases = tablePrimaries.reduce((mem, i) => (i.alias ? [...mem, i.alias] : mem), [] as string[]);
 
         const nextSql = replaceText(
           sql,
@@ -461,11 +422,8 @@ const parsedSql = (sql: string): ParsedSql => {
 
         // Check if we need to rename an order item
         const needToFixOrderItem =
-          visitor.sort.filter(
-            i =>
-              i.expression === targetNode.expression ||
-              i.expression === targetNode.alias
-          ).length > 0;
+          visitor.sort.filter(i => i.expression === targetNode.expression || i.expression === targetNode.alias).length >
+          0;
 
         if (needToFixOrderItem) {
           return parsedSql(fixOrderItem(parsedSql(nextSql), targetNode, index));
@@ -483,28 +441,21 @@ const parsedSql = (sql: string): ParsedSql => {
 
       if (visitor.asteriskCount > 0) {
         // Expand asterisk
-        const nonAsteriskItemsCount = projectionItems.filter(i => !i.isAsterisk)
-          .length;
-        const projectionItemsBehindAsterisk =
-          (columns.length - nonAsteriskItemsCount) / visitor.asteriskCount;
+        const nonAsteriskItemsCount = projectionItems.filter(i => !i.isAsterisk).length;
+        const projectionItemsBehindAsterisk = (columns.length - nonAsteriskItemsCount) / visitor.asteriskCount;
         const asteriskIndex = projectionItems.findIndex(t => t.isAsterisk) || 0;
 
         if (index >= asteriskIndex) {
           const nextSql = replaceText(
             sql,
             columns
-              .slice(
-                asteriskIndex,
-                asteriskIndex + projectionItemsBehindAsterisk
-              )
+              .slice(asteriskIndex, asteriskIndex + projectionItemsBehindAsterisk)
               .filter((_, i) => i + asteriskIndex !== index)
               .join(", "),
             projectionItems[asteriskIndex].range
           );
           if (hasSort) {
-            return parsedSql(
-              removeUnusedOrderItems(parsedSql(nextSql), columns[index])
-            );
+            return parsedSql(removeUnusedOrderItems(parsedSql(nextSql), columns[index]));
           }
           return parsedSql(nextSql);
         }
@@ -514,21 +465,13 @@ const parsedSql = (sql: string): ParsedSql => {
 
       if (visitor.commas.length > 0) {
         // Include the commas in the selection to remove
-        const comma = getRange(
-          visitor.commas[Math.min(visitor.commas.length - 1, index)]
-        );
-        if (
-          comma.startLine < targetNode.range.startLine ||
-          comma.startColumn < targetNode.range.startColumn
-        ) {
-          targetNode.range.startLine =
-            comma.startLine || targetNode.range.startLine;
-          targetNode.range.startColumn =
-            comma.startColumn || targetNode.range.startColumn;
+        const comma = getRange(visitor.commas[Math.min(visitor.commas.length - 1, index)]);
+        if (comma.startLine < targetNode.range.startLine || comma.startColumn < targetNode.range.startColumn) {
+          targetNode.range.startLine = comma.startLine || targetNode.range.startLine;
+          targetNode.range.startColumn = comma.startColumn || targetNode.range.startColumn;
         } else {
           targetNode.range.endLine = comma.endLine || targetNode.range.endLine;
-          targetNode.range.endColumn =
-            comma.endColumn || targetNode.range.endColumn;
+          targetNode.range.endColumn = comma.endColumn || targetNode.range.endColumn;
 
           // Remove extra space
           const textToRemove = getText(sql, {
@@ -542,25 +485,18 @@ const parsedSql = (sql: string): ParsedSql => {
       }
 
       const isLastProjectionItem = projectionItems.length === 1;
-      let nextSql = replaceText(
-        sql,
-        isLastProjectionItem ? "*" : "",
-        targetNode.range
-      );
+      let nextSql = replaceText(sql, isLastProjectionItem ? "*" : "", targetNode.range);
 
       // Remove resulting emtpy line
       const removedLine = targetNode.range.startLine - 1;
       if (!nextSql.split("\n")[removedLine].trim()) {
-        nextSql = [
-          ...nextSql.split("\n").slice(0, removedLine),
-          ...nextSql.split("\n").slice(removedLine + 1)
-        ].join("\n");
+        nextSql = [...nextSql.split("\n").slice(0, removedLine), ...nextSql.split("\n").slice(removedLine + 1)].join(
+          "\n"
+        );
       }
 
       if (hasSort) {
-        return parsedSql(
-          removeUnusedOrderItems(parsedSql(nextSql), columns[index]).trim()
-        );
+        return parsedSql(removeUnusedOrderItems(parsedSql(nextSql), columns[index]).trim());
       }
 
       return parsedSql(nextSql);
@@ -582,9 +518,7 @@ const parsedSql = (sql: string): ParsedSql => {
         }
         return parsedSql(sql + orderBy);
       } else {
-        const existingOrderItem = orderItems.find(
-          i => i.expression === expression
-        );
+        const existingOrderItem = orderItems.find(i => i.expression === expression);
         if (existingOrderItem) {
           // Update existing order
           const nextNullsOrders = nullsOrder || existingOrderItem.nullsOrder;
@@ -592,9 +526,7 @@ const parsedSql = (sql: string): ParsedSql => {
             sql,
             `${existingOrderItem.expression} ${(
               order || (existingOrderItem.order === "desc" ? "asc" : "desc")
-            ).toUpperCase()}${
-              nextNullsOrders ? ` NULLS ${nextNullsOrders.toUpperCase()}` : ""
-            }`,
+            ).toUpperCase()}${nextNullsOrders ? ` NULLS ${nextNullsOrders.toUpperCase()}` : ""}`,
             getRange(existingOrderItem)
           );
 
@@ -632,9 +564,7 @@ const parsedSql = (sql: string): ParsedSql => {
     getFilterString() {
       const visitor = new WhereVisitor();
       visitor.visit(cst);
-      return visitor.booleanExpressionNode
-        ? getImageFromChildren(visitor.booleanExpressionNode)
-        : "";
+      return visitor.booleanExpressionNode ? getImageFromChildren(visitor.booleanExpressionNode) : "";
     },
 
     updateFilter(filter) {
@@ -646,8 +576,7 @@ const parsedSql = (sql: string): ParsedSql => {
         throw new Error("Can't update/add a filter to this query");
       }
 
-      const computedFilter =
-        typeof filter === "string" ? filter : printFilter(filter);
+      const computedFilter = typeof filter === "string" ? filter : printFilter(filter);
 
       const nextSql = replaceText(
         sql,
@@ -665,10 +594,7 @@ const parsedSql = (sql: string): ParsedSql => {
       return parsedSql(nextSql);
     },
 
-    getLineage<
-      TableData extends { id: string },
-      ColumnData extends { id: string }
-    >({
+    getLineage<TableData extends { id: string }, ColumnData extends { id: string }>({
       getTable,
       getColumns
     }: {
@@ -746,18 +672,13 @@ const parsedSql = (sql: string): ParsedSql => {
             }, [] as typeof resultColumns)
             .filter(column => {
               if (column.path) {
-                if (
-                  column.path.tableName &&
-                  column.path.tableName !== table.tableName
-                ) {
+                if (column.path.tableName && column.path.tableName !== table.tableName) {
                   return false;
                 }
                 return columnIds.includes(column.path.columnName);
               }
               if (column.fn) {
-                const fnValue = column.fn.values.find(
-                  i => i.path?.columnName === column.expression
-                );
+                const fnValue = column.fn.values.find(i => i.path?.columnName === column.expression);
 
                 if (fnValue?.path?.columnName === undefined) return false;
 
@@ -792,10 +713,7 @@ const parsedSql = (sql: string): ParsedSql => {
       // Create edges
       resultColumns.forEach(resultColumn => {
         tables.forEach(table => {
-          if (
-            resultColumn.path?.tableName &&
-            resultColumn.path.tableName !== table.tableName
-          ) {
+          if (resultColumn.path?.tableName && resultColumn.path.tableName !== table.tableName) {
             return;
           }
 
@@ -803,14 +721,9 @@ const parsedSql = (sql: string): ParsedSql => {
           columns
             .filter(column => {
               if (resultColumn.fn) {
-                return resultColumn.fn.values
-                  .map(c => c.path?.columnName)
-                  .includes(column.id);
+                return resultColumn.fn.values.map(c => c.path?.columnName).includes(column.id);
               }
-              return (
-                column.id ===
-                (resultColumn.path?.columnName || resultColumn.expression)
-              );
+              return column.id === (resultColumn.path?.columnName || resultColumn.expression);
             })
             .forEach(c => {
               lineage.push({
