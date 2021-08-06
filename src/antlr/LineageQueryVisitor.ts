@@ -44,8 +44,6 @@ export class LineageQueryVisitor<TableData, ColumnData>
   // relations for this context extracted from FROM
   private relations: Map<string, Relation<TableData, ColumnData>> = new Map();
 
-  private isStar = false;
-
   private columnReferences: Array<ColumnRef> = [];
 
   constructor(
@@ -195,6 +193,41 @@ export class LineageQueryVisitor<TableData, ColumnData>
           return tableCol.column.name;
         }
       }
+    }
+    return undefined;
+  }
+
+  private isStar(ctx: ExpressionContext): StarContext | undefined {
+    const boolExpr = ctx.booleanExpression();
+    if (boolExpr instanceof PredicatedContext) {
+      const valExpr = boolExpr.valueExpression();
+      if (valExpr instanceof ValueExpressionDefaultContext) {
+        const primaryExpr = valExpr.primaryExpression();
+        if (primaryExpr instanceof StarContext) {
+          return primaryExpr;
+        }
+      }
+    }
+    return undefined;
+  }
+
+  processStar(ctx: StarContext): Lineage<TableData, ColumnData> | undefined {
+    const range = this.rangeFromContext(ctx);
+    const qualifiedName = ctx.qualifiedName();
+    if (qualifiedName !== undefined) {
+      // TODO support multipart table names
+      const lastName = qualifiedName.identifier()[qualifiedName.identifier().length - 1];
+      const tableName = common.stripQuote(lastName);
+      const rel = this.findRelationInCtx(this, tableName);
+      if (rel !== undefined) {
+        return this.addRelationColumns(rel, range);
+      }
+    } else {
+      let lineage: Lineage<TableData, ColumnData> | undefined = undefined;
+      for (const r of this.relations) {
+        lineage = this.aggregateResult(lineage, this.addRelationColumns(r[1], range));
+      }
+      return lineage;
     }
     return undefined;
   }
@@ -373,12 +406,14 @@ export class LineageQueryVisitor<TableData, ColumnData>
     // clear array to start accumulating new references
     this.columnReferences.length = 0;
 
-    this.isStar = false;
-    const result = this.visitChildren(ctx);
-    if (this.isStar) {
-      this.isStar = false;
-      return result;
+    if (ctx.errorCapturingIdentifier() === undefined) {
+      const star = this.isStar(ctx.expression());
+      if (star !== undefined) {
+        return this.processStar(star);
+      }
     }
+
+    const result = this.visitChildren(ctx);
 
     const columnId = this.nextColumnId;
     const errCaptId = ctx.errorCapturingIdentifier();
@@ -407,28 +442,6 @@ export class LineageQueryVisitor<TableData, ColumnData>
     }
 
     return this.aggregateResult(result, lineage);
-  }
-
-  visitStar(ctx: StarContext): Lineage<TableData, ColumnData> | undefined {
-    this.isStar = true;
-    const range = this.rangeFromContext(ctx);
-    const qualifiedName = ctx.qualifiedName();
-    if (qualifiedName !== undefined) {
-      // TODO support multipart table names
-      const lastName = qualifiedName.identifier()[qualifiedName.identifier().length - 1];
-      const tableName = common.stripQuote(lastName);
-      const rel = this.findRelationInCtx(this, tableName);
-      if (rel !== undefined) {
-        return this.addRelationColumns(rel, range);
-      }
-    } else {
-      let lineage: Lineage<TableData, ColumnData> | undefined = undefined;
-      for (const r of this.relations) {
-        lineage = this.aggregateResult(lineage, this.addRelationColumns(r[1], range));
-      }
-      return lineage;
-    }
-    return undefined;
   }
 
   visitColumnReference(ctx: ColumnReferenceContext): Lineage<TableData, ColumnData> | undefined {
