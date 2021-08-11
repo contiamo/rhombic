@@ -1,4 +1,4 @@
-import { Column, Lineage } from "../Lineage";
+import { Column, Lineage, Table } from "../Lineage";
 import { SqlBaseVisitor } from "./SqlBaseVisitor";
 import { AbstractParseTreeVisitor } from "antlr4ts/tree/AbstractParseTreeVisitor";
 import { Range } from "../utils/getRange";
@@ -22,6 +22,7 @@ import {
 } from "./SqlBaseParser";
 import { LineageContext } from "./LineageContext";
 import common from "./common";
+import { add } from "lodash";
 
 // Query visitor is instantiated per query/subquery
 // All shared state is hold in `lineageContext` which is shared across query visitors
@@ -270,7 +271,27 @@ export class LineageQueryVisitor<TableData, ColumnData>
     nextResult: Lineage<TableData, ColumnData> | undefined
   ): Lineage<TableData, ColumnData> | undefined {
     if (nextResult) {
-      return aggregate ? aggregate.concat(nextResult) : nextResult;
+      if (aggregate) {
+        const additional: Lineage<TableData, ColumnData> = [];
+        for (const e of nextResult) {
+          if (e.type == "table" && e.level !== undefined) {
+            const level = e.level;
+            const existing = aggregate.find(
+              t => t.type == "table" && t.id == e.id && t.level !== undefined && level >= t.level
+            ) as Table<TableData, ColumnData>;
+            if (existing !== undefined) {
+              existing.level = level;
+            } else {
+              additional.push(e);
+            }
+          } else {
+            additional.push(e);
+          }
+        }
+        return aggregate.concat(additional);
+      } else {
+        return nextResult;
+      }
     } else {
       return aggregate;
     }
@@ -344,7 +365,10 @@ export class LineageQueryVisitor<TableData, ColumnData>
       const existing = this.lineageContext.usedTables.get(tablePrimaryStr);
       if (existing !== undefined) {
         this.relations.set(alias, existing);
-        return undefined; // no additional lineage
+        if (this.level >= existing.level) {
+          existing.level = this.level + 1;
+        }
+        return [existing.toLineage()]; // no additional lineage
       }
     }
 
@@ -367,7 +391,7 @@ export class LineageQueryVisitor<TableData, ColumnData>
 
     this.lineageContext.usedTables.set(tablePrimaryStr, relation);
     this.relations.set(alias, relation);
-    return [relation.toLineage(alias)];
+    return [relation.toLineage(this.lineageContext.mergedLeaves ? undefined : alias)];
   }
 
   // processes CTE

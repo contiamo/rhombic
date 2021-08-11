@@ -2826,9 +2826,11 @@ describe("antlr", () => {
       ]
     },
     {
+      debug: true,
+      only: true,
       name: "Merged leaves lineage",
       sql:
-        "with a as (select account_id, account_type from account)\n" +
+        "with a as (select account_id, account_type from account as a2)\n" +
         "select a1.account_type, a.account_id from a, account a1",
       mergedLeaves: true,
       data: [
@@ -2841,7 +2843,7 @@ describe("antlr", () => {
             startLine: 1,
             endLine: 1,
             startColumn: 48,
-            endColumn: 55
+            endColumn: 61
           },
           data: {
             id: "account"
@@ -2898,7 +2900,7 @@ describe("antlr", () => {
             startLine: 1,
             endLine: 1,
             startColumn: 11,
-            endColumn: 55
+            endColumn: 61
           },
           columns: [
             {

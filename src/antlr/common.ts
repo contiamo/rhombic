@@ -13,7 +13,7 @@ export class Relation<TableData, ColumnData> {
   constructor(
     public readonly id: string,
     public readonly columns: Array<Column<ColumnData>>,
-    public readonly level: number,
+    public level: number,
     public readonly range?: Range,
     public readonly data?: TableData,
     public readonly name?: string // name is defined for real tables
