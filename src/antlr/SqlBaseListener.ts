@@ -1,4 +1,4 @@
-// Generated from ./SqlBase.g4 by ANTLR 4.9.0-SNAPSHOT
+// Generated from src/antlr/SqlBase.g4 by ANTLR 4.9.0-SNAPSHOT
 
 import { ParseTreeListener } from "antlr4ts/tree/ParseTreeListener";
 
@@ -7,6 +7,7 @@ import { AliasedQueryContext } from "./SqlBaseParser";
 import { AliasedRelationContext } from "./SqlBaseParser";
 import { InlineTableDefault2Context } from "./SqlBaseParser";
 import { TableValuedFunctionContext } from "./SqlBaseParser";
+import { EmptyTableNameContext } from "./SqlBaseParser";
 import { ExponentLiteralContext } from "./SqlBaseParser";
 import { DecimalLiteralContext } from "./SqlBaseParser";
 import { LegacyDecimalLiteralContext } from "./SqlBaseParser";
@@ -34,6 +35,7 @@ import { FromStmtContext } from "./SqlBaseParser";
 import { TableContext } from "./SqlBaseParser";
 import { InlineTableDefault1Context } from "./SqlBaseParser";
 import { SubqueryContext } from "./SqlBaseParser";
+import { EmptyQueryContext } from "./SqlBaseParser";
 import { SingleInsertQueryContext } from "./SqlBaseParser";
 import { MultiInsertQueryContext } from "./SqlBaseParser";
 import { DeleteFromTableContext } from "./SqlBaseParser";
@@ -56,12 +58,14 @@ import { LambdaContext } from "./SqlBaseParser";
 import { SubscriptContext } from "./SqlBaseParser";
 import { ColumnReferenceContext } from "./SqlBaseParser";
 import { DereferenceContext } from "./SqlBaseParser";
+import { EmptyDereferenceContext } from "./SqlBaseParser";
 import { PostgresCastContext } from "./SqlBaseParser";
 import { ParenthesizedExpressionContext } from "./SqlBaseParser";
 import { ExtractContext } from "./SqlBaseParser";
 import { SubstringContext } from "./SqlBaseParser";
 import { TrimContext } from "./SqlBaseParser";
 import { OverlayContext } from "./SqlBaseParser";
+import { EmptyExpressionContext } from "./SqlBaseParser";
 import { UnquotedIdentifierContext } from "./SqlBaseParser";
 import { QuotedIdentifierAlternativeContext } from "./SqlBaseParser";
 import { TableFileFormatContext } from "./SqlBaseParser";
@@ -374,6 +378,19 @@ export interface SqlBaseListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitTableValuedFunction?: (ctx: TableValuedFunctionContext) => void;
+
+  /**
+   * Enter a parse tree produced by the `emptyTableName`
+   * labeled alternative in `SqlBaseParser.relationPrimary`.
+   * @param ctx the parse tree
+   */
+  enterEmptyTableName?: (ctx: EmptyTableNameContext) => void;
+  /**
+   * Exit a parse tree produced by the `emptyTableName`
+   * labeled alternative in `SqlBaseParser.relationPrimary`.
+   * @param ctx the parse tree
+   */
+  exitEmptyTableName?: (ctx: EmptyTableNameContext) => void;
 
   /**
    * Enter a parse tree produced by the `exponentLiteral`
@@ -727,6 +744,19 @@ export interface SqlBaseListener extends ParseTreeListener {
   exitSubquery?: (ctx: SubqueryContext) => void;
 
   /**
+   * Enter a parse tree produced by the `emptyQuery`
+   * labeled alternative in `SqlBaseParser.queryPrimary`.
+   * @param ctx the parse tree
+   */
+  enterEmptyQuery?: (ctx: EmptyQueryContext) => void;
+  /**
+   * Exit a parse tree produced by the `emptyQuery`
+   * labeled alternative in `SqlBaseParser.queryPrimary`.
+   * @param ctx the parse tree
+   */
+  exitEmptyQuery?: (ctx: EmptyQueryContext) => void;
+
+  /**
    * Enter a parse tree produced by the `singleInsertQuery`
    * labeled alternative in `SqlBaseParser.dmlStatementNoWith`.
    * @param ctx the parse tree
@@ -1013,6 +1043,19 @@ export interface SqlBaseListener extends ParseTreeListener {
   exitDereference?: (ctx: DereferenceContext) => void;
 
   /**
+   * Enter a parse tree produced by the `emptyDereference`
+   * labeled alternative in `SqlBaseParser.primaryExpression`.
+   * @param ctx the parse tree
+   */
+  enterEmptyDereference?: (ctx: EmptyDereferenceContext) => void;
+  /**
+   * Exit a parse tree produced by the `emptyDereference`
+   * labeled alternative in `SqlBaseParser.primaryExpression`.
+   * @param ctx the parse tree
+   */
+  exitEmptyDereference?: (ctx: EmptyDereferenceContext) => void;
+
+  /**
    * Enter a parse tree produced by the `postgresCast`
    * labeled alternative in `SqlBaseParser.primaryExpression`.
    * @param ctx the parse tree
@@ -1091,6 +1134,19 @@ export interface SqlBaseListener extends ParseTreeListener {
   exitOverlay?: (ctx: OverlayContext) => void;
 
   /**
+   * Enter a parse tree produced by the `emptyExpression`
+   * labeled alternative in `SqlBaseParser.primaryExpression`.
+   * @param ctx the parse tree
+   */
+  enterEmptyExpression?: (ctx: EmptyExpressionContext) => void;
+  /**
+   * Exit a parse tree produced by the `emptyExpression`
+   * labeled alternative in `SqlBaseParser.primaryExpression`.
+   * @param ctx the parse tree
+   */
+  exitEmptyExpression?: (ctx: EmptyExpressionContext) => void;
+
+  /**
    * Enter a parse tree produced by the `unquotedIdentifier`
    * labeled alternative in `SqlBaseParser.strictIdentifier`.
    * @param ctx the parse tree
@@ -1108,17 +1164,13 @@ export interface SqlBaseListener extends ParseTreeListener {
    * labeled alternative in `SqlBaseParser.strictIdentifier`.
    * @param ctx the parse tree
    */
-  enterQuotedIdentifierAlternative?: (
-    ctx: QuotedIdentifierAlternativeContext
-  ) => void;
+  enterQuotedIdentifierAlternative?: (ctx: QuotedIdentifierAlternativeContext) => void;
   /**
    * Exit a parse tree produced by the `quotedIdentifierAlternative`
    * labeled alternative in `SqlBaseParser.strictIdentifier`.
    * @param ctx the parse tree
    */
-  exitQuotedIdentifierAlternative?: (
-    ctx: QuotedIdentifierAlternativeContext
-  ) => void;
+  exitQuotedIdentifierAlternative?: (ctx: QuotedIdentifierAlternativeContext) => void;
 
   /**
    * Enter a parse tree produced by the `tableFileFormat`
@@ -1320,17 +1372,13 @@ export interface SqlBaseListener extends ParseTreeListener {
    * labeled alternative in `SqlBaseParser.dataType`.
    * @param ctx the parse tree
    */
-  enterYearMonthIntervalDataType?: (
-    ctx: YearMonthIntervalDataTypeContext
-  ) => void;
+  enterYearMonthIntervalDataType?: (ctx: YearMonthIntervalDataTypeContext) => void;
   /**
    * Exit a parse tree produced by the `yearMonthIntervalDataType`
    * labeled alternative in `SqlBaseParser.dataType`.
    * @param ctx the parse tree
    */
-  exitYearMonthIntervalDataType?: (
-    ctx: YearMonthIntervalDataTypeContext
-  ) => void;
+  exitYearMonthIntervalDataType?: (ctx: YearMonthIntervalDataTypeContext) => void;
 
   /**
    * Enter a parse tree produced by the `dayTimeIntervalDataType`
@@ -1363,34 +1411,26 @@ export interface SqlBaseListener extends ParseTreeListener {
    * labeled alternative in `SqlBaseParser.querySpecification`.
    * @param ctx the parse tree
    */
-  enterTransformQuerySpecification?: (
-    ctx: TransformQuerySpecificationContext
-  ) => void;
+  enterTransformQuerySpecification?: (ctx: TransformQuerySpecificationContext) => void;
   /**
    * Exit a parse tree produced by the `transformQuerySpecification`
    * labeled alternative in `SqlBaseParser.querySpecification`.
    * @param ctx the parse tree
    */
-  exitTransformQuerySpecification?: (
-    ctx: TransformQuerySpecificationContext
-  ) => void;
+  exitTransformQuerySpecification?: (ctx: TransformQuerySpecificationContext) => void;
 
   /**
    * Enter a parse tree produced by the `regularQuerySpecification`
    * labeled alternative in `SqlBaseParser.querySpecification`.
    * @param ctx the parse tree
    */
-  enterRegularQuerySpecification?: (
-    ctx: RegularQuerySpecificationContext
-  ) => void;
+  enterRegularQuerySpecification?: (ctx: RegularQuerySpecificationContext) => void;
   /**
    * Exit a parse tree produced by the `regularQuerySpecification`
    * labeled alternative in `SqlBaseParser.querySpecification`.
    * @param ctx the parse tree
    */
-  exitRegularQuerySpecification?: (
-    ctx: RegularQuerySpecificationContext
-  ) => void;
+  exitRegularQuerySpecification?: (ctx: RegularQuerySpecificationContext) => void;
 
   /**
    * Enter a parse tree produced by the `errorIdent`
@@ -2320,9 +2360,7 @@ export interface SqlBaseListener extends ParseTreeListener {
    * labeled alternative in `SqlBaseParser.statement`.
    * @param ctx the parse tree
    */
-  enterResetQuotedConfiguration?: (
-    ctx: ResetQuotedConfigurationContext
-  ) => void;
+  enterResetQuotedConfiguration?: (ctx: ResetQuotedConfigurationContext) => void;
   /**
    * Exit a parse tree produced by the `resetQuotedConfiguration`
    * labeled alternative in `SqlBaseParser.statement`.
@@ -2432,24 +2470,18 @@ export interface SqlBaseListener extends ParseTreeListener {
    * Enter a parse tree produced by `SqlBaseParser.singleMultipartIdentifier`.
    * @param ctx the parse tree
    */
-  enterSingleMultipartIdentifier?: (
-    ctx: SingleMultipartIdentifierContext
-  ) => void;
+  enterSingleMultipartIdentifier?: (ctx: SingleMultipartIdentifierContext) => void;
   /**
    * Exit a parse tree produced by `SqlBaseParser.singleMultipartIdentifier`.
    * @param ctx the parse tree
    */
-  exitSingleMultipartIdentifier?: (
-    ctx: SingleMultipartIdentifierContext
-  ) => void;
+  exitSingleMultipartIdentifier?: (ctx: SingleMultipartIdentifierContext) => void;
 
   /**
    * Enter a parse tree produced by `SqlBaseParser.singleFunctionIdentifier`.
    * @param ctx the parse tree
    */
-  enterSingleFunctionIdentifier?: (
-    ctx: SingleFunctionIdentifierContext
-  ) => void;
+  enterSingleFunctionIdentifier?: (ctx: SingleFunctionIdentifierContext) => void;
   /**
    * Exit a parse tree produced by `SqlBaseParser.singleFunctionIdentifier`.
    * @param ctx the parse tree
@@ -2515,16 +2547,12 @@ export interface SqlBaseListener extends ParseTreeListener {
    * Enter a parse tree produced by `SqlBaseParser.unsupportedHiveNativeCommands`.
    * @param ctx the parse tree
    */
-  enterUnsupportedHiveNativeCommands?: (
-    ctx: UnsupportedHiveNativeCommandsContext
-  ) => void;
+  enterUnsupportedHiveNativeCommands?: (ctx: UnsupportedHiveNativeCommandsContext) => void;
   /**
    * Exit a parse tree produced by `SqlBaseParser.unsupportedHiveNativeCommands`.
    * @param ctx the parse tree
    */
-  exitUnsupportedHiveNativeCommands?: (
-    ctx: UnsupportedHiveNativeCommandsContext
-  ) => void;
+  exitUnsupportedHiveNativeCommands?: (ctx: UnsupportedHiveNativeCommandsContext) => void;
 
   /**
    * Enter a parse tree produced by `SqlBaseParser.createTableHeader`.
@@ -3630,16 +3658,12 @@ export interface SqlBaseListener extends ParseTreeListener {
    * Enter a parse tree produced by `SqlBaseParser.errorCapturingMultiUnitsInterval`.
    * @param ctx the parse tree
    */
-  enterErrorCapturingMultiUnitsInterval?: (
-    ctx: ErrorCapturingMultiUnitsIntervalContext
-  ) => void;
+  enterErrorCapturingMultiUnitsInterval?: (ctx: ErrorCapturingMultiUnitsIntervalContext) => void;
   /**
    * Exit a parse tree produced by `SqlBaseParser.errorCapturingMultiUnitsInterval`.
    * @param ctx the parse tree
    */
-  exitErrorCapturingMultiUnitsInterval?: (
-    ctx: ErrorCapturingMultiUnitsIntervalContext
-  ) => void;
+  exitErrorCapturingMultiUnitsInterval?: (ctx: ErrorCapturingMultiUnitsIntervalContext) => void;
 
   /**
    * Enter a parse tree produced by `SqlBaseParser.multiUnitsInterval`.
@@ -3656,16 +3680,12 @@ export interface SqlBaseListener extends ParseTreeListener {
    * Enter a parse tree produced by `SqlBaseParser.errorCapturingUnitToUnitInterval`.
    * @param ctx the parse tree
    */
-  enterErrorCapturingUnitToUnitInterval?: (
-    ctx: ErrorCapturingUnitToUnitIntervalContext
-  ) => void;
+  enterErrorCapturingUnitToUnitInterval?: (ctx: ErrorCapturingUnitToUnitIntervalContext) => void;
   /**
    * Exit a parse tree produced by `SqlBaseParser.errorCapturingUnitToUnitInterval`.
    * @param ctx the parse tree
    */
-  exitErrorCapturingUnitToUnitInterval?: (
-    ctx: ErrorCapturingUnitToUnitIntervalContext
-  ) => void;
+  exitErrorCapturingUnitToUnitInterval?: (ctx: ErrorCapturingUnitToUnitIntervalContext) => void;
 
   /**
    * Enter a parse tree produced by `SqlBaseParser.unitToUnitInterval`.
@@ -3715,31 +3735,23 @@ export interface SqlBaseListener extends ParseTreeListener {
    * Enter a parse tree produced by `SqlBaseParser.qualifiedColTypeWithPositionList`.
    * @param ctx the parse tree
    */
-  enterQualifiedColTypeWithPositionList?: (
-    ctx: QualifiedColTypeWithPositionListContext
-  ) => void;
+  enterQualifiedColTypeWithPositionList?: (ctx: QualifiedColTypeWithPositionListContext) => void;
   /**
    * Exit a parse tree produced by `SqlBaseParser.qualifiedColTypeWithPositionList`.
    * @param ctx the parse tree
    */
-  exitQualifiedColTypeWithPositionList?: (
-    ctx: QualifiedColTypeWithPositionListContext
-  ) => void;
+  exitQualifiedColTypeWithPositionList?: (ctx: QualifiedColTypeWithPositionListContext) => void;
 
   /**
    * Enter a parse tree produced by `SqlBaseParser.qualifiedColTypeWithPosition`.
    * @param ctx the parse tree
    */
-  enterQualifiedColTypeWithPosition?: (
-    ctx: QualifiedColTypeWithPositionContext
-  ) => void;
+  enterQualifiedColTypeWithPosition?: (ctx: QualifiedColTypeWithPositionContext) => void;
   /**
    * Exit a parse tree produced by `SqlBaseParser.qualifiedColTypeWithPosition`.
    * @param ctx the parse tree
    */
-  exitQualifiedColTypeWithPosition?: (
-    ctx: QualifiedColTypeWithPositionContext
-  ) => void;
+  exitQualifiedColTypeWithPosition?: (ctx: QualifiedColTypeWithPositionContext) => void;
 
   /**
    * Enter a parse tree produced by `SqlBaseParser.colTypeList`.
@@ -3888,9 +3900,7 @@ export interface SqlBaseListener extends ParseTreeListener {
    * Enter a parse tree produced by `SqlBaseParser.errorCapturingIdentifier`.
    * @param ctx the parse tree
    */
-  enterErrorCapturingIdentifier?: (
-    ctx: ErrorCapturingIdentifierContext
-  ) => void;
+  enterErrorCapturingIdentifier?: (ctx: ErrorCapturingIdentifierContext) => void;
   /**
    * Exit a parse tree produced by `SqlBaseParser.errorCapturingIdentifier`.
    * @param ctx the parse tree
@@ -3901,16 +3911,12 @@ export interface SqlBaseListener extends ParseTreeListener {
    * Enter a parse tree produced by `SqlBaseParser.errorCapturingIdentifierExtra`.
    * @param ctx the parse tree
    */
-  enterErrorCapturingIdentifierExtra?: (
-    ctx: ErrorCapturingIdentifierExtraContext
-  ) => void;
+  enterErrorCapturingIdentifierExtra?: (ctx: ErrorCapturingIdentifierExtraContext) => void;
   /**
    * Exit a parse tree produced by `SqlBaseParser.errorCapturingIdentifierExtra`.
    * @param ctx the parse tree
    */
-  exitErrorCapturingIdentifierExtra?: (
-    ctx: ErrorCapturingIdentifierExtraContext
-  ) => void;
+  exitErrorCapturingIdentifierExtra?: (ctx: ErrorCapturingIdentifierExtraContext) => void;
 
   /**
    * Enter a parse tree produced by `SqlBaseParser.identifier`.

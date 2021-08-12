@@ -1,4 +1,4 @@
-// Generated from ./SqlBase.g4 by ANTLR 4.9.0-SNAPSHOT
+// Generated from src/antlr/SqlBase.g4 by ANTLR 4.9.0-SNAPSHOT
 
 import { ParseTreeVisitor } from "antlr4ts/tree/ParseTreeVisitor";
 
@@ -7,6 +7,7 @@ import { AliasedQueryContext } from "./SqlBaseParser";
 import { AliasedRelationContext } from "./SqlBaseParser";
 import { InlineTableDefault2Context } from "./SqlBaseParser";
 import { TableValuedFunctionContext } from "./SqlBaseParser";
+import { EmptyTableNameContext } from "./SqlBaseParser";
 import { ExponentLiteralContext } from "./SqlBaseParser";
 import { DecimalLiteralContext } from "./SqlBaseParser";
 import { LegacyDecimalLiteralContext } from "./SqlBaseParser";
@@ -34,6 +35,7 @@ import { FromStmtContext } from "./SqlBaseParser";
 import { TableContext } from "./SqlBaseParser";
 import { InlineTableDefault1Context } from "./SqlBaseParser";
 import { SubqueryContext } from "./SqlBaseParser";
+import { EmptyQueryContext } from "./SqlBaseParser";
 import { SingleInsertQueryContext } from "./SqlBaseParser";
 import { MultiInsertQueryContext } from "./SqlBaseParser";
 import { DeleteFromTableContext } from "./SqlBaseParser";
@@ -56,12 +58,14 @@ import { LambdaContext } from "./SqlBaseParser";
 import { SubscriptContext } from "./SqlBaseParser";
 import { ColumnReferenceContext } from "./SqlBaseParser";
 import { DereferenceContext } from "./SqlBaseParser";
+import { EmptyDereferenceContext } from "./SqlBaseParser";
 import { PostgresCastContext } from "./SqlBaseParser";
 import { ParenthesizedExpressionContext } from "./SqlBaseParser";
 import { ExtractContext } from "./SqlBaseParser";
 import { SubstringContext } from "./SqlBaseParser";
 import { TrimContext } from "./SqlBaseParser";
 import { OverlayContext } from "./SqlBaseParser";
+import { EmptyExpressionContext } from "./SqlBaseParser";
 import { UnquotedIdentifierContext } from "./SqlBaseParser";
 import { QuotedIdentifierAlternativeContext } from "./SqlBaseParser";
 import { TableFileFormatContext } from "./SqlBaseParser";
@@ -354,6 +358,14 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
   visitTableValuedFunction?: (ctx: TableValuedFunctionContext) => Result;
 
   /**
+   * Visit a parse tree produced by the `emptyTableName`
+   * labeled alternative in `SqlBaseParser.relationPrimary`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitEmptyTableName?: (ctx: EmptyTableNameContext) => Result;
+
+  /**
    * Visit a parse tree produced by the `exponentLiteral`
    * labeled alternative in `SqlBaseParser.number`.
    * @param ctx the parse tree
@@ -570,6 +582,14 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
   visitSubquery?: (ctx: SubqueryContext) => Result;
 
   /**
+   * Visit a parse tree produced by the `emptyQuery`
+   * labeled alternative in `SqlBaseParser.queryPrimary`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitEmptyQuery?: (ctx: EmptyQueryContext) => Result;
+
+  /**
    * Visit a parse tree produced by the `singleInsertQuery`
    * labeled alternative in `SqlBaseParser.dmlStatementNoWith`.
    * @param ctx the parse tree
@@ -746,6 +766,14 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
   visitDereference?: (ctx: DereferenceContext) => Result;
 
   /**
+   * Visit a parse tree produced by the `emptyDereference`
+   * labeled alternative in `SqlBaseParser.primaryExpression`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitEmptyDereference?: (ctx: EmptyDereferenceContext) => Result;
+
+  /**
    * Visit a parse tree produced by the `postgresCast`
    * labeled alternative in `SqlBaseParser.primaryExpression`.
    * @param ctx the parse tree
@@ -759,9 +787,7 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitParenthesizedExpression?: (
-    ctx: ParenthesizedExpressionContext
-  ) => Result;
+  visitParenthesizedExpression?: (ctx: ParenthesizedExpressionContext) => Result;
 
   /**
    * Visit a parse tree produced by the `extract`
@@ -796,6 +822,14 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
   visitOverlay?: (ctx: OverlayContext) => Result;
 
   /**
+   * Visit a parse tree produced by the `emptyExpression`
+   * labeled alternative in `SqlBaseParser.primaryExpression`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitEmptyExpression?: (ctx: EmptyExpressionContext) => Result;
+
+  /**
    * Visit a parse tree produced by the `unquotedIdentifier`
    * labeled alternative in `SqlBaseParser.strictIdentifier`.
    * @param ctx the parse tree
@@ -809,9 +843,7 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitQuotedIdentifierAlternative?: (
-    ctx: QuotedIdentifierAlternativeContext
-  ) => Result;
+  visitQuotedIdentifierAlternative?: (ctx: QuotedIdentifierAlternativeContext) => Result;
 
   /**
    * Visit a parse tree produced by the `tableFileFormat`
@@ -939,9 +971,7 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitYearMonthIntervalDataType?: (
-    ctx: YearMonthIntervalDataTypeContext
-  ) => Result;
+  visitYearMonthIntervalDataType?: (ctx: YearMonthIntervalDataTypeContext) => Result;
 
   /**
    * Visit a parse tree produced by the `dayTimeIntervalDataType`
@@ -949,9 +979,7 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitDayTimeIntervalDataType?: (
-    ctx: DayTimeIntervalDataTypeContext
-  ) => Result;
+  visitDayTimeIntervalDataType?: (ctx: DayTimeIntervalDataTypeContext) => Result;
 
   /**
    * Visit a parse tree produced by the `primitiveDataType`
@@ -967,9 +995,7 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitTransformQuerySpecification?: (
-    ctx: TransformQuerySpecificationContext
-  ) => Result;
+  visitTransformQuerySpecification?: (ctx: TransformQuerySpecificationContext) => Result;
 
   /**
    * Visit a parse tree produced by the `regularQuerySpecification`
@@ -977,9 +1003,7 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitRegularQuerySpecification?: (
-    ctx: RegularQuerySpecificationContext
-  ) => Result;
+  visitRegularQuerySpecification?: (ctx: RegularQuerySpecificationContext) => Result;
 
   /**
    * Visit a parse tree produced by the `errorIdent`
@@ -1555,9 +1579,7 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitResetQuotedConfiguration?: (
-    ctx: ResetQuotedConfigurationContext
-  ) => Result;
+  visitResetQuotedConfiguration?: (ctx: ResetQuotedConfigurationContext) => Result;
 
   /**
    * Visit a parse tree produced by the `resetConfiguration`
@@ -1625,18 +1647,14 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitSingleMultipartIdentifier?: (
-    ctx: SingleMultipartIdentifierContext
-  ) => Result;
+  visitSingleMultipartIdentifier?: (ctx: SingleMultipartIdentifierContext) => Result;
 
   /**
    * Visit a parse tree produced by `SqlBaseParser.singleFunctionIdentifier`.
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitSingleFunctionIdentifier?: (
-    ctx: SingleFunctionIdentifierContext
-  ) => Result;
+  visitSingleFunctionIdentifier?: (ctx: SingleFunctionIdentifierContext) => Result;
 
   /**
    * Visit a parse tree produced by `SqlBaseParser.singleDataType`.
@@ -1678,9 +1696,7 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitUnsupportedHiveNativeCommands?: (
-    ctx: UnsupportedHiveNativeCommandsContext
-  ) => Result;
+  visitUnsupportedHiveNativeCommands?: (ctx: UnsupportedHiveNativeCommandsContext) => Result;
 
   /**
    * Visit a parse tree produced by `SqlBaseParser.createTableHeader`.
@@ -2233,9 +2249,7 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitMultipartIdentifierList?: (
-    ctx: MultipartIdentifierListContext
-  ) => Result;
+  visitMultipartIdentifierList?: (ctx: MultipartIdentifierListContext) => Result;
 
   /**
    * Visit a parse tree produced by `SqlBaseParser.multipartIdentifier`.
@@ -2389,9 +2403,7 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitErrorCapturingMultiUnitsInterval?: (
-    ctx: ErrorCapturingMultiUnitsIntervalContext
-  ) => Result;
+  visitErrorCapturingMultiUnitsInterval?: (ctx: ErrorCapturingMultiUnitsIntervalContext) => Result;
 
   /**
    * Visit a parse tree produced by `SqlBaseParser.multiUnitsInterval`.
@@ -2405,9 +2417,7 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitErrorCapturingUnitToUnitInterval?: (
-    ctx: ErrorCapturingUnitToUnitIntervalContext
-  ) => Result;
+  visitErrorCapturingUnitToUnitInterval?: (ctx: ErrorCapturingUnitToUnitIntervalContext) => Result;
 
   /**
    * Visit a parse tree produced by `SqlBaseParser.unitToUnitInterval`.
@@ -2442,18 +2452,14 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitQualifiedColTypeWithPositionList?: (
-    ctx: QualifiedColTypeWithPositionListContext
-  ) => Result;
+  visitQualifiedColTypeWithPositionList?: (ctx: QualifiedColTypeWithPositionListContext) => Result;
 
   /**
    * Visit a parse tree produced by `SqlBaseParser.qualifiedColTypeWithPosition`.
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitQualifiedColTypeWithPosition?: (
-    ctx: QualifiedColTypeWithPositionContext
-  ) => Result;
+  visitQualifiedColTypeWithPosition?: (ctx: QualifiedColTypeWithPositionContext) => Result;
 
   /**
    * Visit a parse tree produced by `SqlBaseParser.colTypeList`.
@@ -2551,18 +2557,14 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitErrorCapturingIdentifier?: (
-    ctx: ErrorCapturingIdentifierContext
-  ) => Result;
+  visitErrorCapturingIdentifier?: (ctx: ErrorCapturingIdentifierContext) => Result;
 
   /**
    * Visit a parse tree produced by `SqlBaseParser.errorCapturingIdentifierExtra`.
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitErrorCapturingIdentifierExtra?: (
-    ctx: ErrorCapturingIdentifierExtraContext
-  ) => Result;
+  visitErrorCapturingIdentifierExtra?: (ctx: ErrorCapturingIdentifierExtraContext) => Result;
 
   /**
    * Visit a parse tree produced by `SqlBaseParser.identifier`.
