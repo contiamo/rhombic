@@ -22,7 +22,6 @@ import {
 } from "./SqlBaseParser";
 import { LineageContext } from "./LineageContext";
 import common from "./common";
-import { add } from "lodash";
 
 // Query visitor is instantiated per query/subquery
 // All shared state is hold in `lineageContext` which is shared across query visitors
@@ -399,10 +398,28 @@ export class LineageQueryVisitor<TableData, ColumnData>
     const lineage = this.visitChildren(ctx);
 
     // expecting query relation to be in stack
-    const relation = this.lineageContext.relationsStack.pop();
+    let relation = this.lineageContext.relationsStack.pop();
     if (relation !== undefined) {
       const identifier = ctx.errorCapturingIdentifier().identifier();
       const alias = identifier !== undefined ? common.stripQuote(identifier).name : relation.id;
+
+      const columnAliases = ctx
+        .identifierList()
+        ?.identifierSeq()
+        .errorCapturingIdentifier()
+        .map(eci => common.stripQuote(eci.identifier()).name);
+      if (columnAliases !== undefined) {
+        const newColumns = relation.columns.map((c, i) => {
+          return {
+            id: c.id,
+            label: columnAliases[i] ?? c.label,
+            range: c.range,
+            data: c.data
+          };
+        });
+        relation = new Relation(relation.id, newColumns, relation.level, relation.range, relation.data, relation.name);
+      }
+
       this.ctes.set(alias, relation);
       return this.aggregateResult(lineage, [relation.toLineage(alias)]);
     } else {
@@ -415,10 +432,27 @@ export class LineageQueryVisitor<TableData, ColumnData>
     const lineage = this.visitChildren(ctx);
 
     // expecting query relation to be in stack
-    const relation = this.lineageContext.relationsStack.pop();
+    let relation = this.lineageContext.relationsStack.pop();
     if (relation !== undefined) {
       const strictId = ctx.tableAlias().strictIdentifier();
       const alias = strictId !== undefined ? common.stripQuote(strictId).name : relation.id;
+      const columnAliases = ctx
+        .tableAlias()
+        .identifierList()
+        ?.identifierSeq()
+        .errorCapturingIdentifier()
+        .map(eci => common.stripQuote(eci.identifier()).name);
+      if (columnAliases !== undefined) {
+        const newColumns = relation.columns.map((c, i) => {
+          return {
+            id: c.id,
+            label: columnAliases[i] ?? c.label,
+            range: c.range,
+            data: c.data
+          };
+        });
+        relation = new Relation(relation.id, newColumns, relation.level, relation.range, relation.data, relation.name);
+      }
       this.relations.set(alias, relation);
       return this.aggregateResult(lineage, [relation.toLineage(alias)]);
     } else {

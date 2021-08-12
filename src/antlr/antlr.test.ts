@@ -2826,8 +2826,6 @@ describe("antlr", () => {
       ]
     },
     {
-      debug: true,
-      only: true,
       name: "Merged leaves lineage",
       sql:
         "with a as (select account_id, account_type from account as a2)\n" +
@@ -2862,30 +2860,6 @@ describe("antlr", () => {
               label: "account_id",
               data: {
                 id: "account_id",
-                tableId: "account"
-              }
-            },
-            {
-              id: "account_description",
-              label: "account_description",
-              data: {
-                id: "account_description",
-                tableId: "account"
-              }
-            },
-            {
-              id: "account_parent",
-              label: "account_parent",
-              data: {
-                id: "account_parent",
-                tableId: "account"
-              }
-            },
-            {
-              id: "account_rollup",
-              label: "account_rollup",
-              data: {
-                id: "account_rollup",
                 tableId: "account"
               }
             }
@@ -2986,6 +2960,275 @@ describe("antlr", () => {
           source: {
             tableId: "result_3",
             columnId: "account_type"
+          },
+          target: {
+            tableId: "result_1",
+            columnId: "column_1"
+          }
+        },
+        {
+          type: "edge",
+          source: {
+            tableId: "result_2",
+            columnId: "column_1"
+          },
+          target: {
+            tableId: "result_1",
+            columnId: "column_2"
+          }
+        }
+      ]
+    },
+    {
+      name: "Column aliases within query alias",
+      sql:
+        "with a(the_account_id, the_account_type) as (select account_id, account_type from account as a2)\n" +
+        "select a1.account_type_2, a.the_account_id from a, (select account_type from account) as a1(account_type_2)",
+      data: [
+        {
+          type: "table",
+          id: "result_3",
+          label: "account -> a2",
+          level: 0,
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 82,
+            endColumn: 95
+          },
+          data: {
+            id: "account"
+          },
+          columns: [
+            {
+              id: "account_type",
+              label: "account_type",
+              data: {
+                id: "account_type",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_id",
+              label: "account_id",
+              data: {
+                id: "account_id",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_description",
+              label: "account_description",
+              data: {
+                id: "account_description",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_parent",
+              label: "account_parent",
+              data: {
+                id: "account_parent",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_rollup",
+              label: "account_rollup",
+              data: {
+                id: "account_rollup",
+                tableId: "account"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_2",
+          label: "a",
+          level: 1,
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 45,
+            endColumn: 95
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "the_account_id",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 52,
+                endColumn: 62
+              }
+            },
+            {
+              id: "column_2",
+              label: "the_account_type",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 64,
+                endColumn: 76
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_5",
+          label: "account",
+          level: 0,
+          range: {
+            startLine: 2,
+            endLine: 2,
+            startColumn: 77,
+            endColumn: 84
+          },
+          data: {
+            id: "account"
+          },
+          columns: [
+            {
+              id: "account_type",
+              label: "account_type",
+              data: {
+                id: "account_type",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_id",
+              label: "account_id",
+              data: {
+                id: "account_id",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_description",
+              label: "account_description",
+              data: {
+                id: "account_description",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_parent",
+              label: "account_parent",
+              data: {
+                id: "account_parent",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_rollup",
+              label: "account_rollup",
+              data: {
+                id: "account_rollup",
+                tableId: "account"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_4",
+          label: "a1",
+          level: 1,
+          range: {
+            startLine: 2,
+            endLine: 2,
+            startColumn: 52,
+            endColumn: 84
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "account_type_2",
+              range: {
+                startLine: 2,
+                endLine: 2,
+                startColumn: 59,
+                endColumn: 71
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_1",
+          label: "[final result]",
+          level: 2,
+          range: {
+            startLine: 1,
+            endLine: 2,
+            startColumn: 0,
+            endColumn: 107
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "account_type_2",
+              range: {
+                startLine: 2,
+                endLine: 2,
+                startColumn: 7,
+                endColumn: 24
+              }
+            },
+            {
+              id: "column_2",
+              label: "the_account_id",
+              range: {
+                startLine: 2,
+                endLine: 2,
+                startColumn: 26,
+                endColumn: 42
+              }
+            }
+          ]
+        },
+        {
+          type: "edge",
+          source: {
+            tableId: "result_3",
+            columnId: "account_id"
+          },
+          target: {
+            tableId: "result_2",
+            columnId: "column_1"
+          }
+        },
+        {
+          type: "edge",
+          source: {
+            tableId: "result_3",
+            columnId: "account_type"
+          },
+          target: {
+            tableId: "result_2",
+            columnId: "column_2"
+          }
+        },
+        {
+          type: "edge",
+          source: {
+            tableId: "result_5",
+            columnId: "account_type"
+          },
+          target: {
+            tableId: "result_4",
+            columnId: "column_1"
+          }
+        },
+        {
+          type: "edge",
+          source: {
+            tableId: "result_4",
+            columnId: "column_1"
           },
           target: {
             tableId: "result_1",
