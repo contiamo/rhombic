@@ -3247,6 +3247,199 @@ describe("antlr", () => {
           }
         }
       ]
+    },
+    {
+      name: "Set operations supported",
+      sql:
+        "select 1 as a union select 2 as b" +
+        " intersect select account_id from account" +
+        " intersect select currency_id from salary",
+      data: [
+        {
+          type: "table",
+          id: "result_2",
+          label: "account",
+          level: 0,
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 67,
+            endColumn: 74
+          },
+          data: {
+            id: "account"
+          },
+          columns: [
+            {
+              id: "account_type",
+              label: "account_type",
+              data: {
+                id: "account_type",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_id",
+              label: "account_id",
+              data: {
+                id: "account_id",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_description",
+              label: "account_description",
+              data: {
+                id: "account_description",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_parent",
+              label: "account_parent",
+              data: {
+                id: "account_parent",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_rollup",
+              label: "account_rollup",
+              data: {
+                id: "account_rollup",
+                tableId: "account"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_3",
+          label: "salary",
+          level: 0,
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 109,
+            endColumn: 115
+          },
+          data: {
+            id: "salary"
+          },
+          columns: [
+            {
+              id: "currency_id",
+              label: "currency_id",
+              data: {
+                id: "currency_id",
+                tableId: "salary"
+              }
+            },
+            {
+              id: "department_id",
+              label: "department_id",
+              data: {
+                id: "department_id",
+                tableId: "salary"
+              }
+            },
+            {
+              id: "employee_id",
+              label: "employee_id",
+              data: {
+                id: "employee_id",
+                tableId: "salary"
+              }
+            },
+            {
+              id: "overtime_paid",
+              label: "overtime_paid",
+              data: {
+                id: "overtime_paid",
+                tableId: "salary"
+              }
+            },
+            {
+              id: "pay_date",
+              label: "pay_date",
+              data: {
+                id: "pay_date",
+                tableId: "salary"
+              }
+            },
+            {
+              id: "salary_paid",
+              label: "salary_paid",
+              data: {
+                id: "salary_paid",
+                tableId: "salary"
+              }
+            },
+            {
+              id: "vacation_accrued",
+              label: "vacation_accrued",
+              data: {
+                id: "vacation_accrued",
+                tableId: "salary"
+              }
+            },
+            {
+              id: "vacation_used",
+              label: "vacation_used",
+              data: {
+                id: "vacation_used",
+                tableId: "salary"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_1",
+          label: "[final result]",
+          level: 1,
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 0,
+            endColumn: 115
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "a",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 7,
+                endColumn: 13
+              }
+            }
+          ]
+        },
+        {
+          type: "edge",
+          source: {
+            tableId: "result_2",
+            columnId: "account_id"
+          },
+          target: {
+            tableId: "result_1",
+            columnId: "column_1"
+          }
+        },
+        {
+          type: "edge",
+          source: {
+            tableId: "result_3",
+            columnId: "currency_id"
+          },
+          target: {
+            tableId: "result_1",
+            columnId: "column_1"
+          }
+        }
+      ]
     }
   ];
 

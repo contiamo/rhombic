@@ -15,6 +15,7 @@ import {
   PredicatedContext,
   PrimaryExpressionContext,
   QueryContext,
+  QueryTermDefaultContext,
   RegularQuerySpecificationContext,
   StarContext,
   TableNameContext,
@@ -161,7 +162,7 @@ export class LineageQueryVisitor<TableData, ColumnData>
     return new Relation<TableData, ColumnData>(this.id, this.columns, this.level, range);
   }
 
-  get nextColumnId(): string {
+  private getNextColumnId(): string {
     this.columnIdSeq++;
     return "column_" + this.columnIdSeq;
   }
@@ -235,7 +236,7 @@ export class LineageQueryVisitor<TableData, ColumnData>
   protected addRelationColumns(rel: Relation<TableData, ColumnData>, range: Range): Lineage<TableData, ColumnData> {
     const lineage: Lineage<TableData, ColumnData> = [];
     rel.columns.forEach(c => {
-      const columnId = this.nextColumnId;
+      const columnId = this.getNextColumnId();
       const col = {
         id: columnId,
         label: c.label,
@@ -309,6 +310,15 @@ export class LineageQueryVisitor<TableData, ColumnData>
       const visitor = new LineageQueryVisitor(this.lineageContext, this);
       return ctx.accept(visitor);
     }
+  }
+
+  // processing set operations
+  visitQueryTermDefault(ctx: QueryTermDefaultContext): Lineage<TableData, ColumnData> | undefined {
+    // reinit column seq as we will repeat the same columns in subsequent queries
+    this.columnIdSeq = 0;
+    // clear relations for each queryTermDefault because it's individual query
+    this.relations = new Map();
+    return this.visitChildren(ctx);
   }
 
   visitRegularQuerySpecification(ctx: RegularQuerySpecificationContext): Lineage<TableData, ColumnData> | undefined {
@@ -473,20 +483,25 @@ export class LineageQueryVisitor<TableData, ColumnData>
 
     const result = this.visitChildren(ctx);
 
-    const columnId = this.nextColumnId;
-    const errCaptId = ctx.errorCapturingIdentifier();
-    const label =
-      errCaptId !== undefined
-        ? common.stripQuote(errCaptId.identifier()).name
-        : this.deriveColumnName(ctx.expression()) ?? columnId;
+    const columnId = this.getNextColumnId();
 
-    const range = this.rangeFromContext(ctx);
-    const column = {
-      id: columnId,
-      label: label,
-      range: range
-    };
-    this.columns.push(column);
+    // column could have been already defined if we have set operation
+    if (this.columns.find(c => c.id == columnId) === undefined) {
+      const errCaptId = ctx.errorCapturingIdentifier();
+      const label =
+        errCaptId !== undefined
+          ? common.stripQuote(errCaptId.identifier()).name
+          : this.deriveColumnName(ctx.expression()) ?? columnId;
+
+      const range = this.rangeFromContext(ctx);
+      const column = {
+        id: columnId,
+        label: label,
+        range: range
+      };
+      this.columns.push(column);
+    }
+
     const lineage: Lineage<TableData, ColumnData> = [];
     for (const c of this.columnReferences) {
       lineage.push({
