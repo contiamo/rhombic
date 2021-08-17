@@ -222,6 +222,12 @@ export class CompletionVisitor extends AbstractParseTreeVisitor<void> implements
     return newContext;
   }
 
+  /**
+   * Called (for example) for the empty input. Verifies the source is actually empty and adds the
+   * `SELECT FROM` snippet to the snippets list.
+   *
+   * @param node
+   */
   visitErrorNode(node: ErrorNode) {
     if (node.symbol.text === CompletionVisitor.CURSOR_MARKER && node.parent instanceof StatementContext) {
       this.snippets.push({
@@ -279,6 +285,13 @@ export class CompletionVisitor extends AbstractParseTreeVisitor<void> implements
     }
   }
 
+  /**
+   * Handle entries in the relation/FROM list that is enclosed in parenthesis.
+   * We check if the parenthesis contain only the cursor and add the `SELECT FROM` snippet
+   * to the snippets list (to initialize a sub-query).
+   *
+   * @param ctx
+   */
   visitAliasedRelation(ctx: AliasedRelationContext) {
     this.visitChildren(ctx);
 

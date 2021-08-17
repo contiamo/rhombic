@@ -711,10 +711,10 @@ identifierComment
 
 relationPrimary
     : multipartIdentifier sample? tableAlias  #tableName
-    | '(' query ')' sample? tableAlias               #aliasedQuery
-    | '(' relation ')' sample? tableAlias            #aliasedRelation
-    | inlineTable                                    #inlineTableDefault2
-    | functionTable                                  #tableValuedFunction
+    | '(' query ')' sample? tableAlias        #aliasedQuery
+    | '(' relation ')' sample? tableAlias     #aliasedRelation
+    | inlineTable                             #inlineTableDefault2
+    | functionTable                           #tableValuedFunction
     ;
 
 inlineTable
