@@ -1,4 +1,4 @@
-import { Column, Lineage, Table } from "../Lineage";
+import { Column, EdgeType, Lineage, Table } from "../Lineage";
 import { SqlBaseVisitor } from "./SqlBaseVisitor";
 import { AbstractParseTreeVisitor } from "antlr4ts/tree/AbstractParseTreeVisitor";
 import { Range } from "../utils/getRange";
@@ -10,19 +10,25 @@ import {
   DereferenceContext,
   ExpressionContext,
   FromClauseContext,
+  GroupByClauseContext,
+  HavingClauseContext,
   NamedExpressionContext,
   NamedQueryContext,
   PredicatedContext,
   PrimaryExpressionContext,
   QueryContext,
+  QueryOrganizationContext,
   QueryTermDefaultContext,
   RegularQuerySpecificationContext,
+  SelectClauseContext,
   StarContext,
   TableNameContext,
-  ValueExpressionDefaultContext
+  ValueExpressionDefaultContext,
+  WhereClauseContext
 } from "./SqlBaseParser";
 import { LineageContext } from "./LineageContext";
 import common from "./common";
+import { RuleNode } from "antlr4ts/tree/RuleNode";
 
 // Query visitor is instantiated per query/subquery
 // All shared state is hold in `lineageContext` which is shared across query visitors
@@ -45,7 +51,9 @@ export class LineageQueryVisitor<TableData, ColumnData>
   // relations for this context extracted from FROM
   private relations: Map<string, Relation<TableData, ColumnData>> = new Map();
 
-  private columnReferences: Array<ColumnRef> = [];
+  private currentClause?: EdgeType;
+
+  private currentColumnId?: string;
 
   constructor(
     private readonly lineageContext: LineageContext<TableData, ColumnData>,
@@ -256,6 +264,38 @@ export class LineageQueryVisitor<TableData, ColumnData>
       });
     });
     return lineage;
+  }
+
+  private processClause(clause: EdgeType, ctx: RuleNode): Lineage<TableData, ColumnData> | undefined {
+    this.currentClause = clause;
+    const result = this.visitChildren(ctx);
+    this.currentClause = undefined;
+    return result;
+  }
+
+  private processColumnReference(
+    ctx: ColumnReferenceContext | DereferenceContext
+  ): Lineage<TableData, ColumnData> | undefined {
+    const tableCol = this.extractTableAndColumn(ctx);
+    if (tableCol !== undefined) {
+      const col = this.resolveColumn(tableCol.column, tableCol.table);
+      if (col) {
+        return [
+          {
+            type: "edge",
+            edgeType: this.currentClause,
+            source: col,
+            target: {
+              tableId: this.id,
+              columnId: this.currentColumnId
+            }
+          }
+        ];
+      }
+      return undefined;
+    } else {
+      return this.visitChildren(ctx);
+    }
   }
 
   //
@@ -470,18 +510,37 @@ export class LineageQueryVisitor<TableData, ColumnData>
     }
   }
 
-  visitNamedExpression(ctx: NamedExpressionContext): Lineage<TableData, ColumnData> | undefined {
-    // clear array to start accumulating new references
-    this.columnReferences.length = 0;
+  visitSelectClause(ctx: SelectClauseContext): Lineage<TableData, ColumnData> | undefined {
+    return this.processClause("select", ctx);
+  }
 
+  visitFromClause(ctx: FromClauseContext): Lineage<TableData, ColumnData> | undefined {
+    return this.processClause("from", ctx);
+  }
+
+  visitWhereClause(ctx: WhereClauseContext): Lineage<TableData, ColumnData> | undefined {
+    return this.processClause("where", ctx);
+  }
+
+  visitGroupByClause(ctx: GroupByClauseContext): Lineage<TableData, ColumnData> | undefined {
+    return this.processClause("group by", ctx);
+  }
+
+  visitHavingClause(ctx: HavingClauseContext): Lineage<TableData, ColumnData> | undefined {
+    return this.processClause("having", ctx);
+  }
+
+  visitQueryOrganization(ctx: QueryOrganizationContext): Lineage<TableData, ColumnData> | undefined {
+    return this.processClause("order by", ctx);
+  }
+
+  visitNamedExpression(ctx: NamedExpressionContext): Lineage<TableData, ColumnData> | undefined {
     if (ctx.errorCapturingIdentifier() === undefined) {
       const star = this.isStar(ctx.expression());
       if (star !== undefined) {
         return this.processStar(star);
       }
     }
-
-    const result = this.visitChildren(ctx);
 
     const columnId = this.getNextColumnId();
 
@@ -502,40 +561,18 @@ export class LineageQueryVisitor<TableData, ColumnData>
       this.columns.push(column);
     }
 
-    const lineage: Lineage<TableData, ColumnData> = [];
-    for (const c of this.columnReferences) {
-      lineage.push({
-        type: "edge",
-        source: c,
-        target: {
-          tableId: this.id,
-          columnId: columnId
-        }
-      });
-    }
+    this.currentColumnId = columnId;
+    const result = this.visitChildren(ctx);
+    this.currentColumnId = undefined;
 
-    return this.aggregateResult(result, lineage);
+    return result;
   }
 
   visitColumnReference(ctx: ColumnReferenceContext): Lineage<TableData, ColumnData> | undefined {
-    return this.visitPrimaryExpression(ctx);
+    return this.processColumnReference(ctx);
   }
 
   visitDereference(ctx: DereferenceContext): Lineage<TableData, ColumnData> | undefined {
-    return this.visitPrimaryExpression(ctx);
-  }
-
-  // this method is not called directly by visitChildren() but by above 2 methods
-  visitPrimaryExpression(ctx: PrimaryExpressionContext): Lineage<TableData, ColumnData> | undefined {
-    const tableCol = this.extractTableAndColumn(ctx);
-    if (tableCol !== undefined) {
-      const col = this.resolveColumn(tableCol.column, tableCol.table);
-      if (col) {
-        this.columnReferences.push(col);
-      }
-      return undefined;
-    } else {
-      return this.visitChildren(ctx);
-    }
+    return this.processColumnReference(ctx);
   }
 }
