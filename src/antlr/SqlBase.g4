@@ -490,7 +490,6 @@ queryPrimary
     | TABLE multipartIdentifier                                             #table
     | inlineTable                                                           #inlineTableDefault1
     | '(' query ')'                                                         #subquery
-    | CARET                                                                 #emptyQuery
     ;
 
 sortItem
@@ -711,12 +710,11 @@ identifierComment
     ;
 
 relationPrimary
-    : multipartIdentifier CARET? sample? tableAlias  #tableName
+    : multipartIdentifier sample? tableAlias  #tableName
     | '(' query ')' sample? tableAlias               #aliasedQuery
     | '(' relation ')' sample? tableAlias            #aliasedRelation
     | inlineTable                                    #inlineTableDefault2
     | functionTable                                  #tableValuedFunction
-    | CARET                                          #emptyTableName
     ;
 
 inlineTable
@@ -844,9 +842,8 @@ primaryExpression
     | identifier '->' expression                                                               #lambda
     | '(' identifier (',' identifier)+ ')' '->' expression                                     #lambda
     | value=primaryExpression '[' index=valueExpression ']'                                    #subscript
-    | identifier CARET?                                                                        #columnReference
-    | base=primaryExpression '.' fieldName=identifier CARET?                                   #dereference
-    | errorCapturingIdentifier '.' CARET?                                                      #emptyDereference
+    | identifier                                                                               #columnReference
+    | base=primaryExpression '.' fieldName=identifier                                          #dereference
     | value=primaryExpression DOUBLE_COLON dataType                                            #postgresCast
     | '(' expression ')'                                                                       #parenthesizedExpression
     | EXTRACT '(' field=identifier FROM source=valueExpression ')'                             #extract
@@ -856,7 +853,6 @@ primaryExpression
        FROM srcStr=valueExpression ')'                                                         #trim
     | OVERLAY '(' input=valueExpression PLACING replace=valueExpression
       FROM position=valueExpression (FOR length=valueExpression)? ')'                          #overlay
-    | CARET                                                                                    #emptyExpression
     ;
 
 constant
@@ -1794,8 +1790,6 @@ ZONE: 'ZONE';
 //============================
 // End of the keywords list
 //============================
-
-CARET: '<|>';
 
 EQ  : '=' | '==';
 NSEQ: '<=>';

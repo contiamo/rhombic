@@ -5,6 +5,13 @@ env.set("test", ["column1", "column2"]);
 
 describe("completion", () => {
   it("should complete columns in simple query", () => {
+    const sql = "SELECT <|> FROM test";
+
+    const completionResult = runCompletion(sql, env);
+    expect(completionResult).toEqual([col("test", "column1"), col("test", "column2")]);
+  });
+
+  it("should complete columns in simple query", () => {
     const sql = "SELECT column1<|> FROM test";
 
     const completionResult = runCompletion(sql, env);
@@ -57,7 +64,7 @@ describe("completion", () => {
     const sql = "SELECT a, b FROM (<|>)";
 
     const completionResult = runCompletion(sql, env);
-    expect(completionResult).toEqual([snp("SELECT ? FROM ?", "SELECT $0 FROM $1")]);
+    expect(completionResult).toEqual([rel("test"), snp("SELECT ? FROM ?", "SELECT $0 FROM $1")]);
   });
 
   it("should suggest columns from aliased tables", () => {

@@ -7,7 +7,6 @@ import { AliasedQueryContext } from "./SqlBaseParser";
 import { AliasedRelationContext } from "./SqlBaseParser";
 import { InlineTableDefault2Context } from "./SqlBaseParser";
 import { TableValuedFunctionContext } from "./SqlBaseParser";
-import { EmptyTableNameContext } from "./SqlBaseParser";
 import { ExponentLiteralContext } from "./SqlBaseParser";
 import { DecimalLiteralContext } from "./SqlBaseParser";
 import { LegacyDecimalLiteralContext } from "./SqlBaseParser";
@@ -35,7 +34,6 @@ import { FromStmtContext } from "./SqlBaseParser";
 import { TableContext } from "./SqlBaseParser";
 import { InlineTableDefault1Context } from "./SqlBaseParser";
 import { SubqueryContext } from "./SqlBaseParser";
-import { EmptyQueryContext } from "./SqlBaseParser";
 import { SingleInsertQueryContext } from "./SqlBaseParser";
 import { MultiInsertQueryContext } from "./SqlBaseParser";
 import { DeleteFromTableContext } from "./SqlBaseParser";
@@ -58,14 +56,12 @@ import { LambdaContext } from "./SqlBaseParser";
 import { SubscriptContext } from "./SqlBaseParser";
 import { ColumnReferenceContext } from "./SqlBaseParser";
 import { DereferenceContext } from "./SqlBaseParser";
-import { EmptyDereferenceContext } from "./SqlBaseParser";
 import { PostgresCastContext } from "./SqlBaseParser";
 import { ParenthesizedExpressionContext } from "./SqlBaseParser";
 import { ExtractContext } from "./SqlBaseParser";
 import { SubstringContext } from "./SqlBaseParser";
 import { TrimContext } from "./SqlBaseParser";
 import { OverlayContext } from "./SqlBaseParser";
-import { EmptyExpressionContext } from "./SqlBaseParser";
 import { UnquotedIdentifierContext } from "./SqlBaseParser";
 import { QuotedIdentifierAlternativeContext } from "./SqlBaseParser";
 import { TableFileFormatContext } from "./SqlBaseParser";
@@ -358,14 +354,6 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
   visitTableValuedFunction?: (ctx: TableValuedFunctionContext) => Result;
 
   /**
-   * Visit a parse tree produced by the `emptyTableName`
-   * labeled alternative in `SqlBaseParser.relationPrimary`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitEmptyTableName?: (ctx: EmptyTableNameContext) => Result;
-
-  /**
    * Visit a parse tree produced by the `exponentLiteral`
    * labeled alternative in `SqlBaseParser.number`.
    * @param ctx the parse tree
@@ -582,14 +570,6 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
   visitSubquery?: (ctx: SubqueryContext) => Result;
 
   /**
-   * Visit a parse tree produced by the `emptyQuery`
-   * labeled alternative in `SqlBaseParser.queryPrimary`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitEmptyQuery?: (ctx: EmptyQueryContext) => Result;
-
-  /**
    * Visit a parse tree produced by the `singleInsertQuery`
    * labeled alternative in `SqlBaseParser.dmlStatementNoWith`.
    * @param ctx the parse tree
@@ -766,14 +746,6 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
   visitDereference?: (ctx: DereferenceContext) => Result;
 
   /**
-   * Visit a parse tree produced by the `emptyDereference`
-   * labeled alternative in `SqlBaseParser.primaryExpression`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitEmptyDereference?: (ctx: EmptyDereferenceContext) => Result;
-
-  /**
    * Visit a parse tree produced by the `postgresCast`
    * labeled alternative in `SqlBaseParser.primaryExpression`.
    * @param ctx the parse tree
@@ -820,14 +792,6 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
    * @return the visitor result
    */
   visitOverlay?: (ctx: OverlayContext) => Result;
-
-  /**
-   * Visit a parse tree produced by the `emptyExpression`
-   * labeled alternative in `SqlBaseParser.primaryExpression`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitEmptyExpression?: (ctx: EmptyExpressionContext) => Result;
 
   /**
    * Visit a parse tree produced by the `unquotedIdentifier`

@@ -1,17 +1,16 @@
 import { AbstractParseTreeVisitor } from "antlr4ts/tree/AbstractParseTreeVisitor";
+import { ErrorNode } from "antlr4ts/tree/ErrorNode";
 import {
   AliasedQueryContext,
+  AliasedRelationContext,
   ColumnReferenceContext,
   DereferenceContext,
-  EmptyDereferenceContext,
-  EmptyExpressionContext,
-  EmptyQueryContext,
-  EmptyTableNameContext,
   NamedExpressionContext,
   NamedQueryContext,
   QueryContext,
   RegularQuerySpecificationContext,
   StarContext,
+  StatementContext,
   TableNameContext
 } from "./SqlBaseParser";
 import { SqlBaseVisitor } from "./SqlBaseVisitor";
@@ -175,6 +174,8 @@ interface Result {
  * The position for which to run completion will be identified via a special token (CARET: '<|>').
  */
 export class CompletionVisitor extends AbstractParseTreeVisitor<void> implements SqlBaseVisitor<void> {
+  static CURSOR_MARKER = "_CURSOR_";
+
   private context: Context = new Context();
 
   constructor(env: Map<string, string[]>) {
@@ -221,6 +222,16 @@ export class CompletionVisitor extends AbstractParseTreeVisitor<void> implements
     return newContext;
   }
 
+  visitErrorNode(node: ErrorNode) {
+    if (node.symbol.text === CompletionVisitor.CURSOR_MARKER && node.parent instanceof StatementContext) {
+      this.snippets.push({
+        label: "SELECT ? FROM ?",
+        template: "SELECT $0 FROM $1"
+      });
+      this.foundCaret = true;
+    }
+  }
+
   /**
    * Handle a cte.
    *
@@ -262,20 +273,23 @@ export class CompletionVisitor extends AbstractParseTreeVisitor<void> implements
 
     this.context.addAvailableColumns(relationName, columnNames);
 
-    if (ctx.CARET() !== undefined) {
+    if (name.endsWith(CompletionVisitor.CURSOR_MARKER)) {
       this.scope = { type: "relation" };
       this.foundCaret = true;
     }
   }
 
-  /**
-   * Handle placeholder for a table name (to complete from scratch).
-   *
-   * @param _ctx
-   */
-  visitEmptyTableName(_ctx: EmptyTableNameContext) {
-    this.scope = { type: "relation" };
-    this.foundCaret = true;
+  visitAliasedRelation(ctx: AliasedRelationContext) {
+    this.visitChildren(ctx);
+
+    const relation = ctx.relation();
+    if (relation.start === relation.stop && relation.start.text === CompletionVisitor.CURSOR_MARKER) {
+      this.snippets.push({
+        label: "SELECT ? FROM ?",
+        template: "SELECT $0 FROM $1"
+      });
+      this.foundCaret = true;
+    }
   }
 
   /**
@@ -331,19 +345,6 @@ export class CompletionVisitor extends AbstractParseTreeVisitor<void> implements
   }
 
   /**
-   * Handle placeholder for queries to add a snippet.
-   *
-   * @param _ctx
-   */
-  visitEmptyQuery(_ctx: EmptyQueryContext) {
-    this.snippets.push({
-      label: "SELECT ? FROM ?",
-      template: "SELECT $0 FROM $1"
-    });
-    this.foundCaret = true;
-  }
-
-  /**
    * Handle asterisks when selecting columns.
    * @param ctx
    */
@@ -384,12 +385,12 @@ export class CompletionVisitor extends AbstractParseTreeVisitor<void> implements
    * @param ctx
    */
   visitColumnReference(ctx: ColumnReferenceContext) {
+    const name = ctx.identifier().text;
     if (this.inSelect) {
-      const name = ctx.identifier().text;
       this.context.addSelectedColumn(name);
     }
 
-    if (ctx.CARET() !== undefined) {
+    if (name.endsWith(CompletionVisitor.CURSOR_MARKER)) {
       this.scope = { type: "column" };
       this.foundCaret = true;
     }
@@ -401,12 +402,12 @@ export class CompletionVisitor extends AbstractParseTreeVisitor<void> implements
    * @param ctx
    */
   visitDereference(ctx: DereferenceContext) {
+    const name = ctx.identifier().text;
     if (this.inSelect) {
-      const name = ctx.identifier().text;
       this.context.addSelectedColumn(name);
     }
 
-    if (ctx.CARET() !== undefined) {
+    if (name.endsWith(CompletionVisitor.CURSOR_MARKER)) {
       const ns = ctx.primaryExpression();
       if (ns instanceof ColumnReferenceContext) {
         this.scope = { type: "dereference", relation: ns.identifier().text };
@@ -415,23 +416,5 @@ export class CompletionVisitor extends AbstractParseTreeVisitor<void> implements
       }
       this.foundCaret = true;
     }
-  }
-
-  /**
-   * Handle placeholder for a qualified column selection (to complete after `table.`).
-   * @param ctx
-   */
-  visitEmptyDereference(ctx: EmptyDereferenceContext) {
-    this.scope = { type: "dereference", relation: ctx.errorCapturingIdentifier().identifier().text };
-    this.foundCaret = true;
-  }
-
-  /**
-   * Handle placeholder for column selection (to complete column names).
-   * @param _ctx
-   */
-  visitEmptyExpression(_ctx: EmptyExpressionContext) {
-    this.scope = { type: "column" };
-    this.foundCaret = true;
   }
 }

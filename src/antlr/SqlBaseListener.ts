@@ -7,7 +7,6 @@ import { AliasedQueryContext } from "./SqlBaseParser";
 import { AliasedRelationContext } from "./SqlBaseParser";
 import { InlineTableDefault2Context } from "./SqlBaseParser";
 import { TableValuedFunctionContext } from "./SqlBaseParser";
-import { EmptyTableNameContext } from "./SqlBaseParser";
 import { ExponentLiteralContext } from "./SqlBaseParser";
 import { DecimalLiteralContext } from "./SqlBaseParser";
 import { LegacyDecimalLiteralContext } from "./SqlBaseParser";
@@ -35,7 +34,6 @@ import { FromStmtContext } from "./SqlBaseParser";
 import { TableContext } from "./SqlBaseParser";
 import { InlineTableDefault1Context } from "./SqlBaseParser";
 import { SubqueryContext } from "./SqlBaseParser";
-import { EmptyQueryContext } from "./SqlBaseParser";
 import { SingleInsertQueryContext } from "./SqlBaseParser";
 import { MultiInsertQueryContext } from "./SqlBaseParser";
 import { DeleteFromTableContext } from "./SqlBaseParser";
@@ -58,14 +56,12 @@ import { LambdaContext } from "./SqlBaseParser";
 import { SubscriptContext } from "./SqlBaseParser";
 import { ColumnReferenceContext } from "./SqlBaseParser";
 import { DereferenceContext } from "./SqlBaseParser";
-import { EmptyDereferenceContext } from "./SqlBaseParser";
 import { PostgresCastContext } from "./SqlBaseParser";
 import { ParenthesizedExpressionContext } from "./SqlBaseParser";
 import { ExtractContext } from "./SqlBaseParser";
 import { SubstringContext } from "./SqlBaseParser";
 import { TrimContext } from "./SqlBaseParser";
 import { OverlayContext } from "./SqlBaseParser";
-import { EmptyExpressionContext } from "./SqlBaseParser";
 import { UnquotedIdentifierContext } from "./SqlBaseParser";
 import { QuotedIdentifierAlternativeContext } from "./SqlBaseParser";
 import { TableFileFormatContext } from "./SqlBaseParser";
@@ -378,19 +374,6 @@ export interface SqlBaseListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitTableValuedFunction?: (ctx: TableValuedFunctionContext) => void;
-
-  /**
-   * Enter a parse tree produced by the `emptyTableName`
-   * labeled alternative in `SqlBaseParser.relationPrimary`.
-   * @param ctx the parse tree
-   */
-  enterEmptyTableName?: (ctx: EmptyTableNameContext) => void;
-  /**
-   * Exit a parse tree produced by the `emptyTableName`
-   * labeled alternative in `SqlBaseParser.relationPrimary`.
-   * @param ctx the parse tree
-   */
-  exitEmptyTableName?: (ctx: EmptyTableNameContext) => void;
 
   /**
    * Enter a parse tree produced by the `exponentLiteral`
@@ -744,19 +727,6 @@ export interface SqlBaseListener extends ParseTreeListener {
   exitSubquery?: (ctx: SubqueryContext) => void;
 
   /**
-   * Enter a parse tree produced by the `emptyQuery`
-   * labeled alternative in `SqlBaseParser.queryPrimary`.
-   * @param ctx the parse tree
-   */
-  enterEmptyQuery?: (ctx: EmptyQueryContext) => void;
-  /**
-   * Exit a parse tree produced by the `emptyQuery`
-   * labeled alternative in `SqlBaseParser.queryPrimary`.
-   * @param ctx the parse tree
-   */
-  exitEmptyQuery?: (ctx: EmptyQueryContext) => void;
-
-  /**
    * Enter a parse tree produced by the `singleInsertQuery`
    * labeled alternative in `SqlBaseParser.dmlStatementNoWith`.
    * @param ctx the parse tree
@@ -1043,19 +1013,6 @@ export interface SqlBaseListener extends ParseTreeListener {
   exitDereference?: (ctx: DereferenceContext) => void;
 
   /**
-   * Enter a parse tree produced by the `emptyDereference`
-   * labeled alternative in `SqlBaseParser.primaryExpression`.
-   * @param ctx the parse tree
-   */
-  enterEmptyDereference?: (ctx: EmptyDereferenceContext) => void;
-  /**
-   * Exit a parse tree produced by the `emptyDereference`
-   * labeled alternative in `SqlBaseParser.primaryExpression`.
-   * @param ctx the parse tree
-   */
-  exitEmptyDereference?: (ctx: EmptyDereferenceContext) => void;
-
-  /**
    * Enter a parse tree produced by the `postgresCast`
    * labeled alternative in `SqlBaseParser.primaryExpression`.
    * @param ctx the parse tree
@@ -1132,19 +1089,6 @@ export interface SqlBaseListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitOverlay?: (ctx: OverlayContext) => void;
-
-  /**
-   * Enter a parse tree produced by the `emptyExpression`
-   * labeled alternative in `SqlBaseParser.primaryExpression`.
-   * @param ctx the parse tree
-   */
-  enterEmptyExpression?: (ctx: EmptyExpressionContext) => void;
-  /**
-   * Exit a parse tree produced by the `emptyExpression`
-   * labeled alternative in `SqlBaseParser.primaryExpression`.
-   * @param ctx the parse tree
-   */
-  exitEmptyExpression?: (ctx: EmptyExpressionContext) => void;
 
   /**
    * Enter a parse tree produced by the `unquotedIdentifier`

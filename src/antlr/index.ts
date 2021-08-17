@@ -94,7 +94,7 @@ const antlr = {
     const start = sql.slice(0, idx),
       end = sql.slice(idx);
 
-    const sqlWithCaret = start + "<|>" + end;
+    const sqlWithCaret = start + CompletionVisitor.CURSOR_MARKER + end;
 
     const inputStream = new UppercaseCharStream(CharStreams.fromString(sqlWithCaret));
     const lexer = new SqlBaseLexer(inputStream);
