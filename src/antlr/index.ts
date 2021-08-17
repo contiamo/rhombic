@@ -37,6 +37,7 @@ class SqlParseTree {
       let maxLevel = 0;
       const tables: Lineage<TableData, ColumnData> = [];
       const edges: Lineage<TableData, ColumnData> = [];
+      const usedColumns: Map<string, string[]> = new Map();
       lineage.forEach(e => {
         if (e.type == "table") {
           if (e.level !== undefined && e.level > maxLevel) {
@@ -44,11 +45,28 @@ class SqlParseTree {
           }
           tables.push(e);
         } else {
+          if (mergedLeaves && e.source.columnId !== undefined) {
+            // used column filtering preparation
+            const columns = usedColumns.get(e.source.tableId);
+            if (columns !== undefined) {
+              columns.push(e.source.columnId);
+            } else {
+              usedColumns.set(e.source.tableId, [e.source.columnId]);
+            }
+          }
           edges.push(e);
         }
       });
+
       tables.forEach(e => {
-        if (e.type == "table" && e.level !== undefined) e.level = maxLevel - e.level;
+        if (e.type == "table") {
+          if (e.level !== undefined) e.level = maxLevel - e.level;
+          if (mergedLeaves && e.data !== undefined) {
+            // used column filtering
+            const tableColumns = usedColumns.get(e.id);
+            e.columns = e.columns.filter(c => tableColumns?.includes(c.id));
+          }
+        }
       });
 
       return tables.concat(edges);

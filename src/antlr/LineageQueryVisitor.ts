@@ -1,4 +1,4 @@
-import { Column, Lineage } from "../Lineage";
+import { Column, EdgeType, Lineage, Table } from "../Lineage";
 import { SqlBaseVisitor } from "./SqlBaseVisitor";
 import { AbstractParseTreeVisitor } from "antlr4ts/tree/AbstractParseTreeVisitor";
 import { Range } from "../utils/getRange";
@@ -10,18 +10,25 @@ import {
   DereferenceContext,
   ExpressionContext,
   FromClauseContext,
+  GroupByClauseContext,
+  HavingClauseContext,
   NamedExpressionContext,
   NamedQueryContext,
   PredicatedContext,
   PrimaryExpressionContext,
   QueryContext,
+  QueryOrganizationContext,
+  QueryTermDefaultContext,
   RegularQuerySpecificationContext,
+  SelectClauseContext,
   StarContext,
   TableNameContext,
-  ValueExpressionDefaultContext
+  ValueExpressionDefaultContext,
+  WhereClauseContext
 } from "./SqlBaseParser";
 import { LineageContext } from "./LineageContext";
 import common from "./common";
+import { RuleNode } from "antlr4ts/tree/RuleNode";
 
 // Query visitor is instantiated per query/subquery
 // All shared state is hold in `lineageContext` which is shared across query visitors
@@ -44,7 +51,9 @@ export class LineageQueryVisitor<TableData, ColumnData>
   // relations for this context extracted from FROM
   private relations: Map<string, Relation<TableData, ColumnData>> = new Map();
 
-  private columnReferences: Array<ColumnRef> = [];
+  private currentClause?: EdgeType;
+
+  private currentColumnId?: string;
 
   constructor(
     private readonly lineageContext: LineageContext<TableData, ColumnData>,
@@ -161,7 +170,7 @@ export class LineageQueryVisitor<TableData, ColumnData>
     return new Relation<TableData, ColumnData>(this.id, this.columns, this.level, range);
   }
 
-  get nextColumnId(): string {
+  private getNextColumnId(): string {
     this.columnIdSeq++;
     return "column_" + this.columnIdSeq;
   }
@@ -235,7 +244,7 @@ export class LineageQueryVisitor<TableData, ColumnData>
   protected addRelationColumns(rel: Relation<TableData, ColumnData>, range: Range): Lineage<TableData, ColumnData> {
     const lineage: Lineage<TableData, ColumnData> = [];
     rel.columns.forEach(c => {
-      const columnId = this.nextColumnId;
+      const columnId = this.getNextColumnId();
       const col = {
         id: columnId,
         label: c.label,
@@ -257,6 +266,38 @@ export class LineageQueryVisitor<TableData, ColumnData>
     return lineage;
   }
 
+  private processClause(clause: EdgeType, ctx: RuleNode): Lineage<TableData, ColumnData> | undefined {
+    this.currentClause = clause;
+    const result = this.visitChildren(ctx);
+    this.currentClause = undefined;
+    return result;
+  }
+
+  private processColumnReference(
+    ctx: ColumnReferenceContext | DereferenceContext
+  ): Lineage<TableData, ColumnData> | undefined {
+    const tableCol = this.extractTableAndColumn(ctx);
+    if (tableCol !== undefined) {
+      const col = this.resolveColumn(tableCol.column, tableCol.table);
+      if (col) {
+        return [
+          {
+            type: "edge",
+            edgeType: this.currentClause,
+            source: col,
+            target: {
+              tableId: this.id,
+              columnId: this.currentColumnId
+            }
+          }
+        ];
+      }
+      return undefined;
+    } else {
+      return this.visitChildren(ctx);
+    }
+  }
+
   //
   // Visitor method overrides
   //
@@ -270,7 +311,27 @@ export class LineageQueryVisitor<TableData, ColumnData>
     nextResult: Lineage<TableData, ColumnData> | undefined
   ): Lineage<TableData, ColumnData> | undefined {
     if (nextResult) {
-      return aggregate ? aggregate.concat(nextResult) : nextResult;
+      if (aggregate) {
+        const additional: Lineage<TableData, ColumnData> = [];
+        for (const e of nextResult) {
+          if (e.type == "table" && e.level !== undefined) {
+            const level = e.level;
+            const existing = aggregate.find(
+              t => t.type == "table" && t.id == e.id && t.level !== undefined && level >= t.level
+            ) as Table<TableData, ColumnData>;
+            if (existing !== undefined) {
+              existing.level = level;
+            } else {
+              additional.push(e);
+            }
+          } else {
+            additional.push(e);
+          }
+        }
+        return aggregate.concat(additional);
+      } else {
+        return nextResult;
+      }
     } else {
       return aggregate;
     }
@@ -289,6 +350,15 @@ export class LineageQueryVisitor<TableData, ColumnData>
       const visitor = new LineageQueryVisitor(this.lineageContext, this);
       return ctx.accept(visitor);
     }
+  }
+
+  // processing set operations
+  visitQueryTermDefault(ctx: QueryTermDefaultContext): Lineage<TableData, ColumnData> | undefined {
+    // reinit column seq as we will repeat the same columns in subsequent queries
+    this.columnIdSeq = 0;
+    // clear relations for each queryTermDefault because it's individual query
+    this.relations = new Map();
+    return this.visitChildren(ctx);
   }
 
   visitRegularQuerySpecification(ctx: RegularQuerySpecificationContext): Lineage<TableData, ColumnData> | undefined {
@@ -344,7 +414,10 @@ export class LineageQueryVisitor<TableData, ColumnData>
       const existing = this.lineageContext.usedTables.get(tablePrimaryStr);
       if (existing !== undefined) {
         this.relations.set(alias, existing);
-        return undefined; // no additional lineage
+        if (this.level >= existing.level) {
+          existing.level = this.level + 1;
+        }
+        return [existing.toLineage()]; // no additional lineage
       }
     }
 
@@ -367,7 +440,7 @@ export class LineageQueryVisitor<TableData, ColumnData>
 
     this.lineageContext.usedTables.set(tablePrimaryStr, relation);
     this.relations.set(alias, relation);
-    return [relation.toLineage(alias)];
+    return [relation.toLineage(this.lineageContext.mergedLeaves ? undefined : alias)];
   }
 
   // processes CTE
@@ -375,10 +448,28 @@ export class LineageQueryVisitor<TableData, ColumnData>
     const lineage = this.visitChildren(ctx);
 
     // expecting query relation to be in stack
-    const relation = this.lineageContext.relationsStack.pop();
+    let relation = this.lineageContext.relationsStack.pop();
     if (relation !== undefined) {
       const identifier = ctx.errorCapturingIdentifier().identifier();
       const alias = identifier !== undefined ? common.stripQuote(identifier).name : relation.id;
+
+      const columnAliases = ctx
+        .identifierList()
+        ?.identifierSeq()
+        .errorCapturingIdentifier()
+        .map(eci => common.stripQuote(eci.identifier()).name);
+      if (columnAliases !== undefined) {
+        const newColumns = relation.columns.map((c, i) => {
+          return {
+            id: c.id,
+            label: columnAliases[i] ?? c.label,
+            range: c.range,
+            data: c.data
+          };
+        });
+        relation = new Relation(relation.id, newColumns, relation.level, relation.range, relation.data, relation.name);
+      }
+
       this.ctes.set(alias, relation);
       return this.aggregateResult(lineage, [relation.toLineage(alias)]);
     } else {
@@ -391,10 +482,27 @@ export class LineageQueryVisitor<TableData, ColumnData>
     const lineage = this.visitChildren(ctx);
 
     // expecting query relation to be in stack
-    const relation = this.lineageContext.relationsStack.pop();
+    let relation = this.lineageContext.relationsStack.pop();
     if (relation !== undefined) {
       const strictId = ctx.tableAlias().strictIdentifier();
       const alias = strictId !== undefined ? common.stripQuote(strictId).name : relation.id;
+      const columnAliases = ctx
+        .tableAlias()
+        .identifierList()
+        ?.identifierSeq()
+        .errorCapturingIdentifier()
+        .map(eci => common.stripQuote(eci.identifier()).name);
+      if (columnAliases !== undefined) {
+        const newColumns = relation.columns.map((c, i) => {
+          return {
+            id: c.id,
+            label: columnAliases[i] ?? c.label,
+            range: c.range,
+            data: c.data
+          };
+        });
+        relation = new Relation(relation.id, newColumns, relation.level, relation.range, relation.data, relation.name);
+      }
       this.relations.set(alias, relation);
       return this.aggregateResult(lineage, [relation.toLineage(alias)]);
     } else {
@@ -402,10 +510,31 @@ export class LineageQueryVisitor<TableData, ColumnData>
     }
   }
 
-  visitNamedExpression(ctx: NamedExpressionContext): Lineage<TableData, ColumnData> | undefined {
-    // clear array to start accumulating new references
-    this.columnReferences.length = 0;
+  visitSelectClause(ctx: SelectClauseContext): Lineage<TableData, ColumnData> | undefined {
+    return this.processClause("select", ctx);
+  }
 
+  visitFromClause(ctx: FromClauseContext): Lineage<TableData, ColumnData> | undefined {
+    return this.processClause("from", ctx);
+  }
+
+  visitWhereClause(ctx: WhereClauseContext): Lineage<TableData, ColumnData> | undefined {
+    return this.processClause("where", ctx);
+  }
+
+  visitGroupByClause(ctx: GroupByClauseContext): Lineage<TableData, ColumnData> | undefined {
+    return this.processClause("group by", ctx);
+  }
+
+  visitHavingClause(ctx: HavingClauseContext): Lineage<TableData, ColumnData> | undefined {
+    return this.processClause("having", ctx);
+  }
+
+  visitQueryOrganization(ctx: QueryOrganizationContext): Lineage<TableData, ColumnData> | undefined {
+    return this.processClause("order by", ctx);
+  }
+
+  visitNamedExpression(ctx: NamedExpressionContext): Lineage<TableData, ColumnData> | undefined {
     if (ctx.errorCapturingIdentifier() === undefined) {
       const star = this.isStar(ctx.expression());
       if (star !== undefined) {
@@ -413,56 +542,37 @@ export class LineageQueryVisitor<TableData, ColumnData>
       }
     }
 
-    const result = this.visitChildren(ctx);
+    const columnId = this.getNextColumnId();
 
-    const columnId = this.nextColumnId;
-    const errCaptId = ctx.errorCapturingIdentifier();
-    const label =
-      errCaptId !== undefined
-        ? common.stripQuote(errCaptId.identifier()).name
-        : this.deriveColumnName(ctx.expression()) ?? columnId;
+    // column could have been already defined if we have set operation
+    if (this.columns.find(c => c.id == columnId) === undefined) {
+      const errCaptId = ctx.errorCapturingIdentifier();
+      const label =
+        errCaptId !== undefined
+          ? common.stripQuote(errCaptId.identifier()).name
+          : this.deriveColumnName(ctx.expression()) ?? columnId;
 
-    const range = this.rangeFromContext(ctx);
-    const column = {
-      id: columnId,
-      label: label,
-      range: range
-    };
-    this.columns.push(column);
-    const lineage: Lineage<TableData, ColumnData> = [];
-    for (const c of this.columnReferences) {
-      lineage.push({
-        type: "edge",
-        source: c,
-        target: {
-          tableId: this.id,
-          columnId: columnId
-        }
-      });
+      const range = this.rangeFromContext(ctx);
+      const column = {
+        id: columnId,
+        label: label,
+        range: range
+      };
+      this.columns.push(column);
     }
 
-    return this.aggregateResult(result, lineage);
+    this.currentColumnId = columnId;
+    const result = this.visitChildren(ctx);
+    this.currentColumnId = undefined;
+
+    return result;
   }
 
   visitColumnReference(ctx: ColumnReferenceContext): Lineage<TableData, ColumnData> | undefined {
-    return this.visitPrimaryExpression(ctx);
+    return this.processColumnReference(ctx);
   }
 
   visitDereference(ctx: DereferenceContext): Lineage<TableData, ColumnData> | undefined {
-    return this.visitPrimaryExpression(ctx);
-  }
-
-  // this method is not called directly by visitChildren() but by above 2 methods
-  visitPrimaryExpression(ctx: PrimaryExpressionContext): Lineage<TableData, ColumnData> | undefined {
-    const tableCol = this.extractTableAndColumn(ctx);
-    if (tableCol !== undefined) {
-      const col = this.resolveColumn(tableCol.column, tableCol.table);
-      if (col) {
-        this.columnReferences.push(col);
-      }
-      return undefined;
-    } else {
-      return this.visitChildren(ctx);
-    }
+    return this.processColumnReference(ctx);
   }
 }

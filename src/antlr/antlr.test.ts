@@ -383,6 +383,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "account_id"
@@ -394,6 +395,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "account_type"
@@ -405,6 +407,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_2",
             columnId: "column_1"
@@ -416,6 +419,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_4",
             columnId: "employee_id"
@@ -714,6 +718,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "account_id"
@@ -725,6 +730,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "account_type"
@@ -736,6 +742,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_2",
             columnId: "column_1"
@@ -747,6 +754,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_2",
             columnId: "column_2"
@@ -754,6 +762,387 @@ describe("antlr", () => {
           target: {
             tableId: "result_1",
             columnId: "column_2"
+          }
+        }
+      ]
+    },
+    {
+      name: "column names without aliases",
+      sql:
+        "select sq.account_id, account_type \n" +
+        "from (select account_id, account.account_type from account) as sq JOIN \n" +
+        "   employee as e on sq.account_id = e.employee_id \n" +
+        "where employee_id = 1 \n" +
+        "order by account_id",
+      data: [
+        {
+          type: "table",
+          id: "result_3",
+          label: "account",
+          level: 0,
+          range: {
+            startLine: 2,
+            endLine: 2,
+            startColumn: 51,
+            endColumn: 58
+          },
+          data: {
+            id: "account"
+          },
+          columns: [
+            {
+              id: "account_type",
+              label: "account_type",
+              data: {
+                id: "account_type",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_id",
+              label: "account_id",
+              data: {
+                id: "account_id",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_description",
+              label: "account_description",
+              data: {
+                id: "account_description",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_parent",
+              label: "account_parent",
+              data: {
+                id: "account_parent",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_rollup",
+              label: "account_rollup",
+              data: {
+                id: "account_rollup",
+                tableId: "account"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_2",
+          label: "sq",
+          level: 1,
+          range: {
+            startLine: 2,
+            endLine: 2,
+            startColumn: 6,
+            endColumn: 58
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "account_id",
+              range: {
+                startLine: 2,
+                endLine: 2,
+                startColumn: 13,
+                endColumn: 23
+              }
+            },
+            {
+              id: "column_2",
+              label: "account_type",
+              range: {
+                startLine: 2,
+                endLine: 2,
+                startColumn: 25,
+                endColumn: 45
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_4",
+          label: "employee -> e",
+          level: 1,
+          range: {
+            startLine: 3,
+            endLine: 3,
+            startColumn: 3,
+            endColumn: 16
+          },
+          data: {
+            id: "employee"
+          },
+          columns: [
+            {
+              id: "birth_date",
+              label: "birth_date",
+              data: {
+                id: "birth_date",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "department_id",
+              label: "department_id",
+              data: {
+                id: "department_id",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "education_level",
+              label: "education_level",
+              data: {
+                id: "education_level",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "employee_id",
+              label: "employee_id",
+              data: {
+                id: "employee_id",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "end_date",
+              label: "end_date",
+              data: {
+                id: "end_date",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "first_name",
+              label: "first_name",
+              data: {
+                id: "first_name",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "full_name",
+              label: "full_name",
+              data: {
+                id: "full_name",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "gender",
+              label: "gender",
+              data: {
+                id: "gender",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "hire_date",
+              label: "hire_date",
+              data: {
+                id: "hire_date",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "last_name",
+              label: "last_name",
+              data: {
+                id: "last_name",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "management_role",
+              label: "management_role",
+              data: {
+                id: "management_role",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "marital_status",
+              label: "marital_status",
+              data: {
+                id: "marital_status",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "position_id",
+              label: "position_id",
+              data: {
+                id: "position_id",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "position_title",
+              label: "position_title",
+              data: {
+                id: "position_title",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "salary",
+              label: "salary",
+              data: {
+                id: "salary",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "store_id",
+              label: "store_id",
+              data: {
+                id: "store_id",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "supervisor_id",
+              label: "supervisor_id",
+              data: {
+                id: "supervisor_id",
+                tableId: "employee"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_1",
+          label: "[final result]",
+          level: 2,
+          range: {
+            startLine: 1,
+            endLine: 5,
+            startColumn: 0,
+            endColumn: 19
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "account_id",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 7,
+                endColumn: 20
+              }
+            },
+            {
+              id: "column_2",
+              label: "account_type",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 22,
+                endColumn: 34
+              }
+            }
+          ]
+        },
+        {
+          type: "edge",
+          edgeType: "select",
+          source: {
+            tableId: "result_3",
+            columnId: "account_id"
+          },
+          target: {
+            tableId: "result_2",
+            columnId: "column_1"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "select",
+          source: {
+            tableId: "result_3",
+            columnId: "account_type"
+          },
+          target: {
+            tableId: "result_2",
+            columnId: "column_2"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "from",
+          source: {
+            tableId: "result_2",
+            columnId: "column_1"
+          },
+          target: {
+            tableId: "result_1"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "from",
+          source: {
+            tableId: "result_4",
+            columnId: "employee_id"
+          },
+          target: {
+            tableId: "result_1"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "select",
+          source: {
+            tableId: "result_2",
+            columnId: "column_1"
+          },
+          target: {
+            tableId: "result_1",
+            columnId: "column_1"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "select",
+          source: {
+            tableId: "result_2",
+            columnId: "column_2"
+          },
+          target: {
+            tableId: "result_1",
+            columnId: "column_2"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "where",
+          source: {
+            tableId: "result_4",
+            columnId: "employee_id"
+          },
+          target: {
+            tableId: "result_1"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "order by",
+          source: {
+            tableId: "result_2",
+            columnId: "column_1"
+          },
+          target: {
+            tableId: "result_1"
           }
         }
       ]
@@ -845,6 +1234,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_2",
             columnId: "account_id"
@@ -953,6 +1343,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_2",
             columnId: "account_id"
@@ -1085,6 +1476,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "account_id"
@@ -1096,6 +1488,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "account_type"
@@ -1107,6 +1500,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_2",
             columnId: "column_1"
@@ -1249,6 +1643,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "account_id"
@@ -1260,6 +1655,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "account_type"
@@ -2353,6 +2749,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_2",
             columnId: "column_1"
@@ -2364,6 +2761,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_2",
             columnId: "column_2"
@@ -2628,6 +3026,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_2",
             columnId: "column_1"
@@ -2639,6 +3038,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_2",
             columnId: "column_2"
@@ -2650,6 +3050,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_4",
             columnId: "column_1"
@@ -2661,6 +3062,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_4",
             columnId: "column_2"
@@ -2803,6 +3205,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "account_id"
@@ -2814,6 +3217,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "account_type"
@@ -2828,7 +3232,7 @@ describe("antlr", () => {
     {
       name: "Merged leaves lineage",
       sql:
-        "with a as (select account_id, account_type from account)\n" +
+        "with a as (select account_id, account_type from account as a2)\n" +
         "select a1.account_type, a.account_id from a, account a1",
       mergedLeaves: true,
       data: [
@@ -2841,7 +3245,7 @@ describe("antlr", () => {
             startLine: 1,
             endLine: 1,
             startColumn: 48,
-            endColumn: 55
+            endColumn: 61
           },
           data: {
             id: "account"
@@ -2862,30 +3266,6 @@ describe("antlr", () => {
                 id: "account_id",
                 tableId: "account"
               }
-            },
-            {
-              id: "account_description",
-              label: "account_description",
-              data: {
-                id: "account_description",
-                tableId: "account"
-              }
-            },
-            {
-              id: "account_parent",
-              label: "account_parent",
-              data: {
-                id: "account_parent",
-                tableId: "account"
-              }
-            },
-            {
-              id: "account_rollup",
-              label: "account_rollup",
-              data: {
-                id: "account_rollup",
-                tableId: "account"
-              }
             }
           ]
         },
@@ -2898,7 +3278,7 @@ describe("antlr", () => {
             startLine: 1,
             endLine: 1,
             startColumn: 11,
-            endColumn: 55
+            endColumn: 61
           },
           columns: [
             {
@@ -2959,6 +3339,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "account_id"
@@ -2970,6 +3351,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "account_type"
@@ -2981,6 +3363,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "account_type"
@@ -2992,6 +3375,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_2",
             columnId: "column_1"
@@ -2999,6 +3383,475 @@ describe("antlr", () => {
           target: {
             tableId: "result_1",
             columnId: "column_2"
+          }
+        }
+      ]
+    },
+    {
+      name: "Column aliases within query alias",
+      sql:
+        "with a(the_account_id, the_account_type) as (select account_id, account_type from account as a2)\n" +
+        "select a1.account_type_2, a.the_account_id from a, (select account_type from account) as a1(account_type_2)",
+      data: [
+        {
+          type: "table",
+          id: "result_3",
+          label: "account -> a2",
+          level: 0,
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 82,
+            endColumn: 95
+          },
+          data: {
+            id: "account"
+          },
+          columns: [
+            {
+              id: "account_type",
+              label: "account_type",
+              data: {
+                id: "account_type",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_id",
+              label: "account_id",
+              data: {
+                id: "account_id",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_description",
+              label: "account_description",
+              data: {
+                id: "account_description",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_parent",
+              label: "account_parent",
+              data: {
+                id: "account_parent",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_rollup",
+              label: "account_rollup",
+              data: {
+                id: "account_rollup",
+                tableId: "account"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_2",
+          label: "a",
+          level: 1,
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 45,
+            endColumn: 95
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "the_account_id",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 52,
+                endColumn: 62
+              }
+            },
+            {
+              id: "column_2",
+              label: "the_account_type",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 64,
+                endColumn: 76
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_5",
+          label: "account",
+          level: 0,
+          range: {
+            startLine: 2,
+            endLine: 2,
+            startColumn: 77,
+            endColumn: 84
+          },
+          data: {
+            id: "account"
+          },
+          columns: [
+            {
+              id: "account_type",
+              label: "account_type",
+              data: {
+                id: "account_type",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_id",
+              label: "account_id",
+              data: {
+                id: "account_id",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_description",
+              label: "account_description",
+              data: {
+                id: "account_description",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_parent",
+              label: "account_parent",
+              data: {
+                id: "account_parent",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_rollup",
+              label: "account_rollup",
+              data: {
+                id: "account_rollup",
+                tableId: "account"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_4",
+          label: "a1",
+          level: 1,
+          range: {
+            startLine: 2,
+            endLine: 2,
+            startColumn: 52,
+            endColumn: 84
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "account_type_2",
+              range: {
+                startLine: 2,
+                endLine: 2,
+                startColumn: 59,
+                endColumn: 71
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_1",
+          label: "[final result]",
+          level: 2,
+          range: {
+            startLine: 1,
+            endLine: 2,
+            startColumn: 0,
+            endColumn: 107
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "account_type_2",
+              range: {
+                startLine: 2,
+                endLine: 2,
+                startColumn: 7,
+                endColumn: 24
+              }
+            },
+            {
+              id: "column_2",
+              label: "the_account_id",
+              range: {
+                startLine: 2,
+                endLine: 2,
+                startColumn: 26,
+                endColumn: 42
+              }
+            }
+          ]
+        },
+        {
+          type: "edge",
+          edgeType: "select",
+          source: {
+            tableId: "result_3",
+            columnId: "account_id"
+          },
+          target: {
+            tableId: "result_2",
+            columnId: "column_1"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "select",
+          source: {
+            tableId: "result_3",
+            columnId: "account_type"
+          },
+          target: {
+            tableId: "result_2",
+            columnId: "column_2"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "select",
+          source: {
+            tableId: "result_5",
+            columnId: "account_type"
+          },
+          target: {
+            tableId: "result_4",
+            columnId: "column_1"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "select",
+          source: {
+            tableId: "result_4",
+            columnId: "column_1"
+          },
+          target: {
+            tableId: "result_1",
+            columnId: "column_1"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "select",
+          source: {
+            tableId: "result_2",
+            columnId: "column_1"
+          },
+          target: {
+            tableId: "result_1",
+            columnId: "column_2"
+          }
+        }
+      ]
+    },
+    {
+      name: "Set operations supported",
+      sql:
+        "select 1 as a union select 2 as b" +
+        " intersect select account_id from account" +
+        " intersect select currency_id from salary",
+      data: [
+        {
+          type: "table",
+          id: "result_2",
+          label: "account",
+          level: 0,
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 67,
+            endColumn: 74
+          },
+          data: {
+            id: "account"
+          },
+          columns: [
+            {
+              id: "account_type",
+              label: "account_type",
+              data: {
+                id: "account_type",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_id",
+              label: "account_id",
+              data: {
+                id: "account_id",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_description",
+              label: "account_description",
+              data: {
+                id: "account_description",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_parent",
+              label: "account_parent",
+              data: {
+                id: "account_parent",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_rollup",
+              label: "account_rollup",
+              data: {
+                id: "account_rollup",
+                tableId: "account"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_3",
+          label: "salary",
+          level: 0,
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 109,
+            endColumn: 115
+          },
+          data: {
+            id: "salary"
+          },
+          columns: [
+            {
+              id: "currency_id",
+              label: "currency_id",
+              data: {
+                id: "currency_id",
+                tableId: "salary"
+              }
+            },
+            {
+              id: "department_id",
+              label: "department_id",
+              data: {
+                id: "department_id",
+                tableId: "salary"
+              }
+            },
+            {
+              id: "employee_id",
+              label: "employee_id",
+              data: {
+                id: "employee_id",
+                tableId: "salary"
+              }
+            },
+            {
+              id: "overtime_paid",
+              label: "overtime_paid",
+              data: {
+                id: "overtime_paid",
+                tableId: "salary"
+              }
+            },
+            {
+              id: "pay_date",
+              label: "pay_date",
+              data: {
+                id: "pay_date",
+                tableId: "salary"
+              }
+            },
+            {
+              id: "salary_paid",
+              label: "salary_paid",
+              data: {
+                id: "salary_paid",
+                tableId: "salary"
+              }
+            },
+            {
+              id: "vacation_accrued",
+              label: "vacation_accrued",
+              data: {
+                id: "vacation_accrued",
+                tableId: "salary"
+              }
+            },
+            {
+              id: "vacation_used",
+              label: "vacation_used",
+              data: {
+                id: "vacation_used",
+                tableId: "salary"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_1",
+          label: "[final result]",
+          level: 1,
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 0,
+            endColumn: 115
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "a",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 7,
+                endColumn: 13
+              }
+            }
+          ]
+        },
+        {
+          type: "edge",
+          edgeType: "select",
+          source: {
+            tableId: "result_2",
+            columnId: "account_id"
+          },
+          target: {
+            tableId: "result_1",
+            columnId: "column_1"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "select",
+          source: {
+            tableId: "result_3",
+            columnId: "currency_id"
+          },
+          target: {
+            tableId: "result_1",
+            columnId: "column_1"
           }
         }
       ]
