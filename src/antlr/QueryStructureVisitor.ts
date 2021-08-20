@@ -30,37 +30,37 @@ import common from "./common";
 import { RuleNode } from "antlr4ts/tree/RuleNode";
 import { TablePrimary } from "..";
 
-export class Column<ColumnData> {
-  constructor(readonly id: string, public label: string, readonly range?: Range, readonly data?: ColumnData) {}
+export class Column {
+  constructor(readonly id: string, public label: string, readonly range?: Range, readonly data?: unknown) {}
 }
 
-export interface Relation<ColumnData> {
+export interface Relation {
   readonly id: string;
-  readonly parent?: QueryRelation<ColumnData>;
+  readonly parent?: QueryRelation;
   readonly range?: Range;
-  readonly columns: Array<Column<ColumnData>>;
+  readonly columns: Array<Column>;
 }
 
-export class TableRelation<TableData, ColumnData> implements Relation<ColumnData> {
+export class TableRelation implements Relation {
   constructor(
     readonly id: string,
-    readonly columns: Array<Column<ColumnData>>,
-    readonly parent?: QueryRelation<ColumnData>,
+    readonly tablePrimary: TablePrimary,
+    readonly columns: Array<Column>,
+    readonly parent?: QueryRelation,
     readonly range?: Range,
-    readonly data?: TableData,
-    readonly tablePrimary?: TablePrimary
+    readonly data?: unknown
   ) {}
 }
 
-export class QueryRelation<ColumnData> implements Relation<ColumnData> {
+export class QueryRelation implements Relation {
   // columns for this query extracted from SELECT
-  columns: Array<Column<ColumnData>> = [];
+  columns: Array<Column> = [];
 
   // CTEs from this context
-  ctes: Map<string, QueryRelation<ColumnData>> = new Map();
+  ctes: Map<string, QueryRelation> = new Map();
 
   // relations for this context extracted from FROM
-  relations: Map<string, Relation<ColumnData>> = new Map();
+  relations: Map<string, Relation> = new Map();
 
   // sequence generator for columns in this context
   columnIdSeq = 0;
@@ -69,21 +69,9 @@ export class QueryRelation<ColumnData> implements Relation<ColumnData> {
 
   currentColumnId?: string;
 
-  constructor(readonly id: string, readonly parent?: QueryRelation<ColumnData>, readonly range?: Range) {}
+  constructor(readonly id: string, readonly parent?: QueryRelation, readonly range?: Range) {}
 
-  // TODO refactor to recursive if needed
-  // get level(): number {
-  //   let level = 0;
-  //   // eslint-disable-next-line @typescript-eslint/no-this-alias
-  //   let cur: LineageQueryVisitor<TableData, ColumnData> = this;
-  //   while (cur.parent !== undefined) {
-  //     level++;
-  //     cur = cur.parent;
-  //   }
-  //   return level;
-  // }
-
-  findLocalRelation(tableName: QuotableIdentifier): Relation<ColumnData> | undefined {
+  findLocalRelation(tableName: QuotableIdentifier): Relation | undefined {
     for (const rel of this.relations) {
       if (tableName.quoted) {
         if (rel[0] == tableName.name) return rel[1];
@@ -100,11 +88,11 @@ export class QueryRelation<ColumnData> implements Relation<ColumnData> {
     return undefined;
   }
 
-  findRelation(tableName: QuotableIdentifier): Relation<ColumnData> | undefined {
+  findRelation(tableName: QuotableIdentifier): Relation | undefined {
     return this.findLocalRelation(tableName) ?? this.parent?.findRelation(tableName);
   }
 
-  findCTE(tableName: QuotableIdentifier): Relation<ColumnData> | undefined {
+  findCTE(tableName: QuotableIdentifier): Relation | undefined {
     for (const rel of this.ctes) {
       if (tableName.quoted) {
         if (rel[0] == tableName.name) return rel[1];
@@ -155,24 +143,20 @@ export class QueryRelation<ColumnData> implements Relation<ColumnData> {
     this.columnIdSeq++;
     return "column_" + this.columnIdSeq;
   }
-
-  // toRelation(range?: Range): Relation<TableData, ColumnData> {
-  //   return new Relation<TableData, ColumnData>(this.id, this.columns, this.level, range);
-  // }
 }
 
-export abstract class QueryStructureVisitor<Result, TableData, ColumnData> extends AbstractParseTreeVisitor<Result>
+export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVisitor<Result>
   implements SqlBaseVisitor<Result> {
   private relationSeq = 0;
 
-  public readonly relationsStack: Array<QueryRelation<ColumnData>> = [];
+  public readonly relationsStack: Array<QueryRelation> = [];
 
-  protected currentRelation = new QueryRelation<ColumnData>(this.getNextRelationId());
+  protected currentRelation = new QueryRelation("result_0");
 
   constructor(
     public getTable: (
       table: TablePrimary
-    ) => { table: { id: string; data: TableData }; columns: { id: string; data: ColumnData }[] } | undefined
+    ) => { table: { id: string; data: unknown }; columns: { id: string; data: unknown }[] } | undefined
   ) {
     super();
   }
@@ -251,21 +235,23 @@ export abstract class QueryStructureVisitor<Result, TableData, ColumnData> exten
 
   /**
    * Called when relation is ready.
-   * @param relation
-   * @param alias
+   * @param _relation
+   * @param _alias
    * @returns
    */
-  onRelation(relation: Relation<ColumnData>, alias?: string): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onRelation(_relation: TableRelation | QueryRelation, _alias?: string): void {
     return;
   }
 
   /**
    * Called when column reference is ready.
-   * @param tableId
-   * @param columnId
+   * @param _tableId
+   * @param _columnId
    * @returns
    */
-  onColumnReference(tableId: string, columnId: string): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onColumnReference(_tableId: string, _columnId: string): void {
     return;
   }
 
@@ -289,10 +275,10 @@ export abstract class QueryStructureVisitor<Result, TableData, ColumnData> exten
     return this.visitChildren(ctx);
   }
 
-  protected addRelationColumns(rel: Relation<ColumnData>, range: Range): void {
+  protected addRelationColumns(rel: Relation, range: Range): void {
     rel.columns.forEach(c => {
       const columnId = this.currentRelation.getNextColumnId();
-      const col = new Column<ColumnData>(columnId, c.label, range);
+      const col = new Column(columnId, c.label, range);
       this.currentRelation.columns.push(col);
       this.currentRelation.currentColumnId = columnId;
       this.onColumnReference?.(rel.id, c.id);
@@ -384,30 +370,16 @@ export abstract class QueryStructureVisitor<Result, TableData, ColumnData> exten
 
     const tablePrimary = common.tablePrimaryFromMultipart(multipartTableName.map(v => v.name));
 
-    // const tablePrimaryStr = JSON.stringify(tablePrimary);
-
-    // TODO move to lineage logic
-    // if (this.lineageContext.mergedLeaves) {
-    //   const existing = this.lineageContext.usedTables.get(tablePrimaryStr);
-    //   if (existing !== undefined) {
-    //     this.relations.set(alias, existing);
-    //     if (this.level >= existing.level) {
-    //       existing.level = this.level + 1;
-    //     }
-    //     return [existing.toLineage()]; // no additional lineage
-    //   }
-    // }
-
     const metadata = this.getTable(tablePrimary);
     const columns = metadata?.columns.map(c => new Column(c.id, c.id, undefined, c.data)) || [];
 
     const relation = new TableRelation(
       this.getNextRelationId(),
+      tablePrimary,
       columns,
       this.currentRelation,
       this.rangeFromContext(ctx),
-      metadata?.table.data,
-      tablePrimary
+      metadata?.table.data
     );
 
     this.currentRelation.relations.set(alias, relation);
@@ -516,7 +488,7 @@ export abstract class QueryStructureVisitor<Result, TableData, ColumnData> exten
           : this.deriveColumnName(ctx.expression()) ?? columnId;
 
       const range = this.rangeFromContext(ctx);
-      const column = new Column<ColumnData>(columnId, label, range);
+      const column = new Column(columnId, label, range);
       this.currentRelation.columns.push(column);
     }
 
@@ -532,7 +504,7 @@ export abstract class QueryStructureVisitor<Result, TableData, ColumnData> exten
     if (tableCol !== undefined) {
       const col = this.currentRelation.resolveColumn(tableCol.column, tableCol.table);
       if (col) {
-        this.onColumnReference?.(col.tableId, col.columnId);
+        this.onColumnReference(col.tableId, col.columnId);
       }
       return this.defaultResult();
     } else {

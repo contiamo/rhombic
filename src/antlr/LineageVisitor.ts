@@ -1,9 +1,13 @@
 import { TablePrimary } from "..";
-import { Lineage, Table } from "../Lineage";
-import { QueryStructureVisitor, Relation, TableRelation, QueryRelation } from "./QueryStructureVisitor";
+import { Lineage } from "../Lineage";
+import { QueryStructureVisitor, TableRelation, QueryRelation } from "./QueryStructureVisitor";
 
-export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor<void, TableData, ColumnData> {
+export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor<void> {
   lineage: Lineage<TableData, ColumnData> = [];
+  // map from tablePrimary to tableId
+  private usedTables: Map<string, string> = new Map();
+  // map from tableId to deduplicated tableId
+  private deduplicateTables: Map<string, string> = new Map();
 
   constructor(
     getTable: (
@@ -18,16 +22,13 @@ export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor
   // Overrides
   //
 
-  protected defaultResult(): Lineage<TableData, ColumnData> | undefined {
-    return undefined;
-  }
-
   onColumnReference(tableId: string, columnId: string): void {
+    const sourceTableId = this.mergedLeaves ? this.deduplicateTables.get(tableId) ?? tableId : tableId;
     this.lineage.push({
       type: "edge",
       edgeType: this.currentRelation.currentClause,
       source: {
-        tableId: tableId,
+        tableId: sourceTableId,
         columnId: columnId
       },
       target: {
@@ -37,61 +38,49 @@ export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor
     });
   }
 
-  // type: "table";
-  // id: string;
-  // label: string;
-  // level?: number;
-  // range?: Range;
-  // data?: TableData;
-  // columns: Column<ColumnData>[];
-  // modifiers?: TableModifier[];
-
-  onRelation(relation: Relation<ColumnData>, alias?: string): void {
+  onRelation(relation: TableRelation | QueryRelation, alias?: string): void {
+    let label = alias ?? relation.id;
     if (relation instanceof TableRelation) {
-      relation;
+      if (this.mergedLeaves) {
+        const key = JSON.stringify(relation.tablePrimary);
+        const existing = this.usedTables.get(key);
+        if (existing !== undefined) {
+          this.deduplicateTables.set(relation.id, existing);
+          return;
+        } else {
+          this.usedTables.set(key, relation.id);
+        }
+        label = relation.tablePrimary.tableName;
+      } else {
+        label =
+          alias !== undefined && alias != relation.tablePrimary.tableName
+            ? relation.tablePrimary.tableName + " -> " + alias
+            : relation.tablePrimary.tableName;
+      }
     }
-    //   relation.
-    // }
     this.lineage.push({
       type: "table",
       id: relation.id,
-      label: alias ?? "",
-      // TODO
-      // level: relation.
+      label: label,
       range: relation.range,
-      // data:
-      columns: relation.columns
+      data: relation instanceof TableRelation ? (relation.data as TableData) : undefined,
+      columns: relation.columns.map(c => {
+        return {
+          id: c.id,
+          label: c.label,
+          range: c.range,
+          data: c.data as ColumnData
+        };
+      })
     });
   }
 
-  aggregateResult(
-    aggregate: Lineage<TableData, ColumnData> | undefined,
-    nextResult: Lineage<TableData, ColumnData> | undefined
-  ): Lineage<TableData, ColumnData> | undefined {
-    if (nextResult) {
-      if (aggregate) {
-        const additional: Lineage<TableData, ColumnData> = [];
-        for (const e of nextResult) {
-          if (e.type == "table" && e.level !== undefined) {
-            const level = e.level;
-            const existing = aggregate.find(
-              t => t.type == "table" && t.id == e.id && t.level !== undefined && level >= t.level
-            ) as Table<TableData, ColumnData>;
-            if (existing !== undefined) {
-              existing.level = level;
-            } else {
-              additional.push(e);
-            }
-          } else {
-            additional.push(e);
-          }
-        }
-        return aggregate.concat(additional);
-      } else {
-        return nextResult;
-      }
-    } else {
-      return aggregate;
-    }
+  protected defaultResult(): void {
+    return;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  aggregateResult(_aggregate: void, _nextResult: void): void {
+    return;
   }
 }

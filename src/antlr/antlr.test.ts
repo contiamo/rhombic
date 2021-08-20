@@ -107,7 +107,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_3",
           label: "account -> d",
-          level: 0,
           range: {
             startLine: 2,
             endLine: 2,
@@ -164,7 +163,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_2",
           label: "sq",
-          level: 1,
           range: {
             startLine: 2,
             endLine: 2,
@@ -198,7 +196,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_4",
           label: "employee -> e",
-          level: 1,
           range: {
             startLine: 3,
             endLine: 3,
@@ -351,7 +348,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_1",
           label: "[final result]",
-          level: 2,
           range: {
             startLine: 1,
             endLine: 3,
@@ -442,7 +438,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_3",
           label: "account",
-          level: 0,
           range: {
             startLine: 2,
             endLine: 2,
@@ -499,7 +494,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_2",
           label: "sq",
-          level: 1,
           range: {
             startLine: 2,
             endLine: 2,
@@ -533,7 +527,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_4",
           label: "employee -> e",
-          level: 1,
           range: {
             startLine: 3,
             endLine: 3,
@@ -686,7 +679,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_1",
           label: "[final result]",
-          level: 2,
           range: {
             startLine: 1,
             endLine: 3,
@@ -779,7 +771,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_3",
           label: "account",
-          level: 0,
           range: {
             startLine: 2,
             endLine: 2,
@@ -836,7 +827,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_2",
           label: "sq",
-          level: 1,
           range: {
             startLine: 2,
             endLine: 2,
@@ -870,7 +860,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_4",
           label: "employee -> e",
-          level: 1,
           range: {
             startLine: 3,
             endLine: 3,
@@ -1023,7 +1012,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_1",
           label: "[final result]",
-          level: 2,
           range: {
             startLine: 1,
             endLine: 5,
@@ -1155,7 +1143,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_2",
           label: "account",
-          level: 0,
           range: {
             startLine: 1,
             endLine: 1,
@@ -1212,7 +1199,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_1",
           label: "[final result]",
-          level: 1,
           range: {
             startLine: 1,
             endLine: 1,
@@ -1254,7 +1240,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_2",
           label: "account",
-          level: 0,
           range: {
             startLine: 1,
             endLine: 1,
@@ -1311,7 +1296,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_1",
           label: "[final result]",
-          level: 1,
           range: {
             startLine: 1,
             endLine: 1,
@@ -1363,7 +1347,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_3",
           label: "account",
-          level: 0,
           range: {
             startLine: 1,
             endLine: 1,
@@ -1420,7 +1403,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_2",
           label: "a",
-          level: 1,
           range: {
             startLine: 1,
             endLine: 1,
@@ -1454,7 +1436,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_1",
           label: "[final result]",
-          level: 2,
           range: {
             startLine: 1,
             endLine: 1,
@@ -1520,7 +1501,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_3",
           label: "account",
-          level: 0,
           range: {
             startLine: 1,
             endLine: 1,
@@ -1577,7 +1557,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_2",
           label: "a",
-          level: 1,
           range: {
             startLine: 1,
             endLine: 1,
@@ -1611,7 +1590,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_1",
           label: "[final result]",
-          level: 2,
           range: {
             startLine: 1,
             endLine: 1,
@@ -1667,6 +1645,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_2",
             columnId: "column_1"
@@ -1678,6 +1657,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_2",
             columnId: "column_2"
@@ -1697,7 +1677,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_2",
           label: "account",
-          level: 0,
           range: {
             startLine: 1,
             endLine: 1,
@@ -1754,7 +1733,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_1",
           label: "[final result]",
-          level: 1,
           range: {
             startLine: 1,
             endLine: 1,
@@ -1784,7 +1762,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_2",
           label: "account",
-          level: 0,
           range: {
             startLine: 1,
             endLine: 1,
@@ -1841,7 +1818,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_3",
           label: "salary",
-          level: 0,
           range: {
             startLine: 1,
             endLine: 1,
@@ -1922,7 +1898,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_1",
           label: "[final result]",
-          level: 1,
           range: {
             startLine: 1,
             endLine: 1,
@@ -2064,6 +2039,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_2",
             columnId: "account_type"
@@ -2075,6 +2051,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_2",
             columnId: "account_id"
@@ -2086,6 +2063,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_2",
             columnId: "account_description"
@@ -2097,6 +2075,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_2",
             columnId: "account_parent"
@@ -2108,6 +2087,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_2",
             columnId: "account_rollup"
@@ -2119,6 +2099,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "currency_id"
@@ -2130,6 +2111,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "department_id"
@@ -2141,6 +2123,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "employee_id"
@@ -2152,6 +2135,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "overtime_paid"
@@ -2163,6 +2147,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "pay_date"
@@ -2174,6 +2159,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "salary_paid"
@@ -2185,6 +2171,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "vacation_accrued"
@@ -2196,6 +2183,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "vacation_used"
@@ -2215,7 +2203,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_2",
           label: "account -> a",
-          level: 0,
           range: {
             startLine: 1,
             endLine: 1,
@@ -2272,7 +2259,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_3",
           label: "salary -> s",
-          level: 0,
           range: {
             startLine: 1,
             endLine: 1,
@@ -2353,7 +2339,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_1",
           label: "[final result]",
-          level: 1,
           range: {
             startLine: 1,
             endLine: 1,
@@ -2445,6 +2430,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "currency_id"
@@ -2456,6 +2442,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "department_id"
@@ -2467,6 +2454,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "employee_id"
@@ -2478,6 +2466,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "overtime_paid"
@@ -2489,6 +2478,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "pay_date"
@@ -2500,6 +2490,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "salary_paid"
@@ -2511,6 +2502,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "vacation_accrued"
@@ -2522,6 +2514,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "vacation_used"
@@ -2541,7 +2534,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_3",
           label: "account",
-          level: 0,
           range: {
             startLine: 1,
             endLine: 1,
@@ -2598,7 +2590,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_2",
           label: "a",
-          level: 1,
           range: {
             startLine: 1,
             endLine: 1,
@@ -2662,7 +2653,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_1",
           label: "[final result]",
-          level: 2,
           range: {
             startLine: 1,
             endLine: 2,
@@ -2694,6 +2684,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "account_type"
@@ -2705,6 +2696,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "account_id"
@@ -2716,6 +2708,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "account_description"
@@ -2727,6 +2720,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "account_parent"
@@ -2738,6 +2732,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "account_rollup"
@@ -2784,7 +2779,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_3",
           label: "account",
-          level: 0,
           range: {
             startLine: 1,
             endLine: 1,
@@ -2841,7 +2835,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_2",
           label: "a",
-          level: 1,
           range: {
             startLine: 1,
             endLine: 1,
@@ -2905,7 +2898,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_4",
           label: "b",
-          level: 1,
           range: {
             startLine: 2,
             endLine: 2,
@@ -2939,7 +2931,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_1",
           label: "[final result]",
-          level: 2,
           range: {
             startLine: 1,
             endLine: 3,
@@ -2971,6 +2962,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "account_type"
@@ -2982,6 +2974,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "account_id"
@@ -2993,6 +2986,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "account_description"
@@ -3004,6 +2998,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "account_parent"
@@ -3015,6 +3010,7 @@ describe("antlr", () => {
         },
         {
           type: "edge",
+          edgeType: "select",
           source: {
             tableId: "result_3",
             columnId: "account_rollup"
@@ -3082,7 +3078,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_3",
           label: "account",
-          level: 0,
           range: {
             startLine: 1,
             endLine: 1,
@@ -3139,7 +3134,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_2",
           label: "a",
-          level: 1,
           range: {
             startLine: 1,
             endLine: 1,
@@ -3173,7 +3167,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_1",
           label: "[final result]",
-          level: 2,
           range: {
             startLine: 1,
             endLine: 2,
@@ -3240,7 +3233,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_3",
           label: "account",
-          level: 0,
           range: {
             startLine: 1,
             endLine: 1,
@@ -3273,7 +3265,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_2",
           label: "a",
-          level: 1,
           range: {
             startLine: 1,
             endLine: 1,
@@ -3307,7 +3298,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_1",
           label: "[final result]",
-          level: 2,
           range: {
             startLine: 1,
             endLine: 2,
@@ -3397,7 +3387,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_3",
           label: "account -> a2",
-          level: 0,
           range: {
             startLine: 1,
             endLine: 1,
@@ -3454,7 +3443,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_2",
           label: "a",
-          level: 1,
           range: {
             startLine: 1,
             endLine: 1,
@@ -3488,7 +3476,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_5",
           label: "account",
-          level: 0,
           range: {
             startLine: 2,
             endLine: 2,
@@ -3545,7 +3532,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_4",
           label: "a1",
-          level: 1,
           range: {
             startLine: 2,
             endLine: 2,
@@ -3569,7 +3555,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_1",
           label: "[final result]",
-          level: 2,
           range: {
             startLine: 1,
             endLine: 2,
@@ -3672,7 +3657,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_2",
           label: "account",
-          level: 0,
           range: {
             startLine: 1,
             endLine: 1,
@@ -3729,7 +3713,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_3",
           label: "salary",
-          level: 0,
           range: {
             startLine: 1,
             endLine: 1,
@@ -3810,7 +3793,6 @@ describe("antlr", () => {
           type: "table",
           id: "result_1",
           label: "[final result]",
-          level: 1,
           range: {
             startLine: 1,
             endLine: 1,
