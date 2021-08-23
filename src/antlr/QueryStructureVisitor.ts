@@ -30,6 +30,9 @@ import common from "./common";
 import { RuleNode } from "antlr4ts/tree/RuleNode";
 import { TablePrimary } from "..";
 
+const ROOT_QUERY_ID = "result_1";
+export const ROOT_QUERY_NAME = "[final result]";
+
 export class Column {
   constructor(readonly id: string, public label: string, readonly range?: Range, readonly data?: unknown) {}
 }
@@ -305,7 +308,7 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
 
     // to be consumed later
     this.lastRelation = this.currentRelation;
-    if (this.currentRelation.id == "result_1") this.onRelation(this.currentRelation, "[final result]");
+    if (this.currentRelation.id == ROOT_QUERY_ID) this.onRelation(this.currentRelation, ROOT_QUERY_NAME);
     this.currentRelation = this.currentRelation.parent ?? new QueryRelation(this.getNextRelationId());
     return result;
   }

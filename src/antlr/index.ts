@@ -28,15 +28,11 @@ class SqlParseTree {
     const visitor = new LineageVisitor<TableData, ColumnData>(getTable, mergedLeaves);
     this.tree.accept(visitor);
     const lineage = visitor.lineage;
-    let maxLevel = 0;
     const tables: Lineage<TableData, ColumnData> = [];
     const edges: Lineage<TableData, ColumnData> = [];
     const usedColumns: Map<string, string[]> = new Map();
     lineage.forEach(e => {
       if (e.type == "table") {
-        if (e.level !== undefined && e.level > maxLevel) {
-          maxLevel = e.level;
-        }
         tables.push(e);
       } else {
         if (mergedLeaves && e.source.columnId !== undefined) {
@@ -54,7 +50,6 @@ class SqlParseTree {
 
     tables.forEach(e => {
       if (e.type == "table") {
-        if (e.level !== undefined) e.level = maxLevel - e.level;
         if (mergedLeaves && e.data !== undefined) {
           // used column filtering
           const tableColumns = usedColumns.get(e.id);
