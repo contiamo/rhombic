@@ -27,10 +27,6 @@ class SqlParseTree {
   ): Lineage<TableData, ColumnData> {
     const visitor = new LineageVisitor<TableData, ColumnData>(getTable, mergedLeaves);
     this.tree.accept(visitor);
-    const outerRel = visitor.relationsStack.pop();
-    if (outerRel) {
-      visitor.onRelation(outerRel, "[final result]");
-    }
     const lineage = visitor.lineage;
     let maxLevel = 0;
     const tables: Lineage<TableData, ColumnData> = [];

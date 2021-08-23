@@ -149,9 +149,9 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
   implements SqlBaseVisitor<Result> {
   private relationSeq = 0;
 
-  public readonly relationsStack: Array<QueryRelation> = [];
+  public lastRelation: QueryRelation | undefined;
 
-  protected currentRelation = new QueryRelation("result_0");
+  protected currentRelation = new QueryRelation(this.getNextRelationId());
 
   constructor(
     public getTable: (
@@ -162,8 +162,7 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
   }
 
   getNextRelationId(): string {
-    this.relationSeq++;
-    return "result_" + this.relationSeq;
+    return `result_${this.relationSeq++}`;
   }
 
   rangeFromContext(ctx: ParserRuleContext): Range {
@@ -239,7 +238,6 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
    * @param _alias
    * @returns
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onRelation(_relation: TableRelation | QueryRelation, _alias?: string): void {
     return;
   }
@@ -250,7 +248,6 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
    * @param _columnId
    * @returns
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onColumnReference(_tableId: string, _columnId: string): void {
     return;
   }
@@ -281,7 +278,7 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
       const col = new Column(columnId, c.label, range);
       this.currentRelation.columns.push(col);
       this.currentRelation.currentColumnId = columnId;
-      this.onColumnReference?.(rel.id, c.id);
+      this.onColumnReference(rel.id, c.id);
       this.currentRelation.currentColumnId = undefined;
     });
   }
@@ -307,7 +304,8 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
     const result = this.visitChildren(ctx);
 
     // to be consumed later
-    this.relationsStack.push(this.currentRelation);
+    this.lastRelation = this.currentRelation;
+    if (this.currentRelation.id == "result_1") this.onRelation(this.currentRelation, "[final result]");
     this.currentRelation = this.currentRelation.parent ?? new QueryRelation(this.getNextRelationId());
     return result;
   }
@@ -383,7 +381,7 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
     );
 
     this.currentRelation.relations.set(alias, relation);
-    this.onRelation?.(relation, alias);
+    this.onRelation(relation, alias);
 
     return this.defaultResult();
   }
@@ -393,7 +391,7 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
     const result = this.visitChildren(ctx);
 
     // expecting query relation to be in stack
-    const relation = this.relationsStack.pop();
+    const relation = this.lastRelation;
     if (relation !== undefined) {
       const identifier = ctx.errorCapturingIdentifier().identifier();
       const alias = identifier !== undefined ? common.stripQuote(identifier).name : relation.id;
@@ -410,7 +408,7 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
       }
 
       this.currentRelation.ctes.set(alias, relation);
-      this.onRelation?.(relation, alias);
+      this.onRelation(relation, alias);
       return result;
     } else {
       throw new Error("Expecting CTE query relation to be in stack");
@@ -422,7 +420,7 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
     const result = this.visitChildren(ctx);
 
     // expecting query relation to be in stack
-    const relation = this.relationsStack.pop();
+    const relation = this.lastRelation;
     if (relation !== undefined) {
       const strictId = ctx.tableAlias().strictIdentifier();
       const alias = strictId !== undefined ? common.stripQuote(strictId).name : relation.id;
