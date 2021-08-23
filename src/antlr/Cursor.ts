@@ -1,0 +1,54 @@
+interface Position {
+  lineNumber: number;
+  column: number;
+}
+
+export interface CursorQuery {
+  removeFrom: (str: string) => string;
+  isSuffixOf: (str: string) => boolean;
+  isIn: (str: string) => boolean;
+  isEqualTo: (str: string) => boolean;
+}
+
+export interface CursorUpdate {
+  insertAt: (str: string, pos: Position) => string;
+}
+
+// export type Cursor = CursorUpdate & CursorQuery;
+
+export class Cursor implements CursorUpdate, CursorQuery {
+  constructor(readonly value: string) {}
+
+  insertAt(str: string, pos: Position): string {
+    let line = pos.lineNumber;
+    let idx = 0;
+    for (; idx < str.length && line > 1; idx++) {
+      if (str.charAt(idx) === "\n") {
+        line--;
+      }
+    }
+
+    idx += pos.column - 1;
+
+    const prefix = str.slice(0, idx);
+    const suffix = str.slice(idx);
+
+    return `${prefix}${this.value}${suffix}`;
+  }
+
+  isSuffixOf(str: string): boolean {
+    return str.endsWith(this.value);
+  }
+
+  isIn(str: string): boolean {
+    return str.includes(str);
+  }
+
+  removeFrom(str: string): string {
+    return str.replace(this.value, "");
+  }
+
+  isEqualTo(str: string): boolean {
+    return str === this.value;
+  }
+}

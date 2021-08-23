@@ -6,10 +6,18 @@ import { UppercaseCharStream } from "./UppercaseCharStream";
 import { TablePrimary } from "..";
 import { ExtractTablesVisitor } from "./ExtractTablesVisitor";
 import { LineageVisitor } from "./LineageVisitor";
+import { CompletionItem, CompletionVisitor } from "./CompletionVisitor";
+import { Cursor } from "./Cursor";
+import _ from "lodash";
 
 interface ParserOptions {
   doubleQuotedIdentifier?: boolean;
 }
+
+type TableListProvider = () => TablePrimary[];
+type TableProvider<T, C> = (
+  id: TablePrimary
+) => { table: { id: string; data: T }; columns: { id: string; data: C }[] } | undefined;
 
 class SqlParseTree {
   constructor(public readonly tree: StatementContext) {}
@@ -20,9 +28,7 @@ class SqlParseTree {
   }
 
   getLineage<TableData, ColumnData>(
-    getTable: (
-      id: TablePrimary
-    ) => { table: { id: string; data: TableData }; columns: { id: string; data: ColumnData }[] } | undefined,
+    getTable: TableProvider<TableData, ColumnData>,
     mergedLeaves?: boolean
   ): Lineage<TableData, ColumnData> {
     const visitor = new LineageVisitor<TableData, ColumnData>(getTable, mergedLeaves);
@@ -62,6 +68,8 @@ class SqlParseTree {
   }
 }
 
+const defaultCursor = new Cursor("_CURSOR_");
+
 const antlr = {
   parse(sql: string, options?: ParserOptions): SqlParseTree {
     const doubleQuotedIdentifier = options?.doubleQuotedIdentifier ?? false;
@@ -75,6 +83,34 @@ const antlr = {
     parser.buildParseTree = true;
     parser.removeErrorListeners();
     return new SqlParseTree(parser.statement());
+  },
+
+  suggest(
+    sql: string,
+    position: { lineNumber: number; column: number },
+    getTables: TableListProvider,
+    getTable: TableProvider<any, any>,
+    options?: ParserOptions
+  ): CompletionItem[] {
+    const doubleQuotedIdentifier = options?.doubleQuotedIdentifier ?? false;
+
+    const sqlWithCursor = defaultCursor.insertAt(sql, position);
+
+    const inputStream = new UppercaseCharStream(CharStreams.fromString(sqlWithCursor));
+    const lexer = new SqlBaseLexer(inputStream);
+    lexer.doublequoted_identifier = doubleQuotedIdentifier;
+    const tokens = new CommonTokenStream(lexer);
+    const parser = new SqlBaseParser(tokens);
+    parser.doublequoted_identifier = doubleQuotedIdentifier;
+    parser.buildParseTree = true;
+    parser.removeErrorListeners();
+
+    const ast = parser.statement();
+
+    const completionVisitor = new CompletionVisitor(defaultCursor, getTables, getTable);
+    ast.accept(completionVisitor);
+
+    return completionVisitor.getSuggestions();
   }
 };
 

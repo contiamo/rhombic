@@ -112,6 +112,15 @@ export class QueryRelation implements Relation {
     return this.parent?.findCTE(tableName);
   }
 
+  getCTENames(): string[] {
+    const localCtes = Array.from(this.ctes.keys());
+    if (this.parent !== undefined) {
+      return localCtes.concat(this.parent.getCTENames());
+    } else {
+      return localCtes;
+    }
+  }
+
   resolveColumn(columnName: QuotableIdentifier, tableName?: QuotableIdentifier): ColumnRef | undefined {
     if (tableName !== undefined) {
       const table = this.findRelation(tableName);
