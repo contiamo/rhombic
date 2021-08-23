@@ -3,6 +3,9 @@ interface Position {
   column: number;
 }
 
+/**
+ * Utility functions to query cursor related information.
+ */
 export interface CursorQuery {
   removeFrom: (str: string) => string;
   isSuffixOf: (str: string) => boolean;
@@ -10,12 +13,16 @@ export interface CursorQuery {
   isEqualTo: (str: string) => boolean;
 }
 
+/**
+ * Utility function to insert a string cursor into a string.
+ */
 export interface CursorUpdate {
   insertAt: (str: string, pos: Position) => string;
 }
 
-// export type Cursor = CursorUpdate & CursorQuery;
-
+/**
+ * Utility class to work with a string cursor.
+ */
 export class Cursor implements CursorUpdate, CursorQuery {
   constructor(readonly value: string) {}
 
