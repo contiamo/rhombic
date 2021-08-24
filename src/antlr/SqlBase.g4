@@ -844,7 +844,11 @@ primaryExpression
     | value=primaryExpression '[' index=valueExpression ']'                                    #subscript
     | identifier                                                                               #columnReference
     | base=primaryExpression '.' fieldName=identifier                                          #dereference
-    | value=primaryExpression DOUBLE_COLON dataType                                            #postgresCast
+    | value=primaryExpression '::' dataType                                                    #postgresCast
+    | value=primaryExpression '->' field=primaryExpression                                     #postgresJson
+    | value=primaryExpression '->>' field=primaryExpression                                    #postgresJson
+    | value=primaryExpression '#>' field=primaryExpression                                     #postgresJson
+    | value=primaryExpression '#>>' field=primaryExpression                                    #postgresJson
     | '(' expression ')'                                                                       #parenthesizedExpression
     | EXTRACT '(' field=identifier FROM source=valueExpression ')'                             #extract
     | (SUBSTR | SUBSTRING) '(' str=valueExpression (FROM | ',') pos=valueExpression
@@ -1810,8 +1814,6 @@ AMPERSAND: '&';
 PIPE: '|';
 CONCAT_PIPE: '||';
 HAT: '^';
-
-DOUBLE_COLON: '::';
 
 STRING
     : '\'' ( ~('\''|'\\') | ('\\' .) )* '\''
