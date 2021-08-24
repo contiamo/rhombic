@@ -124,6 +124,76 @@ describe("completion", () => {
     const completionResult = runCompletion(sql, env);
     expect(completionResult).toEqual([col("t", "column1"), col("t", "column2"), col("s", "column1")]);
   });
+
+  it("should complete tables in cte subquery", () => {
+    const sql = "WITH tmp (SELECT column1 FROM <|>)\nSELECT column1 FROM tmp";
+
+    const completionResult = runCompletion(sql, env);
+    expect(completionResult).toEqual([rel("test")]);
+  });
+
+  it("should complete columns in cte subquery", () => {
+    const sql = "WITH tmp (SELECT <|> FROM test)\nSELECT c FROM tmp AS t(c)";
+
+    const completionResult = runCompletion(sql, env);
+    expect(completionResult).toEqual([col("test", "column1"), col("test", "column2")]);
+  });
+
+  it("should only complete relations defined before", () => {
+    const sql = `
+      WITH tmp1 (SELECT * FROM test),
+           tmp2 (SELECT * FROM test),
+           tmp3 (SELECT * FROM <|>),
+           tmp4 (SELECT * FROM test)
+      SELECT * FROM tmp3, tmp4
+    `;
+
+    const completionResult = runCompletion(sql, env);
+    expect(completionResult).toEqual([rel("test"), rel("tmp1"), rel("tmp2")]);
+  });
+
+  it("should complete columns from nested ctes", () => {
+    const sql = `
+      WITH tmp1 (SELECT column1 FROM test),
+           tmp2 (SELECT column2 FROM test)
+        SELECT <|> FROM (
+          WITH tmp3 (SELECT * FROM tmp1)
+          SELECT * FROM tmp2, tmp3
+        ) q
+    `;
+
+    const completionResult = runCompletion(sql, env);
+    expect(completionResult).toEqual([col("q", "column2"), col("q", "column1")]);
+  });
+
+  it("should complete columns from nested ctes but hide generated relation id", () => {
+    const sql = `
+      WITH tmp1 (SELECT column1 FROM test),
+           tmp2 (SELECT column2 FROM test)
+        SELECT <|> FROM (
+          WITH tmp3 (SELECT * FROM tmp1)
+          SELECT * FROM tmp2, tmp3
+        )
+    `;
+
+    const completionResult = runCompletion(sql, env);
+    expect(completionResult).toEqual([col("column2"), col("column1")]);
+  });
+
+  it("should complete names of nested ctes", () => {
+    const sql = `
+      WITH tmp1 (SELECT column1 FROM test),
+           tmp2 (SELECT column2 FROM test)
+        SELECT * FROM (
+          WITH tmp3 (SELECT * FROM tmp1),
+               tmp4 (SELECT * FROM <|>)
+          SELECT * FROM tmp2, tmp3
+        )
+    `;
+
+    const completionResult = runCompletion(sql, env);
+    expect(completionResult).toEqual([rel("test"), rel("tmp3"), rel("tmp1"), rel("tmp2")]);
+  });
 });
 
 function col(rel: string, name?: string): CompletionItem {

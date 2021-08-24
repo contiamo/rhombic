@@ -31,14 +31,16 @@ type CaretScope =
   | { type: "relation" } // cursor in table position
   | { type: "other" }; // cursor in any other position
 
-function availableColumns(relation: QueryRelation): { type: "column"; relation: string; value: string }[] {
-  const columns: { type: "column"; relation: string; value: string }[] = [];
+function availableColumns(relation: QueryRelation): { type: "column"; relation?: string; value: string }[] {
+  const columns: { type: "column"; relation?: string; value: string }[] = [];
 
   relation.relations.forEach((rel, name) => {
+    const relationName = name !== rel.id ? name : undefined;
+
     rel.columns.forEach(col => {
       columns.push({
         type: "column",
-        relation: name,
+        relation: relationName,
         value: col.label
       });
     });
@@ -83,7 +85,7 @@ export class CompletionVisitor extends QueryStructureVisitor<void> implements Sq
 
   private caretScope?: CaretScope;
   private completionItems: CompletionItem[] = [];
-  private hasCompletions: boolean = false;
+  private hasCompletions = false;
 
   getSuggestions(): CompletionItem[] {
     return this.completionItems;

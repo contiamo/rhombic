@@ -419,8 +419,9 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
         });
       }
 
-      this.currentRelation.ctes.set(alias, relation);
+      // Notify the callback before adding the cte as the cte is not yet available in scope.
       this.onRelation(relation, alias);
+      this.currentRelation.ctes.set(alias, relation);
       return result;
     } else {
       throw new Error("Expecting CTE query relation to be in stack");
