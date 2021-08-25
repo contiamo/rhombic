@@ -504,7 +504,7 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
   visitFunctionCall(ctx: FunctionCallContext): Result {
     if (
       ctx.functionName().text.toLowerCase() == "count" &&
-      ctx.expression().length > 0 &&
+      ctx.expression().length == 1 &&
       this.isStar(ctx.expression()[0])
     ) {
       for (const r of this.currentRelation.relations) {
