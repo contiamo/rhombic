@@ -669,8 +669,8 @@ joinType
     ;
 
 joinCriteria
-    : ON booleanExpression
-    | USING identifierList
+    : ON booleanExpression                                                        #joinCriteriaOn
+    | USING identifierList                                                        #joinCriteriaUsing
     ;
 
 sample
