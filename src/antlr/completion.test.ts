@@ -194,6 +194,44 @@ describe("completion", () => {
     const completionResult = runCompletion(sql, env);
     expect(completionResult).toEqual([rel("test"), rel("tmp3"), rel("tmp1"), rel("tmp2")]);
   });
+
+  it("should complete columns in union queries", () => {
+    const sql = `
+      WITH tmp (SELECT column1 AS a FROM test)
+      SELECT * FROM test
+      UNION
+      SELECT <|> FROM tmp
+      UNION ALL
+      SELECT * FROM test
+    `;
+
+    const completionResult = runCompletion(sql, env);
+    expect(completionResult).toEqual([col("tmp", "a")]);
+
+    const sql2 = `
+      WITH tmp (SELECT column1 AS a FROM test)
+      SELECT * FROM test
+      UNION
+      SELECT * FROM tmp
+      UNION ALL
+      SELECT <|> FROM test
+    `;
+
+    const completionResult2 = runCompletion(sql2, env);
+    expect(completionResult2).toEqual([col("test", "column1"), col("test", "column2")]);
+
+    const sql3 = `
+      WITH tmp (SELECT column1 AS a FROM test)
+      SELECT <|> FROM test
+      UNION
+      SELECT * FROM tmp
+      UNION ALL
+      SELECT * FROM test
+    `;
+
+    const completionResult3 = runCompletion(sql3, env);
+    expect(completionResult3).toEqual([col("test", "column1"), col("test", "column2")]);
+  });
 });
 
 function col(rel: string, name?: string): CompletionItem {

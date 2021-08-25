@@ -6,6 +6,7 @@ import {
   AliasedRelationContext,
   ColumnReferenceContext,
   DereferenceContext,
+  QueryTermDefaultContext,
   StatementContext,
   TableNameContext
 } from "./SqlBaseParser";
@@ -92,18 +93,12 @@ export class CompletionVisitor extends QueryStructureVisitor<void> implements Sq
   }
 
   /**
-   * This method is used to identify the inner most query the cursor is in and to then
-   * compute the completion items from the query information.
+   * Checks if tyhe provided query is the innermost query containing the cursor.
+   * If so, compute the completion suggestions for that query.
    *
-   * @param relation
-   * @param _alias
-   * @returns
+   * @param relation the current relation to consider
    */
-  onRelation(relation: TableRelation | QueryRelation, _alias?: string): void {
-    if (relation instanceof TableRelation) {
-      return;
-    }
-
+  private updateCompletionItems(relation: QueryRelation) {
     // Is this the innermost query with the cursor inside
     if (!this.hasCompletions && this.caretScope !== undefined) {
       this.hasCompletions = true;
@@ -151,6 +146,39 @@ export class CompletionVisitor extends QueryStructureVisitor<void> implements Sq
           break;
       }
     }
+  }
+
+  /**
+   * In case a query has been completely handled by this visitor we may need to update the completions.
+   *
+   * This is called for the whole query (including query organization features). For simple query terms
+   * (like the individual parts of a UNION query) are handled by the `visitQueryTermDefault` method.
+   *
+   * @param relation
+   * @param _alias
+   * @returns
+   */
+  onRelation(relation: TableRelation | QueryRelation, _alias?: string) {
+    if (relation instanceof TableRelation) {
+      return;
+    }
+
+    this.updateCompletionItems(relation);
+  }
+
+  /**
+   * In case we handled a query term we need to potentially update the completions.
+   *
+   * This is called for query terms e.g. within set operations. We need this in addition
+   * to `onRelation` to make sure we can complete in the individual sub-queries of set
+   * operations.
+   *
+   * @param ctx
+   */
+  visitQueryTermDefault(ctx: QueryTermDefaultContext) {
+    super.visitQueryTermDefault(ctx);
+
+    this.updateCompletionItems(this.currentRelation);
   }
 
   /**
