@@ -10,6 +10,7 @@ import {
   DereferenceContext,
   ExpressionContext,
   FromClauseContext,
+  FunctionCallContext,
   GroupByClauseContext,
   HavingClauseContext,
   NamedExpressionContext,
@@ -227,6 +228,26 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
   }
 
   /**
+   * Called when relation is ready.
+   * @param _relation
+   * @param _alias
+   * @returns
+   */
+  onRelation(_relation: TableRelation | QueryRelation, _alias?: string): void {
+    return;
+  }
+
+  /**
+   * Called when column reference is ready.
+   * @param _tableId
+   * @param _columnId
+   * @returns
+   */
+  onColumnReference(_tableId: string, _columnId?: string): void {
+    return;
+  }
+
+  /**
    *  Determines whether expression is a star.
    */
 
@@ -244,27 +265,7 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
     return undefined;
   }
 
-  /**
-   * Called when relation is ready.
-   * @param _relation
-   * @param _alias
-   * @returns
-   */
-  onRelation(_relation: TableRelation | QueryRelation, _alias?: string): void {
-    return;
-  }
-
-  /**
-   * Called when column reference is ready.
-   * @param _tableId
-   * @param _columnId
-   * @returns
-   */
-  onColumnReference(_tableId: string, _columnId: string): void {
-    return;
-  }
-
-  processStar(ctx: StarContext): Result {
+  private processStar(ctx: StarContext): Result {
     const range = this.rangeFromContext(ctx);
     const qualifiedName = ctx.qualifiedName();
     if (qualifiedName !== undefined) {
@@ -284,7 +285,7 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
     return this.visitChildren(ctx);
   }
 
-  protected addRelationColumns(rel: Relation, range: Range): void {
+  private addRelationColumns(rel: Relation, range: Range): void {
     rel.columns.forEach(c => {
       const columnId = this.currentRelation.getNextColumnId();
       const col = new Column(columnId, c.label, range);
@@ -508,6 +509,19 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
     this.currentRelation.currentColumnId = undefined;
 
     return result;
+  }
+
+  visitFunctionCall(ctx: FunctionCallContext): Result {
+    if (
+      ctx.functionName().text.toLowerCase() == "count" &&
+      ctx.expression().length == 1 &&
+      this.isStar(ctx.expression()[0])
+    ) {
+      for (const r of this.currentRelation.relations) {
+        this.onColumnReference(r[1].id);
+      }
+    }
+    return this.visitChildren(ctx);
   }
 
   private processColumnReference(ctx: ColumnReferenceContext | DereferenceContext): Result {
