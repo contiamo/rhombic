@@ -13,6 +13,7 @@ import {
   FunctionCallContext,
   GroupByClauseContext,
   HavingClauseContext,
+  JoinCriteriaUsingContext,
   NamedExpressionContext,
   NamedQueryContext,
   PredicatedContext,
@@ -38,28 +39,45 @@ export class Column {
   constructor(readonly id: string, public label: string, readonly range?: Range, readonly data?: unknown) {}
 }
 
-export interface Relation {
-  readonly id: string;
-  readonly parent?: QueryRelation;
-  readonly range?: Range;
-  readonly columns: Array<Column>;
-}
-
-export class TableRelation implements Relation {
+export abstract class Relation {
   constructor(
     readonly id: string,
-    readonly tablePrimary: TablePrimary,
     readonly columns: Array<Column>,
     readonly parent?: QueryRelation,
-    readonly range?: Range,
-    readonly data?: unknown
+    readonly range?: Range
   ) {}
+
+  resolveColumn(columnName: QuotableIdentifier): ColumnRef | undefined {
+    const col = this.columns.find(c =>
+      columnName.quoted
+        ? c.label == columnName.name
+        : c.label.localeCompare(columnName.name, undefined, {
+            sensitivity: "accent"
+          }) == 0
+    );
+    return col !== undefined
+      ? {
+          tableId: this.id,
+          columnId: col.id
+        }
+      : undefined;
+  }
 }
 
-export class QueryRelation implements Relation {
-  // columns for this query extracted from SELECT
-  columns: Array<Column> = [];
+export class TableRelation extends Relation {
+  constructor(
+    id: string,
+    readonly tablePrimary: TablePrimary,
+    columns: Array<Column>,
+    parent?: QueryRelation,
+    range?: Range,
+    readonly data?: unknown
+  ) {
+    super(id, columns, parent, range);
+  }
+}
 
+export class QueryRelation extends Relation {
   // CTEs from this context
   ctes: Map<string, QueryRelation> = new Map();
 
@@ -73,7 +91,9 @@ export class QueryRelation implements Relation {
 
   currentColumnId?: string;
 
-  constructor(readonly id: string, readonly parent?: QueryRelation, readonly range?: Range) {}
+  constructor(id: string, parent?: QueryRelation, range?: Range) {
+    super(id, [], parent, range);
+  }
 
   findLocalRelation(tableName: QuotableIdentifier): Relation | undefined {
     for (const rel of this.relations) {
@@ -113,30 +133,14 @@ export class QueryRelation implements Relation {
     return this.parent?.findCTE(tableName);
   }
 
-  resolveColumn(columnName: QuotableIdentifier, tableName?: QuotableIdentifier): ColumnRef | undefined {
+  resolveRelationColumn(columnName: QuotableIdentifier, tableName?: QuotableIdentifier): ColumnRef | undefined {
     if (tableName !== undefined) {
-      const table = this.findRelation(tableName);
-      const col = table?.columns.find(c =>
-        columnName.quoted
-          ? c.label == columnName.name
-          : c.label.localeCompare(columnName.name, undefined, {
-              sensitivity: "accent"
-            }) == 0
-      );
-      if (table && col) {
-        return { tableId: table.id, columnId: col.id };
-      }
+      return this.findRelation(tableName)?.resolveColumn(columnName);
     } else {
       for (const r of this.relations) {
-        const col = r[1].columns.find(c =>
-          columnName.quoted
-            ? c.label == columnName.name
-            : c.label.localeCompare(columnName.name, undefined, {
-                sensitivity: "accent"
-              }) == 0
-        );
+        const col = r[1].resolveColumn(columnName);
         if (col) {
-          return { tableId: r[1].id, columnId: col.id };
+          return col;
         }
       }
     }
@@ -339,6 +343,45 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
     return result;
   }
 
+  /**
+   * Process JOIN ... USING (...) columns
+   * @param ctx
+   */
+  visitJoinCriteriaUsing(ctx: JoinCriteriaUsingContext): Result {
+    const columns = ctx
+      .identifierList()
+      .identifierSeq()
+      .errorCapturingIdentifier()
+      .map(eci => common.stripQuote(eci.identifier()));
+
+    // columns shall be searched in last from relation and all previous ones
+    const size = this.currentRelation.relations.size;
+    if (size >= 2) {
+      let i = 0;
+      const foundLeftCol: Array<boolean> = [];
+      this.currentRelation.relations.forEach(r => {
+        if (i == size - 1) {
+          // this is the last (right) relation
+          columns.forEach(c => {
+            const col = r.resolveColumn(c);
+            if (col) this.onColumnReference(col.tableId, col.columnId);
+          });
+        } else {
+          columns.forEach((c, j) => {
+            if (!foundLeftCol[j]) {
+              const col = r.resolveColumn(c);
+              if (col) this.onColumnReference(col.tableId, col.columnId);
+              foundLeftCol[j] = true;
+            }
+          });
+        }
+        i++;
+      });
+    }
+
+    return this.visitChildren(ctx);
+  }
+
   // processes table/CTE/correlated subquery references
   visitTableName(ctx: TableNameContext): Result {
     const multipartTableName = ctx
@@ -517,8 +560,8 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
   private processColumnReference(ctx: ColumnReferenceContext | DereferenceContext): Result {
     const tableCol = this.extractTableAndColumn(ctx);
     if (tableCol !== undefined) {
-      const col = this.currentRelation.resolveColumn(tableCol.column, tableCol.table);
-      if (col) {
+      const col = this.currentRelation.resolveRelationColumn(tableCol.column, tableCol.table);
+      if (col !== undefined) {
         this.onColumnReference(col.tableId, col.columnId);
       }
       return this.defaultResult();

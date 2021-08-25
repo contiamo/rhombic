@@ -158,6 +158,8 @@ import { SetQuotedConfigurationContext } from "./SqlBaseParser";
 import { SetConfigurationContext } from "./SqlBaseParser";
 import { ResetQuotedConfigurationContext } from "./SqlBaseParser";
 import { ResetConfigurationContext } from "./SqlBaseParser";
+import { JoinCriteriaOnContext } from "./SqlBaseParser";
+import { JoinCriteriaUsingContext } from "./SqlBaseParser";
 import { LogicalNotContext } from "./SqlBaseParser";
 import { ExistsContext } from "./SqlBaseParser";
 import { PredicatedContext } from "./SqlBaseParser";
@@ -2338,6 +2340,32 @@ export interface SqlBaseListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitResetConfiguration?: (ctx: ResetConfigurationContext) => void;
+
+  /**
+   * Enter a parse tree produced by the `joinCriteriaOn`
+   * labeled alternative in `SqlBaseParser.joinCriteria`.
+   * @param ctx the parse tree
+   */
+  enterJoinCriteriaOn?: (ctx: JoinCriteriaOnContext) => void;
+  /**
+   * Exit a parse tree produced by the `joinCriteriaOn`
+   * labeled alternative in `SqlBaseParser.joinCriteria`.
+   * @param ctx the parse tree
+   */
+  exitJoinCriteriaOn?: (ctx: JoinCriteriaOnContext) => void;
+
+  /**
+   * Enter a parse tree produced by the `joinCriteriaUsing`
+   * labeled alternative in `SqlBaseParser.joinCriteria`.
+   * @param ctx the parse tree
+   */
+  enterJoinCriteriaUsing?: (ctx: JoinCriteriaUsingContext) => void;
+  /**
+   * Exit a parse tree produced by the `joinCriteriaUsing`
+   * labeled alternative in `SqlBaseParser.joinCriteria`.
+   * @param ctx the parse tree
+   */
+  exitJoinCriteriaUsing?: (ctx: JoinCriteriaUsingContext) => void;
 
   /**
    * Enter a parse tree produced by the `logicalNot`

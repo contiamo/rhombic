@@ -158,6 +158,8 @@ import { SetQuotedConfigurationContext } from "./SqlBaseParser";
 import { SetConfigurationContext } from "./SqlBaseParser";
 import { ResetQuotedConfigurationContext } from "./SqlBaseParser";
 import { ResetConfigurationContext } from "./SqlBaseParser";
+import { JoinCriteriaOnContext } from "./SqlBaseParser";
+import { JoinCriteriaUsingContext } from "./SqlBaseParser";
 import { LogicalNotContext } from "./SqlBaseParser";
 import { ExistsContext } from "./SqlBaseParser";
 import { PredicatedContext } from "./SqlBaseParser";
@@ -1561,6 +1563,22 @@ export interface SqlBaseVisitor<Result> extends ParseTreeVisitor<Result> {
    * @return the visitor result
    */
   visitResetConfiguration?: (ctx: ResetConfigurationContext) => Result;
+
+  /**
+   * Visit a parse tree produced by the `joinCriteriaOn`
+   * labeled alternative in `SqlBaseParser.joinCriteria`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitJoinCriteriaOn?: (ctx: JoinCriteriaOnContext) => Result;
+
+  /**
+   * Visit a parse tree produced by the `joinCriteriaUsing`
+   * labeled alternative in `SqlBaseParser.joinCriteria`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitJoinCriteriaUsing?: (ctx: JoinCriteriaUsingContext) => Result;
 
   /**
    * Visit a parse tree produced by the `logicalNot`
