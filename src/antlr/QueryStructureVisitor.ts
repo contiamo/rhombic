@@ -358,7 +358,7 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
     const size = this.currentRelation.relations.size;
     if (size >= 2) {
       let i = 0;
-      const foundLeftCol: Array<boolean> = [];
+      const foundLeftCol: Set<number> = new Set();
       this.currentRelation.relations.forEach(r => {
         if (i == size - 1) {
           // this is the last (right) relation
@@ -368,10 +368,10 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
           });
         } else {
           columns.forEach((c, j) => {
-            if (!foundLeftCol[j]) {
+            if (!foundLeftCol.has(j)) {
               const col = r.resolveColumn(c);
               if (col) this.onColumnReference(col.tableId, col.columnId);
-              foundLeftCol[j] = true;
+              foundLeftCol.add(j);
             }
           });
         }
