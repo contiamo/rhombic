@@ -1848,89 +1848,11 @@ describe("antlr", () => {
       ]
     },
     {
-      name: "count star doesn't expand columns",
-      sql: "select count(*) as c from account",
-      data: [
-        {
-          type: "table",
-          id: "result_2",
-          label: "account",
-          range: {
-            startLine: 1,
-            endLine: 1,
-            startColumn: 26,
-            endColumn: 33
-          },
-          data: {
-            id: "account"
-          },
-          columns: [
-            {
-              id: "account_type",
-              label: "account_type",
-              data: {
-                id: "account_type",
-                tableId: "account"
-              }
-            },
-            {
-              id: "account_id",
-              label: "account_id",
-              data: {
-                id: "account_id",
-                tableId: "account"
-              }
-            },
-            {
-              id: "account_description",
-              label: "account_description",
-              data: {
-                id: "account_description",
-                tableId: "account"
-              }
-            },
-            {
-              id: "account_parent",
-              label: "account_parent",
-              data: {
-                id: "account_parent",
-                tableId: "account"
-              }
-            },
-            {
-              id: "account_rollup",
-              label: "account_rollup",
-              data: {
-                id: "account_rollup",
-                tableId: "account"
-              }
-            }
-          ]
-        },
-        {
-          type: "table",
-          id: "result_1",
-          label: "[final result]",
-          range: {
-            startLine: 1,
-            endLine: 1,
-            startColumn: 0,
-            endColumn: 33
-          },
-          columns: [
-            {
-              id: "column_1",
-              label: "c",
-              range: {
-                startLine: 1,
-                endLine: 1,
-                startColumn: 7,
-                endColumn: 20
-              }
-            }
-          ]
-        }
-      ]
+      debug: true,
+      only: true,
+      name: "count star expands to table references",
+      sql: "select count(*) * 10 as c from account, employee",
+      data: []
     },
     {
       name: "star on join",
