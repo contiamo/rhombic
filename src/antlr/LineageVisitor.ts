@@ -22,7 +22,7 @@ export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor
   // Overrides
   //
 
-  onColumnReference(tableId: string, columnId: string): void {
+  onColumnReference(tableId: string, columnId?: string): void {
     const sourceTableId = this.mergedLeaves ? this.deduplicateTables.get(tableId) ?? tableId : tableId;
     this.lineage.push({
       type: "edge",

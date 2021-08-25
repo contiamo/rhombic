@@ -1848,8 +1848,8 @@ describe("antlr", () => {
       ]
     },
     {
-      name: "count star doesn't expand columns",
-      sql: "select count(*) as c from account",
+      name: "count star expands to table references",
+      sql: "select count(*) * 10 as c from account, employee",
       data: [
         {
           type: "table",
@@ -1858,8 +1858,8 @@ describe("antlr", () => {
           range: {
             startLine: 1,
             endLine: 1,
-            startColumn: 26,
-            endColumn: 33
+            startColumn: 31,
+            endColumn: 38
           },
           data: {
             id: "account"
@@ -1909,13 +1909,165 @@ describe("antlr", () => {
         },
         {
           type: "table",
+          id: "result_3",
+          label: "employee",
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 40,
+            endColumn: 48
+          },
+          data: {
+            id: "employee"
+          },
+          columns: [
+            {
+              id: "birth_date",
+              label: "birth_date",
+              data: {
+                id: "birth_date",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "department_id",
+              label: "department_id",
+              data: {
+                id: "department_id",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "education_level",
+              label: "education_level",
+              data: {
+                id: "education_level",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "employee_id",
+              label: "employee_id",
+              data: {
+                id: "employee_id",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "end_date",
+              label: "end_date",
+              data: {
+                id: "end_date",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "first_name",
+              label: "first_name",
+              data: {
+                id: "first_name",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "full_name",
+              label: "full_name",
+              data: {
+                id: "full_name",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "gender",
+              label: "gender",
+              data: {
+                id: "gender",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "hire_date",
+              label: "hire_date",
+              data: {
+                id: "hire_date",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "last_name",
+              label: "last_name",
+              data: {
+                id: "last_name",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "management_role",
+              label: "management_role",
+              data: {
+                id: "management_role",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "marital_status",
+              label: "marital_status",
+              data: {
+                id: "marital_status",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "position_id",
+              label: "position_id",
+              data: {
+                id: "position_id",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "position_title",
+              label: "position_title",
+              data: {
+                id: "position_title",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "salary",
+              label: "salary",
+              data: {
+                id: "salary",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "store_id",
+              label: "store_id",
+              data: {
+                id: "store_id",
+                tableId: "employee"
+              }
+            },
+            {
+              id: "supervisor_id",
+              label: "supervisor_id",
+              data: {
+                id: "supervisor_id",
+                tableId: "employee"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
           id: "result_1",
           label: "[final result]",
           range: {
             startLine: 1,
             endLine: 1,
             startColumn: 0,
-            endColumn: 33
+            endColumn: 48
           },
           columns: [
             {
@@ -1925,10 +2077,32 @@ describe("antlr", () => {
                 startLine: 1,
                 endLine: 1,
                 startColumn: 7,
-                endColumn: 20
+                endColumn: 25
               }
             }
           ]
+        },
+        {
+          type: "edge",
+          edgeType: "select",
+          source: {
+            tableId: "result_2"
+          },
+          target: {
+            tableId: "result_1",
+            columnId: "column_1"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "select",
+          source: {
+            tableId: "result_3"
+          },
+          target: {
+            tableId: "result_1",
+            columnId: "column_1"
+          }
         }
       ]
     },
