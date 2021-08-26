@@ -1,5 +1,6 @@
 import { TablePrimary } from "..";
-import { Lineage } from "../Lineage";
+import { Column, Lineage } from "../Lineage";
+import { Range } from "../utils/getRange";
 import { QueryStructureVisitor, TableRelation, QueryRelation } from "./QueryStructureVisitor";
 
 export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor<void> {
@@ -8,6 +9,8 @@ export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor
   private usedTables: Map<string, string> = new Map();
   // map from tableId to deduplicated tableId
   private deduplicateTables: Map<string, string> = new Map();
+
+  private unfetchedColumns: Map<string, Column<ColumnData>[]> = new Map();
 
   constructor(
     getTable: (
@@ -38,8 +41,32 @@ export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor
     });
   }
 
+  onAssumeReference(tableId: string, columnId: string, columnLabel: string, range: Range): void {
+    console.log("ASSUMED", tableId, columnId);
+    const sourceTableId = this.mergedLeaves ? this.deduplicateTables.get(tableId) ?? tableId : tableId;
+    const columns = this.unfetchedColumns.get(sourceTableId);
+    if (columns !== undefined) {
+      columns.push({
+        id: columnId,
+        label: columnLabel,
+        range: range,
+        isAssumed: true
+      });
+    }
+  }
+
   onRelation(relation: TableRelation | QueryRelation, alias?: string): void {
     let label = alias ?? relation.id;
+
+    const columns = relation.columns.map(c => {
+      return {
+        id: c.id,
+        label: c.label,
+        range: c.range,
+        data: c.data as ColumnData
+      };
+    });
+
     if (relation instanceof TableRelation) {
       if (this.mergedLeaves) {
         const key = JSON.stringify(relation.tablePrimary);
@@ -57,21 +84,19 @@ export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor
             ? relation.tablePrimary.tableName + " -> " + alias
             : relation.tablePrimary.tableName;
       }
+
+      if (!relation.isFetched) {
+        this.unfetchedColumns.set(relation.id, columns);
+      }
     }
+
     this.lineage.push({
       type: "table",
       id: relation.id,
       label: label,
       range: relation.range,
       data: relation instanceof TableRelation ? (relation.data as TableData) : undefined,
-      columns: relation.columns.map(c => {
-        return {
-          id: c.id,
-          label: c.label,
-          range: c.range,
-          data: c.data as ColumnData
-        };
-      })
+      columns: columns
     });
   }
 

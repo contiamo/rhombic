@@ -58,7 +58,8 @@ export abstract class Relation {
     return col !== undefined
       ? {
           tableId: this.id,
-          columnId: col.id
+          columnId: col.id,
+          isAssumed: false
         }
       : undefined;
   }
@@ -69,11 +70,26 @@ export class TableRelation extends Relation {
     id: string,
     readonly tablePrimary: TablePrimary,
     columns: Array<Column>,
+    readonly isFetched: boolean,
     parent?: QueryRelation,
     range?: Range,
     readonly data?: unknown
   ) {
     super(id, columns, parent, range);
+  }
+
+  resolveColumn(columnName: QuotableIdentifier): ColumnRef | undefined {
+    const colRef = super.resolveColumn(columnName);
+    if (!this.isFetched && colRef === undefined) {
+      const column = {
+        id: `column_${this.columns.length + 1}`,
+        label: columnName.name
+      };
+      this.columns.push(column);
+      return { tableId: this.id, columnId: column.id, isAssumed: true };
+    } else {
+      return colRef;
+    }
   }
 }
 
@@ -239,6 +255,10 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
    * @returns
    */
   onColumnReference(_tableId: string, _columnId?: string): void {
+    return;
+  }
+
+  onAssumeReference(_tableId: string, _columnId: string, _columnLabel: string, _range: Range): void {
     return;
   }
 
@@ -422,6 +442,7 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
       this.getNextRelationId(),
       tablePrimary,
       columns,
+      metadata !== undefined,
       this.currentRelation,
       this.rangeFromContext(ctx),
       metadata?.table.data
@@ -563,6 +584,9 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
       const col = this.currentRelation.resolveRelationColumn(tableCol.column, tableCol.table);
       if (col !== undefined) {
         this.onColumnReference(col.tableId, col.columnId);
+        if (col.isAssumed) {
+          this.onAssumeReference(col.tableId, col.columnId, tableCol.column.name, this.rangeFromContext(ctx));
+        }
       }
       return this.defaultResult();
     } else {
