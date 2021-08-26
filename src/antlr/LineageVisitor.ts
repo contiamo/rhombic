@@ -42,7 +42,6 @@ export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor
   }
 
   onAssumeReference(tableId: string, columnId: string, columnLabel: string, range: Range): void {
-    console.log("ASSUMED", tableId, columnId);
     const sourceTableId = this.mergedLeaves ? this.deduplicateTables.get(tableId) ?? tableId : tableId;
     const columns = this.unfetchedColumns.get(sourceTableId);
     if (columns !== undefined) {
