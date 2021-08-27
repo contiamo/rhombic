@@ -4,7 +4,11 @@ name: Pull Request description
 
 on:
   pull_request:
-    branches: [ master ]
+    types:
+      # Check title when opened.
+      - opened
+      # When the title or description change
+      - edited
 jobs:
   check:
     runs-on: ubuntu-latest
