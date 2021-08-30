@@ -1,0 +1,24 @@
+# Enforce every pull-request to have a description
+
+name: Pull Request description
+
+on:
+  pull_request:
+    types:
+      # Check title when opened.
+      - opened
+      # When the title or description change
+      - edited
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Enforce Pull Request Description Length
+        uses: ryanvade/enforce-pr-description-length-action@v1
+        with:
+          minLength: 20
