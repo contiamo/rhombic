@@ -8,6 +8,7 @@ import {
   AliasedQueryContext,
   ColumnReferenceContext,
   DereferenceContext,
+  ExistsContext,
   ExpressionContext,
   FromClauseContext,
   FunctionCallContext,
@@ -16,6 +17,7 @@ import {
   JoinCriteriaUsingContext,
   NamedExpressionContext,
   NamedQueryContext,
+  PredicateContext,
   PredicatedContext,
   PrimaryExpressionContext,
   QueryContext,
@@ -24,6 +26,7 @@ import {
   RegularQuerySpecificationContext,
   SelectClauseContext,
   StarContext,
+  SubqueryExpressionContext,
   TableNameContext,
   ValueExpressionDefaultContext,
   WhereClauseContext
@@ -514,6 +517,38 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
     return this.processClause("order by", ctx);
   }
 
+  /**
+   * Handle subquery in EXISTS.
+   * @param ctx
+   * @returns
+   */
+  visitExists(ctx: ExistsContext): Result {
+    const result = this.visitChildren(ctx);
+    const rel = this.lastRelation;
+    if (rel !== undefined) {
+      this.onRelation(rel);
+      this.onColumnReference(rel.id);
+    }
+    return result;
+  }
+
+  /**
+   * Handle subquery in IN predicate.
+   * @param ctx
+   * @returns
+   */
+  visitPredicate(ctx: PredicateContext): Result {
+    const result = this.visitChildren(ctx);
+    if (ctx.query() !== undefined) {
+      const rel = this.lastRelation;
+      if (rel !== undefined) {
+        this.onRelation(rel);
+        this.onColumnReference(rel.id);
+      }
+    }
+    return result;
+  }
+
   visitNamedExpression(ctx: NamedExpressionContext): Result {
     if (ctx.errorCapturingIdentifier() === undefined) {
       const star = this.isStar(ctx.expression());
@@ -541,6 +576,16 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
     const result = this.visitChildren(ctx);
     this.currentRelation.currentColumnId = undefined;
 
+    return result;
+  }
+
+  visitSubqueryExpression(ctx: SubqueryExpressionContext): Result {
+    const result = this.visitChildren(ctx);
+    const rel = this.lastRelation;
+    if (rel !== undefined) {
+      this.onRelation(rel);
+      this.onColumnReference(rel.id);
+    }
     return result;
   }
 
