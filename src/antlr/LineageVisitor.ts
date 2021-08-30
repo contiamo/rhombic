@@ -10,8 +10,6 @@ export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor
   // map from tableId to deduplicated tableId
   private deduplicateTables: Map<string, string> = new Map();
 
-  private unfetchedColumns: Map<string, Column<ColumnData>[]> = new Map();
-
   constructor(
     getTable: (
       table: TablePrimary
@@ -41,17 +39,12 @@ export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor
     });
   }
 
-  onAssumeReference(tableId: string, columnId: string, columnLabel: string, range: Range): void {
-    const sourceTableId = this.mergedLeaves ? this.deduplicateTables.get(tableId) ?? tableId : tableId;
-    const columns = this.unfetchedColumns.get(sourceTableId);
-    if (columns !== undefined) {
-      columns.push({
-        id: columnId,
-        label: columnLabel,
-        range: range,
-        isAssumed: true
-      });
-    }
+  private remapTableIds(newId: string, existingId: string) {
+    this.lineage.forEach(l => {
+      if (l.type === "edge" && l.source.tableId === newId) {
+        l.source.tableId = existingId;
+      }
+    });
   }
 
   onRelation(relation: TableRelation | QueryRelation, alias?: string): void {
@@ -62,7 +55,8 @@ export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor
         id: c.id,
         label: c.label,
         range: c.range,
-        data: c.data as ColumnData
+        data: c.data as ColumnData,
+        isAssumed: c.isAssumed
       };
     });
 
@@ -72,6 +66,7 @@ export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor
         const existing = this.usedTables.get(key);
         if (existing !== undefined) {
           this.deduplicateTables.set(relation.id, existing);
+          this.remapTableIds(relation.id, existing);
           return;
         } else {
           this.usedTables.set(key, relation.id);
@@ -82,10 +77,6 @@ export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor
           alias !== undefined && alias != relation.tablePrimary.tableName
             ? relation.tablePrimary.tableName + " -> " + alias
             : relation.tablePrimary.tableName;
-      }
-
-      if (!relation.isFetched) {
-        this.unfetchedColumns.set(relation.id, columns);
       }
     }
 

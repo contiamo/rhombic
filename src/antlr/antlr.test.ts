@@ -1,5 +1,5 @@
 import antlr from ".";
-import { Lineage } from "../Lineage";
+import { Edge, Lineage, Table } from "../Lineage";
 import * as fs from "fs";
 import { TablePrimary } from "..";
 
@@ -4526,7 +4526,33 @@ describe("antlr", () => {
     }
   ];
 
-  cases.forEach(({ data, name, only, sql, debug, mergedLeaves }) => {
+  function cmpLineage(
+    a: Edge | Table<{ id: string }, { id: string; tableId: string }>,
+    b: Edge | Table<{ id: string }, { id: string; tableId: string }>
+  ): number {
+    switch (a.type) {
+      case "edge":
+        switch (b.type) {
+          case "edge":
+            return 0;
+          case "table":
+            return -1;
+        }
+      case "table":
+        switch (b.type) {
+          case "edge":
+            return 1;
+          case "table":
+            return a.id.localeCompare(b.id);
+        }
+    }
+  }
+
+  cases.forEach(({ data, name, only, sql, debug, mergedLeaves }, idx) => {
+    if (idx === -cases.length - 5) {
+      return;
+    }
+
     (only ? it.only : it)(`should parse ${name}`, () => {
       const lineage = antlr.parse(sql, { doubleQuotedIdentifier: true }).getLineage(getTable, mergedLeaves);
       if (debug) {
@@ -4537,6 +4563,10 @@ describe("antlr", () => {
           fs.writeFileSync("debug.json", next);
         }
       }
+
+      data.sort(cmpLineage);
+      lineage.sort(cmpLineage);
+
       expect(lineage).toEqual(data);
     });
   });
