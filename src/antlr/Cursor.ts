@@ -1,3 +1,5 @@
+import { TablePrimary } from "..";
+
 interface Position {
   lineNumber: number;
   column: number;
@@ -51,7 +53,18 @@ export class Cursor implements CursorUpdate, CursorQuery {
     return str.includes(str);
   }
 
-  removeFrom(str: string): string {
+  removeFrom(str: string): string;
+  removeFrom(tp: TablePrimary): TablePrimary;
+  removeFrom(str: string | TablePrimary): string | TablePrimary {
+    if (typeof str === "object") {
+      return {
+        catalogName: str.catalogName ? this.removeFrom(str.catalogName) : undefined,
+        schemaName: str.schemaName ? this.removeFrom(str.schemaName) : undefined,
+        tableName: this.removeFrom(str.tableName),
+        alias: str.alias ? this.removeFrom(str.alias) : undefined,
+        range: str.range
+      };
+    }
     return str.replace(this.value, "");
   }
 

@@ -3,9 +3,14 @@ import { TablePrimary } from "..";
 import { SqlBaseVisitor } from "./SqlBaseVisitor";
 import common from "./common";
 import { TableNameContext } from "./SqlBaseParser";
+import { CursorQuery } from "./Cursor";
 
 export class ExtractTablesVisitor extends AbstractParseTreeVisitor<TablePrimary[]>
   implements SqlBaseVisitor<TablePrimary[]> {
+  constructor(readonly cursor: CursorQuery) {
+    super();
+  }
+
   protected defaultResult(): TablePrimary[] {
     return [];
   }
@@ -18,7 +23,8 @@ export class ExtractTablesVisitor extends AbstractParseTreeVisitor<TablePrimary[
     const multipartTableName = ctx
       .multipartIdentifier()
       .errorCapturingIdentifier()
-      .map(v => common.stripQuote(v.identifier()).name);
-    return [common.tablePrimaryFromMultipart(multipartTableName)];
+      .map(v => this.cursor.removeFrom(common.stripQuote(v.identifier()).name))
+      .filter(v => v.length != 0);
+    return multipartTableName.length > 0 ? [common.tablePrimaryFromMultipart(multipartTableName)] : [];
   }
 }

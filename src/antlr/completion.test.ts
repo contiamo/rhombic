@@ -292,5 +292,5 @@ function runCompletion(sql: string, env: Map<string, string[]>): CompletionItem[
     }
   }
 
-  return antlr.suggest(cleanedSql, position, getTables, getTable);
+  return antlr.parse(cleanedSql, { cursorPosition: position }).getSuggestions(getTables, getTable);
 }

@@ -12,6 +12,7 @@ import _ from "lodash";
 
 interface ParserOptions {
   doubleQuotedIdentifier?: boolean;
+  cursorPosition?: { lineNumber: number; column: number };
 }
 
 type TableListProvider = () => TablePrimary[];
@@ -20,10 +21,10 @@ type TableProvider<T, C> = (
 ) => { table: { id: string; data: T }; columns: { id: string; data: C }[] } | undefined;
 
 class SqlParseTree {
-  constructor(public readonly tree: StatementContext) {}
+  constructor(public readonly tree: StatementContext, readonly cursor: Cursor) {}
 
   getUsedTables(): TablePrimary[] {
-    const visitor = new ExtractTablesVisitor();
+    const visitor = new ExtractTablesVisitor(this.cursor);
     return this.tree.accept(visitor);
   }
 
@@ -31,7 +32,7 @@ class SqlParseTree {
     getTable: TableProvider<TableData, ColumnData>,
     mergedLeaves?: boolean
   ): Lineage<TableData, ColumnData> {
-    const visitor = new LineageVisitor<TableData, ColumnData>(getTable, mergedLeaves);
+    const visitor = new LineageVisitor<TableData, ColumnData>(tp => getTable(this.cursor.removeFrom(tp)), mergedLeaves);
     this.tree.accept(visitor);
     const lineage = visitor.lineage;
     const tables: Lineage<TableData, ColumnData> = [];
@@ -66,6 +67,15 @@ class SqlParseTree {
 
     return tables.concat(edges);
   }
+
+  getSuggestions(getTables: TableListProvider, getTable: TableProvider<any, any>): CompletionItem[] {
+    const completionVisitor = new CompletionVisitor(defaultCursor, getTables, tp =>
+      getTable(this.cursor.removeFrom(tp))
+    );
+    this.tree.accept(completionVisitor);
+
+    return completionVisitor.getSuggestions();
+  }
 }
 
 const defaultCursor = new Cursor("_CURSOR_");
@@ -73,6 +83,10 @@ const defaultCursor = new Cursor("_CURSOR_");
 const antlr = {
   parse(sql: string, options?: ParserOptions): SqlParseTree {
     const doubleQuotedIdentifier = options?.doubleQuotedIdentifier ?? false;
+
+    if (options?.cursorPosition !== undefined) {
+      sql = defaultCursor.insertAt(sql, options.cursorPosition);
+    }
 
     const inputStream = new UppercaseCharStream(CharStreams.fromString(sql));
     const lexer = new SqlBaseLexer(inputStream);
@@ -82,35 +96,7 @@ const antlr = {
     parser.doublequoted_identifier = doubleQuotedIdentifier;
     parser.buildParseTree = true;
     parser.removeErrorListeners();
-    return new SqlParseTree(parser.statement());
-  },
-
-  suggest(
-    sql: string,
-    position: { lineNumber: number; column: number },
-    getTables: TableListProvider,
-    getTable: TableProvider<any, any>,
-    options?: ParserOptions
-  ): CompletionItem[] {
-    const doubleQuotedIdentifier = options?.doubleQuotedIdentifier ?? false;
-
-    const sqlWithCursor = defaultCursor.insertAt(sql, position);
-
-    const inputStream = new UppercaseCharStream(CharStreams.fromString(sqlWithCursor));
-    const lexer = new SqlBaseLexer(inputStream);
-    lexer.doublequoted_identifier = doubleQuotedIdentifier;
-    const tokens = new CommonTokenStream(lexer);
-    const parser = new SqlBaseParser(tokens);
-    parser.doublequoted_identifier = doubleQuotedIdentifier;
-    parser.buildParseTree = true;
-    parser.removeErrorListeners();
-
-    const ast = parser.statement();
-
-    const completionVisitor = new CompletionVisitor(defaultCursor, getTables, getTable);
-    ast.accept(completionVisitor);
-
-    return completionVisitor.getSuggestions();
+    return new SqlParseTree(parser.statement(), defaultCursor);
   }
 };
 
