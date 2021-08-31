@@ -9,9 +9,12 @@ export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor
   constructor(
     getTable: (
       table: TablePrimary
-    ) => { table: { id: string; data: TableData }; columns: { id: string; data: ColumnData }[] } | undefined
+    ) => { table: { id: string; data: TableData }; columns: { id: string; data: ColumnData }[] } | undefined,
+    options?: {
+      positionalRefsEnabled?: boolean;
+    }
   ) {
-    super(getTable);
+    super(getTable, options);
   }
 
   //

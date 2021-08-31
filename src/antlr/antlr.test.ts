@@ -99,6 +99,9 @@ describe("antlr", () => {
     only?: boolean;
     debug?: boolean; // output in debug.json
     mergedLeaves?: boolean;
+    options?: {
+      positionalRefsEnabled?: boolean;
+    };
   }> = [
     {
       name: "select with aliases",
@@ -4758,6 +4761,269 @@ describe("antlr", () => {
           }
         }
       ]
+    },
+    {
+      name: "ORDER BY references",
+      sql: "SELECT account_id aid, account_parent ap FROM account GROUP BY ap, aid ORDER BY 2, aid",
+      options: {
+        positionalRefsEnabled: true
+      },
+      data: [
+        {
+          type: "table",
+          id: "result_2",
+          label: "account",
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 46,
+            endColumn: 53
+          },
+          data: {
+            id: "account"
+          },
+          columns: [
+            {
+              id: "account_type",
+              label: "account_type",
+              data: {
+                id: "account_type",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_id",
+              label: "account_id",
+              data: {
+                id: "account_id",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_description",
+              label: "account_description",
+              data: {
+                id: "account_description",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_parent",
+              label: "account_parent",
+              data: {
+                id: "account_parent",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_rollup",
+              label: "account_rollup",
+              data: {
+                id: "account_rollup",
+                tableId: "account"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_1",
+          label: "[final result]",
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 0,
+            endColumn: 86
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "aid",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 7,
+                endColumn: 21
+              }
+            },
+            {
+              id: "column_2",
+              label: "ap",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 23,
+                endColumn: 40
+              }
+            }
+          ]
+        },
+        {
+          type: "edge",
+          edgeType: "select",
+          source: {
+            tableId: "result_2",
+            columnId: "account_id"
+          },
+          target: {
+            tableId: "result_1",
+            columnId: "column_1"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "select",
+          source: {
+            tableId: "result_2",
+            columnId: "account_parent"
+          },
+          target: {
+            tableId: "result_1",
+            columnId: "column_2"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "group by",
+          source: {
+            tableId: "result_2",
+            columnId: "account_parent"
+          },
+          target: {
+            tableId: "result_1"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "group by",
+          source: {
+            tableId: "result_2",
+            columnId: "account_id"
+          },
+          target: {
+            tableId: "result_1"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "order by",
+          source: {
+            tableId: "result_2",
+            columnId: "account_parent"
+          },
+          target: {
+            tableId: "result_1"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "order by",
+          source: {
+            tableId: "result_2",
+            columnId: "account_id"
+          },
+          target: {
+            tableId: "result_1"
+          }
+        }
+      ]
+    },
+    {
+      name: "ORDER BY positional references disabled by default",
+      sql: "SELECT account_id aid FROM account ORDER BY 1",
+      data: [
+        {
+          type: "table",
+          id: "result_2",
+          label: "account",
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 27,
+            endColumn: 34
+          },
+          data: {
+            id: "account"
+          },
+          columns: [
+            {
+              id: "account_type",
+              label: "account_type",
+              data: {
+                id: "account_type",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_id",
+              label: "account_id",
+              data: {
+                id: "account_id",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_description",
+              label: "account_description",
+              data: {
+                id: "account_description",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_parent",
+              label: "account_parent",
+              data: {
+                id: "account_parent",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_rollup",
+              label: "account_rollup",
+              data: {
+                id: "account_rollup",
+                tableId: "account"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_1",
+          label: "[final result]",
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 0,
+            endColumn: 45
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "aid",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 7,
+                endColumn: 21
+              }
+            }
+          ]
+        },
+        {
+          type: "edge",
+          edgeType: "select",
+          source: {
+            tableId: "result_2",
+            columnId: "account_id"
+          },
+          target: {
+            tableId: "result_1",
+            columnId: "column_1"
+          }
+        }
+      ]
     }
   ];
 
@@ -4773,19 +5039,21 @@ describe("antlr", () => {
           case "table":
             return -1;
         }
+        break;
       case "table":
         switch (b.type) {
           case "edge":
             return 1;
+            break;
           case "table":
             return a.id.localeCompare(b.id);
         }
     }
   }
 
-  cases.forEach(({ data, name, only, sql, debug, mergedLeaves }) => {
+  cases.forEach(({ data, name, only, sql, debug, mergedLeaves, options }) => {
     (only ? it.only : it)(`should parse ${name}`, () => {
-      const lineage = antlr.parse(sql, { doubleQuotedIdentifier: true }).getLineage(getTable, mergedLeaves);
+      const lineage = antlr.parse(sql, { doubleQuotedIdentifier: true }).getLineage(getTable, mergedLeaves, options);
       if (debug) {
         const previous = fs.existsSync("debug.json") ? fs.readFileSync("debug.json", "utf-8") : "";
         const next = JSON.stringify(lineage, null, 2);

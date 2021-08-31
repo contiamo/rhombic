@@ -18,7 +18,7 @@ import {
   JoinCriteriaUsingContext,
   NamedExpressionContext,
   NamedQueryContext,
-  NumberContext,
+  NumericLiteralContext,
   PredicateContext,
   PredicatedContext,
   PrimaryExpressionContext,
@@ -96,12 +96,7 @@ export class TableRelation extends Relation {
   }
 
   addAssumedColumn(columnName: QuotableIdentifier, range: Range): ColumnRef {
-    const column = {
-      id: `column_${this.columns.length + 1}`,
-      label: columnName.name,
-      range: range,
-      isAssumed: true
-    };
+    const column = new Column(`column_${this.columns.length + 1}`, columnName.name, range, undefined, true);
     this.columns.push(column);
     return { tableId: this.id, columnId: column.id, isAssumed: true };
   }
@@ -679,10 +674,10 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
       const primExp = this.isPrimaryExpression(ctx.expression());
       if (primExp instanceof ConstantDefaultContext) {
         const constant = primExp.constant();
-        if (constant instanceof NumberContext) {
+        if (constant instanceof NumericLiteralContext) {
           const idx = Number(constant.text) - 1;
           const col = this.currentRelation.columns[idx];
-          if (col != undefined) {
+          if (col !== undefined) {
             col.columnReferences.forEach(cr => this.onColumnReference(cr.tableId, cr.columnId));
             return this.defaultResult();
           }
