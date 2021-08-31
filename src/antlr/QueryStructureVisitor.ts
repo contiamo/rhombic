@@ -274,10 +274,9 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
   }
 
   private reportTableReferences() {
-    for (const entry of this.currentRelation.relations) {
-      const relation = entry[1];
+    for (const [alias, relation] of this.currentRelation.relations) {
       if (relation instanceof TableRelation) {
-        this.onRelation(relation, entry[0] !== relation.id ? entry[0] : undefined);
+        this.onRelation(relation, alias !== relation.id ? alias : undefined);
       }
     }
   }
