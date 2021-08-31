@@ -1,20 +1,18 @@
 import { TablePrimary } from "..";
-import { Column, Lineage } from "../Lineage";
-import { Range } from "../utils/getRange";
+import { Edge, Table } from "../Lineage";
 import { QueryStructureVisitor, TableRelation, QueryRelation } from "./QueryStructureVisitor";
 
 export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor<void> {
-  lineage: Lineage<TableData, ColumnData> = [];
-  // map from tablePrimary to tableId
-  private usedTables: Map<string, string> = new Map();
-  // map from tableId to deduplicated tableId
-  private deduplicateTables: Map<string, string> = new Map();
+  //lineage: Lineage<TableData, ColumnData> = [];
+  lineage: {
+    tables: { tablePrimary?: TablePrimary; table: Table<TableData, ColumnData> }[];
+    edges: Edge[];
+  } = { tables: [], edges: [] };
 
   constructor(
     getTable: (
       table: TablePrimary
-    ) => { table: { id: string; data: TableData }; columns: { id: string; data: ColumnData }[] } | undefined,
-    readonly mergedLeaves?: boolean
+    ) => { table: { id: string; data: TableData }; columns: { id: string; data: ColumnData }[] } | undefined
   ) {
     super(getTable);
   }
@@ -24,25 +22,16 @@ export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor
   //
 
   onColumnReference(tableId: string, columnId?: string): void {
-    const sourceTableId = this.mergedLeaves ? this.deduplicateTables.get(tableId) ?? tableId : tableId;
-    this.lineage.push({
+    this.lineage.edges.push({
       type: "edge",
       edgeType: this.currentRelation.currentClause,
       source: {
-        tableId: sourceTableId,
+        tableId: tableId,
         columnId: columnId
       },
       target: {
         tableId: this.currentRelation.id,
         columnId: this.currentRelation.currentColumnId
-      }
-    });
-  }
-
-  private remapTableIds(newId: string, existingId: string) {
-    this.lineage.forEach(l => {
-      if (l.type === "edge" && l.source.tableId === newId) {
-        l.source.tableId = existingId;
       }
     });
   }
@@ -60,33 +49,25 @@ export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor
       };
     });
 
+    let tablePrimary: TablePrimary | undefined;
     if (relation instanceof TableRelation) {
-      if (this.mergedLeaves) {
-        const key = JSON.stringify(relation.tablePrimary);
-        const existing = this.usedTables.get(key);
-        if (existing !== undefined) {
-          this.deduplicateTables.set(relation.id, existing);
-          this.remapTableIds(relation.id, existing);
-          return;
-        } else {
-          this.usedTables.set(key, relation.id);
-        }
-        label = relation.tablePrimary.tableName;
-      } else {
-        label =
-          alias !== undefined && alias != relation.tablePrimary.tableName
-            ? relation.tablePrimary.tableName + " -> " + alias
-            : relation.tablePrimary.tableName;
-      }
+      label =
+        alias !== undefined && alias != relation.tablePrimary.tableName
+          ? relation.tablePrimary.tableName + " -> " + alias
+          : relation.tablePrimary.tableName;
+      tablePrimary = relation.tablePrimary;
     }
 
-    this.lineage.push({
-      type: "table",
-      id: relation.id,
-      label: label,
-      range: relation.range,
-      data: relation instanceof TableRelation ? (relation.data as TableData) : undefined,
-      columns: columns
+    this.lineage.tables.push({
+      tablePrimary,
+      table: {
+        type: "table",
+        id: relation.id,
+        label: label,
+        range: relation.range,
+        data: relation instanceof TableRelation ? (relation.data as TableData) : undefined,
+        columns: columns
+      }
     });
   }
 

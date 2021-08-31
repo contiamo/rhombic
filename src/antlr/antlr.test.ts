@@ -4783,11 +4783,7 @@ describe("antlr", () => {
     }
   }
 
-  cases.forEach(({ data, name, only, sql, debug, mergedLeaves }, idx) => {
-    if (idx === -cases.length - 5) {
-      return;
-    }
-
+  cases.forEach(({ data, name, only, sql, debug, mergedLeaves }) => {
     (only ? it.only : it)(`should parse ${name}`, () => {
       const lineage = antlr.parse(sql, { doubleQuotedIdentifier: true }).getLineage(getTable, mergedLeaves);
       if (debug) {
