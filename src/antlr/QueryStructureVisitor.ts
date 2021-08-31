@@ -39,7 +39,13 @@ const ROOT_QUERY_ID = "result_1";
 export const ROOT_QUERY_NAME = "[final result]";
 
 export class Column {
-  constructor(readonly id: string, public label: string, readonly range?: Range, readonly data?: unknown) {}
+  constructor(
+    readonly id: string,
+    public label: string,
+    readonly range?: Range,
+    readonly data?: unknown,
+    readonly isAssumed?: boolean
+  ) {}
 }
 
 export abstract class Relation {
@@ -61,7 +67,8 @@ export abstract class Relation {
     return col !== undefined
       ? {
           tableId: this.id,
-          columnId: col.id
+          columnId: col.id,
+          isAssumed: false
         }
       : undefined;
   }
@@ -72,11 +79,23 @@ export class TableRelation extends Relation {
     id: string,
     readonly tablePrimary: TablePrimary,
     columns: Array<Column>,
+    readonly isFetched: boolean,
     parent?: QueryRelation,
     range?: Range,
     readonly data?: unknown
   ) {
     super(id, columns, parent, range);
+  }
+
+  addAssumedColumn(columnName: QuotableIdentifier, range: Range): ColumnRef {
+    const column = {
+      id: `column_${this.columns.length + 1}`,
+      label: columnName.name,
+      range: range,
+      isAssumed: true
+    };
+    this.columns.push(column);
+    return { tableId: this.id, columnId: column.id, isAssumed: true };
   }
 }
 
@@ -136,18 +155,37 @@ export class QueryRelation extends Relation {
     return this.parent?.findCTE(tableName);
   }
 
-  resolveRelationColumn(columnName: QuotableIdentifier, tableName?: QuotableIdentifier): ColumnRef | undefined {
+  resolveOrAssumeRelationColumn(
+    columnName: QuotableIdentifier,
+    range: Range,
+    tableName?: QuotableIdentifier
+  ): ColumnRef | undefined {
     if (tableName !== undefined) {
-      return this.findRelation(tableName)?.resolveColumn(columnName);
+      const rel = this.findRelation(tableName);
+      const col = rel?.resolveColumn(columnName);
+      if (col === undefined && rel != undefined && rel instanceof TableRelation && !rel.isFetched) {
+        return rel.addAssumedColumn(columnName, range);
+      }
+      return col;
     } else {
+      const unfetched: TableRelation[] = [];
       for (const r of this.relations) {
-        const col = r[1].resolveColumn(columnName);
+        const rel = r[1];
+        const col = rel.resolveColumn(columnName);
         if (col) {
           return col;
         }
+        if (rel instanceof TableRelation && !rel.isFetched) {
+          unfetched.push(rel);
+        }
       }
+
+      if (unfetched.length == 1) {
+        return unfetched[0].addAssumedColumn(columnName, range);
+      }
+
+      return undefined;
     }
-    return undefined;
   }
 
   getNextColumnId(): string {
@@ -235,6 +273,14 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
     return;
   }
 
+  private reportTableReferences() {
+    for (const [alias, relation] of this.currentRelation.relations) {
+      if (relation instanceof TableRelation) {
+        this.onRelation(relation, alias !== relation.id ? alias : undefined);
+      }
+    }
+  }
+
   /**
    * Called when column reference is ready.
    * @param _tableId
@@ -314,6 +360,8 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
 
     const result = this.visitChildren(ctx);
 
+    this.reportTableReferences();
+
     // to be consumed later
     this.lastRelation = this.currentRelation;
     if (this.currentRelation.id == ROOT_QUERY_ID) this.onRelation(this.currentRelation, ROOT_QUERY_NAME);
@@ -327,6 +375,8 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
   visitQueryTermDefault(ctx: QueryTermDefaultContext): Result {
     // reinit column seq as we will repeat the same columns in subsequent queries
     this.currentRelation.columnIdSeq = 0;
+    // reports table references from previous queryTerm (if any)
+    this.reportTableReferences();
     // clear relations for each queryTermDefault because it's individual query
     this.currentRelation.relations = new Map();
     return this.visitChildren(ctx);
@@ -425,13 +475,13 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
       this.getNextRelationId(),
       tablePrimary,
       columns,
+      metadata !== undefined,
       this.currentRelation,
       this.rangeFromContext(ctx),
       metadata?.table.data
     );
 
     this.currentRelation.relations.set(alias, relation);
-    this.onRelation(relation, alias);
 
     return this.defaultResult();
   }
@@ -605,7 +655,8 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
   private processColumnReference(ctx: ColumnReferenceContext | DereferenceContext): Result {
     const tableCol = this.extractTableAndColumn(ctx);
     if (tableCol !== undefined) {
-      const col = this.currentRelation.resolveRelationColumn(tableCol.column, tableCol.table);
+      const range = this.rangeFromContext(ctx);
+      const col = this.currentRelation.resolveOrAssumeRelationColumn(tableCol.column, range, tableCol.table);
       if (col !== undefined) {
         this.onColumnReference(col.tableId, col.columnId);
       }

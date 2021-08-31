@@ -1,19 +1,15 @@
 import { TablePrimary } from "..";
-import { Lineage } from "../Lineage";
+import { Edge, Table } from "../Lineage";
 import { QueryStructureVisitor, TableRelation, QueryRelation } from "./QueryStructureVisitor";
 
 export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor<void> {
-  lineage: Lineage<TableData, ColumnData> = [];
-  // map from tablePrimary to tableId
-  private usedTables: Map<string, string> = new Map();
-  // map from tableId to deduplicated tableId
-  private deduplicateTables: Map<string, string> = new Map();
+  tables: { tablePrimary?: TablePrimary; table: Table<TableData, ColumnData> }[] = [];
+  edges: Edge[] = [];
 
   constructor(
     getTable: (
       table: TablePrimary
-    ) => { table: { id: string; data: TableData }; columns: { id: string; data: ColumnData }[] } | undefined,
-    readonly mergedLeaves?: boolean
+    ) => { table: { id: string; data: TableData }; columns: { id: string; data: ColumnData }[] } | undefined
   ) {
     super(getTable);
   }
@@ -23,12 +19,11 @@ export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor
   //
 
   onColumnReference(tableId: string, columnId?: string): void {
-    const sourceTableId = this.mergedLeaves ? this.deduplicateTables.get(tableId) ?? tableId : tableId;
-    this.lineage.push({
+    this.edges.push({
       type: "edge",
       edgeType: this.currentRelation.currentClause,
       source: {
-        tableId: sourceTableId,
+        tableId: tableId,
         columnId: columnId
       },
       target: {
@@ -40,38 +35,36 @@ export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor
 
   onRelation(relation: TableRelation | QueryRelation, alias?: string): void {
     let label = alias ?? relation.id;
+
+    const columns = relation.columns.map(c => {
+      return {
+        id: c.id,
+        label: c.label,
+        range: c.range,
+        data: c.data as ColumnData,
+        isAssumed: c.isAssumed
+      };
+    });
+
+    let tablePrimary: TablePrimary | undefined;
     if (relation instanceof TableRelation) {
-      if (this.mergedLeaves) {
-        const key = JSON.stringify(relation.tablePrimary);
-        const existing = this.usedTables.get(key);
-        if (existing !== undefined) {
-          this.deduplicateTables.set(relation.id, existing);
-          return;
-        } else {
-          this.usedTables.set(key, relation.id);
-        }
-        label = relation.tablePrimary.tableName;
-      } else {
-        label =
-          alias !== undefined && alias != relation.tablePrimary.tableName
-            ? relation.tablePrimary.tableName + " -> " + alias
-            : relation.tablePrimary.tableName;
-      }
+      label =
+        alias !== undefined && alias != relation.tablePrimary.tableName
+          ? relation.tablePrimary.tableName + " -> " + alias
+          : relation.tablePrimary.tableName;
+      tablePrimary = relation.tablePrimary;
     }
-    this.lineage.push({
-      type: "table",
-      id: relation.id,
-      label: label,
-      range: relation.range,
-      data: relation instanceof TableRelation ? (relation.data as TableData) : undefined,
-      columns: relation.columns.map(c => {
-        return {
-          id: c.id,
-          label: c.label,
-          range: c.range,
-          data: c.data as ColumnData
-        };
-      })
+
+    this.tables.push({
+      tablePrimary,
+      table: {
+        type: "table",
+        id: relation.id,
+        label: label,
+        range: relation.range,
+        data: relation instanceof TableRelation ? (relation.data as TableData) : undefined,
+        columns: columns
+      }
     });
   }
 

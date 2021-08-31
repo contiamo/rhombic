@@ -1,5 +1,5 @@
 import antlr from ".";
-import { Lineage } from "../Lineage";
+import { Edge, Lineage, Table } from "../Lineage";
 import * as fs from "fs";
 import { TablePrimary } from "..";
 
@@ -38,6 +38,10 @@ const columnsMapping: { [tableId: string]: ColumnId[] } = {
 };
 
 const getTable = (table: TablePrimary) => {
+  if (!(table.tableName in columnsMapping)) {
+    return undefined;
+  }
+
   const columnNames = columnsMapping[table.tableName] || [];
   const columns = columnNames.map(columnId => ({
     id: columnId,
@@ -4689,8 +4693,95 @@ describe("antlr", () => {
           }
         }
       ]
+    },
+    {
+      name: "derive fields for unknown tables",
+      sql: "SELECT a_column FROM a_table",
+      data: [
+        {
+          type: "table",
+          id: "result_2",
+          label: "a_table",
+          range: {
+            startLine: 1,
+            startColumn: 21,
+            endLine: 1,
+            endColumn: 28
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "a_column",
+              isAssumed: true,
+              range: {
+                startLine: 1,
+                startColumn: 7,
+                endLine: 1,
+                endColumn: 15
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_1",
+          label: "[final result]",
+          range: {
+            startLine: 1,
+            startColumn: 0,
+            endLine: 1,
+            endColumn: 28
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "a_column",
+              range: {
+                startLine: 1,
+                startColumn: 7,
+                endLine: 1,
+                endColumn: 15
+              }
+            }
+          ]
+        },
+        {
+          type: "edge",
+          edgeType: "select",
+          source: {
+            tableId: "result_2",
+            columnId: "column_1"
+          },
+          target: {
+            tableId: "result_1",
+            columnId: "column_1"
+          }
+        }
+      ]
     }
   ];
+
+  function cmpLineage(
+    a: Edge | Table<{ id: string }, { id: string; tableId: string }>,
+    b: Edge | Table<{ id: string }, { id: string; tableId: string }>
+  ): number {
+    switch (a.type) {
+      case "edge":
+        switch (b.type) {
+          case "edge":
+            return 0;
+          case "table":
+            return -1;
+        }
+      case "table":
+        switch (b.type) {
+          case "edge":
+            return 1;
+          case "table":
+            return a.id.localeCompare(b.id);
+        }
+    }
+  }
 
   cases.forEach(({ data, name, only, sql, debug, mergedLeaves }) => {
     (only ? it.only : it)(`should parse ${name}`, () => {
@@ -4703,6 +4794,10 @@ describe("antlr", () => {
           fs.writeFileSync("debug.json", next);
         }
       }
+
+      data.sort(cmpLineage);
+      lineage.sort(cmpLineage);
+
       expect(lineage).toEqual(data);
     });
   });
