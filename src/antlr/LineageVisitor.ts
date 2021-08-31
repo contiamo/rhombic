@@ -3,11 +3,8 @@ import { Edge, Table } from "../Lineage";
 import { QueryStructureVisitor, TableRelation, QueryRelation } from "./QueryStructureVisitor";
 
 export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor<void> {
-  //lineage: Lineage<TableData, ColumnData> = [];
-  lineage: {
-    tables: { tablePrimary?: TablePrimary; table: Table<TableData, ColumnData> }[];
-    edges: Edge[];
-  } = { tables: [], edges: [] };
+  tables: { tablePrimary?: TablePrimary; table: Table<TableData, ColumnData> }[] = [];
+  edges: Edge[] = [];
 
   constructor(
     getTable: (
@@ -22,7 +19,7 @@ export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor
   //
 
   onColumnReference(tableId: string, columnId?: string): void {
-    this.lineage.edges.push({
+    this.edges.push({
       type: "edge",
       edgeType: this.currentRelation.currentClause,
       source: {
@@ -58,7 +55,7 @@ export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor
       tablePrimary = relation.tablePrimary;
     }
 
-    this.lineage.tables.push({
+    this.tables.push({
       tablePrimary,
       table: {
         type: "table",

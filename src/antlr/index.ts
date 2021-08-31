@@ -27,7 +27,8 @@ class SqlParseTree {
   ): Lineage<TableData, ColumnData> {
     const visitor = new LineageVisitor<TableData, ColumnData>(getTable);
     this.tree.accept(visitor);
-    let { tables, edges } = visitor.lineage;
+    const tables = visitor.tables;
+    const edges = visitor.edges;
 
     const cleanedTables: Table<TableData, ColumnData>[] = [];
 
