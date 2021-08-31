@@ -1,5 +1,5 @@
 import { CharStreams, CommonTokenStream } from "antlr4ts";
-import { Lineage } from "../Lineage";
+import { Lineage, Table } from "../Lineage";
 import { SqlBaseLexer } from "./SqlBaseLexer";
 import { SqlBaseParser, StatementContext } from "./SqlBaseParser";
 import { UppercaseCharStream } from "./UppercaseCharStream";
@@ -32,18 +32,46 @@ class SqlParseTree {
     getTable: TableProvider<TableData, ColumnData>,
     mergedLeaves?: boolean
   ): Lineage<TableData, ColumnData> {
-    const visitor = new LineageVisitor<TableData, ColumnData>(tp => getTable(this.cursor.removeFrom(tp)), mergedLeaves);
+    const visitor = new LineageVisitor<TableData, ColumnData>(tp => getTable(this.cursor.removeFrom(tp)));
+
     this.tree.accept(visitor);
-    const lineage = visitor.lineage;
-    const tables: Lineage<TableData, ColumnData> = [];
-    const edges: Lineage<TableData, ColumnData> = [];
-    const usedColumns: Map<string, string[]> = new Map();
-    lineage.forEach(e => {
-      if (e.type == "table") {
-        tables.push(e);
-      } else {
-        if (mergedLeaves && e.source.columnId !== undefined) {
-          // used column filtering preparation
+    const tables = visitor.tables;
+    const edges = visitor.edges;
+
+    const cleanedTables: Table<TableData, ColumnData>[] = [];
+
+    // do lineage cleanup if mergedLeaves is true
+    if (mergedLeaves) {
+      // 1. remove duplicate table references from the list of tables
+      const deduplicateTable: Map<string, string> = new Map();
+      const usedTables: Map<string, string> = new Map();
+
+      tables.forEach(t => {
+        if (t.tablePrimary === undefined) {
+          cleanedTables.push(t.table);
+          return;
+        }
+
+        const key = JSON.stringify(t.tablePrimary);
+        const entry = usedTables.get(key);
+        if (entry !== undefined) {
+          deduplicateTable.set(t.table.id, entry);
+        } else {
+          usedTables.set(key, t.table.id);
+          t.table.label = t.tablePrimary.tableName;
+          cleanedTables.push(t.table);
+        }
+      });
+
+      // 2. remove references to duplicate tables from edges and collect used columns of tables
+      const usedColumns: Map<string, string[]> = new Map();
+
+      edges.forEach(e => {
+        const remappedSourceTable = deduplicateTable.get(e.source.tableId);
+        if (remappedSourceTable !== undefined) {
+          e.source.tableId = remappedSourceTable;
+        }
+        if (e.source.columnId !== undefined) {
           const columns = usedColumns.get(e.source.tableId);
           if (columns !== undefined) {
             columns.push(e.source.columnId);
@@ -51,21 +79,20 @@ class SqlParseTree {
             usedColumns.set(e.source.tableId, [e.source.columnId]);
           }
         }
-        edges.push(e);
-      }
-    });
+      });
 
-    tables.forEach(e => {
-      if (e.type == "table") {
-        if (mergedLeaves && e.data !== undefined) {
-          // used column filtering
-          const tableColumns = usedColumns.get(e.id);
-          e.columns = e.columns.filter(c => tableColumns?.includes(c.id));
+      // 3. leave only columns that are used in tables
+      cleanedTables.forEach(t => {
+        if (t.data !== undefined) {
+          const tableColumns = usedColumns.get(t.id);
+          t.columns = t.columns.filter(c => tableColumns?.includes(c.id));
         }
-      }
-    });
+      });
+    } else {
+      tables.forEach(t => cleanedTables.push(t.table));
+    }
 
-    return tables.concat(edges);
+    return ([] as Lineage<TableData, ColumnData>).concat(cleanedTables, edges);
   }
 
   getSuggestions(getTables: TableListProvider, getTable: TableProvider<any, any>): CompletionItem[] {

@@ -1,5 +1,5 @@
 import antlr from ".";
-import { Lineage } from "../Lineage";
+import { Edge, Lineage, Table } from "../Lineage";
 import * as fs from "fs";
 import { TablePrimary } from "..";
 
@@ -38,6 +38,10 @@ const columnsMapping: { [tableId: string]: ColumnId[] } = {
 };
 
 const getTable = (table: TablePrimary) => {
+  if (!(table.tableName in columnsMapping)) {
+    return undefined;
+  }
+
   const columnNames = columnsMapping[table.tableName] || [];
   const columns = columnNames.map(columnId => ({
     id: columnId,
@@ -2102,6 +2106,271 @@ describe("antlr", () => {
           target: {
             tableId: "result_1",
             columnId: "column_1"
+          }
+        }
+      ]
+    },
+    {
+      name: "join using",
+      sql: "select 1 from account a1 join salary s1 on (1 = 1) join account a2 using (account_id, account_parent)",
+      data: [
+        {
+          type: "table",
+          id: "result_2",
+          label: "account -> a1",
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 14,
+            endColumn: 24
+          },
+          data: {
+            id: "account"
+          },
+          columns: [
+            {
+              id: "account_type",
+              label: "account_type",
+              data: {
+                id: "account_type",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_id",
+              label: "account_id",
+              data: {
+                id: "account_id",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_description",
+              label: "account_description",
+              data: {
+                id: "account_description",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_parent",
+              label: "account_parent",
+              data: {
+                id: "account_parent",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_rollup",
+              label: "account_rollup",
+              data: {
+                id: "account_rollup",
+                tableId: "account"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_3",
+          label: "salary -> s1",
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 30,
+            endColumn: 39
+          },
+          data: {
+            id: "salary"
+          },
+          columns: [
+            {
+              id: "currency_id",
+              label: "currency_id",
+              data: {
+                id: "currency_id",
+                tableId: "salary"
+              }
+            },
+            {
+              id: "department_id",
+              label: "department_id",
+              data: {
+                id: "department_id",
+                tableId: "salary"
+              }
+            },
+            {
+              id: "employee_id",
+              label: "employee_id",
+              data: {
+                id: "employee_id",
+                tableId: "salary"
+              }
+            },
+            {
+              id: "overtime_paid",
+              label: "overtime_paid",
+              data: {
+                id: "overtime_paid",
+                tableId: "salary"
+              }
+            },
+            {
+              id: "pay_date",
+              label: "pay_date",
+              data: {
+                id: "pay_date",
+                tableId: "salary"
+              }
+            },
+            {
+              id: "salary_paid",
+              label: "salary_paid",
+              data: {
+                id: "salary_paid",
+                tableId: "salary"
+              }
+            },
+            {
+              id: "vacation_accrued",
+              label: "vacation_accrued",
+              data: {
+                id: "vacation_accrued",
+                tableId: "salary"
+              }
+            },
+            {
+              id: "vacation_used",
+              label: "vacation_used",
+              data: {
+                id: "vacation_used",
+                tableId: "salary"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_4",
+          label: "account -> a2",
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 56,
+            endColumn: 66
+          },
+          data: {
+            id: "account"
+          },
+          columns: [
+            {
+              id: "account_type",
+              label: "account_type",
+              data: {
+                id: "account_type",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_id",
+              label: "account_id",
+              data: {
+                id: "account_id",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_description",
+              label: "account_description",
+              data: {
+                id: "account_description",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_parent",
+              label: "account_parent",
+              data: {
+                id: "account_parent",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_rollup",
+              label: "account_rollup",
+              data: {
+                id: "account_rollup",
+                tableId: "account"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_1",
+          label: "[final result]",
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 0,
+            endColumn: 101
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "column_1",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 7,
+                endColumn: 8
+              }
+            }
+          ]
+        },
+        {
+          type: "edge",
+          edgeType: "from",
+          source: {
+            tableId: "result_2",
+            columnId: "account_id"
+          },
+          target: {
+            tableId: "result_1"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "from",
+          source: {
+            tableId: "result_2",
+            columnId: "account_parent"
+          },
+          target: {
+            tableId: "result_1"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "from",
+          source: {
+            tableId: "result_4",
+            columnId: "account_id"
+          },
+          target: {
+            tableId: "result_1"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "from",
+          source: {
+            tableId: "result_4",
+            columnId: "account_parent"
+          },
+          target: {
+            tableId: "result_1"
           }
         }
       ]
@@ -4189,8 +4458,330 @@ describe("antlr", () => {
           }
         }
       ]
+    },
+    {
+      mergedLeaves: true,
+      name: "Subquery in IN, EXISTS, expression",
+      sql:
+        "select account_id in (select 1 as c union select 2) " +
+        "from account a " +
+        "where exists (select 1 from employee where employee_id = a.account_id) and " +
+        "account_type = (select 'abcd')",
+      data: [
+        {
+          type: "table",
+          id: "result_2",
+          label: "account",
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 57,
+            endColumn: 66
+          },
+          data: {
+            id: "account"
+          },
+          columns: [
+            {
+              id: "account_type",
+              label: "account_type",
+              data: {
+                id: "account_type",
+                tableId: "account"
+              }
+            },
+            {
+              id: "account_id",
+              label: "account_id",
+              data: {
+                id: "account_id",
+                tableId: "account"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_3",
+          label: "result_3",
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 22,
+            endColumn: 50
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "c",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 29,
+                endColumn: 35
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_5",
+          label: "employee",
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 95,
+            endColumn: 103
+          },
+          data: {
+            id: "employee"
+          },
+          columns: [
+            {
+              id: "employee_id",
+              label: "employee_id",
+              data: {
+                id: "employee_id",
+                tableId: "employee"
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_4",
+          label: "result_4",
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 81,
+            endColumn: 136
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "column_1",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 88,
+                endColumn: 89
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_6",
+          label: "result_6",
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 158,
+            endColumn: 171
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "column_1",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 165,
+                endColumn: 171
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_1",
+          label: "[final result]",
+          range: {
+            startLine: 1,
+            endLine: 1,
+            startColumn: 0,
+            endColumn: 172
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "account_id",
+              range: {
+                startLine: 1,
+                endLine: 1,
+                startColumn: 7,
+                endColumn: 51
+              }
+            }
+          ]
+        },
+        {
+          type: "edge",
+          edgeType: "select",
+          source: {
+            tableId: "result_2",
+            columnId: "account_id"
+          },
+          target: {
+            tableId: "result_1",
+            columnId: "column_1"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "select",
+          source: {
+            tableId: "result_3"
+          },
+          target: {
+            tableId: "result_1",
+            columnId: "column_1"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "where",
+          source: {
+            tableId: "result_5",
+            columnId: "employee_id"
+          },
+          target: {
+            tableId: "result_4"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "where",
+          source: {
+            tableId: "result_2",
+            columnId: "account_id"
+          },
+          target: {
+            tableId: "result_4"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "where",
+          source: {
+            tableId: "result_4"
+          },
+          target: {
+            tableId: "result_1"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "where",
+          source: {
+            tableId: "result_2",
+            columnId: "account_type"
+          },
+          target: {
+            tableId: "result_1"
+          }
+        },
+        {
+          type: "edge",
+          edgeType: "where",
+          source: {
+            tableId: "result_6"
+          },
+          target: {
+            tableId: "result_1"
+          }
+        }
+      ]
+    },
+    {
+      name: "derive fields for unknown tables",
+      sql: "SELECT a_column FROM a_table",
+      data: [
+        {
+          type: "table",
+          id: "result_2",
+          label: "a_table",
+          range: {
+            startLine: 1,
+            startColumn: 21,
+            endLine: 1,
+            endColumn: 28
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "a_column",
+              isAssumed: true,
+              range: {
+                startLine: 1,
+                startColumn: 7,
+                endLine: 1,
+                endColumn: 15
+              }
+            }
+          ]
+        },
+        {
+          type: "table",
+          id: "result_1",
+          label: "[final result]",
+          range: {
+            startLine: 1,
+            startColumn: 0,
+            endLine: 1,
+            endColumn: 28
+          },
+          columns: [
+            {
+              id: "column_1",
+              label: "a_column",
+              range: {
+                startLine: 1,
+                startColumn: 7,
+                endLine: 1,
+                endColumn: 15
+              }
+            }
+          ]
+        },
+        {
+          type: "edge",
+          edgeType: "select",
+          source: {
+            tableId: "result_2",
+            columnId: "column_1"
+          },
+          target: {
+            tableId: "result_1",
+            columnId: "column_1"
+          }
+        }
+      ]
     }
   ];
+
+  function cmpLineage(
+    a: Edge | Table<{ id: string }, { id: string; tableId: string }>,
+    b: Edge | Table<{ id: string }, { id: string; tableId: string }>
+  ): number {
+    switch (a.type) {
+      case "edge":
+        switch (b.type) {
+          case "edge":
+            return 0;
+          case "table":
+            return -1;
+        }
+      case "table":
+        switch (b.type) {
+          case "edge":
+            return 1;
+          case "table":
+            return a.id.localeCompare(b.id);
+        }
+    }
+  }
 
   cases.forEach(({ data, name, only, sql, debug, mergedLeaves }) => {
     (only ? it.only : it)(`should parse ${name}`, () => {
@@ -4203,6 +4794,10 @@ describe("antlr", () => {
           fs.writeFileSync("debug.json", next);
         }
       }
+
+      data.sort(cmpLineage);
+      lineage.sort(cmpLineage);
+
       expect(lineage).toEqual(data);
     });
   });

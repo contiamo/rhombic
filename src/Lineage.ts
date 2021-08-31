@@ -37,6 +37,7 @@ export interface Edge {
 export interface Column<ColumnData> {
   id: string;
   label: string;
+  isAssumed?: boolean;
   range?: Range;
   data?: ColumnData;
 }

@@ -1,7 +1,7 @@
 import { TablePrimary } from "..";
 import { IdentifierContext, QuotedIdentifierAlternativeContext, StrictIdentifierContext } from "./SqlBaseParser";
 
-export type ColumnRef = { tableId: string; columnId: string };
+export type ColumnRef = { tableId: string; columnId: string; isAssumed: boolean };
 
 export type QuotableIdentifier = { name: string; quoted: boolean };
 

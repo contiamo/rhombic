@@ -9213,13 +9213,14 @@ export class SqlBaseParser extends Parser {
   }
   // @RuleVersion(0)
   public joinCriteria(): JoinCriteriaContext {
-    const _localctx: JoinCriteriaContext = new JoinCriteriaContext(this._ctx, this.state);
+    let _localctx: JoinCriteriaContext = new JoinCriteriaContext(this._ctx, this.state);
     this.enterRule(_localctx, 150, SqlBaseParser.RULE_joinCriteria);
     try {
       this.state = 2153;
       this._errHandler.sync(this);
       switch (this._input.LA(1)) {
         case SqlBaseParser.ON:
+          _localctx = new JoinCriteriaOnContext(_localctx);
           this.enterOuterAlt(_localctx, 1);
           {
             this.state = 2149;
@@ -9229,6 +9230,7 @@ export class SqlBaseParser extends Parser {
           }
           break;
         case SqlBaseParser.USING:
+          _localctx = new JoinCriteriaUsingContext(_localctx);
           this.enterOuterAlt(_localctx, 2);
           {
             this.state = 2151;
@@ -24314,18 +24316,6 @@ export class JoinTypeContext extends ParserRuleContext {
 }
 
 export class JoinCriteriaContext extends ParserRuleContext {
-  public ON(): TerminalNode | undefined {
-    return this.tryGetToken(SqlBaseParser.ON, 0);
-  }
-  public booleanExpression(): BooleanExpressionContext | undefined {
-    return this.tryGetRuleContext(0, BooleanExpressionContext);
-  }
-  public USING(): TerminalNode | undefined {
-    return this.tryGetToken(SqlBaseParser.USING, 0);
-  }
-  public identifierList(): IdentifierListContext | undefined {
-    return this.tryGetRuleContext(0, IdentifierListContext);
-  }
   constructor(parent: ParserRuleContext | undefined, invokingState: number) {
     super(parent, invokingState);
   }
@@ -24333,22 +24323,69 @@ export class JoinCriteriaContext extends ParserRuleContext {
   public get ruleIndex(): number {
     return SqlBaseParser.RULE_joinCriteria;
   }
+  public copyFrom(ctx: JoinCriteriaContext): void {
+    super.copyFrom(ctx);
+  }
+}
+export class JoinCriteriaOnContext extends JoinCriteriaContext {
+  public ON(): TerminalNode {
+    return this.getToken(SqlBaseParser.ON, 0);
+  }
+  public booleanExpression(): BooleanExpressionContext {
+    return this.getRuleContext(0, BooleanExpressionContext);
+  }
+  constructor(ctx: JoinCriteriaContext) {
+    super(ctx.parent, ctx.invokingState);
+    this.copyFrom(ctx);
+  }
   // @Override
   public enterRule(listener: SqlBaseListener): void {
-    if (listener.enterJoinCriteria) {
-      listener.enterJoinCriteria(this);
+    if (listener.enterJoinCriteriaOn) {
+      listener.enterJoinCriteriaOn(this);
     }
   }
   // @Override
   public exitRule(listener: SqlBaseListener): void {
-    if (listener.exitJoinCriteria) {
-      listener.exitJoinCriteria(this);
+    if (listener.exitJoinCriteriaOn) {
+      listener.exitJoinCriteriaOn(this);
     }
   }
   // @Override
   public accept<Result>(visitor: SqlBaseVisitor<Result>): Result {
-    if (visitor.visitJoinCriteria) {
-      return visitor.visitJoinCriteria(this);
+    if (visitor.visitJoinCriteriaOn) {
+      return visitor.visitJoinCriteriaOn(this);
+    } else {
+      return visitor.visitChildren(this);
+    }
+  }
+}
+export class JoinCriteriaUsingContext extends JoinCriteriaContext {
+  public USING(): TerminalNode {
+    return this.getToken(SqlBaseParser.USING, 0);
+  }
+  public identifierList(): IdentifierListContext {
+    return this.getRuleContext(0, IdentifierListContext);
+  }
+  constructor(ctx: JoinCriteriaContext) {
+    super(ctx.parent, ctx.invokingState);
+    this.copyFrom(ctx);
+  }
+  // @Override
+  public enterRule(listener: SqlBaseListener): void {
+    if (listener.enterJoinCriteriaUsing) {
+      listener.enterJoinCriteriaUsing(this);
+    }
+  }
+  // @Override
+  public exitRule(listener: SqlBaseListener): void {
+    if (listener.exitJoinCriteriaUsing) {
+      listener.exitJoinCriteriaUsing(this);
+    }
+  }
+  // @Override
+  public accept<Result>(visitor: SqlBaseVisitor<Result>): Result {
+    if (visitor.visitJoinCriteriaUsing) {
+      return visitor.visitJoinCriteriaUsing(this);
     } else {
       return visitor.visitChildren(this);
     }
