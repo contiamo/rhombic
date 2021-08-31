@@ -274,10 +274,9 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
   }
 
   private reportTableReferences() {
-    for (const entry of this.currentRelation.relations) {
-      const relation = entry[1];
+    for (const [alias, relation] of this.currentRelation.relations) {
       if (relation instanceof TableRelation) {
-        this.onRelation(relation, entry[0] !== relation.id ? entry[0] : undefined);
+        this.onRelation(relation, alias !== relation.id ? alias : undefined);
       }
     }
   }
@@ -376,8 +375,9 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
   visitQueryTermDefault(ctx: QueryTermDefaultContext): Result {
     // reinit column seq as we will repeat the same columns in subsequent queries
     this.currentRelation.columnIdSeq = 0;
-    // clear relations for each queryTermDefault because it's individual query
+    // reports table references from previous queryTerm (if any)
     this.reportTableReferences();
+    // clear relations for each queryTermDefault because it's individual query
     this.currentRelation.relations = new Map();
     return this.visitChildren(ctx);
   }
