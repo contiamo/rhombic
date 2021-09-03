@@ -42,7 +42,7 @@ const ROOT_QUERY_ID = "result_1";
 export const ROOT_QUERY_NAME = "[final result]";
 
 export class Column {
-  public columnReferences: Array<ColumnRef> = [];
+  readonly columnReferences: Array<ColumnRef> = [];
   constructor(
     readonly id: string,
     public label: string,
@@ -253,7 +253,7 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
     return undefined;
   }
 
-  private isPrimaryExpression(ctx: ExpressionContext): PrimaryExpressionContext | undefined {
+  private asPrimaryExpression(ctx: ExpressionContext): PrimaryExpressionContext | undefined {
     const boolExpr = ctx.booleanExpression();
     if (boolExpr instanceof PredicatedContext) {
       const valExpr = boolExpr.valueExpression();
@@ -268,7 +268,7 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
    *  Derives column name from expression if possible.
    */
   protected deriveColumnName(ctx: ExpressionContext): string | undefined {
-    const primExpr = this.isPrimaryExpression(ctx);
+    const primExpr = this.asPrimaryExpression(ctx);
     if (primExpr) {
       return this.extractTableAndColumn(primExpr)?.column.name;
     }
@@ -640,7 +640,7 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
 
     const result = this.visitChildren(ctx);
 
-    column.columnReferences = column.columnReferences.concat(this.currentRelation.columnReferences);
+    column.columnReferences.push(...this.currentRelation.columnReferences);
     this.currentRelation.currentColumnId = undefined;
 
     return result;
@@ -671,7 +671,7 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
 
   visitSortItem(ctx: SortItemContext): Result {
     if (this.options?.positionalRefsEnabled) {
-      const primExp = this.isPrimaryExpression(ctx.expression());
+      const primExp = this.asPrimaryExpression(ctx.expression());
       if (primExp instanceof ConstantDefaultContext) {
         const constant = primExp.constant();
         if (constant instanceof NumericLiteralContext) {
