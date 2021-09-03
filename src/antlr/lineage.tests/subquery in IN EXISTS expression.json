@@ -1,0 +1,230 @@
+{
+  "mergedLeaves": true,
+  "sql": "select account_id in (select 1 as c union select 2) from account a where exists (select 1 from employee where employee_id = a.account_id) and account_type = (select 'abcd')",
+  "data": [
+    {
+      "type": "table",
+      "id": "result_2",
+      "label": "account",
+      "range": {
+        "startLine": 1,
+        "endLine": 1,
+        "startColumn": 57,
+        "endColumn": 66
+      },
+      "data": {
+        "id": "account"
+      },
+      "columns": [
+        {
+          "id": "account_type",
+          "label": "account_type",
+          "data": {
+            "id": "account_type",
+            "tableId": "account"
+          }
+        },
+        {
+          "id": "account_id",
+          "label": "account_id",
+          "data": {
+            "id": "account_id",
+            "tableId": "account"
+          }
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "id": "result_3",
+      "label": "result_3",
+      "range": {
+        "startLine": 1,
+        "endLine": 1,
+        "startColumn": 22,
+        "endColumn": 50
+      },
+      "columns": [
+        {
+          "id": "column_1",
+          "label": "c",
+          "range": {
+            "startLine": 1,
+            "endLine": 1,
+            "startColumn": 29,
+            "endColumn": 35
+          }
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "id": "result_5",
+      "label": "employee",
+      "range": {
+        "startLine": 1,
+        "endLine": 1,
+        "startColumn": 95,
+        "endColumn": 103
+      },
+      "data": {
+        "id": "employee"
+      },
+      "columns": [
+        {
+          "id": "employee_id",
+          "label": "employee_id",
+          "data": {
+            "id": "employee_id",
+            "tableId": "employee"
+          }
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "id": "result_4",
+      "label": "result_4",
+      "range": {
+        "startLine": 1,
+        "endLine": 1,
+        "startColumn": 81,
+        "endColumn": 136
+      },
+      "columns": [
+        {
+          "id": "column_1",
+          "label": "column_1",
+          "range": {
+            "startLine": 1,
+            "endLine": 1,
+            "startColumn": 88,
+            "endColumn": 89
+          }
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "id": "result_6",
+      "label": "result_6",
+      "range": {
+        "startLine": 1,
+        "endLine": 1,
+        "startColumn": 158,
+        "endColumn": 171
+      },
+      "columns": [
+        {
+          "id": "column_1",
+          "label": "column_1",
+          "range": {
+            "startLine": 1,
+            "endLine": 1,
+            "startColumn": 165,
+            "endColumn": 171
+          }
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "id": "result_1",
+      "label": "[final result]",
+      "range": {
+        "startLine": 1,
+        "endLine": 1,
+        "startColumn": 0,
+        "endColumn": 172
+      },
+      "columns": [
+        {
+          "id": "column_1",
+          "label": "account_id",
+          "range": {
+            "startLine": 1,
+            "endLine": 1,
+            "startColumn": 7,
+            "endColumn": 51
+          }
+        }
+      ]
+    },
+    {
+      "type": "edge",
+      "edgeType": "select",
+      "source": {
+        "tableId": "result_2",
+        "columnId": "account_id"
+      },
+      "target": {
+        "tableId": "result_1",
+        "columnId": "column_1"
+      }
+    },
+    {
+      "type": "edge",
+      "edgeType": "select",
+      "source": {
+        "tableId": "result_3"
+      },
+      "target": {
+        "tableId": "result_1",
+        "columnId": "column_1"
+      }
+    },
+    {
+      "type": "edge",
+      "edgeType": "where",
+      "source": {
+        "tableId": "result_5",
+        "columnId": "employee_id"
+      },
+      "target": {
+        "tableId": "result_4"
+      }
+    },
+    {
+      "type": "edge",
+      "edgeType": "where",
+      "source": {
+        "tableId": "result_2",
+        "columnId": "account_id"
+      },
+      "target": {
+        "tableId": "result_4"
+      }
+    },
+    {
+      "type": "edge",
+      "edgeType": "where",
+      "source": {
+        "tableId": "result_4"
+      },
+      "target": {
+        "tableId": "result_1"
+      }
+    },
+    {
+      "type": "edge",
+      "edgeType": "where",
+      "source": {
+        "tableId": "result_2",
+        "columnId": "account_type"
+      },
+      "target": {
+        "tableId": "result_1"
+      }
+    },
+    {
+      "type": "edge",
+      "edgeType": "where",
+      "source": {
+        "tableId": "result_6"
+      },
+      "target": {
+        "tableId": "result_1"
+      }
+    }
+  ]
+}
