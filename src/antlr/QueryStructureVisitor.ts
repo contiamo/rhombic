@@ -7,6 +7,7 @@ import { ParserRuleContext } from "antlr4ts";
 import {
   AliasedQueryContext,
   ColumnReferenceContext,
+  ConstantDefaultContext,
   DereferenceContext,
   ExistsContext,
   ExpressionContext,
@@ -17,6 +18,7 @@ import {
   JoinCriteriaUsingContext,
   NamedExpressionContext,
   NamedQueryContext,
+  NumericLiteralContext,
   PredicateContext,
   PredicatedContext,
   PrimaryExpressionContext,
@@ -25,6 +27,7 @@ import {
   QueryTermDefaultContext,
   RegularQuerySpecificationContext,
   SelectClauseContext,
+  SortItemContext,
   StarContext,
   SubqueryExpressionContext,
   TableNameContext,
@@ -39,6 +42,7 @@ const ROOT_QUERY_ID = "result_1";
 export const ROOT_QUERY_NAME = "[final result]";
 
 export class Column {
+  readonly columnReferences: Array<ColumnRef> = [];
   constructor(
     readonly id: string,
     public label: string,
@@ -56,14 +60,18 @@ export abstract class Relation {
     readonly range?: Range
   ) {}
 
-  resolveColumn(columnName: QuotableIdentifier): ColumnRef | undefined {
-    const col = this.columns.find(c =>
+  findColumn(columnName: QuotableIdentifier): Column | undefined {
+    return this.columns.find(c =>
       columnName.quoted
         ? c.label == columnName.name
         : c.label.localeCompare(columnName.name, undefined, {
             sensitivity: "accent"
           }) == 0
     );
+  }
+
+  resolveColumn(columnName: QuotableIdentifier): ColumnRef | undefined {
+    const col = this.findColumn(columnName);
     return col !== undefined
       ? {
           tableId: this.id,
@@ -88,12 +96,7 @@ export class TableRelation extends Relation {
   }
 
   addAssumedColumn(columnName: QuotableIdentifier, range: Range): ColumnRef {
-    const column = {
-      id: `column_${this.columns.length + 1}`,
-      label: columnName.name,
-      range: range,
-      isAssumed: true
-    };
+    const column = new Column(`column_${this.columns.length + 1}`, columnName.name, range, undefined, true);
     this.columns.push(column);
     return { tableId: this.id, columnId: column.id, isAssumed: true };
   }
@@ -112,6 +115,8 @@ export class QueryRelation extends Relation {
   currentClause?: EdgeType;
 
   currentColumnId?: string;
+
+  columnReferences: Array<ColumnRef> = [];
 
   constructor(id: string, parent?: QueryRelation, range?: Range) {
     super(id, [], parent, range);
@@ -205,7 +210,10 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
   constructor(
     public getTable: (
       table: TablePrimary
-    ) => { table: { id: string; data: unknown }; columns: { id: string; data: unknown }[] } | undefined
+    ) => { table: { id: string; data: unknown }; columns: { id: string; data: unknown }[] } | undefined,
+    readonly options?: {
+      positionalRefsEnabled?: boolean;
+    }
   ) {
     super();
   }
@@ -245,20 +253,24 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
     return undefined;
   }
 
-  /**
-   *  Derives column name from expression if possible.
-   */
-
-  protected deriveColumnName(ctx: ExpressionContext): string | undefined {
+  private asPrimaryExpression(ctx: ExpressionContext): PrimaryExpressionContext | undefined {
     const boolExpr = ctx.booleanExpression();
     if (boolExpr instanceof PredicatedContext) {
       const valExpr = boolExpr.valueExpression();
       if (valExpr instanceof ValueExpressionDefaultContext) {
-        const tableCol = this.extractTableAndColumn(valExpr.primaryExpression());
-        if (tableCol !== undefined) {
-          return tableCol.column.name;
-        }
+        return valExpr.primaryExpression();
       }
+    }
+    return undefined;
+  }
+
+  /**
+   *  Derives column name from expression if possible.
+   */
+  protected deriveColumnName(ctx: ExpressionContext): string | undefined {
+    const primExpr = this.asPrimaryExpression(ctx);
+    if (primExpr) {
+      return this.extractTableAndColumn(primExpr)?.column.name;
     }
     return undefined;
   }
@@ -609,8 +621,9 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
 
     const columnId = this.currentRelation.getNextColumnId();
 
+    let column = this.currentRelation.columns.find(c => c.id == columnId);
     // column could have been already defined if we have set operation
-    if (this.currentRelation.columns.find(c => c.id == columnId) === undefined) {
+    if (column === undefined) {
       const errCaptId = ctx.errorCapturingIdentifier();
       const label =
         errCaptId !== undefined
@@ -618,12 +631,16 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
           : this.deriveColumnName(ctx.expression()) ?? columnId;
 
       const range = this.rangeFromContext(ctx);
-      const column = new Column(columnId, label, range);
+      column = new Column(columnId, label, range);
       this.currentRelation.columns.push(column);
     }
 
     this.currentRelation.currentColumnId = columnId;
+    this.currentRelation.columnReferences = [];
+
     const result = this.visitChildren(ctx);
+
+    column.columnReferences.push(...this.currentRelation.columnReferences);
     this.currentRelation.currentColumnId = undefined;
 
     return result;
@@ -652,12 +669,45 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
     return this.visitChildren(ctx);
   }
 
+  visitSortItem(ctx: SortItemContext): Result {
+    if (this.options?.positionalRefsEnabled) {
+      const primExp = this.asPrimaryExpression(ctx.expression());
+      if (primExp instanceof ConstantDefaultContext) {
+        const constant = primExp.constant();
+        if (constant instanceof NumericLiteralContext) {
+          const idx = Number(constant.text) - 1;
+          const col = this.currentRelation.columns[idx];
+          if (col !== undefined) {
+            col.columnReferences.forEach(cr => this.onColumnReference(cr.tableId, cr.columnId));
+            return this.defaultResult();
+          }
+        }
+      }
+    }
+
+    return this.visitChildren(ctx);
+  }
+
   private processColumnReference(ctx: ColumnReferenceContext | DereferenceContext): Result {
     const tableCol = this.extractTableAndColumn(ctx);
     if (tableCol !== undefined) {
+      if (
+        tableCol.table === undefined &&
+        this.currentRelation.currentClause !== undefined &&
+        ["group by", "order by"].includes(this.currentRelation.currentClause)
+      ) {
+        // check if it is self column reference
+        const selfCol = this.currentRelation.findColumn(tableCol.column);
+        if (selfCol) {
+          selfCol.columnReferences.forEach(cr => this.onColumnReference(cr.tableId, cr.columnId));
+          return this.defaultResult();
+        }
+      }
+
       const range = this.rangeFromContext(ctx);
       const col = this.currentRelation.resolveOrAssumeRelationColumn(tableCol.column, range, tableCol.table);
       if (col !== undefined) {
+        this.currentRelation.columnReferences.push(col);
         this.onColumnReference(col.tableId, col.columnId);
       }
       return this.defaultResult();
