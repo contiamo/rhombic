@@ -117,14 +117,15 @@ class SqlParseTree {
     const completions = completionVisitor.getSuggestions();
     const completionItems: CompletionItem[] = [];
     switch (completions.type) {
-      case "column":
+      case "column": {
         const columns: CompletionItem[] = completions.columns.map(col => {
           return { type: "column", relation: col.relation, value: col.name };
         });
 
         completionItems.push(...columns);
         break;
-      case "relation":
+      }
+      case "relation": {
         const tables: CompletionItem[] = (getTables(completions.schema) || []).map(tp => {
           return { type: "relation", value: tp.tableName };
         });
@@ -141,6 +142,7 @@ class SqlParseTree {
         completionItems.push(...tables);
         completionItems.push(...schemaCompletions);
         break;
+      }
     }
 
     const snippets: CompletionItem[] = completions.snippets.map(s => {

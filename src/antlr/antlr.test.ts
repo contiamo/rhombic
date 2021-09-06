@@ -4773,6 +4773,7 @@ describe("antlr", () => {
           case "table":
             return -1;
         }
+        break;
       case "table":
         switch (b.type) {
           case "edge":
@@ -4780,6 +4781,7 @@ describe("antlr", () => {
           case "table":
             return a.id.localeCompare(b.id);
         }
+        break;
     }
   }
 

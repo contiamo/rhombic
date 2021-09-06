@@ -85,8 +85,12 @@ export class CompletionVisitor extends QueryStructureVisitor<void> implements Sq
     super(getTable);
   }
 
-  defaultResult() {}
-  aggregateResult(_cur: void, _next: void) {}
+  defaultResult() {
+    return;
+  }
+  aggregateResult(_cur: void, _next: void) {
+    return;
+  }
 
   private caretScope?: CaretScope;
   private hasCompletions = false;
@@ -116,7 +120,7 @@ export class CompletionVisitor extends QueryStructureVisitor<void> implements Sq
           };
           break;
 
-        case "scoped-column":
+        case "scoped-column": {
           const relationName = this.caretScope.relation;
           const newCompletions: { relation?: string; name: string }[] =
             relation.findLocalRelation({ name: relationName, quoted: false })?.columns.map(c => {
@@ -127,8 +131,8 @@ export class CompletionVisitor extends QueryStructureVisitor<void> implements Sq
             }) ?? [];
           this.completions = { type: "column", columns: newCompletions, snippets: this.completions.snippets };
           break;
-
-        case "relation":
+        }
+        case "relation": {
           const ctes: string[] = relation.getCTENames();
 
           this.completions = {
@@ -138,6 +142,7 @@ export class CompletionVisitor extends QueryStructureVisitor<void> implements Sq
             snippets: this.completions.snippets
           };
           break;
+        }
       }
     }
   }
