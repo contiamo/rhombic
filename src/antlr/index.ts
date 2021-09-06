@@ -6,7 +6,7 @@ import { UppercaseCharStream } from "./UppercaseCharStream";
 import { TablePrimary } from "..";
 import { ExtractTablesVisitor } from "./ExtractTablesVisitor";
 import { LineageVisitor } from "./LineageVisitor";
-import { CompletionItem, CompletionVisitor } from "./CompletionVisitor";
+import { CompletionVisitor } from "./CompletionVisitor";
 import { Cursor } from "./Cursor";
 import _ from "lodash";
 
@@ -19,6 +19,17 @@ type TableListProvider = () => TablePrimary[];
 type TableProvider<T, C> = (
   id: TablePrimary
 ) => { table: { id: string; data: T }; columns: { id: string; data: C }[] } | undefined;
+
+/**
+ * Possible suggestion items for auto completion.
+ * "keyword" is not used right now but will likely be added later
+ */
+export type CompletionItem =
+  | { type: "keyword"; value: string } // keyword suggestion
+  | { type: "schema"; value: string } // schema suggestion
+  | { type: "relation"; value: string } // table/cte suggestion
+  | { type: "column"; relation?: string; value: string } // column suggestion
+  | { type: "snippet"; label: string; template: string }; // snippet suggestion
 
 class SqlParseTree {
   constructor(public readonly tree: StatementContext, readonly cursor: Cursor) {}
@@ -95,13 +106,50 @@ class SqlParseTree {
     return ([] as Lineage<TableData, ColumnData>).concat(cleanedTables, edges);
   }
 
-  getSuggestions(getTables: TableListProvider, getTable: TableProvider<any, any>): CompletionItem[] {
-    const completionVisitor = new CompletionVisitor(defaultCursor, getTables, tp =>
-      getTable(this.cursor.removeFrom(tp))
-    );
+  getSuggestions(
+    schemas: string[],
+    getTables: (schema?: string) => TablePrimary[] | undefined,
+    getTable: TableProvider<any, any>
+  ): CompletionItem[] {
+    const completionVisitor = new CompletionVisitor(defaultCursor, tp => getTable(this.cursor.removeFrom(tp)));
     this.tree.accept(completionVisitor);
 
-    return completionVisitor.getSuggestions();
+    const completions = completionVisitor.getSuggestions();
+    const completionItems: CompletionItem[] = [];
+    switch (completions.type) {
+      case "column":
+        const columns: CompletionItem[] = completions.columns.map(col => {
+          return { type: "column", relation: col.relation, value: col.name };
+        });
+
+        completionItems.push(...columns);
+        break;
+      case "relation":
+        const tables: CompletionItem[] = (getTables(completions.schema) || []).map(tp => {
+          return { type: "relation", value: tp.tableName };
+        });
+
+        const ctes: CompletionItem[] = completions.relations.map(rel => {
+          return { type: "relation", value: rel };
+        });
+
+        const schemaCompletions: CompletionItem[] = schemas.map(s => {
+          return { type: "schema", value: s };
+        });
+
+        completionItems.push(...ctes);
+        completionItems.push(...tables);
+        completionItems.push(...schemaCompletions);
+        break;
+    }
+
+    const snippets: CompletionItem[] = completions.snippets.map(s => {
+      return { type: "snippet", label: s.label, template: s.template };
+    });
+
+    completionItems.push(...snippets);
+
+    return completionItems;
   }
 }
 

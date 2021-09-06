@@ -1,6 +1,5 @@
-import antlr from ".";
+import antlr, { CompletionItem } from ".";
 import { TablePrimary } from "..";
-import { CompletionItem } from "./CompletionVisitor";
 
 const env = new Map<string, string[]>();
 env.set("test", ["column1", "column2"]);
@@ -80,7 +79,7 @@ describe("completion", () => {
     const sql = "SELECT a, b FROM (<|>)";
 
     const completionResult = runCompletion(sql, env);
-    expect(completionResult).toEqual([snp("SELECT ? FROM ?", "SELECT $0 FROM $1"), rel("test")]);
+    expect(completionResult).toEqual([rel("test"), snp("SELECT ? FROM ?", "SELECT $0 FROM $1")]);
   });
 
   it("should suggest columns from aliased tables", () => {
@@ -149,7 +148,7 @@ describe("completion", () => {
     `;
 
     const completionResult = runCompletion(sql, env);
-    expect(completionResult).toEqual([rel("test"), rel("tmp1"), rel("tmp2")]);
+    expect(completionResult).toEqual([rel("tmp1"), rel("tmp2"), rel("test")]);
   });
 
   it("should complete columns from nested ctes", () => {
@@ -192,7 +191,7 @@ describe("completion", () => {
     `;
 
     const completionResult = runCompletion(sql, env);
-    expect(completionResult).toEqual([rel("test"), rel("tmp3"), rel("tmp1"), rel("tmp2")]);
+    expect(completionResult).toEqual([rel("tmp3"), rel("tmp1"), rel("tmp2"), rel("test")]);
   });
 
   it("should complete columns in union queries", () => {
@@ -292,5 +291,5 @@ function runCompletion(sql: string, env: Map<string, string[]>): CompletionItem[
     }
   }
 
-  return antlr.parse(cleanedSql, { cursorPosition: position }).getSuggestions(getTables, getTable);
+  return antlr.parse(cleanedSql, { cursorPosition: position }).getSuggestions([], getTables, getTable);
 }

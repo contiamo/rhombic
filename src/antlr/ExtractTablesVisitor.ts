@@ -23,8 +23,7 @@ export class ExtractTablesVisitor extends AbstractParseTreeVisitor<TablePrimary[
     const multipartTableName = ctx
       .multipartIdentifier()
       .errorCapturingIdentifier()
-      .map(v => this.cursor.removeFrom(common.stripQuote(v.identifier()).name))
-      .filter(v => v.length != 0);
+      .map(v => this.cursor.removeFrom(common.stripQuote(v.identifier()).name));
     return multipartTableName.length > 0 ? [common.tablePrimaryFromMultipart(multipartTableName)] : [];
   }
 }

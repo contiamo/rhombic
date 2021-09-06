@@ -1,5 +1,6 @@
 import { ErrorNode } from "antlr4ts/tree/ErrorNode";
 import { TablePrimary } from "..";
+import common from "./common";
 import { CursorQuery } from "./Cursor";
 import { QueryRelation, QueryStructureVisitor, TableRelation } from "./QueryStructureVisitor";
 import {
@@ -12,15 +13,21 @@ import {
 } from "./SqlBaseParser";
 import { SqlBaseVisitor } from "./SqlBaseVisitor";
 
-/**
- * Possible suggestion items for auto completion.
- * "keyword" is not used right now but will likely be added later
- */
-export type CompletionItem =
-  | { type: "keyword"; value: string } // keyword suggestion
-  | { type: "relation"; value: string } // table/cte suggestion
-  | { type: "column"; relation?: string; value: string } // column suggestion
-  | { type: "snippet"; label: string; template: string }; // snippet suggestion
+export type ContextCompletions =
+  | { type: "column"; columns: { relation?: string; name: string }[] }
+  | { type: "relation"; schema?: string; relations: string[] }
+  | { type: "other" };
+
+export interface Snippet {
+  label: string;
+  template: string;
+}
+
+export interface Snippets {
+  snippets: Snippet[];
+}
+
+export type Completions = ContextCompletions & Snippets;
 
 /**
  * The parts of the query the cursor can be in.
@@ -29,20 +36,19 @@ type CaretScope =
   | { type: "select-column" } // cursor in column position within a SELECT clause
   | { type: "spec-column" } // cursor in column position outside of a SELECT clause
   | { type: "scoped-column"; relation: string } // cursor in column position after a dot (with `relation` being the prefix)
-  | { type: "relation" } // cursor in table position
+  | { type: "relation"; schema?: string } // cursor in table position
   | { type: "other" }; // cursor in any other position
 
-function availableColumns(relation: QueryRelation): { type: "column"; relation?: string; value: string }[] {
-  const columns: { type: "column"; relation?: string; value: string }[] = [];
+function availableColumns(relation: QueryRelation): { relation?: string; name: string }[] {
+  const columns: { relation?: string; name: string }[] = [];
 
   relation.relations.forEach((rel, name) => {
     const relationName = name !== rel.id ? name : undefined;
 
     rel.columns.forEach(col => {
       columns.push({
-        type: "column",
         relation: relationName,
-        value: col.label
+        name: col.label
       });
     });
   });
@@ -50,8 +56,7 @@ function availableColumns(relation: QueryRelation): { type: "column"; relation?:
   return columns;
 }
 
-const selectFromSnippet: CompletionItem = {
-  type: "snippet",
+const selectFromSnippet = {
   label: "SELECT ? FROM ?",
   template: "SELECT $0 FROM $1"
 };
@@ -73,7 +78,6 @@ export class CompletionVisitor extends QueryStructureVisitor<void> implements Sq
    */
   constructor(
     private readonly cursor: CursorQuery,
-    readonly getTables: () => TablePrimary[],
     getTable: (
       t: TablePrimary
     ) => { table: { id: string; data: any }; columns: { id: string; data: any }[] } | undefined
@@ -85,11 +89,11 @@ export class CompletionVisitor extends QueryStructureVisitor<void> implements Sq
   aggregateResult(_cur: void, _next: void) {}
 
   private caretScope?: CaretScope;
-  private completionItems: CompletionItem[] = [];
   private hasCompletions = false;
+  private completions: Completions = { type: "other", snippets: [] };
 
-  getSuggestions(): CompletionItem[] {
-    return this.completionItems;
+  getSuggestions(): Completions {
+    return this.completions;
   }
 
   /**
@@ -104,45 +108,35 @@ export class CompletionVisitor extends QueryStructureVisitor<void> implements Sq
       this.hasCompletions = true;
       switch (this.caretScope.type) {
         case "select-column":
-          this.completionItems.push(...availableColumns(relation));
-          break;
-
         case "spec-column":
-          type ColSug = { type: "column"; relation?: string; value: string };
-          const available: ColSug[] = availableColumns(relation);
-
-          this.completionItems.push(...available);
+          this.completions = {
+            type: "column",
+            columns: availableColumns(relation),
+            snippets: this.completions.snippets
+          };
           break;
 
         case "scoped-column":
           const relationName = this.caretScope.relation;
-          const newCompletions: CompletionItem[] =
+          const newCompletions: { relation?: string; name: string }[] =
             relation.findLocalRelation({ name: relationName, quoted: false })?.columns.map(c => {
               return {
-                type: "column",
                 relation: relationName,
-                value: c.label
+                name: c.label
               };
             }) ?? [];
-          this.completionItems.push(...newCompletions);
+          this.completions = { type: "column", columns: newCompletions, snippets: this.completions.snippets };
           break;
 
         case "relation":
-          const ctes: { type: "relation"; value: string }[] = relation.getCTENames().map(n => {
-            return {
-              type: "relation",
-              value: n
-            };
-          });
+          const ctes: string[] = relation.getCTENames();
 
-          const tables: { type: "relation"; value: string }[] = this.getTables().map(table => {
-            return {
-              type: "relation",
-              value: table.tableName
-            };
-          });
-
-          this.completionItems.push(...tables, ...ctes);
+          this.completions = {
+            type: "relation",
+            schema: this.caretScope.schema,
+            relations: ctes,
+            snippets: this.completions.snippets
+          };
           break;
       }
     }
@@ -191,7 +185,7 @@ export class CompletionVisitor extends QueryStructureVisitor<void> implements Sq
     super.visitErrorNode(node);
 
     if (this.cursor.isEqualTo(node.symbol.text ?? "") && node.parent instanceof StatementContext) {
-      this.completionItems.push(selectFromSnippet);
+      this.completions.snippets.push(selectFromSnippet);
       this.caretScope = { type: "other" };
     }
   }
@@ -202,11 +196,18 @@ export class CompletionVisitor extends QueryStructureVisitor<void> implements Sq
    * @param ctx
    */
   visitTableName(ctx: TableNameContext) {
-    const nameParts = ctx.multipartIdentifier().errorCapturingIdentifier();
-    const name = nameParts[nameParts.length - 1].identifier().text;
+    const multipartTableName = ctx
+      .multipartIdentifier()
+      .errorCapturingIdentifier()
+      .map(v => common.stripQuote(v.identifier()).name);
+    const lastPart = multipartTableName[multipartTableName.length - 1];
 
-    if (this.cursor.isSuffixOf(name)) {
-      this.caretScope = { type: "relation" };
+    if (this.cursor.isSuffixOf(lastPart)) {
+      let schema: string | undefined = undefined;
+      if (multipartTableName.length == 2) {
+        schema = multipartTableName[0];
+      }
+      this.caretScope = { type: "relation", schema };
     }
 
     super.visitTableName(ctx);
@@ -222,7 +223,7 @@ export class CompletionVisitor extends QueryStructureVisitor<void> implements Sq
 
     const relation = ctx.relation();
     if (relation.start === relation.stop && this.cursor.isEqualTo(relation.start.text ?? "")) {
-      this.completionItems.push(selectFromSnippet);
+      this.completions.snippets.push(selectFromSnippet);
       this.caretScope = { type: "relation" };
     }
   }
