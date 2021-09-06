@@ -15,7 +15,6 @@ interface ParserOptions {
   cursorPosition?: { lineNumber: number; column: number };
 }
 
-type TableListProvider = () => TablePrimary[];
 type TableProvider<T, C> = (
   id: TablePrimary
 ) => { table: { id: string; data: T }; columns: { id: string; data: C }[] } | undefined;
