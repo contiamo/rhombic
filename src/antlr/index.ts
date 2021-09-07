@@ -25,6 +25,7 @@ type TableProvider<T, C> = (
  */
 export type CompletionItem =
   | { type: "keyword"; value: string } // keyword suggestion
+  | { type: "catalog"; value: string } // catalog suggestion
   | { type: "schema"; value: string } // schema suggestion
   | { type: "relation"; value: string } // table/cte suggestion
   | { type: "column"; relation?: string; value: string } // column suggestion
@@ -110,8 +111,8 @@ class SqlParseTree {
   }
 
   getSuggestions(
-    schemas: string[],
-    getTables: (schema?: string) => TablePrimary[] | undefined,
+    catalogs: string[],
+    getObjects: (tp?: TablePrimaryIncomplete) => { schemas: string[]; tables: TablePrimary[] } | undefined,
     getTable: TableProvider<unknown, unknown>
   ): CompletionItem[] {
     const completionVisitor = new CompletionVisitor(defaultCursor, tp => getTable(this.cursor.removeFrom(tp)));
@@ -129,21 +130,34 @@ class SqlParseTree {
         break;
       }
       case "relation": {
-        const tables: CompletionItem[] = (getTables(completions.schema) || []).map(tp => {
-          return { type: "relation", value: tp.tableName };
-        });
-
-        const ctes: CompletionItem[] = completions.relations.map(rel => {
+        // always include cte names
+        const cteCompletions: CompletionItem[] = completions.relations.map(rel => {
           return { type: "relation", value: rel };
         });
 
-        const schemaCompletions: CompletionItem[] = schemas.map(s => {
+        // fetch schemas and tables
+        const objects = getObjects(completions.incompleteReference);
+
+        const tableCompletions: CompletionItem[] = (objects?.tables || []).map(tp => {
+          return { type: "relation", value: tp.tableName };
+        });
+
+        const schemaCompletions: CompletionItem[] = (objects?.schemas || []).map(s => {
           return { type: "schema", value: s };
         });
 
-        completionItems.push(...ctes);
-        completionItems.push(...tables);
+        // only include catalogs if no prefix has been entered
+        const catalogCompletions: CompletionItem[] =
+          completions.incompleteReference === undefined
+            ? catalogs.map(c => {
+                return { type: "catalog", value: c };
+              })
+            : [];
+
+        completionItems.push(...cteCompletions);
+        completionItems.push(...tableCompletions);
         completionItems.push(...schemaCompletions);
+        completionItems.push(...catalogCompletions);
         break;
       }
     }

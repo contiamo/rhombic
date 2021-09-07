@@ -1,5 +1,5 @@
 import { ErrorNode } from "antlr4ts/tree/ErrorNode";
-import { TablePrimary } from "..";
+import { TablePrimary, TablePrimaryIncomplete } from "..";
 import common from "./common";
 import { CursorQuery } from "./Cursor";
 import { QueryRelation, QueryStructureVisitor, TableRelation } from "./QueryStructureVisitor";
@@ -15,7 +15,7 @@ import { SqlBaseVisitor } from "./SqlBaseVisitor";
 
 export type ContextCompletions =
   | { type: "column"; columns: { relation?: string; name: string }[] }
-  | { type: "relation"; schema?: string; relations: string[] }
+  | { type: "relation"; incompleteReference?: TablePrimaryIncomplete; relations: string[] }
   | { type: "other" };
 
 export interface Snippet {
@@ -36,7 +36,7 @@ type CaretScope =
   | { type: "select-column" } // cursor in column position within a SELECT clause
   | { type: "spec-column" } // cursor in column position outside of a SELECT clause
   | { type: "scoped-column"; relation: string } // cursor in column position after a dot (with `relation` being the prefix)
-  | { type: "relation"; schema?: string } // cursor in table position
+  | { type: "relation"; prefix: string[] } // cursor in table position
   | { type: "other" }; // cursor in any other position
 
 function availableColumns(relation: QueryRelation): { relation?: string; name: string }[] {
@@ -137,7 +137,7 @@ export class CompletionVisitor extends QueryStructureVisitor<void> implements Sq
 
           this.completions = {
             type: "relation",
-            schema: this.caretScope.schema,
+            incompleteReference: this.caretScope.prefix.length > 0 ? { references: this.caretScope.prefix } : undefined,
             relations: ctes,
             snippets: this.completions.snippets
           };
@@ -208,11 +208,7 @@ export class CompletionVisitor extends QueryStructureVisitor<void> implements Sq
     const lastPart = multipartTableName[multipartTableName.length - 1];
 
     if (this.cursor.isSuffixOf(lastPart)) {
-      let schema: string | undefined = undefined;
-      if (multipartTableName.length == 2) {
-        schema = multipartTableName[0];
-      }
-      this.caretScope = { type: "relation", schema };
+      this.caretScope = { type: "relation", prefix: multipartTableName.slice(0, -1) };
     }
 
     super.visitTableName(ctx);
@@ -229,7 +225,7 @@ export class CompletionVisitor extends QueryStructureVisitor<void> implements Sq
     const relation = ctx.relation();
     if (relation.start === relation.stop && this.cursor.isEqualTo(relation.start.text ?? "")) {
       this.completions.snippets.push(selectFromSnippet);
-      this.caretScope = { type: "relation" };
+      this.caretScope = { type: "relation", prefix: [] };
     }
   }
 

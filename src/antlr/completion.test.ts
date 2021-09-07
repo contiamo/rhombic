@@ -264,12 +264,15 @@ function runCompletion(sql: string, env: Map<string, string[]>): CompletionItem[
     })
     .join("\n");
 
-  function getTables(): TablePrimary[] {
-    return Array.from(env.keys()).map(name => {
-      return {
-        tableName: name
-      };
-    });
+  function getObjects(): { schemas: string[]; tables: TablePrimary[] } {
+    return {
+      schemas: [],
+      tables: Array.from(env.keys()).map(name => {
+        return {
+          tableName: name
+        };
+      })
+    };
   }
 
   function getTable(
@@ -291,5 +294,5 @@ function runCompletion(sql: string, env: Map<string, string[]>): CompletionItem[
     }
   }
 
-  return antlr.parse(cleanedSql, { cursorPosition: position }).getSuggestions([], getTables, getTable);
+  return antlr.parse(cleanedSql, { cursorPosition: position }).getSuggestions([], getObjects, getTable);
 }
