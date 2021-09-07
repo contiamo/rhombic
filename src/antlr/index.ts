@@ -15,20 +15,32 @@ interface ParserOptions {
   cursorPosition?: { lineNumber: number; column: number };
 }
 
-type TableProvider<T, C> = (
-  id: TablePrimary
-) => { table: { id: string; data: T }; columns: { id: string; data: C }[] } | undefined;
+interface Named {
+  name: string;
+}
+
+export interface MetadataProvider<
+  Catalog extends Named = Named,
+  Schema extends Named = Named,
+  Table extends Named = Named,
+  Column extends Named = Named
+> {
+  getCatalogs: () => Catalog[] | undefined;
+  getSchemas: (arg?: { catalog: string }) => Schema[] | undefined;
+  getTables: (args?: { catalogOrSchema: string; schema?: string }) => Table[] | undefined;
+  getColumns: (args: { table: string; catalogOrSchema?: string; schema?: string }) => Column[] | undefined;
+}
 
 /**
  * Possible suggestion items for auto completion.
  * "keyword" is not used right now but will likely be added later
  */
-export type CompletionItem =
+export type CompletionItem<Catalog = Named, Schema = Named, Table = Named, Column = Named> =
   | { type: "keyword"; value: string } // keyword suggestion
-  | { type: "catalog"; value: string } // catalog suggestion
-  | { type: "schema"; value: string } // schema suggestion
-  | { type: "relation"; value: string } // table/cte suggestion
-  | { type: "column"; relation?: string; value: string } // column suggestion
+  | { type: "catalog"; value: Catalog } // catalog suggestion
+  | { type: "schema"; value: Schema } // schema suggestion
+  | { type: "relation"; value: string; desc?: Table } // table/cte suggestion
+  | { type: "column"; relation?: string; value: string; desc?: Column } // column suggestion
   | { type: "snippet"; label: string; template: string }; // snippet suggestion
 
 class SqlParseTree {
@@ -110,20 +122,23 @@ class SqlParseTree {
     return ([] as Lineage<TableData, ColumnData>).concat(cleanedTables, edges);
   }
 
-  getSuggestions(
-    catalogs: string[],
-    getObjects: (tp?: TablePrimaryIncomplete) => { schemas: string[]; tables: TablePrimary[] } | undefined,
-    getTable: TableProvider<unknown, unknown>
-  ): CompletionItem[] {
-    const completionVisitor = new CompletionVisitor(defaultCursor, tp => getTable(this.cursor.removeFrom(tp)));
+  getSuggestions<
+    Catalog extends Named = Named,
+    Schema extends Named = Named,
+    Table extends Named = Named,
+    Column extends Named = Named
+  >(
+    metadataProvider: MetadataProvider<Catalog, Schema, Table, Column>
+  ): CompletionItem<Catalog, Schema, Table, Column>[] {
+    const completionVisitor = new CompletionVisitor(this.cursor, args => metadataProvider.getColumns(args));
     this.tree.accept(completionVisitor);
 
     const completions = completionVisitor.getSuggestions();
-    const completionItems: CompletionItem[] = [];
+    const completionItems: CompletionItem<Catalog, Schema, Table, Column>[] = [];
     switch (completions.type) {
       case "column": {
-        const columns: CompletionItem[] = completions.columns.map(col => {
-          return { type: "column", relation: col.relation, value: col.name };
+        const columns: CompletionItem<Catalog, Schema, Table, Column>[] = completions.columns.map(col => {
+          return { type: "column", relation: col.relation, value: col.name, desc: col.desc };
         });
 
         completionItems.push(...columns);
@@ -131,38 +146,46 @@ class SqlParseTree {
       }
       case "relation": {
         // always include cte names
-        const cteCompletions: CompletionItem[] = completions.relations.map(rel => {
+        const cteCompletions: CompletionItem<Catalog, Schema, Table, Column>[] = completions.relations.map(rel => {
           return { type: "relation", value: rel };
         });
-
-        // fetch schemas and tables
-        const objects = getObjects(completions.incompleteReference);
-
-        const tableCompletions: CompletionItem[] = (objects?.tables || []).map(tp => {
-          return { type: "relation", value: tp.tableName };
-        });
-
-        const schemaCompletions: CompletionItem[] = (objects?.schemas || []).map(s => {
-          return { type: "schema", value: s };
-        });
-
-        // only include catalogs if no prefix has been entered
-        const catalogCompletions: CompletionItem[] =
-          completions.incompleteReference === undefined
-            ? catalogs.map(c => {
-                return { type: "catalog", value: c };
-              })
-            : [];
-
         completionItems.push(...cteCompletions);
+
+        // fetch tables
+        const args = completions.incompleteReference && {
+          catalogOrSchema: completions.incompleteReference.references[0],
+          schema: completions.incompleteReference.references[1]
+        };
+        const tableCompletions: CompletionItem<Catalog, Schema, Table, Column>[] =
+          metadataProvider.getTables(args)?.map(t => {
+            return { type: "relation", value: t.name, desc: t };
+          }) || [];
         completionItems.push(...tableCompletions);
-        completionItems.push(...schemaCompletions);
-        completionItems.push(...catalogCompletions);
+
+        // fetch schemas if only a one-part prefix (or no prefix) was entered
+        if (completions.incompleteReference === undefined || completions.incompleteReference.references.length == 1) {
+          const args = completions.incompleteReference && { catalog: completions.incompleteReference.references[0] };
+          const schemaCompletions: CompletionItem<Catalog, Schema, Table, Column>[] =
+            metadataProvider.getSchemas(args)?.map(s => {
+              return { type: "schema", value: s };
+            }) || [];
+          completionItems.push(...schemaCompletions);
+        }
+
+        // fetch catalogs if no prefix was entered
+        if (completions.incompleteReference === undefined) {
+          const catalogCompletions: CompletionItem<Catalog, Schema, Table, Column>[] =
+            metadataProvider.getCatalogs()?.map(c => {
+              return { type: "catalog", value: c };
+            }) || [];
+          completionItems.push(...catalogCompletions);
+        }
+
         break;
       }
     }
 
-    const snippets: CompletionItem[] = completions.snippets.map(s => {
+    const snippets: CompletionItem<Catalog, Schema, Table, Column>[] = completions.snippets.map(s => {
       return { type: "snippet", label: s.label, template: s.template };
     });
 

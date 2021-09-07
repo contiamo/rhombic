@@ -13,8 +13,8 @@ import {
 } from "./SqlBaseParser";
 import { SqlBaseVisitor } from "./SqlBaseVisitor";
 
-export type ContextCompletions =
-  | { type: "column"; columns: { relation?: string; name: string }[] }
+export type ContextCompletions<C> =
+  | { type: "column"; columns: { relation?: string; name: string; desc?: C }[] }
   | { type: "relation"; incompleteReference?: TablePrimaryIncomplete; relations: string[] }
   | { type: "other" };
 
@@ -27,7 +27,7 @@ export interface Snippets {
   snippets: Snippet[];
 }
 
-export type Completions = ContextCompletions & Snippets;
+export type Completions<C> = ContextCompletions<C> & Snippets;
 
 /**
  * The parts of the query the cursor can be in.
@@ -39,8 +39,8 @@ type CaretScope =
   | { type: "relation"; prefix: string[] } // cursor in table position
   | { type: "other" }; // cursor in any other position
 
-function availableColumns(relation: QueryRelation): { relation?: string; name: string }[] {
-  const columns: { relation?: string; name: string }[] = [];
+function availableColumns<C>(relation: QueryRelation): { relation?: string; name: string; desc?: C }[] {
+  const columns: { relation?: string; name: string; desc?: C }[] = [];
 
   relation.relations.forEach((rel, name) => {
     const relationName = name !== rel.id ? name : undefined;
@@ -48,7 +48,8 @@ function availableColumns(relation: QueryRelation): { relation?: string; name: s
     rel.columns.forEach(col => {
       columns.push({
         relation: relationName,
-        name: col.label
+        name: col.label,
+        desc: col.data !== undefined ? (col.data as C) : undefined
       });
     });
   });
@@ -61,6 +62,30 @@ const selectFromSnippet = {
   template: "SELECT $0 FROM $1"
 };
 
+function mapMetadataLookup<C extends { name: string }>(
+  getColumns: (arg: { table: string; catalogOrSchema?: string; schema?: string }) => C[] | undefined
+) {
+  const getTable = (tp: TablePrimary) => {
+    const columns =
+      tp.catalogName !== undefined
+        ? getColumns({ table: tp.tableName, catalogOrSchema: tp.catalogName, schema: tp.schemaName })
+        : getColumns({ table: tp.tableName, catalogOrSchema: tp.schemaName });
+    return (
+      columns && {
+        table: { id: "", data: null },
+        columns: columns.map(c => {
+          return {
+            id: c.name,
+            data: c
+          };
+        })
+      }
+    );
+  };
+
+  return getTable;
+}
+
 /**
  * The visitor responsible for computing possible completion items based on the cursor position.
  *
@@ -70,7 +95,8 @@ const selectFromSnippet = {
  *
  * The cursor handling is delegated to the `Cursor` instance that is provided in the constructor.
  */
-export class CompletionVisitor extends QueryStructureVisitor<void> implements SqlBaseVisitor<void> {
+export class CompletionVisitor<C extends { name: string }> extends QueryStructureVisitor<void>
+  implements SqlBaseVisitor<void> {
   /**
    * @param cursor Utility functions to identify the cursor within the query
    * @param getTables Fetch a list of available tables (to present as completion items)
@@ -78,11 +104,9 @@ export class CompletionVisitor extends QueryStructureVisitor<void> implements Sq
    */
   constructor(
     private readonly cursor: CursorQuery,
-    getTable: (
-      t: TablePrimary
-    ) => { table: { id: string; data: unknown }; columns: { id: string; data: unknown }[] } | undefined
+    getColumns: (arg: { table: string; catalogOrSchema?: string; schema?: string }) => C[] | undefined
   ) {
-    super(getTable);
+    super(mapMetadataLookup(getColumns));
   }
 
   defaultResult() {
@@ -94,9 +118,9 @@ export class CompletionVisitor extends QueryStructureVisitor<void> implements Sq
 
   private caretScope?: CaretScope;
   private hasCompletions = false;
-  private completions: Completions = { type: "other", snippets: [] };
+  private completions: Completions<C> = { type: "other", snippets: [] };
 
-  getSuggestions(): Completions {
+  getSuggestions(): Completions<C> {
     return this.completions;
   }
 

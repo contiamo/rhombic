@@ -1,5 +1,4 @@
 import antlr, { CompletionItem } from ".";
-import { TablePrimary } from "..";
 
 const env = new Map<string, string[]>();
 env.set("test", ["column1", "column2"]);
@@ -93,14 +92,14 @@ describe("completion", () => {
     const sql = "WITH tmp (a) (SELECT 1) SELECT tmp.<|> FROM test, tmp";
 
     const completionResult = runCompletion(sql, env);
-    expect(completionResult).toEqual([col("tmp", "a")]);
+    expect(completionResult).toEqual([col("tmp", "a", true)]);
   });
 
   it("should suggest columns from a referenced table with prefix", () => {
     const sql = "WITH tmp (a) (SELECT 1) SELECT t.a<|> FROM test, tmp t";
 
     const completionResult = runCompletion(sql, env);
-    expect(completionResult).toEqual([col("t", "a")]);
+    expect(completionResult).toEqual([col("t", "a", true)]);
   });
 
   it("should suggest columns in where clauses", () => {
@@ -121,7 +120,7 @@ describe("completion", () => {
     const sql = "SELECT * FROM test t JOIN (SELECT column1 FROM test) s ON <|>";
 
     const completionResult = runCompletion(sql, env);
-    expect(completionResult).toEqual([col("t", "column1"), col("t", "column2"), col("s", "column1")]);
+    expect(completionResult).toEqual([col("t", "column1"), col("t", "column2"), col("s", "column1", true)]);
   });
 
   it("should complete tables in cte subquery", () => {
@@ -148,7 +147,7 @@ describe("completion", () => {
     `;
 
     const completionResult = runCompletion(sql, env);
-    expect(completionResult).toEqual([rel("tmp1"), rel("tmp2"), rel("test")]);
+    expect(completionResult).toEqual([rel("tmp1", true), rel("tmp2", true), rel("test")]);
   });
 
   it("should complete columns from nested ctes", () => {
@@ -162,7 +161,7 @@ describe("completion", () => {
     `;
 
     const completionResult = runCompletion(sql, env);
-    expect(completionResult).toEqual([col("q", "column2"), col("q", "column1")]);
+    expect(completionResult).toEqual([col("q", "column2", true), col("q", "column1", true)]);
   });
 
   it("should complete columns from nested ctes but hide generated relation id", () => {
@@ -176,7 +175,7 @@ describe("completion", () => {
     `;
 
     const completionResult = runCompletion(sql, env);
-    expect(completionResult).toEqual([col("column2"), col("column1")]);
+    expect(completionResult).toEqual([col("column2", undefined, true), col("column1", undefined, true)]);
   });
 
   it("should complete names of nested ctes", () => {
@@ -191,7 +190,7 @@ describe("completion", () => {
     `;
 
     const completionResult = runCompletion(sql, env);
-    expect(completionResult).toEqual([rel("tmp3"), rel("tmp1"), rel("tmp2"), rel("test")]);
+    expect(completionResult).toEqual([rel("tmp3", true), rel("tmp1", true), rel("tmp2", true), rel("test")]);
   });
 
   it("should complete columns in union queries", () => {
@@ -205,7 +204,7 @@ describe("completion", () => {
     `;
 
     const completionResult = runCompletion(sql, env);
-    expect(completionResult).toEqual([col("tmp", "a")]);
+    expect(completionResult).toEqual([col("tmp", "a", true)]);
 
     const sql2 = `
       WITH tmp (SELECT column1 AS a FROM test)
@@ -233,16 +232,16 @@ describe("completion", () => {
   });
 });
 
-function col(rel: string, name?: string): CompletionItem {
+function col(rel: string, name?: string, internal = false): CompletionItem {
   if (name === undefined) {
-    return { type: "column", value: rel };
+    return { type: "column", value: rel, desc: !internal ? { name: rel } : undefined };
   } else {
-    return { type: "column", relation: rel, value: name };
+    return { type: "column", relation: rel, value: name, desc: !internal ? { name } : undefined };
   }
 }
 
-function rel(name: string): CompletionItem {
-  return { type: "relation", value: name };
+function rel(name: string, internal = false): CompletionItem {
+  return { type: "relation", value: name, desc: !internal ? { name } : undefined };
 }
 
 function snp(label: string, template: string): CompletionItem {
@@ -264,35 +263,28 @@ function runCompletion(sql: string, env: Map<string, string[]>): CompletionItem[
     })
     .join("\n");
 
-  function getObjects(): { schemas: string[]; tables: TablePrimary[] } {
-    return {
-      schemas: [],
-      tables: Array.from(env.keys()).map(name => {
-        return {
-          tableName: name
-        };
-      })
-    };
-  }
-
-  function getTable(
-    t: TablePrimary
-  ): { table: { id: string; data: unknown }; columns: { id: string; data: unknown }[] } | undefined {
-    const cs = env.get(t.tableName);
-    if (cs !== undefined) {
-      return {
-        table: { id: t.tableName, data: {} },
-        columns: cs.map(c => {
-          return {
-            id: c,
-            data: {}
-          };
+  const metadataProvider = {
+    getCatalogs: () => {
+      return [];
+    },
+    getSchemas: (_arg?: { catalog: string }) => {
+      return [];
+    },
+    getTables: (_args?: { catalogOrSchema: string; schema?: string }) => {
+      return Array.from(env.keys()).map(n => {
+        return { name: n };
+      });
+    },
+    getColumns: (args: { table: string; catalogOrSchema?: string; schema?: string }) => {
+      const cs = env.get(args.table);
+      return (
+        cs &&
+        cs.map(c => {
+          return { name: c };
         })
-      };
-    } else {
-      return undefined;
+      );
     }
-  }
+  };
 
-  return antlr.parse(cleanedSql, { cursorPosition: position }).getSuggestions([], getObjects, getTable);
+  return antlr.parse(cleanedSql, { cursorPosition: position }).getSuggestions(metadataProvider);
 }
