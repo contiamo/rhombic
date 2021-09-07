@@ -158,7 +158,7 @@ class SqlParseTree {
         };
         const tableCompletions: CompletionItem<Catalog, Schema, Table, Column>[] = metadataProvider
           .getTables(args)
-          ?.map(t => {
+          .map(t => {
             return { type: "relation", value: t.name, desc: t };
           });
         completionItems.push(...tableCompletions);
@@ -168,7 +168,7 @@ class SqlParseTree {
           const args = completions.incompleteReference && { catalog: completions.incompleteReference.references[0] };
           const schemaCompletions: CompletionItem<Catalog, Schema, Table, Column>[] = metadataProvider
             .getSchemas(args)
-            ?.map(s => {
+            .map(s => {
               return { type: "schema", value: s };
             });
           completionItems.push(...schemaCompletions);
@@ -181,7 +181,7 @@ class SqlParseTree {
             Schema,
             Table,
             Column
-          >[] = metadataProvider.getCatalogs()?.map(c => {
+          >[] = metadataProvider.getCatalogs().map(c => {
             return { type: "catalog", value: c };
           });
           completionItems.push(...catalogCompletions);
