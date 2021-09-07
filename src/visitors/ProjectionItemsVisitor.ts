@@ -8,7 +8,7 @@ import {
   ColumnPrimaryContext,
   ExpressionContext
 } from "../Context";
-import { IToken, CstElement } from "chevrotain";
+import { IToken, CstElement, CstNode } from "chevrotain";
 import { getImageFromChildren } from "../utils/getImageFromChildren";
 import { getChildrenRange } from "../utils/getChildrenRange";
 import { isCstNode } from "../utils/isCstNode";
@@ -18,14 +18,13 @@ import { Range } from "../utils/getRange";
 
 const Visitor = parser.getBaseCstVisitorConstructorWithDefaults();
 
-function isCastNode(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  node: any
-): node is {
-  name: "cast";
-  children: CastContext;
-} {
-  return isCstNode(node) && node.name === "cast";
+interface CstCastNode extends Omit<CstNode, "children"> {
+  readonly name: "cast";
+  readonly children: CastContext;
+}
+
+function ifCastNode(node: CstElement): CstCastNode | null {
+  return isCstNode(node) && node.name === "cast" ? ((node as unknown) as CstCastNode) : null;
 }
 
 function isExpressionContextColumnBranch(
@@ -230,11 +229,12 @@ export class ProjectionItemsVisitor extends Visitor {
 
         Object.values(i.children).forEach(j => {
           j.map((token: CstElement) => {
-            if (isCastNode(token)) {
-              cast = this.cast(token.children);
+            const castNode = ifCastNode(token);
+            if (castNode) {
+              cast = this.cast(castNode.children);
               fn = {
-                identifier: token.children.Cast[0].image,
-                values: token.children.expression.map(exp => ({
+                identifier: castNode.children.Cast[0].image,
+                values: castNode.children.expression.map(exp => ({
                   path: isExpressionContextColumnBranch(exp.children)
                     ? getColumnPrimaryPath(exp.children.columnPrimary[0])
                     : undefined,
