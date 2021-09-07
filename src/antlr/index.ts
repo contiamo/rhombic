@@ -39,11 +39,15 @@ class SqlParseTree {
   }
 
   getLineage<TableData, ColumnData>(
-    getTable: TableProvider<TableData, ColumnData>,
-    mergedLeaves?: boolean
+    getTable: (
+      id: TablePrimary
+    ) => { table: { id: string; data: TableData }; columns: { id: string; data: ColumnData }[] } | undefined,
+    mergedLeaves?: boolean,
+    options?: {
+      positionalRefsEnabled?: boolean;
+    }
   ): Lineage<TableData, ColumnData> {
-    const visitor = new LineageVisitor<TableData, ColumnData>(tp => getTable(this.cursor.removeFrom(tp)));
-
+    const visitor = new LineageVisitor<TableData, ColumnData>(tp => getTable(this.cursor.removeFrom(tp)), options);
     this.tree.accept(visitor);
     const tables = visitor.tables;
     const edges = visitor.edges;
