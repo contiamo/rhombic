@@ -8,7 +8,7 @@ import { generateSerializedGrammar } from "./generateSerializedGrammar";
 import { generateDiagrams } from "./generateDiagrams";
 
 program
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  // eslint-disable-next-line
   .version(require("../../package.json").version)
   .option("-w, --watch", "Watch the filesystem for rebuild")
   .parse(process.argv);

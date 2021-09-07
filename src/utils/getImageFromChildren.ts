@@ -36,6 +36,7 @@ export const getImageFromChildren = (children: IContext): string => {
 
   let output = "";
   for (let i = 0; i < image.length; i++) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     output += image[i] === undefined ? " " : image[i];
   }
   return output.trim();
