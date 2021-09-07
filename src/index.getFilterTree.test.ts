@@ -103,8 +103,7 @@ describe("getFilterTree", () => {
     },
     {
       name: "a filter with a parentheses",
-      filter:
-        "(customer.city = 'Paris' or customer.city = 'Berlin') and product.brand = 'Fabulous'",
+      filter: "(customer.city = 'Paris' or customer.city = 'Berlin') and product.brand = 'Fabulous'",
       tree: [
         { type: "operator", openParentheses: [0], closeParentheses: [] },
         {
@@ -142,8 +141,7 @@ describe("getFilterTree", () => {
     },
     {
       name: "a filter with a nested parentheses",
-      filter:
-        "((customer.city = 'Paris' or customer.city = 'Berlin') and product.brand = 'Fabulous')",
+      filter: "((customer.city = 'Paris' or customer.city = 'Berlin') and product.brand = 'Fabulous')",
       tree: [
         { type: "operator", openParentheses: [1, 0], closeParentheses: [] },
         {
@@ -181,8 +179,7 @@ describe("getFilterTree", () => {
     },
     {
       name: "a filter with parentheses on the second group",
-      filter:
-        "customer.city = 'Paris' and (customer.city = 'Berlin' and product.brand = 'Fabulous')",
+      filter: "customer.city = 'Paris' and (customer.city = 'Berlin' and product.brand = 'Fabulous')",
       tree: [
         { type: "operator", openParentheses: [], closeParentheses: [] },
         {
@@ -220,8 +217,7 @@ describe("getFilterTree", () => {
     },
     {
       name: "a filter with a multiple parentheses",
-      filter:
-        "(customer.city = 'Paris' or customer.city = 'Berlin') and (product.brand = 'Fabulous')",
+      filter: "(customer.city = 'Paris' or customer.city = 'Berlin') and (product.brand = 'Fabulous')",
       tree: [
         { type: "operator", openParentheses: [0], closeParentheses: [] },
         {
@@ -259,8 +255,7 @@ describe("getFilterTree", () => {
     },
     {
       name: "a filter with non string values",
-      filter:
-        "(customer.count = 2 or customer.birthdate = date '2019-02-01') and (product.awesome = true)",
+      filter: "(customer.count = 2 or customer.birthdate = date '2019-02-01') and (product.awesome = true)",
       tree: [
         { type: "operator", openParentheses: [0], closeParentheses: [] },
         {
@@ -319,9 +314,7 @@ describe("getFilterTree", () => {
 
   cases.forEach(({ filter, tree, only, name }) => {
     (only ? it.only : it)(`should parse ${name}`, () => {
-      const sql = filter
-        ? `SELECT * FROM my_db WHERE ${filter}`
-        : `SELECT * FROM my_db`;
+      const sql = filter ? `SELECT * FROM my_db WHERE ${filter}` : `SELECT * FROM my_db`;
 
       const filterTree = rhombic.parse(sql).getFilterTree();
 

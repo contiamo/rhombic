@@ -14,9 +14,7 @@ type OrAndContext = BooleanExpressionContext & {
  *
  * @param ctx BooleanExpressionContext
  */
-export const isAndOrContext = (
-  ctx: BooleanExpressionContext
-): ctx is OrAndContext => Boolean(ctx.And || ctx.Or);
+export const isAndOrContext = (ctx: BooleanExpressionContext): ctx is OrAndContext => Boolean(ctx.And || ctx.Or);
 
 type ParenthesesContext = BooleanExpressionContext & {
   LParen: IToken[];
@@ -32,6 +30,5 @@ type ParenthesesContext = BooleanExpressionContext & {
  *
  * @param ctx BooleanExpressionContext
  */
-export const isParenthesesContext = (
-  ctx: BooleanExpressionContext
-): ctx is ParenthesesContext => Boolean((ctx as any).LParen);
+export const isParenthesesContext = (ctx: BooleanExpressionContext): ctx is ParenthesesContext =>
+  Boolean((ctx as ParenthesesContext).LParen);

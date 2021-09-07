@@ -6,5 +6,5 @@ import { CstElement, CstNode } from "chevrotain";
  * @param element
  */
 export function isCstNode(element: CstElement): element is CstNode {
-  return Boolean((element as any).name);
+  return Boolean((element as CstNode).name);
 }

@@ -30,17 +30,13 @@ describe("rhombic", () => {
 
   describe("hasTablePrimary", () => {
     it("should return true if the table is part of the query", () => {
-      const hasTablePrimary = rhombic
-        .parse("SELECT * FROM plop")
-        .hasTablePrimary("plop");
+      const hasTablePrimary = rhombic.parse("SELECT * FROM plop").hasTablePrimary("plop");
 
       expect(hasTablePrimary).toBe(true);
     });
 
     it("should return false if the table is not part of the query", () => {
-      const hasTablePrimary = rhombic
-        .parse("SELECT * FROM plop")
-        .hasTablePrimary("nope");
+      const hasTablePrimary = rhombic.parse("SELECT * FROM plop").hasTablePrimary("nope");
 
       expect(hasTablePrimary).toBe(false);
     });
@@ -70,9 +66,7 @@ describe("rhombic", () => {
     });
 
     it("should deal with case sensitivity", () => {
-      const hasTablePrimary = rhombic
-        .parse("SELECT * FROM foo.BAR")
-        .hasTablePrimary("foo.bar");
+      const hasTablePrimary = rhombic.parse("SELECT * FROM foo.BAR").hasTablePrimary("foo.bar");
 
       expect(hasTablePrimary).toBe(false);
     });
@@ -102,9 +96,7 @@ describe("rhombic", () => {
     });
 
     it("should return on table with a schema", () => {
-      const tables = rhombic
-        .parse("SELECT * FROM my_schema.my_db")
-        .getTablePrimaries();
+      const tables = rhombic.parse("SELECT * FROM my_schema.my_db").getTablePrimaries();
 
       expect(tables).toEqual([
         {
@@ -121,9 +113,7 @@ describe("rhombic", () => {
     });
 
     it("should return on table with a schema and catalog", () => {
-      const tables = rhombic
-        .parse("SELECT * FROM my_catalog.my_schema.my_db")
-        .getTablePrimaries();
+      const tables = rhombic.parse("SELECT * FROM my_catalog.my_schema.my_db").getTablePrimaries();
 
       expect(tables).toEqual([
         {
@@ -142,9 +132,7 @@ describe("rhombic", () => {
 
     it("should return two tables with a join", () => {
       const tables = rhombic
-        .parse(
-          "SELECT * FROM myschema.mytable AS a LEFT JOIN mytable2 AS b on (a.id = b.id)"
-        )
+        .parse("SELECT * FROM myschema.mytable AS a LEFT JOIN mytable2 AS b on (a.id = b.id)")
         .getTablePrimaries();
 
       expect(tables).toEqual([
@@ -284,15 +272,11 @@ describe("rhombic", () => {
 
     it("should switch the order if the expression already exists (multiple)", () => {
       const query = rhombic
-        .parse(
-          "SELECT * FROM my_db ORDER BY b DESC NULLS LAST, a ASC, c DESC NULLS FIRST"
-        )
+        .parse("SELECT * FROM my_db ORDER BY b DESC NULLS LAST, a ASC, c DESC NULLS FIRST")
         .orderBy({ expression: "a" })
         .toString();
 
-      expect(query).toEqual(
-        "SELECT * FROM my_db ORDER BY b DESC NULLS LAST, a DESC, c DESC NULLS FIRST"
-      );
+      expect(query).toEqual("SELECT * FROM my_db ORDER BY b DESC NULLS LAST, a DESC, c DESC NULLS FIRST");
     });
 
     it("should update a statement with a LIMIT", () => {
@@ -337,9 +321,7 @@ describe("rhombic", () => {
         .orderBy({ expression: "ACCOUNT_ID" })
         .toString();
 
-      expect(query).toEqual(
-        "SELECT * FROM myschema.mytable NATURAL JOIN mytable2 ORDER BY ACCOUNT_ID"
-      );
+      expect(query).toEqual("SELECT * FROM myschema.mytable NATURAL JOIN mytable2 ORDER BY ACCOUNT_ID");
     });
   });
 
@@ -351,9 +333,7 @@ describe("rhombic", () => {
 
     it("should return the filter string", () => {
       const filter = rhombic
-        .parse(
-          "SELECT * FROM foo WHERE name = 'tejas' AND chicken LIKE 'crispy' LIMIT 10"
-        )
+        .parse("SELECT * FROM foo WHERE name = 'tejas' AND chicken LIKE 'crispy' LIMIT 10")
         .getFilterString();
       expect(filter).toEqual("name = 'tejas' AND chicken LIKE 'crispy'");
     });
@@ -379,9 +359,7 @@ describe("rhombic", () => {
         .updateFilter(filterTree)
         .toString();
 
-      expect(query).toEqual(
-        "SELECT * FROM my_db WHERE customer.city = 'Paris'"
-      );
+      expect(query).toEqual("SELECT * FROM my_db WHERE customer.city = 'Paris'");
     });
 
     it("should add a filter from a string", () => {
@@ -390,9 +368,7 @@ describe("rhombic", () => {
         .updateFilter(filterString)
         .toString();
 
-      expect(query).toEqual(
-        "SELECT * FROM my_db WHERE chicken LIKE 'crispy' LIMIT 42"
-      );
+      expect(query).toEqual("SELECT * FROM my_db WHERE chicken LIKE 'crispy' LIMIT 42");
     });
 
     it("should update a filter from a tree", () => {
@@ -401,9 +377,7 @@ describe("rhombic", () => {
         .updateFilter(filterTree)
         .toString();
 
-      expect(query).toEqual(
-        "SELECT * FROM my_db WHERE customer.city = 'Paris'"
-      );
+      expect(query).toEqual("SELECT * FROM my_db WHERE customer.city = 'Paris'");
     });
 
     it("should update a filter from a string", () => {
@@ -412,9 +386,7 @@ describe("rhombic", () => {
         .updateFilter(filterString)
         .toString();
 
-      expect(query).toEqual(
-        "SELECT * FROM my_db WHERE chicken LIKE 'crispy' LIMIT 42"
-      );
+      expect(query).toEqual("SELECT * FROM my_db WHERE chicken LIKE 'crispy' LIMIT 42");
     });
 
     it("should remove filter for empty array", () => {
@@ -437,9 +409,7 @@ describe("rhombic", () => {
 
     it("should remove filter for empty array (stupid column name)", () => {
       const query = rhombic
-        .parse(
-          `SELECT " WHERE IS MY COLUMN " FROM my_db WHERE chicken != 'fresh'`
-        )
+        .parse(`SELECT " WHERE IS MY COLUMN " FROM my_db WHERE chicken != 'fresh'`)
         .updateFilter([])
         .toString();
 
