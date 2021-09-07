@@ -3,7 +3,7 @@ import { Lineage, Table } from "../Lineage";
 import { SqlBaseLexer } from "./SqlBaseLexer";
 import { SqlBaseParser, StatementContext } from "./SqlBaseParser";
 import { UppercaseCharStream } from "./UppercaseCharStream";
-import { TablePrimary } from "..";
+import { TablePrimary, TablePrimaryIncomplete } from "..";
 import { ExtractTablesVisitor } from "./ExtractTablesVisitor";
 import { LineageVisitor } from "./LineageVisitor";
 import { CompletionVisitor } from "./CompletionVisitor";
@@ -33,7 +33,7 @@ export type CompletionItem =
 class SqlParseTree {
   constructor(public readonly tree: StatementContext, readonly cursor: Cursor) {}
 
-  getUsedTables(): TablePrimary[] {
+  getUsedTables(): { references: TablePrimary[]; incomplete: TablePrimaryIncomplete[] } {
     const visitor = new ExtractTablesVisitor(this.cursor);
     return this.tree.accept(visitor);
   }
@@ -108,7 +108,7 @@ class SqlParseTree {
   getSuggestions(
     schemas: string[],
     getTables: (schema?: string) => TablePrimary[] | undefined,
-    getTable: TableProvider<any, any>
+    getTable: TableProvider<unknown, unknown>
   ): CompletionItem[] {
     const completionVisitor = new CompletionVisitor(defaultCursor, tp => getTable(this.cursor.removeFrom(tp)));
     this.tree.accept(completionVisitor);

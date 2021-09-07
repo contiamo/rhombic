@@ -65,31 +65,34 @@ describe("antlr", () => {
   it("should extract table primaries", () => {
     const sql = "select * from t1, s1.t1, s2.t1, (select * from c1.s2.t2, s3.t3, t4) as sq";
     const parsed = antlr.parse(sql);
-    expect(parsed.getUsedTables()).toEqual([
-      {
-        tableName: "t1"
-      },
-      {
-        schemaName: "s1",
-        tableName: "t1"
-      },
-      {
-        schemaName: "s2",
-        tableName: "t1"
-      },
-      {
-        catalogName: "c1",
-        schemaName: "s2",
-        tableName: "t2"
-      },
-      {
-        schemaName: "s3",
-        tableName: "t3"
-      },
-      {
-        tableName: "t4"
-      }
-    ]);
+    expect(parsed.getUsedTables()).toEqual({
+      references: [
+        {
+          tableName: "t1"
+        },
+        {
+          schemaName: "s1",
+          tableName: "t1"
+        },
+        {
+          schemaName: "s2",
+          tableName: "t1"
+        },
+        {
+          catalogName: "c1",
+          schemaName: "s2",
+          tableName: "t2"
+        },
+        {
+          schemaName: "s3",
+          tableName: "t3"
+        },
+        {
+          tableName: "t4"
+        }
+      ],
+      incomplete: []
+    });
   });
 
   const cases: Array<{

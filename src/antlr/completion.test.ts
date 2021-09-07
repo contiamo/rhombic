@@ -274,7 +274,7 @@ function runCompletion(sql: string, env: Map<string, string[]>): CompletionItem[
 
   function getTable(
     t: TablePrimary
-  ): { table: { id: string; data: any }; columns: { id: string; data: any }[] } | undefined {
+  ): { table: { id: string; data: unknown }; columns: { id: string; data: unknown }[] } | undefined {
     const cs = env.get(t.tableName);
     if (cs !== undefined) {
       return {

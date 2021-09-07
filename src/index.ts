@@ -97,6 +97,10 @@ export interface TablePrimary {
   range?: Range;
 }
 
+export interface TablePrimaryIncomplete {
+  references: string[];
+}
+
 // Note: Because we have a recursion, we can't rely on typescript inference
 // `addProjectionItem` will return `any` without this type definition
 export interface ParsedSql {

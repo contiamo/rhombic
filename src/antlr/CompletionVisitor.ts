@@ -80,7 +80,7 @@ export class CompletionVisitor extends QueryStructureVisitor<void> implements Sq
     private readonly cursor: CursorQuery,
     getTable: (
       t: TablePrimary
-    ) => { table: { id: string; data: any }; columns: { id: string; data: any }[] } | undefined
+    ) => { table: { id: string; data: unknown }; columns: { id: string; data: unknown }[] } | undefined
   ) {
     super(getTable);
   }
