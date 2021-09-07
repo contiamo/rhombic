@@ -278,10 +278,9 @@ function runCompletion(sql: string, env: Map<string, string[]>): CompletionItem[
     getColumns: (args: { table: string; catalogOrSchema?: string; schema?: string }) => {
       const cs = env.get(args.table);
       return (
-        cs &&
-        cs.map(c => {
+        cs?.map(c => {
           return { name: c };
-        })
+        }) || []
       );
     }
   };

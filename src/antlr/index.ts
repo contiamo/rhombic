@@ -25,10 +25,10 @@ export interface MetadataProvider<
   Table extends Named = Named,
   Column extends Named = Named
 > {
-  getCatalogs: () => Catalog[] | undefined;
-  getSchemas: (arg?: { catalog: string }) => Schema[] | undefined;
-  getTables: (args?: { catalogOrSchema: string; schema?: string }) => Table[] | undefined;
-  getColumns: (args: { table: string; catalogOrSchema?: string; schema?: string }) => Column[] | undefined;
+  getCatalogs: () => Catalog[];
+  getSchemas: (arg?: { catalog: string }) => Schema[];
+  getTables: (args?: { catalogOrSchema: string; schema?: string }) => Table[];
+  getColumns: (args: { table: string; catalogOrSchema?: string; schema?: string }) => Column[];
 }
 
 /**
@@ -156,28 +156,34 @@ class SqlParseTree {
           catalogOrSchema: completions.incompleteReference.references[0],
           schema: completions.incompleteReference.references[1]
         };
-        const tableCompletions: CompletionItem<Catalog, Schema, Table, Column>[] =
-          metadataProvider.getTables(args)?.map(t => {
+        const tableCompletions: CompletionItem<Catalog, Schema, Table, Column>[] = metadataProvider
+          .getTables(args)
+          ?.map(t => {
             return { type: "relation", value: t.name, desc: t };
-          }) || [];
+          });
         completionItems.push(...tableCompletions);
 
         // fetch schemas if only a one-part prefix (or no prefix) was entered
         if (completions.incompleteReference === undefined || completions.incompleteReference.references.length == 1) {
           const args = completions.incompleteReference && { catalog: completions.incompleteReference.references[0] };
-          const schemaCompletions: CompletionItem<Catalog, Schema, Table, Column>[] =
-            metadataProvider.getSchemas(args)?.map(s => {
+          const schemaCompletions: CompletionItem<Catalog, Schema, Table, Column>[] = metadataProvider
+            .getSchemas(args)
+            ?.map(s => {
               return { type: "schema", value: s };
-            }) || [];
+            });
           completionItems.push(...schemaCompletions);
         }
 
         // fetch catalogs if no prefix was entered
         if (completions.incompleteReference === undefined) {
-          const catalogCompletions: CompletionItem<Catalog, Schema, Table, Column>[] =
-            metadataProvider.getCatalogs()?.map(c => {
-              return { type: "catalog", value: c };
-            }) || [];
+          const catalogCompletions: CompletionItem<
+            Catalog,
+            Schema,
+            Table,
+            Column
+          >[] = metadataProvider.getCatalogs()?.map(c => {
+            return { type: "catalog", value: c };
+          });
           completionItems.push(...catalogCompletions);
         }
 

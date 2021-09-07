@@ -63,7 +63,7 @@ const selectFromSnippet = {
 };
 
 function mapMetadataLookup<C extends { name: string }>(
-  getColumns: (arg: { table: string; catalogOrSchema?: string; schema?: string }) => C[] | undefined
+  getColumns: (arg: { table: string; catalogOrSchema?: string; schema?: string }) => C[]
 ) {
   const getTable = (tp: TablePrimary) => {
     const columns =
@@ -104,7 +104,7 @@ export class CompletionVisitor<C extends { name: string }> extends QueryStructur
    */
   constructor(
     private readonly cursor: CursorQuery,
-    getColumns: (arg: { table: string; catalogOrSchema?: string; schema?: string }) => C[] | undefined
+    getColumns: (arg: { table: string; catalogOrSchema?: string; schema?: string }) => C[]
   ) {
     super(mapMetadataLookup(getColumns));
   }
