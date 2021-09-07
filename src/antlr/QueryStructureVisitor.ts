@@ -52,6 +52,9 @@ export class Column {
   ) {}
 }
 
+/**
+ * Base relation class representing any relation in query: query itself, subquery, source table, CTE
+ */
 export abstract class Relation {
   constructor(
     readonly id: string,
@@ -82,6 +85,9 @@ export abstract class Relation {
   }
 }
 
+/**
+ * Relation representing source table.
+ */
 export class TableRelation extends Relation {
   constructor(
     id: string,
@@ -102,6 +108,9 @@ export class TableRelation extends Relation {
   }
 }
 
+/**
+ * Relation representing (sub-)query.
+ */
 export class QueryRelation extends Relation {
   // CTEs from this context
   ctes: Map<string, QueryRelation> = new Map();
@@ -199,6 +208,13 @@ export class QueryRelation extends Relation {
   }
 }
 
+/**
+ * Visitor to extract query structure in the sense of relations, columns and used relations/columns.
+ * This extraction builds a tree of contexts corresponding to (sub-)queries, resolves all column
+ * references and for each (sub-)query and source table reports separate relation with #onRelation()
+ * handler. For column/table used when building particular relation it reports the reference with
+ * #onColumnReference() handler.
+ */
 export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVisitor<Result>
   implements SqlBaseVisitor<Result> {
   private relationSeq = 0;
