@@ -16,9 +16,7 @@ describe("projectionItem", () => {
         .addProjectionItem("column03")
         .toString();
 
-      expect(query).toEqual(
-        "SELECT column01, column02, column03 FROM my_table"
-      );
+      expect(query).toEqual("SELECT column01, column02, column03 FROM my_table");
     });
     it("should add `column03` to the project items (integer)", () => {
       const query = rhombic
@@ -117,9 +115,7 @@ describe("projectionItem", () => {
         .addProjectionItem('"column03"')
         .toString();
 
-      expect(query).toEqual(
-        'SELECT column01 AS toto, "column03" FROM my_table'
-      );
+      expect(query).toEqual('SELECT column01 AS toto, "column03" FROM my_table');
     });
     it("should escape reserved keyword", () => {
       const query = rhombic
@@ -161,9 +157,7 @@ describe("projectionItem", () => {
         })
         .toString();
 
-      expect(query).toEqual(
-        'SELECT a, column02 AS "I need to be escaped because I have some spaces" FROM my_table'
-      );
+      expect(query).toEqual('SELECT a, column02 AS "I need to be escaped because I have some spaces" FROM my_table');
     });
   });
 
@@ -204,9 +198,7 @@ describe("projectionItem", () => {
         })
         .toString();
 
-      expect(query).toEqual(
-        "SELECT column01, column02 AS my_column, column03, column04 FROM my_table"
-      );
+      expect(query).toEqual("SELECT column01, column02 AS my_column, column03, column04 FROM my_table");
     });
 
     it("should deal with reserved keywords in columns", () => {
@@ -219,9 +211,7 @@ describe("projectionItem", () => {
         })
         .toString();
 
-      expect(query).toEqual(
-        'SELECT "DATE", column02 AS my_column, column03, column04 FROM my_table'
-      );
+      expect(query).toEqual('SELECT "DATE", column02 AS my_column, column03, column04 FROM my_table');
     });
 
     it("should expanded a star with side projections", () => {
@@ -234,9 +224,7 @@ describe("projectionItem", () => {
         })
         .toString();
 
-      expect(query).toEqual(
-        "SELECT column01, column02 AS my_column, column03, column04 FROM my_table"
-      );
+      expect(query).toEqual("SELECT column01, column02 AS my_column, column03, column04 FROM my_table");
     });
 
     it("should preserved previous rename", () => {
@@ -293,21 +281,14 @@ describe("projectionItem", () => {
         })
         .toString();
 
-      expect(query).toEqual(
-        "SELECT a.column01 AS oh_yeah, a.column02, a.column03, a.column04 FROM my_table AS a"
-      );
+      expect(query).toEqual("SELECT a.column01 AS oh_yeah, a.column02, a.column03, a.column04 FROM my_table AS a");
     });
 
     it("should escaped tableAlias column name correctly", () => {
       const query = rhombic
         .parse("SELECT a.* FROM my_table AS a")
         .updateProjectionItem({
-          columns: [
-            "a.column01",
-            "a.need to be escaped",
-            "a.column03",
-            "a.column04"
-          ],
+          columns: ["a.column01", "a.need to be escaped", "a.column03", "a.column04"],
           index: 0,
           value: "a.column01 AS oh_yeah"
         })
@@ -320,9 +301,7 @@ describe("projectionItem", () => {
 
     it("should update the ORDER BY statement if related to the projectionItem", () => {
       const query = rhombic
-        .parse(
-          "SELECT column01 AS my_column01 FROM my_table ORDER BY my_column01"
-        )
+        .parse("SELECT column01 AS my_column01 FROM my_table ORDER BY my_column01")
         .updateProjectionItem({
           columns: ["my_column01"],
           index: 0,
@@ -330,9 +309,7 @@ describe("projectionItem", () => {
         })
         .toString();
 
-      expect(query).toEqual(
-        "SELECT column01 AS a_new_name FROM my_table ORDER BY a_new_name"
-      );
+      expect(query).toEqual("SELECT column01 AS a_new_name FROM my_table ORDER BY a_new_name");
     });
 
     it("should rename a projection that already have an alias", () => {
@@ -563,9 +540,7 @@ FROM
 
     it("should give projection item of a renamed projection", () => {
       const projectionItem = rhombic
-        .parse(
-          "SELECT mischa, slava, tejas as chicken, imogen, fabien FROM best_team_ever"
-        )
+        .parse("SELECT mischa, slava, tejas as chicken, imogen, fabien FROM best_team_ever")
         .getProjectionItem({
           columns: ["mischa", "slava", "chicken", "imogen", "fabien"],
           index: 2
@@ -588,9 +563,7 @@ FROM
 
     it("should give projection item of a renamed projection with function", () => {
       const projectionItem = rhombic
-        .parse(
-          "SELECT mischa, slava, avg(tejas) as chicken, imogen, fabien FROM best_team_ever"
-        )
+        .parse("SELECT mischa, slava, avg(tejas) as chicken, imogen, fabien FROM best_team_ever")
         .getProjectionItem({
           columns: ["mischa", "slava", "chicken", "imogen", "fabien"],
           index: 2
@@ -621,9 +594,7 @@ FROM
 
     it("should retrieve items inside functions", () => {
       const projectionItem = rhombic
-        .parse(
-          "SELECT concat(first_name, ' ', last_name) as full_name FROM employee"
-        )
+        .parse("SELECT concat(first_name, ' ', last_name) as full_name FROM employee")
         .getProjectionItem({
           columns: ["full_name"],
           index: 0
@@ -661,9 +632,7 @@ FROM
 
     it("should preserve formatting of the expression", () => {
       const projectionItem = rhombic
-        .parse(
-          "SELECT mischa, slava, avg( tejas ) as chicken, imogen, fabien FROM best_team_ever"
-        )
+        .parse("SELECT mischa, slava, avg( tejas ) as chicken, imogen, fabien FROM best_team_ever")
         .getProjectionItem({
           columns: ["mischa", "slava", "chicken", "imogen", "fabien"],
           index: 2
@@ -693,12 +662,10 @@ FROM
     });
 
     it("should return information from columns if the index is on the asterisk", () => {
-      const projectionItem = rhombic
-        .parse("SELECT * FROM best_team_ever")
-        .getProjectionItem({
-          columns: ["mischa", "slava", "tejas", "imogen", "fabien"],
-          index: 2
-        });
+      const projectionItem = rhombic.parse("SELECT * FROM best_team_ever").getProjectionItem({
+        columns: ["mischa", "slava", "tejas", "imogen", "fabien"],
+        index: 2
+      });
 
       expect(projectionItem).toEqual({
         expression: "tejas",
@@ -709,12 +676,10 @@ FROM
     });
 
     it("should still give the original expression with asterisk on the query", () => {
-      const projectionItem = rhombic
-        .parse("SELECT avg(mischa), * FROM best_team_ever")
-        .getProjectionItem({
-          columns: ["EXPR$0", "mischa", "slava", "tejas", "imogen", "fabien"],
-          index: 0
-        });
+      const projectionItem = rhombic.parse("SELECT avg(mischa), * FROM best_team_ever").getProjectionItem({
+        columns: ["EXPR$0", "mischa", "slava", "tejas", "imogen", "fabien"],
+        index: 0
+      });
 
       expect(projectionItem).toEqual({
         expression: "avg(mischa)",
@@ -739,12 +704,10 @@ FROM
     });
 
     it("should deal with duplicate columns", () => {
-      const projectionItem = rhombic
-        .parse("SELECT mischa, * FROM best_team_ever")
-        .getProjectionItem({
-          columns: ["mischa", "mischa0", "slava", "tejas", "imogen", "fabien"],
-          index: 1
-        });
+      const projectionItem = rhombic.parse("SELECT mischa, * FROM best_team_ever").getProjectionItem({
+        columns: ["mischa", "mischa0", "slava", "tejas", "imogen", "fabien"],
+        index: 1
+      });
 
       expect(projectionItem).toEqual({
         expression: "mischa",
@@ -755,20 +718,10 @@ FROM
     });
 
     it("should deal with duplicate columns (tricky)", () => {
-      const projectionItem = rhombic
-        .parse("SELECT address, address1, * FROM foodmart.customer")
-        .getProjectionItem({
-          columns: [
-            "address",
-            "address1",
-            "address0",
-            "address10",
-            "address2",
-            "lname",
-            "fname"
-          ],
-          index: 3
-        });
+      const projectionItem = rhombic.parse("SELECT address, address1, * FROM foodmart.customer").getProjectionItem({
+        columns: ["address", "address1", "address0", "address10", "address2", "lname", "fname"],
+        index: 3
+      });
 
       expect(projectionItem).toEqual({
         expression: "address1",
@@ -814,9 +767,7 @@ FROM
 
     it("should retrieve cast information (with precision)", () => {
       const projectionItem = rhombic
-        .parse(
-          "SELECT CAST(address as CHAR(2)), address1 FROM foodmart.customer"
-        )
+        .parse("SELECT CAST(address as CHAR(2)), address1 FROM foodmart.customer")
         .getProjectionItem({
           columns: ["address", "address1"],
           index: 0
@@ -849,12 +800,10 @@ FROM
     });
 
     it("should retrieve sort information", () => {
-      const projectionItem = rhombic
-        .parse("SELECT foo, bar FROM foodmart.customer ORDER BY foo")
-        .getProjectionItem({
-          columns: ["foo", "bar"],
-          index: 0
-        });
+      const projectionItem = rhombic.parse("SELECT foo, bar FROM foodmart.customer ORDER BY foo").getProjectionItem({
+        columns: ["foo", "bar"],
+        index: 0
+      });
 
       expect(projectionItem).toEqual({
         expression: "foo",
@@ -875,9 +824,7 @@ FROM
 
     it("should retrieve sort information (with alias)", () => {
       const projectionItem = rhombic
-        .parse(
-          "SELECT foo as chocapic, bar FROM foodmart.customer ORDER BY chocapic"
-        )
+        .parse("SELECT foo as chocapic, bar FROM foodmart.customer ORDER BY chocapic")
         .getProjectionItem({
           columns: ["chocapic", "bar"],
           index: 0
@@ -902,12 +849,10 @@ FROM
     });
 
     it("should retrieve sort information from asterisk", () => {
-      const projectionItem = rhombic
-        .parse("SELECT * FROM foodmart.customer ORDER BY foo")
-        .getProjectionItem({
-          columns: ["foo", "bar"],
-          index: 0
-        });
+      const projectionItem = rhombic.parse("SELECT * FROM foodmart.customer ORDER BY foo").getProjectionItem({
+        columns: ["foo", "bar"],
+        index: 0
+      });
 
       expect(projectionItem).toEqual({
         expression: "foo",
@@ -921,12 +866,10 @@ FROM
     });
 
     it("should not expand the sort to all columns from asterisk", () => {
-      const projectionItem = rhombic
-        .parse("SELECT * FROM foodmart.customer ORDER BY foo")
-        .getProjectionItem({
-          columns: ["foo", "bar"],
-          index: 1
-        });
+      const projectionItem = rhombic.parse("SELECT * FROM foodmart.customer ORDER BY foo").getProjectionItem({
+        columns: ["foo", "bar"],
+        index: 1
+      });
 
       expect(projectionItem).toEqual({
         expression: "bar",
@@ -940,9 +883,7 @@ FROM
   describe("getProjectionItems", () => {
     it("should retrieve all projection items metadata", () => {
       const projectionItems = rhombic
-        .parse(
-          "SELECT mischa, slava, tejas as chicken, imogen, fabien FROM best_team_ever"
-        )
+        .parse("SELECT mischa, slava, tejas as chicken, imogen, fabien FROM best_team_ever")
         .getProjectionItems(["mischa", "slava", "chicken", "imogen", "fabien"]);
 
       expect(projectionItems).toMatchInlineSnapshot(`

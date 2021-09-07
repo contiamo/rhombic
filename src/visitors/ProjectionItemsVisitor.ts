@@ -12,16 +12,14 @@ import { IToken, CstElement } from "chevrotain";
 import { getImageFromChildren } from "../utils/getImageFromChildren";
 import { getChildrenRange } from "../utils/getChildrenRange";
 import { isCstNode } from "../utils/isCstNode";
-import {
-  isAsteriskContext,
-  isExpressionContext
-} from "../utils/projectionItem";
+import { isAsteriskContext, isExpressionContext } from "../utils/projectionItem";
 import { isFunctionContext } from "../utils/expression";
 import { Range } from "../utils/getRange";
 
 const Visitor = parser.getBaseCstVisitorConstructorWithDefaults();
 
 function isCastNode(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   node: any
 ): node is {
   name: "cast";
@@ -38,10 +36,18 @@ function isExpressionContextColumnBranch(
     children: ColumnPrimaryContext;
   }>;
 } {
-  return Boolean((ctx as any).columnPrimary);
+  return Boolean(
+    (ctx as {
+      columnPrimary: Array<{
+        name: "columnPrimary";
+        children: ColumnPrimaryContext;
+      }>;
+    }).columnPrimary
+  );
 }
 
 function isColumnPrimary(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   node: any
 ): node is {
   name: "columnPrimary";
@@ -50,10 +56,7 @@ function isColumnPrimary(
   return isCstNode(node) && node.name === "columnPrimary";
 }
 
-function getColumnPrimaryPath(columnPrimary: {
-  name: "columnPrimary";
-  children: ColumnPrimaryContext;
-}) {
+function getColumnPrimaryPath(columnPrimary: { name: "columnPrimary"; children: ColumnPrimaryContext }) {
   switch (columnPrimary.children.Identifier.length) {
     case 1:
       return { columnName: columnPrimary.children.Identifier[0].image };
@@ -247,9 +250,7 @@ export class ProjectionItemsVisitor extends Visitor {
       });
 
       // Extract `expression`
-      expression = getImageFromChildren(
-        ctx.expression.reduce((mem, i) => ({ mem, ...i.children }), {})
-      );
+      expression = getImageFromChildren(ctx.expression.reduce((mem, i) => ({ mem, ...i.children }), {}));
     }
 
     if (isAsteriskContext(ctx)) {

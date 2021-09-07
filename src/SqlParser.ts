@@ -401,10 +401,7 @@ class SqlParser extends CstParser {
           });
           this.OPTION1(() => {
             this.CONSUME(Limit);
-            this.OR1([
-              { ALT: () => this.CONSUME(IntegerValue) },
-              { ALT: () => this.CONSUME(All) }
-            ]);
+            this.OR1([{ ALT: () => this.CONSUME(IntegerValue) }, { ALT: () => this.CONSUME(All) }]);
           });
         }
       }
@@ -532,10 +529,7 @@ class SqlParser extends CstParser {
     ]);
 
     this.OPTION(() => {
-      this.OR1([
-        { ALT: () => this.CONSUME(Or) },
-        { ALT: () => this.CONSUME(And) }
-      ]);
+      this.OR1([{ ALT: () => this.CONSUME(Or) }, { ALT: () => this.CONSUME(And) }]);
       this.SUBRULE2(this.booleanExpression);
     });
   });
@@ -573,10 +567,7 @@ class SqlParser extends CstParser {
       {
         ALT: () => {
           // Unary operation
-          this.OR3([
-            { ALT: () => this.CONSUME(IsNull) },
-            { ALT: () => this.CONSUME(IsNotNull) }
-          ]);
+          this.OR3([{ ALT: () => this.CONSUME(IsNull) }, { ALT: () => this.CONSUME(IsNotNull) }]);
         }
       }
     ]);
@@ -589,10 +580,7 @@ class SqlParser extends CstParser {
   public orderItem = this.RULE("orderItem", () => {
     this.SUBRULE(this.expression);
     this.OPTION(() => {
-      this.OR([
-        { ALT: () => this.CONSUME(Asc) },
-        { ALT: () => this.CONSUME(Desc) }
-      ]);
+      this.OR([{ ALT: () => this.CONSUME(Asc) }, { ALT: () => this.CONSUME(Desc) }]);
     });
     this.OPTION1(() => {
       this.OR1([
@@ -627,10 +615,7 @@ class SqlParser extends CstParser {
     this.CONSUME(Select);
     this.OPTION(() => this.CONSUME(Stream));
     this.OPTION1(() => {
-      this.OR([
-        { ALT: () => this.CONSUME(All) },
-        { ALT: () => this.CONSUME(Distinct) }
-      ]);
+      this.OR([{ ALT: () => this.CONSUME(All) }, { ALT: () => this.CONSUME(Distinct) }]);
     });
     this.SUBRULE(this.projectionItems);
 
@@ -764,10 +749,7 @@ class SqlParser extends CstParser {
         {
           // [ CROSS | OUTER ] APPLY tableExpression
           ALT: () => {
-            this.OR3([
-              { ALT: () => this.CONSUME1(Cross) },
-              { ALT: () => this.CONSUME1(Outer) }
-            ]);
+            this.OR3([{ ALT: () => this.CONSUME1(Cross) }, { ALT: () => this.CONSUME1(Outer) }]);
             this.CONSUME(Apply);
             this.SUBRULE3(this.tableExpression);
           }
@@ -907,10 +889,7 @@ class SqlParser extends CstParser {
    */
   public groupItem = this.RULE("groupItem", () => {
     this.OPTION(() => {
-      this.OR1([
-        { ALT: () => this.CONSUME(Cube) },
-        { ALT: () => this.CONSUME1(Rollup) }
-      ]);
+      this.OR1([{ ALT: () => this.CONSUME(Cube) }, { ALT: () => this.CONSUME1(Rollup) }]);
     });
     this.OPTION1(() => {
       this.CONSUME2(LParen);

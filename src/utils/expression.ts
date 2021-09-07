@@ -11,6 +11,5 @@ type FunctionContext = {
   RParen: IToken[];
 };
 
-export const isFunctionContext = (
-  ctx: ExpressionContext
-): ctx is FunctionContext => Boolean((ctx as any).FunctionIdentifier);
+export const isFunctionContext = (ctx: ExpressionContext): ctx is FunctionContext =>
+  Boolean((ctx as FunctionContext).FunctionIdentifier);

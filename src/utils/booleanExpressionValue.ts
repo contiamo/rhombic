@@ -1,8 +1,4 @@
-import {
-  ColumnPrimaryContext,
-  ValueExpressionContext,
-  BooleanExpressionValueContext
-} from "../Context";
+import { ColumnPrimaryContext, ValueExpressionContext, BooleanExpressionValueContext } from "../Context";
 import { IToken } from "chevrotain";
 
 type BooleanExpressionValueContextWithColumnPrimary = BooleanExpressionValueContext & {
@@ -52,17 +48,13 @@ type UnaryOperation = BooleanExpressionValueContext & {
 export const hasColumnPrimary = (
   ctx: BooleanExpressionValueContext
 ): ctx is BooleanExpressionValueContextWithColumnPrimary =>
-  Boolean((ctx as any).columnPrimary);
+  Boolean((ctx as BooleanExpressionValueContextWithColumnPrimary).columnPrimary);
 
-export const isBinaryOperation = (
-  ctx: BooleanExpressionValueContext
-): ctx is BinaryOperation => Boolean((ctx as any).BinaryOperator);
+export const isBinaryOperation = (ctx: BooleanExpressionValueContext): ctx is BinaryOperation =>
+  Boolean((ctx as BinaryOperation).BinaryOperator);
 
-export const isMultivalOperation = (
-  ctx: BooleanExpressionValueContext
-): ctx is MultivalOperation => Boolean((ctx as any).MultivalOperator);
+export const isMultivalOperation = (ctx: BooleanExpressionValueContext): ctx is MultivalOperation =>
+  Boolean((ctx as MultivalOperation).MultivalOperator);
 
-export const isUnaryOperation = (
-  ctx: BooleanExpressionValueContext
-): ctx is UnaryOperation =>
-  Boolean((ctx as any).IsNull || (ctx as any).IsNotNull);
+export const isUnaryOperation = (ctx: BooleanExpressionValueContext): ctx is UnaryOperation =>
+  Boolean((ctx as UnaryOperation).IsNull || (ctx as UnaryOperation).IsNotNull);

@@ -32,9 +32,7 @@ const extractImage = (children: CstChildrenDictionary, image: string[]) =>
  */
 export const getImageFromChildren = (children: IContext): string => {
   const image: string[] = [];
-  // We need to cast `children` as `any` due to lack of typescript
-  // to match the generic `CstChildrenDictionary` type with the real implementation
-  extractImage(children as any, image); // This mutate `image` directly
+  extractImage(children as CstChildrenDictionary, image); // This mutate `image` directly
 
   let output = "";
   for (let i = 0; i < image.length; i++) {

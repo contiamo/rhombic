@@ -17,18 +17,7 @@ export type FilterTree = FilterTreeNode[];
 /**
  * List of valid operators
  */
-export type Operator =
-  | "="
-  | ">"
-  | ">="
-  | "<"
-  | "<="
-  | "!="
-  | "is null"
-  | "is not null"
-  | "not in"
-  | "in"
-  | "like";
+export type Operator = "=" | ">" | ">=" | "<" | "<=" | "!=" | "is null" | "is not null" | "not in" | "in" | "like";
 
 /**
  * Predicate node
@@ -60,9 +49,7 @@ export type FilterTreeNode = FilterTreePredicateNode | FilterTreeOperatorNode;
  *
  * @param node
  */
-export const isOperator = (
-  node: FilterTreeNode
-): node is FilterTreeOperatorNode => {
+export const isOperator = (node: FilterTreeNode): node is FilterTreeOperatorNode => {
   return node.type === "operator";
 };
 
@@ -70,8 +57,6 @@ export const isOperator = (
  * Returns `true` if the node is a predicate
  * @param node
  */
-export const isPredicate = (
-  node: FilterTreeNode
-): node is FilterTreePredicateNode => {
+export const isPredicate = (node: FilterTreeNode): node is FilterTreePredicateNode => {
   return node.type === "predicate";
 };

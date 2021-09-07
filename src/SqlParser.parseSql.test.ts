@@ -275,8 +275,7 @@ describe("parseSql", () => {
     },
     {
       title: "SELECT with concat",
-      sql:
-        "SELECT concat(first_name, ' ', last_name) as full_name FROM employee",
+      sql: "SELECT concat(first_name, ' ', last_name) as full_name FROM employee",
       expected: `
       query(
         select(
@@ -320,8 +319,7 @@ describe("parseSql", () => {
     },
     {
       title: "SELECT with group by",
-      sql:
-        "SELECT COUNT(created_at), role FROM manager_collection_query_connections GROUP BY role",
+      sql: "SELECT COUNT(created_at), role FROM manager_collection_query_connections GROUP BY role",
       expected: `
       query(
         select(
@@ -556,8 +554,7 @@ describe("parseSql", () => {
     },
     {
       title: "ORDER BY NULLS FIRST",
-      sql:
-        "SELECT column1, column2 FROM my_db ORDER BY column1 ASC NULLS FIRST",
+      sql: "SELECT column1, column2 FROM my_db ORDER BY column1 ASC NULLS FIRST",
       expected: `query(
         select(
           Select("SELECT")
@@ -609,8 +606,7 @@ describe("parseSql", () => {
     },
     {
       title: "ORDER BY multiple",
-      sql:
-        "SELECT column1, column2 FROM my_db ORDER BY column1 ASC, column2 DESC",
+      sql: "SELECT column1, column2 FROM my_db ORDER BY column1 ASC, column2 DESC",
       expected: `query(
         select(
           Select("SELECT")
@@ -669,8 +665,7 @@ describe("parseSql", () => {
     },
     {
       title: "WHERE with multivalue",
-      sql:
-        "SELECT * FROM \"foodmart\".\"CURRENCY\" WHERE CURRENCY in ('USD', 'Mexican Peso')",
+      sql: "SELECT * FROM \"foodmart\".\"CURRENCY\" WHERE CURRENCY in ('USD', 'Mexican Peso')",
       expected: `query(
         select(
           Select("SELECT")
@@ -708,8 +703,7 @@ describe("parseSql", () => {
     },
     {
       title: "WHERE with multiple conditions",
-      sql:
-        "SELECT * FROM my_db WHERE a in ('USD', 'Mexican Peso') AND (b = 'foo' OR c >= 42)",
+      sql: "SELECT * FROM my_db WHERE a in ('USD', 'Mexican Peso') AND (b = 'foo' OR c >= 42)",
       expected: `query(
         select(
           Select("SELECT")
@@ -982,9 +976,7 @@ describe("parseSql", () => {
 
       // Advanced debug
       if (debug) {
-        const previous = fs.existsSync("debug.json")
-          ? fs.readFileSync("debug.json", "utf-8")
-          : "";
+        const previous = fs.existsSync("debug.json") ? fs.readFileSync("debug.json", "utf-8") : "";
         const next =
           "-----------------\n" +
           "   Received\n" +

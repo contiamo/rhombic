@@ -94,9 +94,7 @@ import { IToken } from "chevrotain";
     const def = generateDefinitionTypes(rule.definition);
     IContext.push(`${pascal(rule.name)}Context`);
     types += def.includes("|")
-      ? `\nexport type ${pascal(rule.name)}Context = \n  ${
-          def.includes(alternationLink) ? "(" : ""
-        } | {\n`
+      ? `\nexport type ${pascal(rule.name)}Context = \n  ${def.includes(alternationLink) ? "(" : ""} | {\n`
       : `\nexport interface ${pascal(rule.name)}Context {`;
     types += def;
     types += "\n}\n\n";
@@ -134,10 +132,7 @@ export function generateDefinitionTypes(
             if (!optional) {
               // Remove optional from definition
               return {
-                output: output.replace(
-                  `${node.name}?: IToken[];`,
-                  `${node.name}: IToken[];`
-                ),
+                output: output.replace(`${node.name}?: IToken[];`, `${node.name}: IToken[];`),
                 isAfterAlternation: false
               };
             }
@@ -145,24 +140,19 @@ export function generateDefinitionTypes(
           }
           keys.push(node.name);
           return {
-            output: `${output}\n${" ".repeat(indent)}${node.name}${
-              optional ? "?" : ""
-            }: IToken[];`,
+            output: `${output}\n${" ".repeat(indent)}${node.name}${optional ? "?" : ""}: IToken[];`,
             isAfterAlternation: false
           };
 
         case "NonTerminal":
-          if (keys.includes(node.name))
-            return { output, isAfterAlternation: false };
+          if (keys.includes(node.name)) return { output, isAfterAlternation: false };
           keys.push(node.name);
           return {
-            output: `${output}\n${" ".repeat(indent)}${node.name}${
-              optional ? "?" : ""
-            }: Array<{\n${" ".repeat(indent + 2)}name: "${
-              node.name
-            }";\n${" ".repeat(indent + 2)}children: ${pascal(
-              node.name
-            )}Context;\n${" ".repeat(indent)}}>;`,
+            output: `${output}\n${" ".repeat(indent)}${node.name}${optional ? "?" : ""}: Array<{\n${" ".repeat(
+              indent + 2
+            )}name: "${node.name}";\n${" ".repeat(indent + 2)}children: ${pascal(node.name)}Context;\n${" ".repeat(
+              indent
+            )}}>;`,
             isAfterAlternation: false
           };
 
@@ -206,10 +196,8 @@ export function generateDefinitionTypes(
             isAfterAlternation: false
           };
 
-        case "Alternation":
-          const isTerminalOnly = !JSON.stringify(node.definition).includes(
-            "NonTerminal"
-          );
+        case "Alternation": {
+          const isTerminalOnly = !JSON.stringify(node.definition).includes("NonTerminal");
 
           const entries = new Set();
           return {
@@ -244,12 +232,11 @@ export function generateDefinitionTypes(
                     .join("} | {")),
             isAfterAlternation: true
           };
+        }
 
         case "Flat":
           return {
-            output:
-              output +
-              generateDefinitionTypes(node.definition).replace(/[\n;]/g, ""),
+            output: output + generateDefinitionTypes(node.definition).replace(/[\n;]/g, ""),
             isAfterAlternation: false
           };
 

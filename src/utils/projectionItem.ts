@@ -11,10 +11,8 @@ type ProjectionExpressionContext = {
   Identifier?: IToken[];
 };
 
-export const isAsteriskContext = (
-  ctx: ProjectionItemContext
-): ctx is ProjectionAsteriskContext => Boolean((ctx as any).Asterisk);
+export const isAsteriskContext = (ctx: ProjectionItemContext): ctx is ProjectionAsteriskContext =>
+  Boolean((ctx as ProjectionAsteriskContext).Asterisk);
 
-export const isExpressionContext = (
-  ctx: ProjectionItemContext
-): ctx is ProjectionExpressionContext => Boolean((ctx as any).expression);
+export const isExpressionContext = (ctx: ProjectionItemContext): ctx is ProjectionExpressionContext =>
+  Boolean((ctx as ProjectionExpressionContext).expression);

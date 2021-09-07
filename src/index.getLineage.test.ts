@@ -5,13 +5,7 @@ import * as fs from "fs";
 // Accessors mocks
 type ColumnId = string;
 const columnsMapping: { [tableId: string]: ColumnId[] } = {
-  account: [
-    "account_type",
-    "account_id",
-    "account_description",
-    "account_parent",
-    "account_rollup"
-  ],
+  account: ["account_type", "account_id", "account_description", "account_parent", "account_rollup"],
   employee: [
     "birth_date",
     "department_id",
@@ -173,8 +167,7 @@ describe("getLineage", () => {
     },
     {
       name: "Natural join",
-      sql:
-        "SELECT vacation_used, salary_paid AS salary, gender FROM salary NATURAL JOIN employee",
+      sql: "SELECT vacation_used, salary_paid AS salary, gender FROM salary NATURAL JOIN employee",
       data: [
         {
           type: "table",
@@ -417,8 +410,7 @@ describe("getLineage", () => {
     {
       name: "concat",
       debug: true,
-      sql:
-        "SELECT concat(first_name, ' ', last_name) as full_name FROM employee",
+      sql: "SELECT concat(first_name, ' ', last_name) as full_name FROM employee",
       data: [
         {
           type: "table",
@@ -791,8 +783,7 @@ describe("getLineage", () => {
     },
     {
       name: "column name conflict",
-      sql:
-        "SELECT employee.employee_id, salary.employee_id FROM employee NATURAL JOIN salary",
+      sql: "SELECT employee.employee_id, salary.employee_id FROM employee NATURAL JOIN salary",
       data: [
         {
           type: "table",
@@ -912,9 +903,7 @@ describe("getLineage", () => {
     (only ? it.only : it)(`should parse ${name}`, () => {
       const lineage = rhombic.parse(sql).getLineage({ getTable, getColumns });
       if (debug) {
-        const previous = fs.existsSync("debug.json")
-          ? fs.readFileSync("debug.json", "utf-8")
-          : "";
+        const previous = fs.existsSync("debug.json") ? fs.readFileSync("debug.json", "utf-8") : "";
         const next = JSON.stringify(lineage, null, 2);
 
         if (previous !== next) {
