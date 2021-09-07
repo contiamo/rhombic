@@ -27,35 +27,28 @@ function ifCastNode(node: CstElement): CstCastNode | null {
   return isCstNode(node) && node.name === "cast" ? ((node as unknown) as CstCastNode) : null;
 }
 
+interface CstColumnPrimaryNode extends Omit<CstNode, "children"> {
+  readonly name: "columnPrimary";
+  readonly children: ColumnPrimaryContext;
+}
+
+function ifColumnPrimaryNode(node: CstElement): CstColumnPrimaryNode | null {
+  return isCstNode(node) && node.name === "columnPrimary" ? ((node as unknown) as CstColumnPrimaryNode) : null;
+}
+
 function isExpressionContextColumnBranch(
   ctx: ExpressionContext
 ): ctx is {
-  columnPrimary: Array<{
-    name: "columnPrimary";
-    children: ColumnPrimaryContext;
-  }>;
+  columnPrimary: CstColumnPrimaryNode[];
 } {
   return Boolean(
     (ctx as {
-      columnPrimary: Array<{
-        name: "columnPrimary";
-        children: ColumnPrimaryContext;
-      }>;
+      columnPrimary: CstColumnPrimaryNode[];
     }).columnPrimary
   );
 }
 
-function isColumnPrimary(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  node: any
-): node is {
-  name: "columnPrimary";
-  children: ColumnPrimaryContext;
-} {
-  return isCstNode(node) && node.name === "columnPrimary";
-}
-
-function getColumnPrimaryPath(columnPrimary: { name: "columnPrimary"; children: ColumnPrimaryContext }) {
+function getColumnPrimaryPath(columnPrimary: CstColumnPrimaryNode) {
   switch (columnPrimary.children.Identifier.length) {
     case 1:
       return { columnName: columnPrimary.children.Identifier[0].image };
@@ -242,8 +235,9 @@ export class ProjectionItemsVisitor extends Visitor {
                 }))
               };
             }
-            if (isColumnPrimary(token)) {
-              path = getColumnPrimaryPath(token);
+            const columnPrimary = ifColumnPrimaryNode(token);
+            if (columnPrimary) {
+              path = getColumnPrimaryPath(columnPrimary);
             }
           });
         });
