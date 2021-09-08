@@ -1,10 +1,11 @@
+import { ParserOptions } from ".";
 import { antlr } from "..";
 
-describe("ExtractionVisitor", () => {
-  it("should extract tables in SELECT", () => {
-    const sql = "select * from t1, s1.t1, s2.t1, (select * from c1.s2.t2, s3.t3, t4) as sq";
-    const tree = antlr.parse(sql);
-    expect(tree.getUsedTables()).toEqual({
+const tests = [
+  {
+    name: "extract tables",
+    sql: "select * from t1, s1.t1, s2.t1, (select * from c1.s2.t2, s3.t3, t4) as sq",
+    extracted: {
       references: [
         {
           tableName: "t1"
@@ -31,22 +32,49 @@ describe("ExtractionVisitor", () => {
         }
       ],
       incomplete: []
-    });
-  });
-
-  it("should extrace incomplete references in SELECT", () => {
-    const sqlWithSchema = "select * from s., table1";
-    const treeWithSchema = antlr.parse(sqlWithSchema, { cursorPosition: { lineNumber: 1, column: 17 } });
-    expect(treeWithSchema.getUsedTables()).toEqual({
+    }
+  },
+  {
+    name: "incomplete references 1",
+    sql: "select * from s.|, table1",
+    extracted: {
       references: [{ tableName: "table1" }],
       incomplete: [{ references: ["s"] }]
-    });
-
-    const sqlWithCatalog = "select * from table1, c.s.";
-    const treeWithCatalog = antlr.parse(sqlWithCatalog, { cursorPosition: { lineNumber: 1, column: 27 } });
-    expect(treeWithCatalog.getUsedTables()).toEqual({
+    }
+  },
+  {
+    name: "incomplete references 2",
+    sql: "select * from table1, c.s.|",
+    extracted: {
       references: [{ tableName: "table1" }],
       incomplete: [{ references: ["c", "s"] }]
+    }
+  }
+];
+
+const prepSql = (sql: string): [string, ParserOptions] => {
+  const cursor = sql.indexOf("|");
+  if (cursor === -1) return [sql, {}];
+
+  const beforeCursor = sql.substring(0, cursor);
+  return [
+    sql.slice(0, cursor) + sql.slice(cursor + 1),
+    {
+      cursorPosition: {
+        lineNumber: beforeCursor.split("\n").length,
+        column: beforeCursor.length + 1
+      }
+    }
+  ];
+};
+
+const excerpt = (value: string) => (value.length > 50 ? value.slice(0, 50) + " ..." : value);
+
+describe("ExtractionVisitor", () => {
+  tests.forEach(test => {
+    it(`${test.name} - ${excerpt(test.sql)}`, () => {
+      const tree = antlr.parse(...prepSql(test.sql));
+      expect(tree.getUsedTables()).toEqual(test.extracted);
     });
   });
 });

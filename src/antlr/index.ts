@@ -10,7 +10,7 @@ import { CompletionVisitor } from "./CompletionVisitor";
 import { Cursor } from "./Cursor";
 import _ from "lodash";
 
-interface ParserOptions {
+export interface ParserOptions {
   doubleQuotedIdentifier?: boolean;
   cursorPosition?: { lineNumber: number; column: number };
 }
