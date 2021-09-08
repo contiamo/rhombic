@@ -204,7 +204,7 @@ export class QueryRelation extends Relation {
 
   getNextColumnId(): string {
     this.columnIdSeq++;
-    return "column_" + this.columnIdSeq;
+    return `column_${this.columnIdSeq}`;
   }
 }
 
@@ -522,6 +522,7 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
     const relation = this.lastRelation;
     if (relation !== undefined) {
       const identifier = ctx.errorCapturingIdentifier().identifier();
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       const alias = identifier !== undefined ? common.stripQuote(identifier).name : relation.id;
 
       const columnAliases = ctx
@@ -564,7 +565,7 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
         });
       }
       this.currentRelation.relations.set(alias, relation);
-      this.onRelation?.(relation, alias);
+      this.onRelation(relation, alias);
       return result;
     } else {
       throw new Error("Expecting subquery relation to be in stack");
@@ -693,6 +694,7 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
         if (constant instanceof NumericLiteralContext) {
           const idx = Number(constant.text) - 1;
           const col = this.currentRelation.columns[idx];
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           if (col !== undefined) {
             col.columnReferences.forEach(cr => this.onColumnReference(cr.tableId, cr.columnId));
             return this.defaultResult();
