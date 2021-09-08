@@ -2,8 +2,15 @@ import { TablePrimary } from "..";
 import { Edge, Table } from "../Lineage";
 import { QueryStructureVisitor, TableRelation, QueryRelation } from "./QueryStructureVisitor";
 
+/**
+ * Visitor extending #QueryStructureVisitor and implementing #onRelation() and #onColumnReference()
+ * to build column-based SQL lineage.
+ */
 export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor<void> {
+  /** Collected relations (tables). */
   tables: { tablePrimary?: TablePrimary; table: Table<TableData, ColumnData> }[] = [];
+
+  /** Collected references (edges). */
   edges: Edge[] = [];
 
   constructor(

@@ -7,18 +7,59 @@ import { TablePrimary } from "..";
 import { ExtractTablesVisitor } from "./ExtractTablesVisitor";
 import { LineageVisitor } from "./LineageVisitor";
 
+/**
+ * Options available for SQL parser.
+ */
 interface ParserOptions {
+  /**
+   * Whether double quoted identifiers are allowed. If `true` - then both double quotes and backticks can be used
+   * to quote identifiers. String literals are quoted with single quotes only.
+   * If `false` (default) - double quotes are used for string literals (as an alternative
+   * to single quotes). Identifiers are quoted with backquotes.
+   */
   doubleQuotedIdentifier?: boolean;
 }
 
+/**
+ * SQL parse tree with available operations.
+ */
 class SqlParseTree {
+  /**
+   * Creates SQL parse tree from antlr StatementContext
+   * @param tree StatementContext object which is the product of parsing SQL
+   */
   constructor(public readonly tree: StatementContext) {}
 
+  /**
+   * Extracts and returns all potentially used tables. Note that this method does not perform context
+   * analysis and thus can return not only external tables used but also references to CTEs or subqueries
+   * defined inside the query itself. But it is guaranteed that all external (to the query)
+   * tables will be returned.
+   * This method commonly used to analyse query and pre-fetch metadata for tables used.
+   * @returns Tables used in query
+   */
   getUsedTables(): TablePrimary[] {
     const visitor = new ExtractTablesVisitor();
     return this.tree.accept(visitor);
   }
 
+  /**
+   * Extracts column level lineage from SQL parse tree.
+   * There are 2 principal modes that control lineage representation: "merged leaves" and "tree" (default).
+   * - In "tree" mode (default) all source tables are displayed with all their columns and mentioned as many
+   *   times as they occur in the query.
+   * - In "mergedLeaves" mode source tables are mentioned only once even if they are used multiple times in
+   *   the query. Source table columns that are not used in the query omitted from lineage.
+   * @param getTable Function to get table metadata. It takes table identifier and returns some table data
+   *    plus the list of columns for this table. Columns are expected to be in particular order as defined
+   *    in this table's DDL.
+   * @param mergedLeaves Selects mode for the lineage generation ("tree" (default) when `false`,
+   * "mergedLeaves" when `true`).
+   * @param options Lineage generation options:
+   * - `positionalRefsEnabled` (`false` by default) options controls whether to interpret numerical references
+   * inside ORDER BY as references to SELECT list expressions
+   * @returns Calculated lineage.
+   */
   getLineage<TableData, ColumnData>(
     getTable: (
       id: TablePrimary
@@ -92,6 +133,12 @@ class SqlParseTree {
 }
 
 const antlr = {
+  /**
+   * Parses SQL text and builds parse tree suitable for further analysis and operations.
+   * @param sql SQL text
+   * @param options Options affecting parsing
+   * @returns Parsed SQL tree object with the number of possible operations
+   */
   parse(sql: string, options?: ParserOptions): SqlParseTree {
     const doubleQuotedIdentifier = options?.doubleQuotedIdentifier ?? false;
 
