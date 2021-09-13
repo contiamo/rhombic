@@ -522,8 +522,7 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
     const relation = this.lastRelation;
     if (relation !== undefined) {
       const identifier = ctx.errorCapturingIdentifier().identifier();
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      const alias = identifier !== undefined ? common.stripQuote(identifier).name : relation.id;
+      const alias = common.stripQuote(identifier).name;
 
       const columnAliases = ctx
         .identifierList()
@@ -693,9 +692,8 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
         const constant = primExp.constant();
         if (constant instanceof NumericLiteralContext) {
           const idx = Number(constant.text) - 1;
-          const col = this.currentRelation.columns[idx];
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          if (col !== undefined) {
+          if (idx in this.currentRelation.columns) {
+            const col = this.currentRelation.columns[idx];
             col.columnReferences.forEach(cr => this.onColumnReference(cr.tableId, cr.columnId));
             return this.defaultResult();
           }
