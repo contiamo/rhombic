@@ -133,10 +133,7 @@ export class ProjectionItemsVisitor extends Visitor {
     if (ctx.Comma) {
       this.commas.push(...ctx.Comma);
     }
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    if (ctx.projectionItem) {
-      ctx.projectionItem.map(i => this.projectionItem(i.children));
-    }
+    ctx.projectionItem.map(i => this.projectionItem(i.children));
   }
 
   cast(ctx: CastContext) {
