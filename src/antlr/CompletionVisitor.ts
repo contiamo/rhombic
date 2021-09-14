@@ -13,20 +13,32 @@ import {
 } from "./SqlBaseParser";
 import { SqlBaseVisitor } from "./SqlBaseVisitor";
 
+/**
+ * Completion suggestions in a given context.
+ */
 export type ContextCompletions<C> =
   | { type: "column"; columns: { relation?: string; name: string; desc?: C }[] }
   | { type: "relation"; incompleteReference?: TablePrimaryIncomplete; relations: string[] }
   | { type: "other" };
 
+/**
+ * A snippet suggestion to be used in monaco
+ */
 export interface Snippet {
   label: string;
   template: string;
 }
 
+/**
+ * Contains a list of available snippets
+ */
 export interface Snippets {
   snippets: Snippet[];
 }
 
+/**
+ * Completion suggestions in a specific context + snippets
+ */
 export type Completions<C> = ContextCompletions<C> & Snippets;
 
 /**

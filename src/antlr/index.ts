@@ -19,6 +19,10 @@ interface Named {
   name: string;
 }
 
+/**
+ * A `MetadataProvider` allows access to metadata of a project. It's used to compute
+ * completion suggestions.
+ */
 export interface MetadataProvider<
   Catalog extends Named = Named,
   Schema extends Named = Named,
@@ -43,14 +47,43 @@ export type CompletionItem<Catalog = Named, Schema = Named, Table = Named, Colum
   | { type: "column"; relation?: string; value: string; desc?: Column } // column suggestion
   | { type: "snippet"; label: string; template: string }; // snippet suggestion
 
+/**
+ * Represents a parsed query and exposes methods to compute lineage and completion suggestions.
+ */
 class SqlParseTree {
+  /**
+   * @param tree The AST of the parsed query
+   * @param cursor A representation of the cursor to look for in the query
+   */
   constructor(public readonly tree: StatementContext, readonly cursor: Cursor) {}
 
+  /**
+   * Returns references to tables and catalogs contained in the parsed query. The result
+   * of this method can be used to prefetch metadata for these objects before computing
+   * lineage and completion suggestions.
+   *
+   * @returns Complete and incomplete (i.e. with a trailing dot) table references
+   *     as found in the query.
+   */
   getUsedTables(): { references: TablePrimary[]; incomplete: TablePrimaryIncomplete[] } {
     const visitor = new ExtractTablesVisitor(this.cursor);
     return this.tree.accept(visitor);
   }
 
+  /**
+   * This method computes lineage information for the parsed query. The result contains relations
+   * (such as tables, ctes and subqueries) and edges representing column references betweend them.
+   *
+   * The method uses the provided lookup function `getTable` to understand where columns are
+   * defined for referenced tables. The extra data for tables and columns (in the respective `data`
+   * fields) will also be returned.
+   *
+   * @param getTable A lookup function to get the columns for a referenced table
+   * @param mergedLeaves if true, references to the same table will point to the same node
+   * @param options extra options for extracting lineage; can be used to enable handling
+   *     of positional column references
+   * @returns lineage data for the parsed query
+   */
   getLineage<TableData, ColumnData>(
     getTable: (
       id: TablePrimary
@@ -122,6 +155,12 @@ class SqlParseTree {
     return ([] as Lineage<TableData, ColumnData>).concat(cleanedTables, edges);
   }
 
+  /**
+   * This method computes completion suggestions at the cursor position for the parsed query.
+   *
+   * @param metadataProvider Metadata lookup functions
+   * @returns A list of possible completions at the cursor position in the parsed query
+   */
   getSuggestions<
     Catalog extends Named = Named,
     Schema extends Named = Named,
@@ -204,6 +243,15 @@ class SqlParseTree {
 const defaultCursor = new Cursor("_CURSOR_");
 
 const antlr = {
+  /**
+   * This method parses the provided sql and returns a `SqlParseTree` instance for
+   * the parsed query.
+   *
+   * @param sql The sql to parse
+   * @param options extra options for parsing; should contain the cursor position and
+   *     can be used to control quoting.
+   * @returns A `SqlParseTree` instance representing the parsed query
+   */
   parse(sql: string, options?: ParserOptions): SqlParseTree {
     const doubleQuotedIdentifier = options?.doubleQuotedIdentifier ?? false;
 
