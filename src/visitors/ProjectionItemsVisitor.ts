@@ -8,52 +8,47 @@ import {
   ColumnPrimaryContext,
   ExpressionContext
 } from "../Context";
-import { IToken, CstElement } from "chevrotain";
+import { IToken, CstElement, CstNode } from "chevrotain";
 import { getImageFromChildren } from "../utils/getImageFromChildren";
 import { getChildrenRange } from "../utils/getChildrenRange";
 import { isCstNode } from "../utils/isCstNode";
-import {
-  isAsteriskContext,
-  isExpressionContext
-} from "../utils/projectionItem";
+import { isAsteriskContext, isExpressionContext } from "../utils/projectionItem";
 import { isFunctionContext } from "../utils/expression";
 import { Range } from "../utils/getRange";
 
 const Visitor = parser.getBaseCstVisitorConstructorWithDefaults();
 
-function isCastNode(
-  node: any
-): node is {
-  name: "cast";
-  children: CastContext;
-} {
-  return isCstNode(node) && node.name === "cast";
+interface CstCastNode extends Omit<CstNode, "children"> {
+  readonly name: "cast";
+  readonly children: CastContext;
+}
+
+function ifCastNode(node: CstElement): CstCastNode | null {
+  return isCstNode(node) && node.name === "cast" ? ((node as unknown) as CstCastNode) : null;
+}
+
+interface CstColumnPrimaryNode extends Omit<CstNode, "children"> {
+  readonly name: "columnPrimary";
+  readonly children: ColumnPrimaryContext;
+}
+
+function ifColumnPrimaryNode(node: CstElement): CstColumnPrimaryNode | null {
+  return isCstNode(node) && node.name === "columnPrimary" ? ((node as unknown) as CstColumnPrimaryNode) : null;
 }
 
 function isExpressionContextColumnBranch(
   ctx: ExpressionContext
 ): ctx is {
-  columnPrimary: Array<{
-    name: "columnPrimary";
-    children: ColumnPrimaryContext;
-  }>;
+  columnPrimary: CstColumnPrimaryNode[];
 } {
-  return Boolean((ctx as any).columnPrimary);
+  return Boolean(
+    (ctx as {
+      columnPrimary: CstColumnPrimaryNode[];
+    }).columnPrimary
+  );
 }
 
-function isColumnPrimary(
-  node: any
-): node is {
-  name: "columnPrimary";
-  children: ColumnPrimaryContext;
-} {
-  return isCstNode(node) && node.name === "columnPrimary";
-}
-
-function getColumnPrimaryPath(columnPrimary: {
-  name: "columnPrimary";
-  children: ColumnPrimaryContext;
-}) {
+function getColumnPrimaryPath(columnPrimary: CstColumnPrimaryNode) {
   switch (columnPrimary.children.Identifier.length) {
     case 1:
       return { columnName: columnPrimary.children.Identifier[0].image };
@@ -138,9 +133,7 @@ export class ProjectionItemsVisitor extends Visitor {
     if (ctx.Comma) {
       this.commas.push(...ctx.Comma);
     }
-    if (ctx.projectionItem) {
-      ctx.projectionItem.map(i => this.projectionItem(i.children));
-    }
+    ctx.projectionItem.map(i => this.projectionItem(i.children));
   }
 
   cast(ctx: CastContext) {
@@ -226,12 +219,14 @@ export class ProjectionItemsVisitor extends Visitor {
         }
 
         Object.values(i.children).forEach(j => {
+          // eslint-disable-next-line
           j.map((token: CstElement) => {
-            if (isCastNode(token)) {
-              cast = this.cast(token.children);
+            const castNode = ifCastNode(token);
+            if (castNode) {
+              cast = this.cast(castNode.children);
               fn = {
-                identifier: token.children.Cast[0].image,
-                values: token.children.expression.map(exp => ({
+                identifier: castNode.children.Cast[0].image,
+                values: castNode.children.expression.map(exp => ({
                   path: isExpressionContextColumnBranch(exp.children)
                     ? getColumnPrimaryPath(exp.children.columnPrimary[0])
                     : undefined,
@@ -239,17 +234,16 @@ export class ProjectionItemsVisitor extends Visitor {
                 }))
               };
             }
-            if (isColumnPrimary(token)) {
-              path = getColumnPrimaryPath(token);
+            const columnPrimary = ifColumnPrimaryNode(token);
+            if (columnPrimary) {
+              path = getColumnPrimaryPath(columnPrimary);
             }
           });
         });
       });
 
       // Extract `expression`
-      expression = getImageFromChildren(
-        ctx.expression.reduce((mem, i) => ({ mem, ...i.children }), {})
-      );
+      expression = getImageFromChildren(ctx.expression.reduce((mem, i) => ({ mem, ...i.children }), {}));
     }
 
     if (isAsteriskContext(ctx)) {

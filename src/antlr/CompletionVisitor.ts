@@ -82,17 +82,15 @@ function mapMetadataLookup<C extends { name: string }>(
       tp.catalogName !== undefined
         ? getColumns({ table: tp.tableName, catalogOrSchema: tp.catalogName, schema: tp.schemaName })
         : getColumns({ table: tp.tableName, catalogOrSchema: tp.schemaName });
-    return (
-      columns && {
-        table: { id: "", data: null },
-        columns: columns.map(c => {
-          return {
-            id: c.name,
-            data: c
-          };
-        })
-      }
-    );
+    return {
+      table: { id: "", data: null },
+      columns: columns.map(c => {
+        return {
+          id: c.name,
+          data: c
+        };
+      })
+    };
   };
 
   return getTable;

@@ -504,8 +504,7 @@ export const serializedGrammar = [
                 name: "DateValue",
                 label: "DateValue",
                 idx: 0,
-                pattern:
-                  "DATE '\\d{4}-((0[1-9])|(1[0-2]))-((0[1-9])|([1-2][0-9])|3[0-1])'"
+                pattern: "DATE '\\d{4}-((0[1-9])|(1[0-2]))-((0[1-9])|([1-2][0-9])|3[0-1])'"
               }
             ]
           }

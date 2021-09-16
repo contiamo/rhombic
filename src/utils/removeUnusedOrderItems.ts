@@ -2,10 +2,7 @@ import { ParsedSql } from "..";
 import { ProjectionItemsVisitor } from "../visitors/ProjectionItemsVisitor";
 import { replaceText } from "./replaceText";
 
-export const removeUnusedOrderItems = (
-  parsedSql: ParsedSql,
-  orderToRemove: string
-): string => {
+export const removeUnusedOrderItems = (parsedSql: ParsedSql, orderToRemove: string): string => {
   const visitor = new ProjectionItemsVisitor();
   visitor.visit(parsedSql.cst);
 

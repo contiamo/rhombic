@@ -15,19 +15,13 @@ export const getText = (
 ) => {
   let output = "";
   sql.split("\n").forEach((line, lineNumber) => {
-    if (
-      lineNumber === location.startLine - 1 &&
-      location.startLine === location.endLine
-    ) {
+    if (lineNumber === location.startLine - 1 && location.startLine === location.endLine) {
       output += line.slice(location.startColumn - 1, location.endColumn);
     } else if (location.startLine - 1 === lineNumber) {
       output += line.slice(location.startColumn - 1) + "\n";
     } else if (location.endLine - 1 === lineNumber) {
       output += line.slice(0, location.endColumn);
-    } else if (
-      lineNumber > location.startLine - 1 &&
-      lineNumber < location.endLine - 1
-    ) {
+    } else if (lineNumber > location.startLine - 1 && lineNumber < location.endLine - 1) {
       output += line + "\n";
     }
   });

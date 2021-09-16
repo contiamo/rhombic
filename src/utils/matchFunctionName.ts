@@ -117,13 +117,8 @@ const functionNames = [
  *
  * @param text
  */
-export const matchFunctionName: CustomPatternMatcherFunc = (
-  text: string,
-  offset: number
-) => {
+export const matchFunctionName: CustomPatternMatcherFunc = (text: string, offset: number) => {
   const chunk = text.slice(offset).split("(")[0] || "";
 
-  return functionNames.includes(chunk.toUpperCase())
-    ? ([chunk] as RegExpExecArray)
-    : null;
+  return functionNames.includes(chunk.toUpperCase()) ? ([chunk] as RegExpExecArray) : null;
 };

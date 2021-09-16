@@ -10,7 +10,16 @@ import { CompletionVisitor } from "./CompletionVisitor";
 import { Cursor } from "./Cursor";
 import _ from "lodash";
 
-export interface ParserOptions {
+/**
+ * Options available for SQL parser.
+ */
+interface ParserOptions {
+  /**
+   * Whether double quoted identifiers are allowed. If `true` - then both double quotes and backticks can be used
+   * to quote identifiers. String literals are quoted with single quotes only.
+   * If `false` (default) - double quotes are used for string literals (as an alternative
+   * to single quotes). Identifiers are quoted with backquotes.
+   */
   doubleQuotedIdentifier?: boolean;
   cursorPosition?: { lineNumber: number; column: number };
 }
@@ -48,22 +57,23 @@ export type CompletionItem<Catalog = Named, Schema = Named, Table = Named, Colum
   | { type: "snippet"; label: string; template: string }; // snippet suggestion
 
 /**
- * Represents a parsed query and exposes methods to compute lineage and completion suggestions.
+ * SQL parse tree with available operations.
  */
 class SqlParseTree {
   /**
-   * @param tree The AST of the parsed query
+   * Creates SQL parse tree from antlr StatementContext
+   * @param tree StatementContext object which is the product of parsing SQL
    * @param cursor A representation of the cursor to look for in the query
    */
   constructor(public readonly tree: StatementContext, readonly cursor: Cursor) {}
 
   /**
-   * Returns references to tables and catalogs contained in the parsed query. The result
-   * of this method can be used to prefetch metadata for these objects before computing
-   * lineage and completion suggestions.
-   *
-   * @returns Complete and incomplete (i.e. with a trailing dot) table references
-   *     as found in the query.
+   * Extracts and returns all potentially used tables. Note that this method does not perform context
+   * analysis and thus can return not only external tables used but also references to CTEs or subqueries
+   * defined inside the query itself. But it is guaranteed that all external (to the query)
+   * tables will be returned.
+   * This method commonly used to analyse query and pre-fetch metadata for tables used.
+   * @returns Tables used in query
    */
   getUsedTables(): { references: TablePrimary[]; incomplete: TablePrimaryIncomplete[] } {
     const visitor = new ExtractTablesVisitor(this.cursor);
@@ -71,18 +81,22 @@ class SqlParseTree {
   }
 
   /**
-   * This method computes lineage information for the parsed query. The result contains relations
-   * (such as tables, ctes and subqueries) and edges representing column references betweend them.
-   *
-   * The method uses the provided lookup function `getTable` to understand where columns are
-   * defined for referenced tables. The extra data for tables and columns (in the respective `data`
-   * fields) will also be returned.
-   *
-   * @param getTable A lookup function to get the columns for a referenced table
-   * @param mergedLeaves if true, references to the same table will point to the same node
-   * @param options extra options for extracting lineage; can be used to enable handling
-   *     of positional column references
-   * @returns lineage data for the parsed query
+
+   * Extracts column level lineage from SQL parse tree.
+   * There are 2 principal modes that control lineage representation: "merged leaves" and "tree" (default).
+   * - In "tree" mode (default) all source tables are displayed with all their columns and mentioned as many
+   *   times as they occur in the query.
+   * - In "mergedLeaves" mode source tables are mentioned only once even if they are used multiple times in
+   *   the query. Source table columns that are not used in the query omitted from lineage.
+   * @param getTable Function to get table metadata. It takes table identifier and returns some table data
+   *    plus the list of columns for this table. Columns are expected to be in particular order as defined
+   *    in this table's DDL.
+   * @param mergedLeaves Selects mode for the lineage generation ("tree" (default) when `false`,
+   * "mergedLeaves" when `true`).
+   * @param options Lineage generation options:
+   * - `positionalRefsEnabled` (`false` by default) options controls whether to interpret numerical references
+   * inside ORDER BY as references to SELECT list expressions
+   * @returns Calculated lineage.
    */
   getLineage<TableData, ColumnData>(
     getTable: (
@@ -244,13 +258,10 @@ const defaultCursor = new Cursor("_CURSOR_");
 
 const antlr = {
   /**
-   * This method parses the provided sql and returns a `SqlParseTree` instance for
-   * the parsed query.
-   *
-   * @param sql The sql to parse
-   * @param options extra options for parsing; should contain the cursor position and
-   *     can be used to control quoting.
-   * @returns A `SqlParseTree` instance representing the parsed query
+   * Parses SQL text and builds parse tree suitable for further analysis and operations.
+   * @param sql SQL text
+   * @param options Options affecting parsing
+   * @returns Parsed SQL tree object with the number of possible operations
    */
   parse(sql: string, options?: ParserOptions): SqlParseTree {
     const doubleQuotedIdentifier = options?.doubleQuotedIdentifier ?? false;

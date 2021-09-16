@@ -20,62 +20,32 @@ describe("Sql Lexer", () => {
     {
       title: "a simple case",
       sql: "SELECT column1 FROM table2",
-      expected: [
-        "SELECT => Select",
-        "column1 => Identifier",
-        "FROM => From",
-        "table2 => Identifier"
-      ]
+      expected: ["SELECT => Select", "column1 => Identifier", "FROM => From", "table2 => Identifier"]
     },
     {
       title: "identifier with an underscore",
       sql: "SELECT column_1 FROM table2",
-      expected: [
-        "SELECT => Select",
-        "column_1 => Identifier",
-        "FROM => From",
-        "table2 => Identifier"
-      ]
+      expected: ["SELECT => Select", "column_1 => Identifier", "FROM => From", "table2 => Identifier"]
     },
     {
       title: "a statement with strange case",
       sql: "sEleCT      column1        from          table2",
-      expected: [
-        "sEleCT => Select",
-        "column1 => Identifier",
-        "from => From",
-        "table2 => Identifier"
-      ]
+      expected: ["sEleCT => Select", "column1 => Identifier", "from => From", "table2 => Identifier"]
     },
     {
       title: "escaped identifier",
       sql: `SELECT "column 1" FROM table2`,
-      expected: [
-        "SELECT => Select",
-        '"column 1" => Identifier',
-        "FROM => From",
-        "table2 => Identifier"
-      ]
+      expected: ["SELECT => Select", '"column 1" => Identifier', "FROM => From", "table2 => Identifier"]
     },
     {
       title: "escaped identifier with exotics chars",
       sql: `SELECT "column' 1$&@" FROM table2`,
-      expected: [
-        "SELECT => Select",
-        '"column\' 1$&@" => Identifier',
-        "FROM => From",
-        "table2 => Identifier"
-      ]
+      expected: ["SELECT => Select", '"column\' 1$&@" => Identifier', "FROM => From", "table2 => Identifier"]
     },
     {
       title: "escaped identifier with a reserved word inside",
       sql: `SELECT "select" FROM table2`,
-      expected: [
-        "SELECT => Select",
-        '"select" => Identifier',
-        "FROM => From",
-        "table2 => Identifier"
-      ]
+      expected: ["SELECT => Select", '"select" => Identifier', "FROM => From", "table2 => Identifier"]
     },
     {
       title: "identifier with dot",
@@ -165,8 +135,7 @@ describe("Sql Lexer", () => {
     },
     {
       title: "sql type name",
-      sql:
-        "TIMESTAMP DATE CHAR VARYING CHAR CHARACTER DECIMAL INT INTEGER BINARY VARYING",
+      sql: "TIMESTAMP DATE CHAR VARYING CHAR CHARACTER DECIMAL INT INTEGER BINARY VARYING",
       expected: [
         "TIMESTAMP => SqlTypeName",
         "DATE => SqlTypeName",
@@ -214,24 +183,12 @@ describe("Sql Lexer", () => {
     {
       title: "order by asc",
       sql: "ORDER BY column1 ASC NULLS FIRST",
-      expected: [
-        "ORDER BY => OrderBy",
-        "column1 => Identifier",
-        "ASC => Asc",
-        "NULLS => Nulls",
-        "FIRST => First"
-      ]
+      expected: ["ORDER BY => OrderBy", "column1 => Identifier", "ASC => Asc", "NULLS => Nulls", "FIRST => First"]
     },
     {
       title: "order by desc",
       sql: "ORDER BY column1 DESC NULLS LAST",
-      expected: [
-        "ORDER BY => OrderBy",
-        "column1 => Identifier",
-        "DESC => Desc",
-        "NULLS => Nulls",
-        "LAST => Last"
-      ]
+      expected: ["ORDER BY => OrderBy", "column1 => Identifier", "DESC => Desc", "NULLS => Nulls", "LAST => Last"]
     },
     {
       title: "limit",
@@ -288,8 +245,7 @@ describe("Sql Lexer", () => {
     },
     {
       title: "concat",
-      sql:
-        "SELECT concat(first_name, ' ', last_name) as full_name FROM employee",
+      sql: "SELECT concat(first_name, ' ', last_name) as full_name FROM employee",
       expected: [
         "SELECT => Select",
         "concat => FunctionIdentifier",
@@ -308,8 +264,7 @@ describe("Sql Lexer", () => {
     },
     {
       title: "group by",
-      sql:
-        "SELECT COUNT(created_at), role FROM manager_collection_query_connections GROUP BY role",
+      sql: "SELECT COUNT(created_at), role FROM manager_collection_query_connections GROUP BY role",
       expected: [
         "SELECT => Select",
         "COUNT => FunctionIdentifier",

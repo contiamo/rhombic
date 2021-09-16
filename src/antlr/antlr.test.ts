@@ -44,7 +44,7 @@ const getTable = (table: TablePrimary) => {
     return undefined;
   }
 
-  const columnNames = columnsMapping[table.tableName] || [];
+  const columnNames = columnsMapping[table.tableName];
   const columns = columnNames.map(columnId => ({
     id: columnId,
     data: { id: columnId, tableId: table.tableName }
@@ -105,6 +105,7 @@ describe("antlr", () => {
     .forEach(file => {
       const raw = fs.readFileSync(`${TESTS_PATH}/${file}`);
       const name = file.slice(0, -".json".length);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const testCase: TestCase = JSON.parse(raw.toString());
       const { data, only, sql, debug, mergedLeaves, options } = testCase;
       const sqlStr = sql instanceof Array ? sql.join("\n") : sql;

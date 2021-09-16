@@ -11,30 +11,21 @@ const extractRange = (children: CstChildrenDictionary, range: Range) => {
         extractRange(token.children, range);
         return;
       } else {
-        if (
-          !token.startLine ||
-          !token.startColumn ||
-          !token.endLine ||
-          !token.endColumn
-        ) {
+        if (!token.startLine || !token.startColumn || !token.endLine || !token.endColumn) {
           return;
         }
 
         // Start range check
         if (
           token.startLine < range.startLine ||
-          (token.startLine === range.startLine &&
-            token.startColumn < range.startColumn)
+          (token.startLine === range.startLine && token.startColumn < range.startColumn)
         ) {
           range.startLine = token.startLine;
           range.startColumn = token.startColumn;
         }
 
         // End range check
-        if (
-          token.endLine > range.endLine ||
-          (token.endLine === range.endLine && token.endColumn > range.endColumn)
-        ) {
+        if (token.endLine > range.endLine || (token.endLine === range.endLine && token.endColumn > range.endColumn)) {
           range.endLine = token.endLine;
           range.endColumn = token.endColumn;
         }
@@ -55,9 +46,7 @@ export const getChildrenRange = (children: IContext): Range => {
     startColumn: Infinity,
     endColumn: -Infinity
   };
-  // We need to cast `children` as `any` due to lack of typescript
-  // to match the generic `CstChildrenDictionary` type with the real implementation
-  extractRange(children as any, range); // This mutate `range` directly
+  extractRange(children as CstChildrenDictionary, range); // This mutate `range` directly
 
   return range;
 };

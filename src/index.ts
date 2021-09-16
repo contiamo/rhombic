@@ -103,6 +103,9 @@ export interface TablePrimaryIncomplete {
 
 // Note: Because we have a recursion, we can't rely on typescript inference
 // `addProjectionItem` will return `any` without this type definition
+/**
+ * Parsed SQL AST together with various operations that can be applied.
+ */
 export interface ParsedSql {
   /**
    * Return the sql as a raw string.

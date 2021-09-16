@@ -16,13 +16,9 @@ export const printFilter = (input: FilterTree): string =>
         );
       } else {
         if (["in", "not in"].includes(item.operator)) {
-          return `${item.dimension} ${item.operator} ${
-            item.value ? `(${item.value})` : ""
-          }`;
+          return `${item.dimension} ${item.operator} ${item.value ? `(${item.value})` : ""}`;
         } else {
-          return `${item.dimension} ${item.operator} ${
-            item.value ? `${item.value}` : ""
-          }`;
+          return `${item.dimension} ${item.operator} ${item.value ? `${item.value}` : ""}`;
         }
       }
     })

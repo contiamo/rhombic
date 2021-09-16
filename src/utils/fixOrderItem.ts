@@ -24,18 +24,13 @@ export const fixOrderItem = (
   const nextProjectionItem = projectionItems[index];
 
   // Same alias as before
-  if (
-    prevProjectionItem.alias &&
-    prevProjectionItem.alias === nextProjectionItem.alias
-  ) {
+  if (prevProjectionItem.alias && prevProjectionItem.alias === nextProjectionItem.alias) {
     return parsedSql.toString();
   }
 
   // Search old references in `sort` statement
   const orderItemsToRename = visitor.sort.filter(
-    i =>
-      i.expression === prevProjectionItem.expression ||
-      i.expression === prevProjectionItem.alias
+    i => i.expression === prevProjectionItem.expression || i.expression === prevProjectionItem.alias
   );
 
   if (orderItemsToRename.length > 1) {
@@ -46,12 +41,7 @@ export const fixOrderItem = (
 
   let nextSql = parsedSql.toString();
   orderItemsToRename.forEach(
-    i =>
-      (nextSql = replaceText(
-        nextSql,
-        nextProjectionItem.alias || nextProjectionItem.expression,
-        i.expressionRange
-      ))
+    i => (nextSql = replaceText(nextSql, nextProjectionItem.alias || nextProjectionItem.expression, i.expressionRange))
   );
 
   return nextSql;

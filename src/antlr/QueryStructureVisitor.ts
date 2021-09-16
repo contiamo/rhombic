@@ -52,6 +52,9 @@ export class Column {
   ) {}
 }
 
+/**
+ * Base relation class representing any relation in query: query itself, subquery, source table, CTE
+ */
 export abstract class Relation {
   constructor(
     readonly id: string,
@@ -82,6 +85,9 @@ export abstract class Relation {
   }
 }
 
+/**
+ * Relation representing source table.
+ */
 export class TableRelation extends Relation {
   constructor(
     id: string,
@@ -102,6 +108,9 @@ export class TableRelation extends Relation {
   }
 }
 
+/**
+ * Relation representing (sub-)query.
+ */
 export class QueryRelation extends Relation {
   // CTEs from this context
   ctes: Map<string, QueryRelation> = new Map();
@@ -204,10 +213,17 @@ export class QueryRelation extends Relation {
 
   getNextColumnId(): string {
     this.columnIdSeq++;
-    return "column_" + this.columnIdSeq;
+    return `column_${this.columnIdSeq}`;
   }
 }
 
+/**
+ * Visitor to extract query structure in the sense of relations, columns and used relations/columns.
+ * This extraction builds a tree of contexts corresponding to (sub-)queries, resolves all column
+ * references and for each (sub-)query and source table reports separate relation with #onRelation()
+ * handler. For column/table used when building particular relation it reports the reference with
+ * #onColumnReference() handler.
+ */
 export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVisitor<Result>
   implements SqlBaseVisitor<Result> {
   private relationSeq = 0;
@@ -515,7 +531,7 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
     const relation = this.lastRelation;
     if (relation !== undefined) {
       const identifier = ctx.errorCapturingIdentifier().identifier();
-      const alias = identifier !== undefined ? common.stripQuote(identifier).name : relation.id;
+      const alias = common.stripQuote(identifier).name;
 
       const columnAliases = ctx
         .identifierList()
@@ -558,7 +574,7 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
         });
       }
       this.currentRelation.relations.set(alias, relation);
-      this.onRelation?.(relation, alias);
+      this.onRelation(relation, alias);
       return result;
     } else {
       throw new Error("Expecting subquery relation to be in stack");
@@ -686,8 +702,8 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
         const constant = primExp.constant();
         if (constant instanceof NumericLiteralContext) {
           const idx = Number(constant.text) - 1;
-          const col = this.currentRelation.columns[idx];
-          if (col !== undefined) {
+          if (idx in this.currentRelation.columns) {
+            const col = this.currentRelation.columns[idx];
             col.columnReferences.forEach(cr => this.onColumnReference(cr.tableId, cr.columnId));
             return this.defaultResult();
           }

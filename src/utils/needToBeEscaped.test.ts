@@ -1,13 +1,7 @@
 import { needToBeEscaped } from "./needToBeEscaped";
 
 describe("needToBeEscaped", () => {
-  const trueCases: string[] = [
-    "i'm a chicken",
-    "123soleil",
-    "date",
-    "sum",
-    "@chicken"
-  ];
+  const trueCases: string[] = ["i'm a chicken", "123soleil", "date", "sum", "@chicken"];
   const falseCases: string[] = ["chicken", "crazy_potatoe", "Joker", "*"];
 
   trueCases.forEach(identifier =>
