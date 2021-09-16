@@ -21,6 +21,15 @@ interface ParserOptions {
    * to single quotes). Identifiers are quoted with backquotes.
    */
   doubleQuotedIdentifier?: boolean;
+
+  /**
+   * Optional cursor position used to identify the completion "context". Completion suggestions do often have to
+   * be provided for invalid queries, for example due to trailing commas (after which a user expects suggestions).
+   * To make sure the parser can handle such queries, it will first insert a parseable placeholder at the
+   * specified position. When computing completions, we can then look for that placeholder to identify the
+   * context (subquery clause) in which to complete. Only snippets will be suggested if no cursor position is
+   * provided.
+   */
   cursorPosition?: { lineNumber: number; column: number };
 }
 
