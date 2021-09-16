@@ -1,4 +1,3 @@
-import { ParserOptions } from ".";
 import { antlr } from "..";
 
 const tests = [
@@ -52,7 +51,7 @@ const tests = [
   }
 ];
 
-const prepSql = (sql: string): [string, ParserOptions] => {
+const prepSql = (sql: string): [string, { cursorPosition?: { lineNumber: number; column: number } }] => {
   const cursor = sql.indexOf("|");
   if (cursor === -1) return [sql, {}];
 

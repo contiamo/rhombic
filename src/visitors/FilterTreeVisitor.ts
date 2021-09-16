@@ -1,14 +1,8 @@
 import { parser } from "../SqlParser";
 import { FilterTree, Operator, isOperator } from "../FilterTree";
-import {
-  BooleanExpressionContext,
-  BooleanExpressionValueContext
-} from "../Context";
+import { BooleanExpressionContext, BooleanExpressionValueContext } from "../Context";
 import { getImageFromChildren } from "../utils/getImageFromChildren";
-import {
-  isAndOrContext,
-  isParenthesesContext
-} from "../utils/booleanExpression";
+import { isAndOrContext, isParenthesesContext } from "../utils/booleanExpression";
 import {
   hasColumnPrimary,
   isBinaryOperation,
@@ -22,9 +16,7 @@ const Visitor = parser.getBaseCstVisitorConstructorWithDefaults();
  * Visitor to extract filter tree on the `WHERE` statement
  */
 export class FilterTreeVisitor extends Visitor {
-  public tree: FilterTree = [
-    { type: "operator", closeParentheses: [], openParentheses: [] }
-  ];
+  public tree: FilterTree = [{ type: "operator", closeParentheses: [], openParentheses: [] }];
 
   private parenthesisCount = 0;
   private parenthesisToClose: number[] = [];
@@ -51,9 +43,7 @@ export class FilterTreeVisitor extends Visitor {
       return getImageFromChildren(expressionValue.valueExpression[0].children);
     }
     if (isMultivalOperation(expressionValue)) {
-      return expressionValue.valueExpression
-        .map(i => getImageFromChildren(i.children))
-        .join(", ");
+      return expressionValue.valueExpression.map(i => getImageFromChildren(i.children)).join(", ");
     }
 
     return undefined;
@@ -74,9 +64,7 @@ export class FilterTreeVisitor extends Visitor {
       // Flag close parenthese
       const endOperatorNode = this.tree[this.tree.length - 1];
       if (isOperator(endOperatorNode)) {
-        endOperatorNode.closeParentheses.push(
-          this.parenthesisToClose.shift() || 0
-        );
+        endOperatorNode.closeParentheses.push(this.parenthesisToClose.shift() || 0);
       }
     } else {
       // Add predicate + operator on each value
@@ -84,9 +72,7 @@ export class FilterTreeVisitor extends Visitor {
         if (!hasColumnPrimary(predicate.children)) return;
         this.tree.push({
           type: "predicate",
-          dimension: predicate.children.columnPrimary[0].children.Identifier.map(
-            i => i.image
-          ).join("."),
+          dimension: predicate.children.columnPrimary[0].children.Identifier.map(i => i.image).join("."),
           operator: this.getOperator(predicate.children),
           value: this.getValue(predicate.children)
         });
@@ -105,9 +91,7 @@ export class FilterTreeVisitor extends Visitor {
         lastOperatorNode.operator = ctx.Or ? "or" : "and";
       }
       // Visit alternative node
-      this.booleanExpression(
-        ctx.booleanExpression[ctx.booleanExpression.length - 1].children
-      );
+      this.booleanExpression(ctx.booleanExpression[ctx.booleanExpression.length - 1].children);
     }
   }
 }
