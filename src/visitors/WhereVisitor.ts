@@ -1,9 +1,5 @@
 import { parser } from "../SqlParser";
-import {
-  BooleanExpressionContext,
-  TableExpressionContext,
-  WhereContext
-} from "../Context";
+import { BooleanExpressionContext, TableExpressionContext, WhereContext } from "../Context";
 import { getChildrenRange } from "../utils/getChildrenRange";
 import { Range } from "../utils/getRange";
 

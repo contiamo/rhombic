@@ -6,8 +6,5 @@ import { reserved } from "../reserved";
  */
 export const needToBeEscaped = (identifier: string) => {
   if (identifier === "*") return false;
-  return (
-    reserved.includes(identifier.toUpperCase()) ||
-    !/^[a-zA-Z]\w*$/.exec(identifier)
-  );
+  return reserved.includes(identifier.toUpperCase()) || !/^[a-zA-Z]\w*$/.exec(identifier);
 };

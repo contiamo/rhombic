@@ -1,10 +1,4 @@
-import {
-  CstChildrenDictionary,
-  createToken,
-  Lexer,
-  CstParser,
-  IToken
-} from "chevrotain";
+import { CstChildrenDictionary, createToken, Lexer, CstParser, IToken } from "chevrotain";
 import { isCstNode } from "./isCstNode";
 
 /**
@@ -43,10 +37,9 @@ export function formatCst(prettifiedCst: string) {
 
   if (parser.errors.length + lexResult.errors.length > 0) {
     throw new Error(
-      `PrettifyCst Error: \n - ${[
-        ...parser.errors.map(i => i.message),
-        ...lexResult.errors.map(i => i.message)
-      ].join("\n - ")}`
+      `PrettifyCst Error: \n - ${[...parser.errors.map(i => i.message), ...lexResult.errors.map(i => i.message)].join(
+        "\n - "
+      )}`
     );
   }
   const visitor = new PrettyCstVisitor();
@@ -152,8 +145,7 @@ class PrettyCstVisitor extends Visitor {
     this.output += this.indent + ctx.Identifier[0].image + ctx.LParen[0].image;
 
     if (ctx.Value) {
-      this.output +=
-        ctx.Value.map(v => v.image).join(", ") + ctx.RParen[0].image + "\n";
+      this.output += ctx.Value.map(v => v.image).join(", ") + ctx.RParen[0].image + "\n";
     } else if (ctx.node) {
       this.output += "\n";
       this.indent += "  ";

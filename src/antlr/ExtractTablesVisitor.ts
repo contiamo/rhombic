@@ -1,24 +1,51 @@
 import { AbstractParseTreeVisitor } from "antlr4ts/tree/AbstractParseTreeVisitor";
-import { TablePrimary } from "..";
+import { TablePrimary, TablePrimaryIncomplete } from "..";
 import { SqlBaseVisitor } from "./SqlBaseVisitor";
 import common from "./common";
 import { TableNameContext } from "./SqlBaseParser";
+import { CursorQuery } from "./Cursor";
 
-export class ExtractTablesVisitor extends AbstractParseTreeVisitor<TablePrimary[]>
-  implements SqlBaseVisitor<TablePrimary[]> {
-  protected defaultResult(): TablePrimary[] {
-    return [];
+interface Result {
+  references: TablePrimary[];
+  incomplete: TablePrimaryIncomplete[];
+}
+
+export class ExtractTablesVisitor extends AbstractParseTreeVisitor<Result> implements SqlBaseVisitor<Result> {
+  constructor(readonly cursor: CursorQuery) {
+    super();
   }
 
-  aggregateResult(aggregate: TablePrimary[], nextResult: TablePrimary[]): TablePrimary[] {
-    return aggregate.concat(nextResult);
+  protected defaultResult(): Result {
+    return { references: [], incomplete: [] };
   }
 
-  visitTableName(ctx: TableNameContext): TablePrimary[] {
+  aggregateResult(aggregate: Result, nextResult: Result): Result {
+    return {
+      references: aggregate.references.concat(nextResult.references),
+      incomplete: aggregate.incomplete.concat(nextResult.incomplete)
+    };
+  }
+
+  visitTableName(ctx: TableNameContext): Result {
     const multipartTableName = ctx
       .multipartIdentifier()
       .errorCapturingIdentifier()
       .map(v => common.stripQuote(v.identifier()).name);
-    return [common.tablePrimaryFromMultipart(multipartTableName)];
+
+    const last = multipartTableName[multipartTableName.length - 1];
+    if (this.cursor.isEqualTo(last)) {
+      // cursor after dot
+      const refs = multipartTableName.slice(0, -1).map(r => this.cursor.removeFrom(r));
+      return {
+        references: [],
+        incomplete: [{ references: refs }]
+      };
+    } else {
+      const refs = multipartTableName.map(r => this.cursor.removeFrom(r));
+      return {
+        references: [common.tablePrimaryFromMultipart(refs)],
+        incomplete: []
+      };
+    }
   }
 }

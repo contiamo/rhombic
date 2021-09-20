@@ -20,21 +20,13 @@ export const replaceText = (
     .split("\n")
     .map((line, lineNumber) => {
       let nextLine;
-      if (
-        lineNumber === location.startLine - 1 &&
-        location.startLine === location.endLine
-      ) {
-        nextLine =
-          line.slice(0, location.startColumn - 1) +
-          line.slice(location.endColumn);
+      if (lineNumber === location.startLine - 1 && location.startLine === location.endLine) {
+        nextLine = line.slice(0, location.startColumn - 1) + line.slice(location.endColumn);
       } else if (location.startLine - 1 === lineNumber) {
         nextLine = line.slice(0, location.startColumn - 1);
       } else if (location.endLine - 1 === lineNumber) {
         nextLine = line.slice(location.endColumn);
-      } else if (
-        lineNumber > location.startLine - 1 &&
-        lineNumber < location.endLine - 1
-      ) {
+      } else if (lineNumber > location.startLine - 1 && lineNumber < location.endLine - 1) {
         nextLine = "";
       }
 

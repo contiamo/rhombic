@@ -3,9 +3,12 @@ import { Lineage, Table } from "../Lineage";
 import { SqlBaseLexer } from "./SqlBaseLexer";
 import { SqlBaseParser, StatementContext } from "./SqlBaseParser";
 import { UppercaseCharStream } from "./UppercaseCharStream";
-import { TablePrimary } from "..";
+import { TablePrimary, TablePrimaryIncomplete } from "..";
 import { ExtractTablesVisitor } from "./ExtractTablesVisitor";
 import { LineageVisitor } from "./LineageVisitor";
+import { CompletionVisitor } from "./CompletionVisitor";
+import { Cursor } from "./Cursor";
+import _ from "lodash";
 
 /**
  * Options available for SQL parser.
@@ -18,7 +21,49 @@ interface ParserOptions {
    * to single quotes). Identifiers are quoted with backquotes.
    */
   doubleQuotedIdentifier?: boolean;
+
+  /**
+   * Optional cursor position used to identify the completion "context". Completion suggestions do often have to
+   * be provided for invalid queries, for example due to trailing commas (after which a user expects suggestions).
+   * To make sure the parser can handle such queries, it will first insert a parseable placeholder at the
+   * specified position. When computing completions, we can then look for that placeholder to identify the
+   * context (subquery clause) in which to complete. Only snippets will be suggested if no cursor position is
+   * provided.
+   */
+  cursorPosition?: { lineNumber: number; column: number };
 }
+
+interface Named {
+  name: string;
+}
+
+/**
+ * A `MetadataProvider` allows access to metadata of a project. It's used to compute
+ * completion suggestions.
+ */
+export interface MetadataProvider<
+  Catalog extends Named = Named,
+  Schema extends Named = Named,
+  Table extends Named = Named,
+  Column extends Named = Named
+> {
+  getCatalogs: () => Catalog[];
+  getSchemas: (arg?: { catalog: string }) => Schema[];
+  getTables: (args?: { catalogOrSchema: string; schema?: string }) => Table[];
+  getColumns: (args: { table: string; catalogOrSchema?: string; schema?: string }) => Column[];
+}
+
+/**
+ * Possible suggestion items for auto completion.
+ * "keyword" is not used right now but will likely be added later
+ */
+export type CompletionItem<Catalog = Named, Schema = Named, Table = Named, Column = Named> =
+  | { type: "keyword"; value: string } // keyword suggestion
+  | { type: "catalog"; value: Catalog } // catalog suggestion
+  | { type: "schema"; value: Schema } // schema suggestion
+  | { type: "relation"; value: string; desc?: Table } // table/cte suggestion
+  | { type: "column"; relation?: string; value: string; desc?: Column } // column suggestion
+  | { type: "snippet"; label: string; template: string }; // snippet suggestion
 
 /**
  * SQL parse tree with available operations.
@@ -27,8 +72,9 @@ class SqlParseTree {
   /**
    * Creates SQL parse tree from antlr StatementContext
    * @param tree StatementContext object which is the product of parsing SQL
+   * @param cursor A representation of the cursor to look for in the query
    */
-  constructor(public readonly tree: StatementContext) {}
+  constructor(public readonly tree: StatementContext, readonly cursor: Cursor) {}
 
   /**
    * Extracts and returns all potentially used tables. Note that this method does not perform context
@@ -38,12 +84,13 @@ class SqlParseTree {
    * This method commonly used to analyse query and pre-fetch metadata for tables used.
    * @returns Tables used in query
    */
-  getUsedTables(): TablePrimary[] {
-    const visitor = new ExtractTablesVisitor();
+  getUsedTables(): { references: TablePrimary[]; incomplete: TablePrimaryIncomplete[] } {
+    const visitor = new ExtractTablesVisitor(this.cursor);
     return this.tree.accept(visitor);
   }
 
   /**
+
    * Extracts column level lineage from SQL parse tree.
    * There are 2 principal modes that control lineage representation: "merged leaves" and "tree" (default).
    * - In "tree" mode (default) all source tables are displayed with all their columns and mentioned as many
@@ -69,7 +116,7 @@ class SqlParseTree {
       positionalRefsEnabled?: boolean;
     }
   ): Lineage<TableData, ColumnData> {
-    const visitor = new LineageVisitor<TableData, ColumnData>(getTable, options);
+    const visitor = new LineageVisitor<TableData, ColumnData>(tp => getTable(this.cursor.removeFrom(tp)), options);
     this.tree.accept(visitor);
     const tables = visitor.tables;
     const edges = visitor.edges;
@@ -130,7 +177,93 @@ class SqlParseTree {
 
     return ([] as Lineage<TableData, ColumnData>).concat(cleanedTables, edges);
   }
+
+  /**
+   * This method computes completion suggestions at the cursor position for the parsed query.
+   *
+   * @param metadataProvider Metadata lookup functions
+   * @returns A list of possible completions at the cursor position in the parsed query
+   */
+  getSuggestions<
+    Catalog extends Named = Named,
+    Schema extends Named = Named,
+    Table extends Named = Named,
+    Column extends Named = Named
+  >(
+    metadataProvider: MetadataProvider<Catalog, Schema, Table, Column>
+  ): CompletionItem<Catalog, Schema, Table, Column>[] {
+    const completionVisitor = new CompletionVisitor(this.cursor, args => metadataProvider.getColumns(args));
+    this.tree.accept(completionVisitor);
+
+    const completions = completionVisitor.getSuggestions();
+    const completionItems: CompletionItem<Catalog, Schema, Table, Column>[] = [];
+    switch (completions.type) {
+      case "column": {
+        const columns: CompletionItem<Catalog, Schema, Table, Column>[] = completions.columns.map(col => {
+          return { type: "column", relation: col.relation, value: col.name, desc: col.desc };
+        });
+
+        completionItems.push(...columns);
+        break;
+      }
+      case "relation": {
+        // always include cte names
+        const cteCompletions: CompletionItem<Catalog, Schema, Table, Column>[] = completions.relations.map(rel => {
+          return { type: "relation", value: rel };
+        });
+        completionItems.push(...cteCompletions);
+
+        // fetch tables
+        const args = completions.incompleteReference && {
+          catalogOrSchema: completions.incompleteReference.references[0],
+          schema: completions.incompleteReference.references[1]
+        };
+        const tableCompletions: CompletionItem<Catalog, Schema, Table, Column>[] = metadataProvider
+          .getTables(args)
+          .map(t => {
+            return { type: "relation", value: t.name, desc: t };
+          });
+        completionItems.push(...tableCompletions);
+
+        // fetch schemas if only a one-part prefix (or no prefix) was entered
+        if (completions.incompleteReference === undefined || completions.incompleteReference.references.length == 1) {
+          const args = completions.incompleteReference && { catalog: completions.incompleteReference.references[0] };
+          const schemaCompletions: CompletionItem<Catalog, Schema, Table, Column>[] = metadataProvider
+            .getSchemas(args)
+            .map(s => {
+              return { type: "schema", value: s };
+            });
+          completionItems.push(...schemaCompletions);
+        }
+
+        // fetch catalogs if no prefix was entered
+        if (completions.incompleteReference === undefined) {
+          const catalogCompletions: CompletionItem<
+            Catalog,
+            Schema,
+            Table,
+            Column
+          >[] = metadataProvider.getCatalogs().map(c => {
+            return { type: "catalog", value: c };
+          });
+          completionItems.push(...catalogCompletions);
+        }
+
+        break;
+      }
+    }
+
+    const snippets: CompletionItem<Catalog, Schema, Table, Column>[] = completions.snippets.map(s => {
+      return { type: "snippet", label: s.label, template: s.template };
+    });
+
+    completionItems.push(...snippets);
+
+    return completionItems;
+  }
 }
+
+const defaultCursor = new Cursor("_CURSOR_");
 
 const antlr = {
   /**
@@ -142,6 +275,10 @@ const antlr = {
   parse(sql: string, options?: ParserOptions): SqlParseTree {
     const doubleQuotedIdentifier = options?.doubleQuotedIdentifier ?? false;
 
+    if (options?.cursorPosition !== undefined) {
+      sql = defaultCursor.insertAt(sql, options.cursorPosition);
+    }
+
     const inputStream = new UppercaseCharStream(CharStreams.fromString(sql));
     const lexer = new SqlBaseLexer(inputStream);
     lexer.doublequoted_identifier = doubleQuotedIdentifier;
@@ -150,7 +287,7 @@ const antlr = {
     parser.doublequoted_identifier = doubleQuotedIdentifier;
     parser.buildParseTree = true;
     parser.removeErrorListeners();
-    return new SqlParseTree(parser.statement());
+    return new SqlParseTree(parser.statement(), defaultCursor);
   }
 };
 

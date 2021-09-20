@@ -49,9 +49,7 @@ from plop`
 
   tests.forEach(test =>
     it(`should deal with ${test.description}`, () => {
-      expect(replaceText(test.input, test.value, test.location)).toBe(
-        test.expected
-      );
+      expect(replaceText(test.input, test.value, test.location)).toBe(test.expected);
     })
   );
 });

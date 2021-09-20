@@ -169,6 +169,15 @@ export class QueryRelation extends Relation {
     return this.parent?.findCTE(tableName);
   }
 
+  getCTENames(): string[] {
+    const localCtes = Array.from(this.ctes.keys());
+    if (this.parent !== undefined) {
+      return localCtes.concat(this.parent.getCTENames());
+    } else {
+      return localCtes;
+    }
+  }
+
   resolveOrAssumeRelationColumn(
     columnName: QuotableIdentifier,
     range: Range,
@@ -535,8 +544,9 @@ export abstract class QueryStructureVisitor<Result> extends AbstractParseTreeVis
         });
       }
 
-      this.currentRelation.ctes.set(alias, relation);
+      // Notify the callback before adding the cte as the cte is not yet available in scope.
       this.onRelation(relation, alias);
+      this.currentRelation.ctes.set(alias, relation);
       return result;
     } else {
       throw new Error("Expecting CTE query relation to be in stack");
