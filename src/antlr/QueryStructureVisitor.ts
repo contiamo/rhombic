@@ -186,25 +186,28 @@ export class QueryRelation extends Relation {
     if (tableName !== undefined) {
       const rel = this.findRelation(tableName);
       const col = rel?.resolveColumn(columnName);
-      if (col === undefined && rel != undefined && rel instanceof TableRelation && !rel.isFetched) {
+      if (col === undefined && rel != undefined && rel instanceof TableRelation) {
         return rel.addAssumedColumn(columnName, range);
       }
       return col;
     } else {
-      const unfetched: TableRelation[] = [];
+      const tables: TableRelation[] = [];
       for (const r of this.relations) {
         const rel = r[1];
         const col = rel.resolveColumn(columnName);
         if (col) {
           return col;
         }
-        if (rel instanceof TableRelation && !rel.isFetched) {
-          unfetched.push(rel);
+        if (rel instanceof TableRelation) {
+          tables.push(rel);
         }
       }
 
-      if (unfetched.length == 1) {
-        return unfetched[0].addAssumedColumn(columnName, range);
+      const assumed = tables.filter(t => !t.isFetched);
+      if (assumed.length == 1) {
+        return assumed[0].addAssumedColumn(columnName, range);
+      } else if (tables.length == 1) {
+        return tables[0].addAssumedColumn(columnName, range);
       }
 
       return undefined;
