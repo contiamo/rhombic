@@ -20,6 +20,7 @@
       "data": {
         "id": "account"
       },
+      "isSourceOnly": true,
       "columns": [
         {
           "id": "account_type",
@@ -109,6 +110,7 @@
       "data": {
         "id": "employee"
       },
+      "isSourceOnly": true,
       "columns": [
         {
           "id": "birth_date",
@@ -279,7 +281,8 @@
             "endColumn": 34
           }
         }
-      ]
+      ],
+      "isTargetOnly": true
     },
     {
       "type": "edge",

@@ -4,38 +4,6 @@
   "data": [
     {
       "type": "table",
-      "id": "result_2",
-      "label": "account",
-      "range": {
-        "startLine": 1,
-        "endLine": 1,
-        "startColumn": 57,
-        "endColumn": 66
-      },
-      "data": {
-        "id": "account"
-      },
-      "columns": [
-        {
-          "id": "account_type",
-          "label": "account_type",
-          "data": {
-            "id": "account_type",
-            "tableId": "account"
-          }
-        },
-        {
-          "id": "account_id",
-          "label": "account_id",
-          "data": {
-            "id": "account_id",
-            "tableId": "account"
-          }
-        }
-      ]
-    },
-    {
-      "type": "table",
       "id": "result_3",
       "label": "result_3",
       "range": {
@@ -70,6 +38,7 @@
       "data": {
         "id": "employee"
       },
+      "isSourceOnly": true,
       "columns": [
         {
           "id": "employee_id",
@@ -129,6 +98,39 @@
     },
     {
       "type": "table",
+      "id": "result_2",
+      "label": "account",
+      "range": {
+        "startLine": 1,
+        "endLine": 1,
+        "startColumn": 57,
+        "endColumn": 66
+      },
+      "data": {
+        "id": "account"
+      },
+      "isSourceOnly": true,
+      "columns": [
+        {
+          "id": "account_type",
+          "label": "account_type",
+          "data": {
+            "id": "account_type",
+            "tableId": "account"
+          }
+        },
+        {
+          "id": "account_id",
+          "label": "account_id",
+          "data": {
+            "id": "account_id",
+            "tableId": "account"
+          }
+        }
+      ]
+    },
+    {
+      "type": "table",
       "id": "result_1",
       "label": "[final result]",
       "range": {
@@ -148,7 +150,8 @@
             "endColumn": 51
           }
         }
-      ]
+      ],
+      "isTargetOnly": true
     },
     {
       "type": "edge",

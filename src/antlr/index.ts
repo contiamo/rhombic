@@ -187,6 +187,15 @@ class SqlLineageParseTree {
       tables.forEach(t => cleanedTables.push(t.table));
     }
 
+    // used to filter tables that are sources for other tables
+    const sourceTables: Set<string> = new Set();
+    edges.forEach(e => {
+      sourceTables.add(e.source.tableId);
+    });
+    cleanedTables.forEach(t => {
+      if (!sourceTables.has(t.id)) t.isTargetOnly = true;
+    });
+
     return ([] as Lineage<TableData, ColumnData>).concat(cleanedTables, edges);
   }
 }

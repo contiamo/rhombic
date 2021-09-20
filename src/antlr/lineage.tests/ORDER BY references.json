@@ -17,6 +17,7 @@
       "data": {
         "id": "account"
       },
+      "isSourceOnly": true,
       "columns": [
         {
           "id": "account_type",
@@ -91,7 +92,8 @@
             "endColumn": 40
           }
         }
-      ]
+      ],
+      "isTargetOnly": true
     },
     {
       "type": "edge",

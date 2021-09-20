@@ -14,6 +14,7 @@
       "data": {
         "id": "account"
       },
+      "isSourceOnly": true,
       "columns": [
         {
           "id": "account_type",
@@ -70,6 +71,7 @@
       "data": {
         "id": "salary"
       },
+      "isSourceOnly": true,
       "columns": [
         {
           "id": "currency_id",
@@ -135,7 +137,8 @@
             "tableId": "salary"
           }
         }
-      ]
+      ],
+      "isTargetOnly": true
     },
     {
       "type": "table",
@@ -150,6 +153,7 @@
       "data": {
         "id": "account"
       },
+      "isSourceOnly": true,
       "columns": [
         {
           "id": "account_type",
@@ -214,7 +218,8 @@
             "endColumn": 8
           }
         }
-      ]
+      ],
+      "isTargetOnly": true
     },
     {
       "type": "edge",

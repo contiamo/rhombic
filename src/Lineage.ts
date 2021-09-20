@@ -30,6 +30,12 @@ export interface Table<TableData, ColumnData> {
   /** Additional provided table data (normally passed from metadata). */
   data?: TableData;
 
+  /** This is an origin (not calculated) table */
+  isSourceOnly?: boolean;
+
+  /** This is a resulting table which doesn't have outgoing edges */
+  isTargetOnly?: boolean;
+
   /** Relation columns. */
   columns: Column<ColumnData>[];
 
