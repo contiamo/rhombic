@@ -73,6 +73,7 @@ export class LineageVisitor<TableData, ColumnData> extends QueryStructureVisitor
         label: label,
         range: relation.range,
         data: relation instanceof TableRelation ? (relation.data as TableData) : undefined,
+        isSourceOnly: relation instanceof TableRelation ? true : undefined,
         columns: columns
       }
     });

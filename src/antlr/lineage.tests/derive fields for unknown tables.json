@@ -7,21 +7,22 @@
       "label": "a_table",
       "range": {
         "startLine": 1,
-        "startColumn": 21,
         "endLine": 1,
+        "startColumn": 21,
         "endColumn": 28
       },
+      "isSourceOnly": true,
       "columns": [
         {
           "id": "column_1",
           "label": "a_column",
-          "isAssumed": true,
           "range": {
             "startLine": 1,
-            "startColumn": 7,
             "endLine": 1,
+            "startColumn": 7,
             "endColumn": 15
-          }
+          },
+          "isAssumed": true
         }
       ]
     },
@@ -31,8 +32,8 @@
       "label": "[final result]",
       "range": {
         "startLine": 1,
-        "startColumn": 0,
         "endLine": 1,
+        "startColumn": 0,
         "endColumn": 28
       },
       "columns": [
@@ -41,12 +42,13 @@
           "label": "a_column",
           "range": {
             "startLine": 1,
-            "startColumn": 7,
             "endLine": 1,
+            "startColumn": 7,
             "endColumn": 15
           }
         }
-      ]
+      ],
+      "isTargetOnly": true
     },
     {
       "type": "edge",
