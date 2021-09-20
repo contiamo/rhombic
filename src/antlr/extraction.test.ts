@@ -51,9 +51,9 @@ const tests = [
   }
 ];
 
-const prepSql = (sql: string): [string, { cursorPosition?: { lineNumber: number; column: number } }] => {
+const prepSql = (sql: string): [string, { cursorPosition: { lineNumber: number; column: number } } | undefined] => {
   const cursor = sql.indexOf("|");
-  if (cursor === -1) return [sql, {}];
+  if (cursor === -1) return [sql, undefined];
 
   const beforeCursor = sql.substring(0, cursor);
   return [
@@ -72,7 +72,8 @@ const excerpt = (value: string) => (value.length > 50 ? value.slice(0, 50) + " .
 describe("ExtractionVisitor", () => {
   tests.forEach(test => {
     it(`${test.name} - ${excerpt(test.sql)}`, () => {
-      const tree = antlr.parse(...prepSql(test.sql));
+      const [sql, options] = prepSql(test.sql);
+      const tree = options !== undefined ? antlr.parse(sql, options) : antlr.parse(sql);
       expect(tree.getUsedTables()).toEqual(test.extracted);
     });
   });
