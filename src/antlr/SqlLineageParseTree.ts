@@ -63,7 +63,8 @@ export class SqlLineageParseTree {
   getLineage<TableData, ColumnData>(
     getTable: (
       id: TablePrimary
-    ) => { table: { id: string; data: TableData }; columns: { id: string; data: ColumnData }[] } | undefined,
+    ) => { table: { id: string; data: TableData }; columns: { id: string; data: ColumnData }[] } | undefined = () =>
+      undefined,
     mergedLeaves?: boolean,
     options?: {
       positionalRefsEnabled?: boolean;

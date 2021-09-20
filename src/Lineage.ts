@@ -5,7 +5,8 @@ import { Range } from "./utils/getRange";
  * common table expressions (CTEs)) defined as tables,
  * their columns and references between tables and columns in any combination (edges).
  */
-export type Lineage<TableData, ColumnData> = Array<Table<TableData, ColumnData> | Edge>;
+export type LineageElement<TableData, ColumnData> = Table<TableData, ColumnData> | Edge;
+export type Lineage<TableData, ColumnData> = LineageElement<TableData, ColumnData>[];
 
 export interface TableModifier {
   type: "filter" | "groupBy";
@@ -94,3 +95,9 @@ export interface Column<ColumnData> {
   /** Optional column data passed from metadata. */
   data?: ColumnData;
 }
+
+export const isTable = <TableData, ColumnData>(
+  element: LineageElement<TableData, ColumnData>
+): element is Table<TableData, ColumnData> => element.type === "table";
+export const isEdge = <TableData, ColumnData>(element: LineageElement<TableData, ColumnData>): element is Edge =>
+  element.type === "edge";
