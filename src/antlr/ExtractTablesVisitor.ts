@@ -11,7 +11,7 @@ interface Result {
 }
 
 export class ExtractTablesVisitor extends AbstractParseTreeVisitor<Result> implements SqlBaseVisitor<Result> {
-  constructor(readonly cursor: CursorQuery) {
+  constructor(readonly cursor?: CursorQuery) {
     super();
   }
 
@@ -33,15 +33,25 @@ export class ExtractTablesVisitor extends AbstractParseTreeVisitor<Result> imple
       .map(v => common.stripQuote(v.identifier()).name);
 
     const last = multipartTableName[multipartTableName.length - 1];
-    if (this.cursor.isEqualTo(last)) {
-      // cursor after dot
-      const refs = multipartTableName.slice(0, -1).map(r => this.cursor.removeFrom(r));
-      return {
-        references: [],
-        incomplete: [{ references: refs }]
-      };
+
+    const cursor = this.cursor;
+    if (cursor !== undefined) {
+      if (cursor.isEqualTo(last)) {
+        // cursor after dot
+        const refs = multipartTableName.slice(0, -1).map(r => cursor.removeFrom(r));
+        return {
+          references: [],
+          incomplete: [{ references: refs }]
+        };
+      } else {
+        const refs = multipartTableName.map(r => cursor.removeFrom(r));
+        return {
+          references: [common.tablePrimaryFromMultipart(refs)],
+          incomplete: []
+        };
+      }
     } else {
-      const refs = multipartTableName.map(r => this.cursor.removeFrom(r));
+      const refs = multipartTableName;
       return {
         references: [common.tablePrimaryFromMultipart(refs)],
         incomplete: []

@@ -13,7 +13,7 @@ import _ from "lodash";
 /**
  * Options available for SQL parser.
  */
-interface ParserOptions {
+interface LineageParserOptions {
   /**
    * Whether double quoted identifiers are allowed. If `true` - then both double quotes and backticks can be used
    * to quote identifiers. String literals are quoted with single quotes only.
@@ -21,17 +21,27 @@ interface ParserOptions {
    * to single quotes). Identifiers are quoted with backquotes.
    */
   doubleQuotedIdentifier?: boolean;
+}
 
+/**
+ * Additional options when parsing for suggestions. Contains the cursor position.
+ */
+interface CompletionParserOptions extends LineageParserOptions {
   /**
-   * Optional cursor position used to identify the completion "context". Completion suggestions do often have to
+   * The cursor position used to identify the completion "context". Completion suggestions do often have to
    * be provided for invalid queries, for example due to trailing commas (after which a user expects suggestions).
    * To make sure the parser can handle such queries, it will first insert a parseable placeholder at the
    * specified position. When computing completions, we can then look for that placeholder to identify the
-   * context (subquery clause) in which to complete. Only snippets will be suggested if no cursor position is
-   * provided.
+   * context (subquery clause) in which to complete.
    */
-  cursorPosition?: { lineNumber: number; column: number };
+  cursorPosition: { lineNumber: number; column: number };
 }
+
+export const isCompletionOptions = (
+  options: LineageParserOptions | CompletionParserOptions
+): options is CompletionParserOptions => {
+  return "cursorPosition" in options;
+};
 
 interface Named {
   name: string;
@@ -68,13 +78,13 @@ export type CompletionItem<Catalog = Named, Schema = Named, Table = Named, Colum
 /**
  * SQL parse tree with available operations.
  */
-class SqlParseTree {
+class SqlLineageParseTree {
   /**
    * Creates SQL parse tree from antlr StatementContext
    * @param tree StatementContext object which is the product of parsing SQL
    * @param cursor A representation of the cursor to look for in the query
    */
-  constructor(public readonly tree: StatementContext, readonly cursor: Cursor) {}
+  constructor(public readonly tree: StatementContext, readonly cursor?: Cursor) {}
 
   /**
    * Extracts and returns all potentially used tables. Note that this method does not perform context
@@ -116,7 +126,9 @@ class SqlParseTree {
       positionalRefsEnabled?: boolean;
     }
   ): Lineage<TableData, ColumnData> {
-    const visitor = new LineageVisitor<TableData, ColumnData>(tp => getTable(this.cursor.removeFrom(tp)), options);
+    const cursor = this.cursor;
+    const fetchOp: typeof getTable = cursor !== undefined ? tp => getTable(cursor.removeFrom(tp)) : getTable;
+    const visitor = new LineageVisitor<TableData, ColumnData>(fetchOp, options);
     this.tree.accept(visitor);
     const tables = visitor.tables;
     const edges = visitor.edges;
@@ -177,7 +189,12 @@ class SqlParseTree {
 
     return ([] as Lineage<TableData, ColumnData>).concat(cleanedTables, edges);
   }
+}
 
+class SqlCompletionParseTree extends SqlLineageParseTree {
+  constructor(tree: StatementContext, cursor: Cursor) {
+    super(tree, cursor);
+  }
   /**
    * This method computes completion suggestions at the cursor position for the parsed query.
    *
@@ -192,7 +209,7 @@ class SqlParseTree {
   >(
     metadataProvider: MetadataProvider<Catalog, Schema, Table, Column>
   ): CompletionItem<Catalog, Schema, Table, Column>[] {
-    const completionVisitor = new CompletionVisitor(this.cursor, args => metadataProvider.getColumns(args));
+    const completionVisitor = new CompletionVisitor(this.cursor as Cursor, args => metadataProvider.getColumns(args));
     this.tree.accept(completionVisitor);
 
     const completions = completionVisitor.getSuggestions();
@@ -265,6 +282,27 @@ class SqlParseTree {
 
 const defaultCursor = new Cursor("_CURSOR_");
 
+function parse(sql: string, options: CompletionParserOptions): SqlCompletionParseTree;
+function parse(sql: string, options?: LineageParserOptions): SqlLineageParseTree;
+function parse(sql: string, options?: LineageParserOptions | CompletionParserOptions | undefined) {
+  const doubleQuotedIdentifier = options?.doubleQuotedIdentifier ?? false;
+
+  if (options !== undefined && isCompletionOptions(options)) {
+    sql = defaultCursor.insertAt(sql, options.cursorPosition);
+  }
+
+  const inputStream = new UppercaseCharStream(CharStreams.fromString(sql));
+  const lexer = new SqlBaseLexer(inputStream);
+  lexer.doublequoted_identifier = doubleQuotedIdentifier;
+  const tokens = new CommonTokenStream(lexer);
+  const parser = new SqlBaseParser(tokens);
+  parser.doublequoted_identifier = doubleQuotedIdentifier;
+  parser.buildParseTree = true;
+  parser.removeErrorListeners();
+
+  return new SqlCompletionParseTree(parser.statement(), defaultCursor);
+}
+
 const antlr = {
   /**
    * Parses SQL text and builds parse tree suitable for further analysis and operations.
@@ -272,23 +310,7 @@ const antlr = {
    * @param options Options affecting parsing
    * @returns Parsed SQL tree object with the number of possible operations
    */
-  parse(sql: string, options?: ParserOptions): SqlParseTree {
-    const doubleQuotedIdentifier = options?.doubleQuotedIdentifier ?? false;
-
-    if (options?.cursorPosition !== undefined) {
-      sql = defaultCursor.insertAt(sql, options.cursorPosition);
-    }
-
-    const inputStream = new UppercaseCharStream(CharStreams.fromString(sql));
-    const lexer = new SqlBaseLexer(inputStream);
-    lexer.doublequoted_identifier = doubleQuotedIdentifier;
-    const tokens = new CommonTokenStream(lexer);
-    const parser = new SqlBaseParser(tokens);
-    parser.doublequoted_identifier = doubleQuotedIdentifier;
-    parser.buildParseTree = true;
-    parser.removeErrorListeners();
-    return new SqlParseTree(parser.statement(), defaultCursor);
-  }
+  parse
 };
 
 export default antlr;
