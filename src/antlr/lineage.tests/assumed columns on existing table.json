@@ -1,6 +1,4 @@
 {
-  "debug": true,
-  "only": true,
   "sql": "SELECT account_id aid, account_details adet FROM account",
   "mergedLeaves": true,
   "data": [
@@ -11,22 +9,14 @@
       "range": {
         "startLine": 1,
         "endLine": 1,
-        "startColumn": 46,
-        "endColumn": 53
+        "startColumn": 49,
+        "endColumn": 56
       },
       "data": {
         "id": "account"
       },
       "isSourceOnly": true,
       "columns": [
-        {
-          "id": "account_type",
-          "label": "account_type",
-          "data": {
-            "id": "account_type",
-            "tableId": "account"
-          }
-        },
         {
           "id": "account_id",
           "label": "account_id",
@@ -36,28 +26,15 @@
           }
         },
         {
-          "id": "account_description",
-          "label": "account_description",
-          "data": {
-            "id": "account_description",
-            "tableId": "account"
-          }
-        },
-        {
-          "id": "account_parent",
-          "label": "account_parent",
-          "data": {
-            "id": "account_parent",
-            "tableId": "account"
-          }
-        },
-        {
-          "id": "account_rollup",
-          "label": "account_rollup",
-          "data": {
-            "id": "account_rollup",
-            "tableId": "account"
-          }
+          "id": "column_6",
+          "label": "account_details",
+          "range": {
+            "startLine": 1,
+            "endLine": 1,
+            "startColumn": 23,
+            "endColumn": 38
+          },
+          "isAssumed": true
         }
       ]
     },
@@ -69,7 +46,7 @@
         "startLine": 1,
         "endLine": 1,
         "startColumn": 0,
-        "endColumn": 86
+        "endColumn": 56
       },
       "columns": [
         {
@@ -84,12 +61,12 @@
         },
         {
           "id": "column_2",
-          "label": "ap",
+          "label": "adet",
           "range": {
             "startLine": 1,
             "endLine": 1,
             "startColumn": 23,
-            "endColumn": 40
+            "endColumn": 43
           }
         }
       ],
@@ -112,55 +89,11 @@
       "edgeType": "select",
       "source": {
         "tableId": "result_2",
-        "columnId": "account_parent"
+        "columnId": "column_6"
       },
       "target": {
         "tableId": "result_1",
         "columnId": "column_2"
-      }
-    },
-    {
-      "type": "edge",
-      "edgeType": "group by",
-      "source": {
-        "tableId": "result_2",
-        "columnId": "account_parent"
-      },
-      "target": {
-        "tableId": "result_1"
-      }
-    },
-    {
-      "type": "edge",
-      "edgeType": "group by",
-      "source": {
-        "tableId": "result_2",
-        "columnId": "account_id"
-      },
-      "target": {
-        "tableId": "result_1"
-      }
-    },
-    {
-      "type": "edge",
-      "edgeType": "order by",
-      "source": {
-        "tableId": "result_2",
-        "columnId": "account_parent"
-      },
-      "target": {
-        "tableId": "result_1"
-      }
-    },
-    {
-      "type": "edge",
-      "edgeType": "order by",
-      "source": {
-        "tableId": "result_2",
-        "columnId": "account_id"
-      },
-      "target": {
-        "tableId": "result_1"
       }
     }
   ]
