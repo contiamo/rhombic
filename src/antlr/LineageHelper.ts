@@ -37,6 +37,8 @@ interface FocusedEdge {
 
 export type FocusedElement = FocusedTable | FocusedColumn | FocusedEdge;
 
+export type MatchedElement<TableData, ColumnData> = LineageElement<TableData, ColumnData> | ColumnReference<ColumnData>;
+
 export interface ColumnReference<ColumnData> {
   type: "column";
   tableId: string;
@@ -44,7 +46,7 @@ export interface ColumnReference<ColumnData> {
 }
 
 export const toFocusedElement = <TableData, ColumnData>(
-  element: LineageElement<TableData, ColumnData> | ColumnReference<ColumnData>
+  element: MatchedElement<TableData, ColumnData>
 ): FocusedElement => {
   switch (element.type) {
     case "table":
@@ -72,22 +74,6 @@ const edgeFinder = (edges: Edge[]) => (focusedEdge: FocusedEdge): Edge | undefin
       element.edgeType === focusedEdge.edgeType
   );
 
-const edgesBySourceFinder = (edges: Edge[]) => (focusedElement: FocusedTable | FocusedColumn) =>
-  edges.filter(
-    element =>
-      element.source.tableId === focusedElement.tableId &&
-      ((focusedElement.type === "column" && element.source.columnId === focusedElement.columnId) ||
-        (focusedElement.type === "table" && element.source.columnId === undefined))
-  );
-
-const edgesByTargetFinder = (edges: Edge[]) => (focusedElement: FocusedTable | FocusedColumn) =>
-  edges.filter(
-    element =>
-      element.target.tableId === focusedElement.tableId &&
-      ((focusedElement.type === "column" && element.target.columnId === focusedElement.columnId) ||
-        (focusedElement.type === "table" && element.target.columnId === undefined))
-  );
-
 const tableFinder = <TableData, ColumnData>(tables: Table<TableData, ColumnData>[]) => (
   focusedTable: FocusedTable
 ): Table<TableData, ColumnData> | undefined => tables.find(element => element.id === focusedTable.tableId);
@@ -106,24 +92,42 @@ const columnFinder = <TableData, ColumnData>(tables: Table<TableData, ColumnData
   };
 };
 
+const edgesBySourceFinder = (edges: Edge[]) => (focusedElement: FocusedTable | FocusedColumn) =>
+  edges.filter(
+    element =>
+      element.source.tableId === focusedElement.tableId &&
+      ((focusedElement.type === "column" && element.source.columnId === focusedElement.columnId) ||
+        (focusedElement.type === "table" && element.source.columnId === undefined))
+  );
+
+const edgesByTargetFinder = (edges: Edge[]) => (focusedElement: FocusedTable | FocusedColumn) =>
+  edges.filter(
+    element =>
+      element.target.tableId === focusedElement.tableId &&
+      ((focusedElement.type === "column" && element.target.columnId === focusedElement.columnId) ||
+        (focusedElement.type === "table" && element.target.columnId === undefined))
+  );
+
 export const LineageHelper = <TableData, ColumnData>(lineage: Lineage<TableData, ColumnData>) => {
   const tables = lineage.filter(isTable);
   const edges = lineage.filter(isEdge);
   const findEdge = edgeFinder(edges);
-  const findEdgesFromSource = edgesBySourceFinder(edges);
-  const findEdgesToTarget = edgesByTargetFinder(edges);
   const findTable = tableFinder(tables);
   const findColumn = columnFinder(tables);
+  const findElement = (focus: FocusedElement) =>
+    focus.type === "table" ? findTable(focus) : focus.type === "column" ? findColumn(focus) : findEdge(focus);
+  const findEdgesFromSource = edgesBySourceFinder(edges);
+  const findEdgesToTarget = edgesByTargetFinder(edges);
 
   const walkUp = (focus: FocusedElement) => {
     if (focus.type === "table" || focus.type === "column") {
       return findEdgesToTarget(focus);
     }
-    // Edge
+    // it's and edge
     const tableOrColumn =
       focus.source.columnId !== undefined
-        ? findColumn({ type: "column", tableId: focus.source.tableId, columnId: focus.source.columnId })
-        : findTable({ type: "table", tableId: focus.source.tableId });
+        ? findElement({ type: "column", tableId: focus.source.tableId, columnId: focus.source.columnId })
+        : findElement({ type: "table", tableId: focus.source.tableId });
     return tableOrColumn === undefined ? [] : [tableOrColumn];
   };
 
@@ -131,11 +135,11 @@ export const LineageHelper = <TableData, ColumnData>(lineage: Lineage<TableData,
     if (focus.type === "table" || focus.type === "column") {
       return findEdgesFromSource(focus);
     }
-    // Edge
+    // it's and edge
     const tableOrColumn =
       focus.target.columnId !== undefined
-        ? findColumn({ type: "column", tableId: focus.target.tableId, columnId: focus.target.columnId })
-        : findTable({ type: "table", tableId: focus.target.tableId });
+        ? findElement({ type: "column", tableId: focus.target.tableId, columnId: focus.target.columnId })
+        : findElement({ type: "table", tableId: focus.target.tableId });
     return tableOrColumn === undefined ? [] : [tableOrColumn];
   };
 
@@ -143,7 +147,7 @@ export const LineageHelper = <TableData, ColumnData>(lineage: Lineage<TableData,
   const walker = (
     focus: FocusedElement,
     direction: Direction,
-    eachElement: (element: LineageElement<TableData, ColumnData> | ColumnReference<ColumnData>) => void
+    eachElement: (element: MatchedElement<TableData, ColumnData>) => void
   ) => {
     (direction === "up" ? walkUp : walkDown)(focus).forEach(element => {
       eachElement(element);
@@ -153,22 +157,19 @@ export const LineageHelper = <TableData, ColumnData>(lineage: Lineage<TableData,
 
   const findConnectedElements = (focus: FocusedElement) => {
     // Check that the element exists and include it in the connected elements
-    const element =
-      focus.type === "table" ? findTable(focus) : focus.type === "column" ? findColumn(focus) : findEdge(focus);
+    const element = findElement(focus);
     if (!element) throw Error(`Element not found in lineage - ${JSON.stringify(focus)}`);
-    const elements: Array<LineageElement<TableData, ColumnData> | ColumnReference<ColumnData>> = [element];
-    const collect = (element: LineageElement<TableData, ColumnData> | ColumnReference<ColumnData>) =>
-      elements.push(element);
+    const elements: MatchedElement<TableData, ColumnData>[] = [element];
+    const collect = (element: MatchedElement<TableData, ColumnData>) => elements.push(element);
     walker(focus, "up", collect);
     walker(focus, "down", collect);
     return elements;
   };
 
   return {
+    findElement,
     findEdgesFromSource,
     findEdgesToTarget,
-    findTable,
-    findColumn,
     findConnectedElements
   };
 };

@@ -7,19 +7,17 @@ describe("LineageHelper", () => {
   const parsed = antlr.parse(sql);
   const helper = LineageHelper(parsed.getLineage());
 
-  describe("findTable", () => {
+  describe("findElement", () => {
     it("finds a table that is in the lineage", () => {
-      expect(helper.findTable({ type: "table", tableId: "result_2" })).toMatchObject({
+      expect(helper.findElement({ type: "table", tableId: "result_2" })).toMatchObject({
         type: "table",
         id: "result_2",
         label: "t2"
       });
     });
-  });
 
-  describe("findColumn", () => {
     it("finds a column that is in the lineage", () => {
-      expect(helper.findColumn({ type: "column", tableId: "result_2", columnId: "column_3" })).toMatchObject({
+      expect(helper.findElement({ type: "column", tableId: "result_2", columnId: "column_3" })).toMatchObject({
         type: "column",
         tableId: "result_2",
         column: {
