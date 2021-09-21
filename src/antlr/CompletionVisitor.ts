@@ -1,12 +1,13 @@
 import { ErrorNode } from "antlr4ts/tree/ErrorNode";
 import { TablePrimary, TablePrimaryIncomplete } from "..";
-import common from "./common";
+import common, { QuotableIdentifier } from "./common";
 import { CursorQuery } from "./Cursor";
 import { QueryRelation, QueryStructureVisitor, TableRelation } from "./QueryStructureVisitor";
 import {
   AliasedRelationContext,
   ColumnReferenceContext,
   DereferenceContext,
+  PrimaryExpressionContext,
   QueryTermDefaultContext,
   StatementContext,
   TableNameContext
@@ -296,5 +297,22 @@ export class CompletionVisitor<C extends { name: string }> extends QueryStructur
         this.caretScope = { type: "other" };
       }
     }
+  }
+
+  protected extractTableAndColumn(
+    ctx: PrimaryExpressionContext
+  ): { table?: QuotableIdentifier; column: QuotableIdentifier } | undefined {
+    const col = super.extractTableAndColumn(ctx);
+    if (col !== undefined) {
+      if (this.cursor.isSuffixOf(col.column.name)) {
+        const name = this.cursor.removeFrom(col.column.name);
+        if (name.length == 0) {
+          return undefined;
+        } else {
+          col.column.name = name;
+        }
+      }
+    }
+    return col;
   }
 }
