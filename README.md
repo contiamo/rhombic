@@ -42,11 +42,15 @@ try {
     positionalRefsEnabled: false
   };
   const lineage = q.getLineage(getTable, mergedLeaves, lineageOptions);
-  // Use something like react-flow to draw a nice sql lineage
 } catch (e) {
   // Parsing errors
 }
 ```
+
+You can then use something like [react-flow](https://github.com/wbkd/react-flow) to draw a nice visualization of your lineage -
+
+![image](https://user-images.githubusercontent.com/200647/134165142-e6c5e50c-82a0-4eef-b9ec-8cc96c31dfcd.png)
+
 
 ## Chevrotain parser - SQL manipulation
 
