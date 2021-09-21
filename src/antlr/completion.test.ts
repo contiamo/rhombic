@@ -1,4 +1,5 @@
-import antlr, { CompletionItem } from ".";
+import antlr from ".";
+import { CompletionItem } from "./SqlCompletionParseTree";
 
 const env = new Map<string, string[]>();
 env.set("test", ["column1", "column2"]);

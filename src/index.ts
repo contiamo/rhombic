@@ -22,6 +22,7 @@ import { GroupByVisitor } from "./visitors/GroupByVisitor";
 
 // Antlr parser version
 export { default as antlr } from "./antlr";
+export { LineageHelper } from "./LineageHelper";
 
 // Utils
 export { needToBeEscaped, printFilter };
