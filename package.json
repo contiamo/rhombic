@@ -1,7 +1,7 @@
 {
   "name": "rhombic",
-  "version": "0.17.0",
-  "description": "Apache Calcite SQL parser and associate helpers",
+  "version": "0.18.0",
+  "description": "SQL parsing, lineage extraction and manipulation",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
