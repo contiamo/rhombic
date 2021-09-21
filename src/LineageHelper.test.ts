@@ -1,4 +1,4 @@
-import { antlr } from "..";
+import { antlr } from ".";
 import { LineageHelper } from "./LineageHelper";
 
 describe("LineageHelper", () => {

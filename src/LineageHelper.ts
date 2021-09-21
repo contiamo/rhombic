@@ -1,4 +1,4 @@
-import { Edge, EdgeType, isTable, isEdge, Lineage, Table, Column, LineageElement } from "../Lineage";
+import { Edge, EdgeType, isTable, isEdge, Lineage, Table, Column, LineageElement } from "./Lineage";
 
 interface FocusedTable {
   type: "table";
@@ -35,6 +35,9 @@ interface FocusedEdge {
   edgeType?: EdgeType;
 }
 
+/**
+ * The element - table, column, edge - that is in focus
+ */
 export type FocusedElement = FocusedTable | FocusedColumn | FocusedEdge;
 
 export type MatchedElement<TableData, ColumnData> = LineageElement<TableData, ColumnData> | ColumnReference<ColumnData>;
