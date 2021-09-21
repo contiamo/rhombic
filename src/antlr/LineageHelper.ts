@@ -108,6 +108,9 @@ const edgesByTargetFinder = (edges: Edge[]) => (focusedElement: FocusedTable | F
         (focusedElement.type === "table" && element.target.columnId === undefined))
   );
 
+/**
+ * Lineage Helper provides useful functions to work with an extracted lineage graph
+ */
 export const LineageHelper = <TableData, ColumnData>(lineage: Lineage<TableData, ColumnData>) => {
   const tables = lineage.filter(isTable);
   const edges = lineage.filter(isEdge);
@@ -156,7 +159,7 @@ export const LineageHelper = <TableData, ColumnData>(lineage: Lineage<TableData,
   };
 
   const findConnectedElements = (focus: FocusedElement) => {
-    // Check that the element exists and include it in the connected elements
+    // Check that the focused element exists and include it in the connected elements
     const element = findElement(focus);
     if (!element) throw Error(`Element not found in lineage - ${JSON.stringify(focus)}`);
     const elements: MatchedElement<TableData, ColumnData>[] = [element];
@@ -167,9 +170,21 @@ export const LineageHelper = <TableData, ColumnData>(lineage: Lineage<TableData,
   };
 
   return {
+    /**
+     * Finds an element (table, column, edge) in the lineage graph
+     */
     findElement,
+    /**
+     * Finds all edges originating at a specific source table or column
+     */
     findEdgesFromSource,
+    /**
+     * Finds all edges targeting a specific source table or column
+     */
     findEdgesToTarget,
+    /**
+     * Finds all elements connected via the graph to a focused element
+     */
     findConnectedElements
   };
 };
