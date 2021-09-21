@@ -140,6 +140,9 @@ export class SqlLineageParseTree {
       if (!sourceTables.has(t.id)) t.isTargetOnly = true;
     });
 
-    return ([] as Lineage<TableData, ColumnData>).concat(cleanedTables, edges);
+    return {
+      nodes: cleanedTables,
+      edges
+    };
   }
 }

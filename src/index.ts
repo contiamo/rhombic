@@ -16,9 +16,6 @@ import { WhereVisitor } from "./visitors/WhereVisitor";
 import { getImageFromChildren } from "./utils/getImageFromChildren";
 import { fixOrderItem } from "./utils/fixOrderItem";
 import { removeUnusedOrderItems } from "./utils/removeUnusedOrderItems";
-import { Lineage, TableModifier } from "./Lineage";
-import { flatten } from "lodash";
-import { GroupByVisitor } from "./visitors/GroupByVisitor";
 
 // Antlr parser version
 export { default as antlr } from "./antlr";
@@ -222,17 +219,6 @@ export interface ParsedSql {
    * @param filter
    */
   updateFilter(filter: FilterTree | string): ParsedSql;
-
-  /**
-   * Get lineage data.
-   *
-   * @param getters.getTable Get table metadata
-   * @param getters.getColumn Get column metadata
-   */
-  getLineage<TableData extends { id: string }, ColumnData extends { id: string }>(getters: {
-    getTable: (tableId: string) => TableData;
-    getColumns: (tableId: string) => ColumnData[];
-  }): Lineage<TableData, ColumnData>;
 }
 
 /**
@@ -580,6 +566,7 @@ const parsedSql = (sql: string): ParsedSql => {
       visitor.visit(cst);
       const hasWhere = Boolean(visitor.booleanExpressionNode);
 
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (!visitor.booleanExpression) {
         throw new Error("Can't update/add a filter to this query");
       }
@@ -589,6 +576,7 @@ const parsedSql = (sql: string): ParsedSql => {
       const nextSql = replaceText(
         sql,
         hasWhere ? computedFilter : ` WHERE ${computedFilter} `,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         hasWhere ? visitor.booleanExpressionRange! : visitor.tableRange!
       ).trim();
       if (computedFilter === "" && visitor.whereRange) {
@@ -600,157 +588,6 @@ const parsedSql = (sql: string): ParsedSql => {
         );
       }
       return parsedSql(nextSql);
-    },
-
-    getLineage<TableData extends { id: string }, ColumnData extends { id: string }>({
-      getTable,
-      getColumns
-    }: {
-      getTable: (tableId: string) => TableData;
-      getColumns: (tableId: string) => ColumnData[];
-    }) {
-      const tables = this.getTablePrimaries();
-      const lineage: Lineage<TableData, ColumnData> = [];
-      const modifiers: TableModifier[] = [];
-
-      const projectionItemsVisitor = new ProjectionItemsVisitor();
-      projectionItemsVisitor.visit(cst);
-      const resultColumns = projectionItemsVisitor.output;
-
-      // Modifiers
-      // -- `WHERE`
-      const whereVisitor = new WhereVisitor();
-      whereVisitor.visit(cst);
-      const hasWhere = Boolean(whereVisitor.booleanExpressionNode);
-
-      if (hasWhere && whereVisitor.whereRange) {
-        modifiers.push({
-          type: "filter",
-          range: whereVisitor.whereRange
-        });
-      }
-
-      // -- `GROUP BY`
-      const groupByVisitor = new GroupByVisitor();
-      groupByVisitor.visit(cst);
-      if (groupByVisitor.groupByRange) {
-        modifiers.push({
-          type: "groupBy",
-          range: groupByVisitor.groupByRange
-        });
-      }
-
-      // Get columns metadata
-      const columnsMetadata = tables.reduce((mem, table) => {
-        return {
-          ...mem,
-          [table.tableName]: getColumns(table.tableName)
-        };
-      }, {} as { [tableName: string]: ColumnData[] });
-
-      // Create source tables
-      tables.forEach(table => {
-        const columns = columnsMetadata[table.tableName];
-        const columnIds = columns.map(c => c.id);
-        lineage.push({
-          type: "table",
-          id: table.tableName,
-          label: table.tableName,
-          range: table.range,
-          data: getTable(table.tableName),
-          columns: resultColumns
-            .reduce((mem, column) => {
-              if (column.fn) {
-                return [
-                  ...mem,
-                  ...column.fn.values.map(value => ({
-                    ...column,
-                    expression: value.path?.columnName || value.expression
-                  }))
-                ];
-              } else {
-                return [
-                  ...mem,
-                  {
-                    ...column,
-                    expression: column.path?.columnName || column.expression
-                  }
-                ];
-              }
-            }, [] as typeof resultColumns)
-            .filter(column => {
-              if (column.path) {
-                if (column.path.tableName && column.path.tableName !== table.tableName) {
-                  return false;
-                }
-                return columnIds.includes(column.path.columnName);
-              }
-              if (column.fn) {
-                const fnValue = column.fn.values.find(i => i.path?.columnName === column.expression);
-
-                if (fnValue?.path?.columnName === undefined) return false;
-
-                return columnIds.includes(fnValue.path?.columnName);
-              }
-              return false;
-            })
-            .map(column => ({
-              id: column.expression,
-              range: column.range,
-              label: column.expression,
-              data: columns.find(i => i.id === column.expression)
-            }))
-        });
-      });
-
-      // Create result table
-      const columns = flatten(Object.values(columnsMetadata));
-      lineage.push({
-        type: "table",
-        id: "result",
-        label: "[result]",
-        modifiers,
-        columns: resultColumns.map(column => ({
-          id: column.expression,
-          range: column.range,
-          label: column.alias || column.expression,
-          data: columns.find(i => i.id === column.expression)
-        }))
-      });
-
-      // Create edges
-      resultColumns.forEach(resultColumn => {
-        tables.forEach(table => {
-          if (resultColumn.path?.tableName && resultColumn.path.tableName !== table.tableName) {
-            return;
-          }
-
-          const columns = columnsMetadata[table.tableName];
-          columns
-            .filter(column => {
-              if (resultColumn.fn) {
-                return resultColumn.fn.values.map(c => c.path?.columnName).includes(column.id);
-              }
-              return column.id === (resultColumn.path?.columnName || resultColumn.expression);
-            })
-            .forEach(c => {
-              lineage.push({
-                type: "edge",
-                label: resultColumn.fn?.identifier,
-                source: {
-                  tableId: table.tableName,
-                  columnId: c.id
-                },
-                target: {
-                  tableId: "result",
-                  columnId: resultColumn.expression
-                }
-              });
-            });
-        });
-      });
-
-      return lineage;
     }
   };
 };
