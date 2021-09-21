@@ -8,21 +8,6 @@ Utilities for parsing, analysing and manipulating SQL.
 npm install rhombic
 ```
 
-```ts
-import rhombic from "rhombic";
-
-try {
-  const query = rhombic
-    .parse("SELECT * FROM abc;")
-    .addProjectionItem("city")
-    .toString();
-
-  console.log(query); // SELECT city FROM abc;
-} catch (e) {
-  // Parsing errors
-}
-```
-
 ## Description
 
 Rhombic can parse SQL with 2 different parsers with different sets of operations applicable in each case:
@@ -32,7 +17,7 @@ Rhombic can parse SQL with 2 different parsers with different sets of operations
   serialized back to SQL text. For details and available operations see [src/index.ts](src/index.ts)
 - [Antlr](https://www.antlr.org) based parser (generated with [antlr4ts](https://github.com/tunnelvisionlabs/antlr4ts)) from SQL grammar derived from Apache Spark SQL grammar with the goal to support most SQL dialects with broad functionality. Currenly this mode can be used to extract SQL column level lineage. For details and available operations see [src/antlr/index.ts](src/antlr/index.ts)
 
-## Antlr parser lineage
+## Antlr parser - lineage
 
 To build SQL column level lineage for an SQL query using Antlr-based parser:
 
@@ -57,7 +42,25 @@ try {
     positionalRefsEnabled: false
   };
   const lineage = q.getLineage(getTable, mergedLeaves, lineageOptions);
-  // Use react-flow to draw a nice sql lineage
+  // Use something like react-flow to draw a nice sql lineage
+} catch (e) {
+  // Parsing errors
+}
+```
+
+## Chevrotain parser - SQL manipulation
+
+
+```ts
+import rhombic from "rhombic";
+
+try {
+  const query = rhombic
+    .parse("SELECT * FROM abc;")
+    .addProjectionItem("city")
+    .toString();
+
+  console.log(query); // SELECT city FROM abc;
 } catch (e) {
   // Parsing errors
 }
@@ -71,16 +74,7 @@ As soon as your branch will be merged to master, a new npm version will be autom
 
 ## History
 
-This project was built to support Contiamo® workbench editor (a fancy SQL editor) based on CalciteSQL.
-Our product evolved to switch to PostgreSQL instead of CalciteSQL, as result, Rhombic supports CalciteSQL and PostgreSQL!
-
-To achieve this, the grammar implemented in Rhombic will go in favor of the more generic version to support all features of both SQL implementations. This should be totally transparent, since the input of rhombic is a SQL query. Just be careful to not use some CalciteSQL/PostgreSQL specific feature when you mutate a SQL query.
-
-### Why this name?
-
-> Soft enough to be easily scratched by a nail, calcite crystals can also be identified by their rhombic cleavage.
-
-https://www.esci.umn.edu/courses/1001/minerals/calcite.shtml
+This project was built to support Contiamo® workbench editor (a fancy SQL editor).
 
 ## Resources
 
