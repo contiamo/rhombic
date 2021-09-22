@@ -1,334 +1,338 @@
 {
   "sql": "select s.* from account a, salary s",
-  "data": [
-    {
-      "type": "table",
-      "id": "result_2",
-      "label": "account -> a",
-      "range": {
-        "startLine": 1,
-        "endLine": 1,
-        "startColumn": 16,
-        "endColumn": 25
-      },
-      "data": {
-        "id": "account"
-      },
-      "isSourceOnly": true,
-      "columns": [
-        {
-          "id": "account_type",
-          "label": "account_type",
-          "data": {
+  "data": {
+    "nodes": [
+      {
+        "type": "table",
+        "id": "result_2",
+        "label": "account -> a",
+        "range": {
+          "startLine": 1,
+          "endLine": 1,
+          "startColumn": 16,
+          "endColumn": 25
+        },
+        "data": {
+          "id": "account"
+        },
+        "isSourceOnly": true,
+        "columns": [
+          {
             "id": "account_type",
-            "tableId": "account"
-          }
-        },
-        {
-          "id": "account_id",
-          "label": "account_id",
-          "data": {
+            "label": "account_type",
+            "data": {
+              "id": "account_type",
+              "tableId": "account"
+            }
+          },
+          {
             "id": "account_id",
-            "tableId": "account"
-          }
-        },
-        {
-          "id": "account_description",
-          "label": "account_description",
-          "data": {
+            "label": "account_id",
+            "data": {
+              "id": "account_id",
+              "tableId": "account"
+            }
+          },
+          {
             "id": "account_description",
-            "tableId": "account"
-          }
-        },
-        {
-          "id": "account_parent",
-          "label": "account_parent",
-          "data": {
+            "label": "account_description",
+            "data": {
+              "id": "account_description",
+              "tableId": "account"
+            }
+          },
+          {
             "id": "account_parent",
-            "tableId": "account"
-          }
-        },
-        {
-          "id": "account_rollup",
-          "label": "account_rollup",
-          "data": {
+            "label": "account_parent",
+            "data": {
+              "id": "account_parent",
+              "tableId": "account"
+            }
+          },
+          {
             "id": "account_rollup",
-            "tableId": "account"
+            "label": "account_rollup",
+            "data": {
+              "id": "account_rollup",
+              "tableId": "account"
+            }
           }
-        }
-      ],
-      "isTargetOnly": true
-    },
-    {
-      "type": "table",
-      "id": "result_3",
-      "label": "salary -> s",
-      "range": {
-        "startLine": 1,
-        "endLine": 1,
-        "startColumn": 27,
-        "endColumn": 35
+        ],
+        "isTargetOnly": true
       },
-      "data": {
-        "id": "salary"
-      },
-      "isSourceOnly": true,
-      "columns": [
-        {
-          "id": "currency_id",
-          "label": "currency_id",
-          "data": {
+      {
+        "type": "table",
+        "id": "result_3",
+        "label": "salary -> s",
+        "range": {
+          "startLine": 1,
+          "endLine": 1,
+          "startColumn": 27,
+          "endColumn": 35
+        },
+        "data": {
+          "id": "salary"
+        },
+        "isSourceOnly": true,
+        "columns": [
+          {
             "id": "currency_id",
-            "tableId": "salary"
-          }
-        },
-        {
-          "id": "department_id",
-          "label": "department_id",
-          "data": {
+            "label": "currency_id",
+            "data": {
+              "id": "currency_id",
+              "tableId": "salary"
+            }
+          },
+          {
             "id": "department_id",
-            "tableId": "salary"
-          }
-        },
-        {
-          "id": "employee_id",
-          "label": "employee_id",
-          "data": {
+            "label": "department_id",
+            "data": {
+              "id": "department_id",
+              "tableId": "salary"
+            }
+          },
+          {
             "id": "employee_id",
-            "tableId": "salary"
-          }
-        },
-        {
-          "id": "overtime_paid",
-          "label": "overtime_paid",
-          "data": {
+            "label": "employee_id",
+            "data": {
+              "id": "employee_id",
+              "tableId": "salary"
+            }
+          },
+          {
             "id": "overtime_paid",
-            "tableId": "salary"
-          }
-        },
-        {
-          "id": "pay_date",
-          "label": "pay_date",
-          "data": {
+            "label": "overtime_paid",
+            "data": {
+              "id": "overtime_paid",
+              "tableId": "salary"
+            }
+          },
+          {
             "id": "pay_date",
-            "tableId": "salary"
-          }
-        },
-        {
-          "id": "salary_paid",
-          "label": "salary_paid",
-          "data": {
+            "label": "pay_date",
+            "data": {
+              "id": "pay_date",
+              "tableId": "salary"
+            }
+          },
+          {
             "id": "salary_paid",
-            "tableId": "salary"
-          }
-        },
-        {
-          "id": "vacation_accrued",
-          "label": "vacation_accrued",
-          "data": {
+            "label": "salary_paid",
+            "data": {
+              "id": "salary_paid",
+              "tableId": "salary"
+            }
+          },
+          {
             "id": "vacation_accrued",
-            "tableId": "salary"
-          }
-        },
-        {
-          "id": "vacation_used",
-          "label": "vacation_used",
-          "data": {
+            "label": "vacation_accrued",
+            "data": {
+              "id": "vacation_accrued",
+              "tableId": "salary"
+            }
+          },
+          {
             "id": "vacation_used",
-            "tableId": "salary"
+            "label": "vacation_used",
+            "data": {
+              "id": "vacation_used",
+              "tableId": "salary"
+            }
           }
+        ]
+      },
+      {
+        "type": "table",
+        "id": "result_1",
+        "label": "[final result]",
+        "range": {
+          "startLine": 1,
+          "endLine": 1,
+          "startColumn": 0,
+          "endColumn": 35
+        },
+        "columns": [
+          {
+            "id": "column_1",
+            "label": "currency_id",
+            "range": {
+              "startLine": 1,
+              "endLine": 1,
+              "startColumn": 7,
+              "endColumn": 10
+            }
+          },
+          {
+            "id": "column_2",
+            "label": "department_id",
+            "range": {
+              "startLine": 1,
+              "endLine": 1,
+              "startColumn": 7,
+              "endColumn": 10
+            }
+          },
+          {
+            "id": "column_3",
+            "label": "employee_id",
+            "range": {
+              "startLine": 1,
+              "endLine": 1,
+              "startColumn": 7,
+              "endColumn": 10
+            }
+          },
+          {
+            "id": "column_4",
+            "label": "overtime_paid",
+            "range": {
+              "startLine": 1,
+              "endLine": 1,
+              "startColumn": 7,
+              "endColumn": 10
+            }
+          },
+          {
+            "id": "column_5",
+            "label": "pay_date",
+            "range": {
+              "startLine": 1,
+              "endLine": 1,
+              "startColumn": 7,
+              "endColumn": 10
+            }
+          },
+          {
+            "id": "column_6",
+            "label": "salary_paid",
+            "range": {
+              "startLine": 1,
+              "endLine": 1,
+              "startColumn": 7,
+              "endColumn": 10
+            }
+          },
+          {
+            "id": "column_7",
+            "label": "vacation_accrued",
+            "range": {
+              "startLine": 1,
+              "endLine": 1,
+              "startColumn": 7,
+              "endColumn": 10
+            }
+          },
+          {
+            "id": "column_8",
+            "label": "vacation_used",
+            "range": {
+              "startLine": 1,
+              "endLine": 1,
+              "startColumn": 7,
+              "endColumn": 10
+            }
+          }
+        ],
+        "isTargetOnly": true
+      }
+    ],
+    "edges": [
+      {
+        "type": "edge",
+        "edgeType": "select",
+        "source": {
+          "tableId": "result_3",
+          "columnId": "currency_id"
+        },
+        "target": {
+          "tableId": "result_1",
+          "columnId": "column_1"
         }
-      ]
-    },
-    {
-      "type": "table",
-      "id": "result_1",
-      "label": "[final result]",
-      "range": {
-        "startLine": 1,
-        "endLine": 1,
-        "startColumn": 0,
-        "endColumn": 35
       },
-      "columns": [
-        {
-          "id": "column_1",
-          "label": "currency_id",
-          "range": {
-            "startLine": 1,
-            "endLine": 1,
-            "startColumn": 7,
-            "endColumn": 10
-          }
+      {
+        "type": "edge",
+        "edgeType": "select",
+        "source": {
+          "tableId": "result_3",
+          "columnId": "department_id"
         },
-        {
-          "id": "column_2",
-          "label": "department_id",
-          "range": {
-            "startLine": 1,
-            "endLine": 1,
-            "startColumn": 7,
-            "endColumn": 10
-          }
-        },
-        {
-          "id": "column_3",
-          "label": "employee_id",
-          "range": {
-            "startLine": 1,
-            "endLine": 1,
-            "startColumn": 7,
-            "endColumn": 10
-          }
-        },
-        {
-          "id": "column_4",
-          "label": "overtime_paid",
-          "range": {
-            "startLine": 1,
-            "endLine": 1,
-            "startColumn": 7,
-            "endColumn": 10
-          }
-        },
-        {
-          "id": "column_5",
-          "label": "pay_date",
-          "range": {
-            "startLine": 1,
-            "endLine": 1,
-            "startColumn": 7,
-            "endColumn": 10
-          }
-        },
-        {
-          "id": "column_6",
-          "label": "salary_paid",
-          "range": {
-            "startLine": 1,
-            "endLine": 1,
-            "startColumn": 7,
-            "endColumn": 10
-          }
-        },
-        {
-          "id": "column_7",
-          "label": "vacation_accrued",
-          "range": {
-            "startLine": 1,
-            "endLine": 1,
-            "startColumn": 7,
-            "endColumn": 10
-          }
-        },
-        {
-          "id": "column_8",
-          "label": "vacation_used",
-          "range": {
-            "startLine": 1,
-            "endLine": 1,
-            "startColumn": 7,
-            "endColumn": 10
-          }
+        "target": {
+          "tableId": "result_1",
+          "columnId": "column_2"
         }
-      ],
-      "isTargetOnly": true
-    },
-    {
-      "type": "edge",
-      "edgeType": "select",
-      "source": {
-        "tableId": "result_3",
-        "columnId": "currency_id"
       },
-      "target": {
-        "tableId": "result_1",
-        "columnId": "column_1"
-      }
-    },
-    {
-      "type": "edge",
-      "edgeType": "select",
-      "source": {
-        "tableId": "result_3",
-        "columnId": "department_id"
+      {
+        "type": "edge",
+        "edgeType": "select",
+        "source": {
+          "tableId": "result_3",
+          "columnId": "employee_id"
+        },
+        "target": {
+          "tableId": "result_1",
+          "columnId": "column_3"
+        }
       },
-      "target": {
-        "tableId": "result_1",
-        "columnId": "column_2"
-      }
-    },
-    {
-      "type": "edge",
-      "edgeType": "select",
-      "source": {
-        "tableId": "result_3",
-        "columnId": "employee_id"
+      {
+        "type": "edge",
+        "edgeType": "select",
+        "source": {
+          "tableId": "result_3",
+          "columnId": "overtime_paid"
+        },
+        "target": {
+          "tableId": "result_1",
+          "columnId": "column_4"
+        }
       },
-      "target": {
-        "tableId": "result_1",
-        "columnId": "column_3"
-      }
-    },
-    {
-      "type": "edge",
-      "edgeType": "select",
-      "source": {
-        "tableId": "result_3",
-        "columnId": "overtime_paid"
+      {
+        "type": "edge",
+        "edgeType": "select",
+        "source": {
+          "tableId": "result_3",
+          "columnId": "pay_date"
+        },
+        "target": {
+          "tableId": "result_1",
+          "columnId": "column_5"
+        }
       },
-      "target": {
-        "tableId": "result_1",
-        "columnId": "column_4"
-      }
-    },
-    {
-      "type": "edge",
-      "edgeType": "select",
-      "source": {
-        "tableId": "result_3",
-        "columnId": "pay_date"
+      {
+        "type": "edge",
+        "edgeType": "select",
+        "source": {
+          "tableId": "result_3",
+          "columnId": "salary_paid"
+        },
+        "target": {
+          "tableId": "result_1",
+          "columnId": "column_6"
+        }
       },
-      "target": {
-        "tableId": "result_1",
-        "columnId": "column_5"
-      }
-    },
-    {
-      "type": "edge",
-      "edgeType": "select",
-      "source": {
-        "tableId": "result_3",
-        "columnId": "salary_paid"
+      {
+        "type": "edge",
+        "edgeType": "select",
+        "source": {
+          "tableId": "result_3",
+          "columnId": "vacation_accrued"
+        },
+        "target": {
+          "tableId": "result_1",
+          "columnId": "column_7"
+        }
       },
-      "target": {
-        "tableId": "result_1",
-        "columnId": "column_6"
+      {
+        "type": "edge",
+        "edgeType": "select",
+        "source": {
+          "tableId": "result_3",
+          "columnId": "vacation_used"
+        },
+        "target": {
+          "tableId": "result_1",
+          "columnId": "column_8"
+        }
       }
-    },
-    {
-      "type": "edge",
-      "edgeType": "select",
-      "source": {
-        "tableId": "result_3",
-        "columnId": "vacation_accrued"
-      },
-      "target": {
-        "tableId": "result_1",
-        "columnId": "column_7"
-      }
-    },
-    {
-      "type": "edge",
-      "edgeType": "select",
-      "source": {
-        "tableId": "result_3",
-        "columnId": "vacation_used"
-      },
-      "target": {
-        "tableId": "result_1",
-        "columnId": "column_8"
-      }
-    }
-  ]
+    ]
+  }
 }

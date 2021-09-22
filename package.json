@@ -16,7 +16,8 @@
     "prepare": "npm run build",
     "antlr4ts": "antlr4ts -visitor src/antlr/SqlBase.g4",
     "postantlr4ts": "eslint src/antlr/**/*.ts --fix && prettier src/antlr/**/*.ts --write",
-    "format": "eslint src/**/*.ts --fix && prettier **/*.{ts,json} --write"
+    "format": "eslint src/**/*.ts --fix && prettier **/*.{ts,json} --write",
+    "snapshots:refresh": "ts-node src/antlr/lineage.tests/refreshSnapshots.ts"
   },
   "keywords": [
     "sql",
