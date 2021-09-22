@@ -2,6 +2,9 @@ import antlr from ".";
 import { getLineageTests, getTable } from "./lineage.tests/getLineageTests";
 import * as fs from "fs";
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+const removeNonSerializable = (val: unknown) => JSON.parse(JSON.stringify(val));
+
 describe("antlr", () => {
   it("should build parse tree", () => {
     const sql = "select * from emp";
@@ -25,7 +28,7 @@ describe("antlr", () => {
         }
       }
 
-      expect(lineage).toEqual(data);
+      expect(removeNonSerializable(lineage)).toEqual(data);
     });
   });
 });
