@@ -61,7 +61,10 @@ export interface ColumnReference<ColumnData> {
   column: Column<ColumnData>;
 }
 
-type ConnectedElement<TableData, ColumnData> = Table<TableData, ColumnData> | ColumnReference<ColumnData> | Edge;
+export type LineageGraphElement<TableData, ColumnData> =
+  | Table<TableData, ColumnData>
+  | ColumnReference<ColumnData>
+  | Edge;
 
 export interface ConnectedElements<TableData, ColumnData> {
   tables: Table<TableData, ColumnData>[];
@@ -131,7 +134,7 @@ export const LineageHelper = <TableData, ColumnData>(lineage: Lineage<TableData,
   const findEdgesFromSource = edgesBySourceFinder(lineage.edges);
   const findEdgesToTarget = edgesByTargetFinder(lineage.edges);
 
-  const findElement = (elementId: ElementId) => {
+  const findElement = (elementId: ElementId): LineageGraphElement<TableData, ColumnData> | undefined => {
     switch (elementId.type) {
       case "table":
         return findTable(elementId);
@@ -170,7 +173,7 @@ export const LineageHelper = <TableData, ColumnData>(lineage: Lineage<TableData,
   const walker = (
     elementId: ElementId,
     direction: Direction,
-    eachElement: (element: ConnectedElement<TableData, ColumnData>) => void
+    eachElement: (element: LineageGraphElement<TableData, ColumnData>) => void
   ) => {
     (direction === "up" ? walkUp : walkDown)(elementId).forEach(element => {
       eachElement(element);
@@ -185,7 +188,7 @@ export const LineageHelper = <TableData, ColumnData>(lineage: Lineage<TableData,
 
     // Collect connected elements
     const elements: ConnectedElements<TableData, ColumnData> = { tables: [], columns: [], edges: [] };
-    const collect = (element: ConnectedElement<TableData, ColumnData>) => {
+    const collect = (element: LineageGraphElement<TableData, ColumnData>) => {
       switch (element.type) {
         case "table":
           elements.tables.push(element);
