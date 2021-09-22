@@ -4,154 +4,158 @@
     "select a1.account_type, a.account_id from a, account a1"
   ],
   "mergedLeaves": true,
-  "data": [
-    {
-      "type": "table",
-      "id": "result_3",
-      "label": "account",
-      "range": {
-        "startLine": 1,
-        "endLine": 1,
-        "startColumn": 48,
-        "endColumn": 61
-      },
-      "data": {
-        "id": "account"
-      },
-      "isSourceOnly": true,
-      "columns": [
-        {
-          "id": "account_type",
-          "label": "account_type",
-          "data": {
+  "data": {
+    "nodes": [
+      {
+        "type": "table",
+        "id": "result_3",
+        "label": "account",
+        "range": {
+          "startLine": 1,
+          "endLine": 1,
+          "startColumn": 48,
+          "endColumn": 61
+        },
+        "data": {
+          "id": "account"
+        },
+        "isSourceOnly": true,
+        "columns": [
+          {
             "id": "account_type",
-            "tableId": "account"
-          }
-        },
-        {
-          "id": "account_id",
-          "label": "account_id",
-          "data": {
+            "label": "account_type",
+            "data": {
+              "id": "account_type",
+              "tableId": "account"
+            }
+          },
+          {
             "id": "account_id",
-            "tableId": "account"
+            "label": "account_id",
+            "data": {
+              "id": "account_id",
+              "tableId": "account"
+            }
           }
-        }
-      ]
-    },
-    {
-      "type": "table",
-      "id": "result_2",
-      "label": "a",
-      "range": {
-        "startLine": 1,
-        "endLine": 1,
-        "startColumn": 11,
-        "endColumn": 61
+        ]
       },
-      "columns": [
-        {
-          "id": "column_1",
-          "label": "account_id",
-          "range": {
-            "startLine": 1,
-            "endLine": 1,
-            "startColumn": 18,
-            "endColumn": 28
-          }
+      {
+        "type": "table",
+        "id": "result_2",
+        "label": "a",
+        "range": {
+          "startLine": 1,
+          "endLine": 1,
+          "startColumn": 11,
+          "endColumn": 61
         },
-        {
-          "id": "column_2",
-          "label": "account_type",
-          "range": {
-            "startLine": 1,
-            "endLine": 1,
-            "startColumn": 30,
-            "endColumn": 42
+        "columns": [
+          {
+            "id": "column_1",
+            "label": "account_id",
+            "range": {
+              "startLine": 1,
+              "endLine": 1,
+              "startColumn": 18,
+              "endColumn": 28
+            }
+          },
+          {
+            "id": "column_2",
+            "label": "account_type",
+            "range": {
+              "startLine": 1,
+              "endLine": 1,
+              "startColumn": 30,
+              "endColumn": 42
+            }
           }
-        }
-      ]
-    },
-    {
-      "type": "table",
-      "id": "result_1",
-      "label": "[final result]",
-      "range": {
-        "startLine": 1,
-        "endLine": 2,
-        "startColumn": 0,
-        "endColumn": 55
+        ]
       },
-      "columns": [
-        {
-          "id": "column_1",
-          "label": "account_type",
-          "range": {
-            "startLine": 2,
-            "endLine": 2,
-            "startColumn": 7,
-            "endColumn": 22
-          }
+      {
+        "type": "table",
+        "id": "result_1",
+        "label": "[final result]",
+        "range": {
+          "startLine": 1,
+          "endLine": 2,
+          "startColumn": 0,
+          "endColumn": 55
         },
-        {
-          "id": "column_2",
-          "label": "account_id",
-          "range": {
-            "startLine": 2,
-            "endLine": 2,
-            "startColumn": 24,
-            "endColumn": 36
+        "columns": [
+          {
+            "id": "column_1",
+            "label": "account_type",
+            "range": {
+              "startLine": 2,
+              "endLine": 2,
+              "startColumn": 7,
+              "endColumn": 22
+            }
+          },
+          {
+            "id": "column_2",
+            "label": "account_id",
+            "range": {
+              "startLine": 2,
+              "endLine": 2,
+              "startColumn": 24,
+              "endColumn": 36
+            }
           }
+        ],
+        "isTargetOnly": true
+      }
+    ],
+    "edges": [
+      {
+        "type": "edge",
+        "edgeType": "select",
+        "source": {
+          "tableId": "result_3",
+          "columnId": "account_id"
+        },
+        "target": {
+          "tableId": "result_2",
+          "columnId": "column_1"
         }
-      ],
-      "isTargetOnly": true
-    },
-    {
-      "type": "edge",
-      "edgeType": "select",
-      "source": {
-        "tableId": "result_3",
-        "columnId": "account_id"
       },
-      "target": {
-        "tableId": "result_2",
-        "columnId": "column_1"
-      }
-    },
-    {
-      "type": "edge",
-      "edgeType": "select",
-      "source": {
-        "tableId": "result_3",
-        "columnId": "account_type"
+      {
+        "type": "edge",
+        "edgeType": "select",
+        "source": {
+          "tableId": "result_3",
+          "columnId": "account_type"
+        },
+        "target": {
+          "tableId": "result_2",
+          "columnId": "column_2"
+        }
       },
-      "target": {
-        "tableId": "result_2",
-        "columnId": "column_2"
-      }
-    },
-    {
-      "type": "edge",
-      "edgeType": "select",
-      "source": {
-        "tableId": "result_3",
-        "columnId": "account_type"
+      {
+        "type": "edge",
+        "edgeType": "select",
+        "source": {
+          "tableId": "result_3",
+          "columnId": "account_type"
+        },
+        "target": {
+          "tableId": "result_1",
+          "columnId": "column_1"
+        }
       },
-      "target": {
-        "tableId": "result_1",
-        "columnId": "column_1"
+      {
+        "type": "edge",
+        "edgeType": "select",
+        "source": {
+          "tableId": "result_2",
+          "columnId": "column_1"
+        },
+        "target": {
+          "tableId": "result_1",
+          "columnId": "column_2"
+        }
       }
-    },
-    {
-      "type": "edge",
-      "edgeType": "select",
-      "source": {
-        "tableId": "result_2",
-        "columnId": "column_1"
-      },
-      "target": {
-        "tableId": "result_1",
-        "columnId": "column_2"
-      }
-    }
-  ]
+    ]
+  }
 }

@@ -1,16 +1,27 @@
-import { Edge, EdgeType, isTable, isEdge, Lineage, Table, Column, LineageElement } from "./Lineage";
+import { Edge, EdgeType, Lineage, Table, Column } from "./Lineage";
 
+/**
+ * Reduced interface of "Table" only including the properties required to uniquely identify a table in the lineage graph
+ */
 interface TableId {
   type: "table";
-  tableId: string;
+  id: string;
 }
 
+/**
+ * Reduced interface of "ColumnReference" only including the properties required to uniquely identify a column in the lineage graph
+ */
 interface ColumnId {
   type: "column";
   tableId: string;
-  columnId: string;
+  column: {
+    id: string;
+  };
 }
 
+/**
+ * Reduced interface of "Edge" only including the properties required to uniquely identify an edge in the lineage graph
+ */
 interface EdgeId {
   type: "edge";
   /**
@@ -36,28 +47,30 @@ interface EdgeId {
 }
 
 /**
- * The element - table, column, edge - that is in focus
+ * A specific element in the lineage graph
  */
 export type ElementId = TableId | ColumnId | EdgeId;
 
-export type MatchedElement<TableData, ColumnData> = LineageElement<TableData, ColumnData> | ColumnReference<ColumnData>;
-
+/**
+ * Reference to a column
+ * Includes the id of the table it is part of
+ */
 export interface ColumnReference<ColumnData> {
   type: "column";
   tableId: string;
   column: Column<ColumnData>;
 }
 
-export const toElementId = <TableData, ColumnData>(element: MatchedElement<TableData, ColumnData>): ElementId => {
-  switch (element.type) {
-    case "table":
-      return { type: "table", tableId: element.id };
-    case "column":
-      return { type: "column", tableId: element.tableId, columnId: element.column.id };
-    case "edge":
-      return element;
-  }
-};
+export type LineageGraphElement<TableData, ColumnData> =
+  | Table<TableData, ColumnData>
+  | ColumnReference<ColumnData>
+  | Edge;
+
+export interface ConnectedElements<TableData, ColumnData> {
+  tables: Table<TableData, ColumnData>[];
+  columns: ColumnReference<ColumnData>[];
+  edges: Edge[];
+}
 
 /**
  * "up" => upstream dependencies
@@ -77,14 +90,14 @@ const edgeFinder = (edges: Edge[]) => (edgeId: EdgeId): Edge | undefined =>
 
 const tableFinder = <TableData, ColumnData>(tables: Table<TableData, ColumnData>[]) => (
   tableId: TableId
-): Table<TableData, ColumnData> | undefined => tables.find(element => element.id === tableId.tableId);
+): Table<TableData, ColumnData> | undefined => tables.find(element => element.id === tableId.id);
 
 const columnFinder = <TableData, ColumnData>(tables: Table<TableData, ColumnData>[]) => (
   columnId: ColumnId
 ): ColumnReference<ColumnData> | undefined => {
-  const table = tableFinder(tables)({ type: "table", tableId: columnId.tableId });
+  const table = tableFinder(tables)({ type: "table", id: columnId.tableId });
   if (!table) return;
-  const column = table.columns.find(column => column.id === columnId.columnId);
+  const column = table.columns.find(column => column.id === columnId.column.id);
   if (!column) return;
   return {
     type: "column",
@@ -95,37 +108,42 @@ const columnFinder = <TableData, ColumnData>(tables: Table<TableData, ColumnData
 
 const edgesBySourceFinder = (edges: Edge[]) => (elementId: TableId | ColumnId) =>
   edges.filter(
-    element =>
-      element.source.tableId === elementId.tableId &&
-      ((elementId.type === "column" && element.source.columnId === elementId.columnId) ||
-        (elementId.type === "table" && element.source.columnId === undefined))
+    edge =>
+      (elementId.type === "table" && edge.source.tableId === elementId.id && edge.source.columnId === undefined) ||
+      (elementId.type === "column" &&
+        edge.source.tableId === elementId.tableId &&
+        edge.source.columnId === elementId.column.id)
   );
 
 const edgesByTargetFinder = (edges: Edge[]) => (elementId: TableId | ColumnId) =>
   edges.filter(
-    element =>
-      element.target.tableId === elementId.tableId &&
-      ((elementId.type === "column" && element.target.columnId === elementId.columnId) ||
-        (elementId.type === "table" && element.target.columnId === undefined))
+    edge =>
+      (elementId.type === "table" && edge.target.tableId === elementId.id && edge.target.columnId === undefined) ||
+      (elementId.type === "column" &&
+        edge.target.tableId === elementId.tableId &&
+        edge.target.columnId === elementId.column.id)
   );
 
 /**
  * Lineage Helper provides useful functions to work with an extracted lineage graph
  */
 export const LineageHelper = <TableData, ColumnData>(lineage: Lineage<TableData, ColumnData>) => {
-  const tables = lineage.filter(isTable);
-  const edges = lineage.filter(isEdge);
-  const findEdge = edgeFinder(edges);
-  const findTable = tableFinder(tables);
-  const findColumn = columnFinder(tables);
-  const findElement = (elementId: ElementId) =>
-    elementId.type === "table"
-      ? findTable(elementId)
-      : elementId.type === "column"
-      ? findColumn(elementId)
-      : findEdge(elementId);
-  const findEdgesFromSource = edgesBySourceFinder(edges);
-  const findEdgesToTarget = edgesByTargetFinder(edges);
+  const findEdge = edgeFinder(lineage.edges);
+  const findTable = tableFinder(lineage.nodes);
+  const findColumn = columnFinder(lineage.nodes);
+  const findEdgesFromSource = edgesBySourceFinder(lineage.edges);
+  const findEdgesToTarget = edgesByTargetFinder(lineage.edges);
+
+  const findElement = (elementId: ElementId): LineageGraphElement<TableData, ColumnData> | undefined => {
+    switch (elementId.type) {
+      case "table":
+        return findTable(elementId);
+      case "column":
+        return findColumn(elementId);
+      case "edge":
+        return findEdge(elementId);
+    }
+  };
 
   const walkUp = (elementId: ElementId) => {
     if (elementId.type === "table" || elementId.type === "column") {
@@ -134,8 +152,8 @@ export const LineageHelper = <TableData, ColumnData>(lineage: Lineage<TableData,
     // it's and edge
     const tableOrColumn =
       elementId.source.columnId !== undefined
-        ? findElement({ type: "column", tableId: elementId.source.tableId, columnId: elementId.source.columnId })
-        : findElement({ type: "table", tableId: elementId.source.tableId });
+        ? findElement({ type: "column", tableId: elementId.source.tableId, column: { id: elementId.source.columnId } })
+        : findElement({ type: "table", id: elementId.source.tableId });
     return tableOrColumn === undefined ? [] : [tableOrColumn];
   };
 
@@ -146,8 +164,8 @@ export const LineageHelper = <TableData, ColumnData>(lineage: Lineage<TableData,
     // it's and edge
     const tableOrColumn =
       elementId.target.columnId !== undefined
-        ? findElement({ type: "column", tableId: elementId.target.tableId, columnId: elementId.target.columnId })
-        : findElement({ type: "table", tableId: elementId.target.tableId });
+        ? findElement({ type: "column", tableId: elementId.target.tableId, column: { id: elementId.target.columnId } })
+        : findElement({ type: "table", id: elementId.target.tableId });
     return tableOrColumn === undefined ? [] : [tableOrColumn];
   };
 
@@ -155,23 +173,41 @@ export const LineageHelper = <TableData, ColumnData>(lineage: Lineage<TableData,
   const walker = (
     elementId: ElementId,
     direction: Direction,
-    eachElement: (element: MatchedElement<TableData, ColumnData>) => void
+    eachElement: (element: LineageGraphElement<TableData, ColumnData>) => void
   ) => {
     (direction === "up" ? walkUp : walkDown)(elementId).forEach(element => {
       eachElement(element);
-      walker(toElementId(element), direction, eachElement);
+      walker(element, direction, eachElement);
     });
   };
 
   const findConnectedElements = (elementId: ElementId) => {
-    // Check that the given element exists and include it in the connected elements
-    const element = findElement(elementId);
-    if (!element) throw Error(`Element not found in lineage - ${JSON.stringify(elementId)}`);
-    const elements: MatchedElement<TableData, ColumnData>[] = [element];
-    const collect = (element: MatchedElement<TableData, ColumnData>) => elements.push(element);
+    // Check that the given element exists
+    const referenceElement = findElement(elementId);
+    if (!referenceElement) throw Error(`Element not found in lineage - ${JSON.stringify(elementId)}`);
+
+    // Collect connected elements
+    const elements: ConnectedElements<TableData, ColumnData> = { tables: [], columns: [], edges: [] };
+    const collect = (element: LineageGraphElement<TableData, ColumnData>) => {
+      switch (element.type) {
+        case "table":
+          elements.tables.push(element);
+          break;
+        case "column":
+          elements.columns.push(element);
+          break;
+        case "edge":
+          elements.edges.push(element);
+          break;
+      }
+    };
+    // Include the given element in the connected elements
+    collect(referenceElement);
+
+    // Walk the graph
     walker(elementId, "up", collect);
     walker(elementId, "down", collect);
-    return elements;
+    return ConnectedElementsHelper(elements);
   };
 
   return {
@@ -191,5 +227,28 @@ export const LineageHelper = <TableData, ColumnData>(lineage: Lineage<TableData,
      * Finds all elements connected via the graph to a focused element
      */
     findConnectedElements
+  };
+};
+
+export const ConnectedElementsHelper = <TableData, ColumnData>(elements: ConnectedElements<TableData, ColumnData>) => {
+  return {
+    elements,
+    findElement: (elementId: ElementId) => {
+      switch (elementId.type) {
+        case "table":
+          return elements.tables.find(t => t.id === elementId.id);
+        case "column":
+          return elements.columns.find(c => c.tableId === elementId.tableId && c.column.id === elementId.column.id);
+        case "edge":
+          return elements.edges.find(
+            e =>
+              e.edgeType === elementId.edgeType &&
+              e.source.tableId === elementId.source.tableId &&
+              e.source.columnId === elementId.source.columnId &&
+              e.target.tableId === elementId.target.tableId &&
+              e.target.columnId === elementId.target.columnId
+          );
+      }
+    }
   };
 };
