@@ -1,6 +1,6 @@
 {
   "name": "rhombic",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "description": "SQL parsing, lineage extraction and manipulation",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
